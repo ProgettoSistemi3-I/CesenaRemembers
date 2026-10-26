@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -115,108 +115,111 @@
     <header>
       <div class="badge">Legal</div>
       <h1>Privacy Policy</h1>
-      <p class="meta">Cesena Remembers &nbsp;·&nbsp; Last updated: April 9, 2026</p>
+      <p class="meta">Cesena Remembers &nbsp;·&nbsp; Last updated: October 26, 2026</p>
     </header>
 
     <nav class="toc">
       <p>Contents</p>
       <ol>
-        <li><a href="#intro">Introduction</a></li>
-        <li><a href="#data-collected">Information we collect</a></li>
-        <li><a href="#how-we-use">How we use your information</a></li>
-        <li><a href="#cookies">Cookies</a></li>
-        <li><a href="#third-party">Third-party sharing</a></li>
-        <li><a href="#retention">Data retention</a></li>
-        <li><a href="#gdpr">Your rights (GDPR)</a></li>
-        <li><a href="#children">Children's privacy</a></li>
+        <li><a href="#intro">Introduction and controller</a></li>
+        <li><a href="#data-collected">Data processed</a></li>
+        <li><a href="#how-we-use">Purposes and legal bases</a></li>
+        <li><a href="#location">Location and maps</a></li>
+        <li><a href="#third-party">Service providers and sharing</a></li>
+        <li><a href="#cookies">Website cookies and local storage</a></li>
+        <li><a href="#retention">Retention and deletion</a></li>
+        <li><a href="#gdpr">Your privacy rights</a></li>
+        <li><a href="#children">Children and younger users</a></li>
         <li><a href="#security">Security</a></li>
         <li><a href="#changes">Changes to this policy</a></li>
-        <li><a href="#contact">Contact us</a></li>
+        <li><a href="#contact">Contact</a></li>
       </ol>
     </nav>
 
     <section id="intro">
-      <h2>1. Introduction</h2>
-      <p>Cesena Remembers ("we", "us", or "our") operates <a href="https://cesenaremembers.pages.dev">cesenaremembers.pages.dev</a>. This Privacy Policy explains how we collect, use, and protect your information when you use our service. By using Cesena Remembers, you agree to the terms of this Privacy Policy.</p>
+      <h2>1. Introduction and controller</h2>
+      <p>Cesena Remembers is a digital guide to historical places in Cesena, with guided tours, quizzes, progress tracking and social features. This notice describes the information processed by the mobile app and the project website at <a href="https://cesenaremembers.pages.dev">cesenaremembers.pages.dev</a>.</p>
+      <p>The project can be contacted at <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>. The person or organisation legally responsible for the service should be identified by the project operator before public distribution.</p>
     </section>
 
     <section id="data-collected">
-      <h2>2. Information we collect</h2>
-      <p>We collect the following types of information from users:</p>
+      <h2>2. Data processed</h2>
       <ul>
-        <li>Email addresses</li>
-        <li>Names</li>
-        <li>Location data</li>
-        <li>Cookies and analytics data</li>
-        <li>Usage and behavioral data</li>
+        <li><strong>Account and profile:</strong> email address, display name, username, avatar selection and account identifiers, handled through Firebase Authentication and Google Sign-In.</li>
+        <li><strong>Social features:</strong> friend lists, sent and received friend requests, and related status information.</li>
+        <li><strong>Game and tour progress:</strong> visited places, quiz scores, XP, completion statistics, achievements and tour-time statistics.</li>
+        <li><strong>Preferences:</strong> selected app language and other settings. The app also stores some preferences on the device.</li>
+        <li><strong>Notifications:</strong> Firebase Cloud Messaging device tokens used to send requested social notifications.</li>
+        <li><strong>Location:</strong> the device's current location while the guided-tour feature is active, to calculate distance to a point of interest and detect arrival.</li>
+        <li><strong>Quiz generation requests:</strong> the point-of-interest identifier, name and description, the current XP value and the selected language are sent to the quiz service to generate questions. The app code does not include the user's Firebase account ID in this request.</li>
+        <li><strong>Technical data:</strong> network service providers may process IP addresses, request times, device/network information and diagnostic logs as part of providing and securing their services.</li>
       </ul>
-      <p>We also collect anonymized analytics data through Google Analytics to understand how users interact with our service.</p>
     </section>
 
     <section id="how-we-use">
-      <h2>3. How we use your information</h2>
-      <p>We use the information we collect to:</p>
-      <ul>
-        <li>Provide, maintain, and improve Cesena Remembers</li>
-        <li>Respond to your requests and provide customer support</li>
-        <li>Send you important updates and service notifications</li>
-        <li>Manage your user account and preferences</li>
-        <li>Comply with legal obligations</li>
-      </ul>
+      <h2>3. Purposes and legal bases</h2>
+      <p>Data is used to sign users in, maintain profiles, display tours and maps, generate quizzes, calculate progress, provide friend features, send notifications, troubleshoot errors and protect the service from misuse.</p>
+      <p>Depending on the feature and applicable law, processing is based on providing the requested service, a user's permission for optional device features such as location or notifications, the operator's legitimate interests in security and reliability, or compliance with legal obligations. Device permissions can be changed in the operating system settings.</p>
     </section>
 
-    <section id="cookies">
-      <h2>4. Cookies</h2>
-      <p>We use cookies and similar tracking technologies to enhance your experience on Cesena Remembers. Cookies are small data files stored on your device. We use:</p>
-      <ul>
-        <li><strong>Strictly necessary cookies:</strong> required for the service to function</li>
-        <li><strong>Analytics cookies:</strong> help us understand how visitors use our site</li>
-        <li><strong>Preference cookies:</strong> remember your settings and preferences</li>
-      </ul>
-      <p>You can control cookies through your browser settings. Disabling certain cookies may affect the functionality of our service.</p>
+    <section id="location">
+      <h2>4. Location and maps</h2>
+      <p>The app uses location while a guided tour is active so it can calculate distance to the next historical place and detect arrival on the device. Location permission is required for this feature; the tour can be stopped at any time.</p>
+      <p>When the app requests a walking route, the origin and destination coordinates are sent to the Mapbox Directions API. Map tiles may be requested from Carto, Stadia Maps or Esri ArcGIS depending on the selected map style. These providers receive the information necessary to serve map tiles or route directions, as well as ordinary network request metadata.</p>
     </section>
 
     <section id="third-party">
-      <h2>5. Third-party sharing</h2>
-      <p>We do not sell, trade, or share your personal information with third parties except as required to operate our service or as required by law.</p>
+      <h2>5. Service providers and sharing</h2>
+      <p>Cesena Remembers does not sell personal data. Data may be processed by the following providers when the related feature is used:</p>
+      <ul>
+        <li><strong>Google Firebase Authentication:</strong> account authentication and identity management.</li>
+        <li><strong>Google Sign-In:</strong> sign-in using a Google account.</li>
+        <li><strong>Cloud Firestore:</strong> profiles, social relationships, progress, scores, achievements and notification tokens.</li>
+        <li><strong>Firebase Cloud Messaging:</strong> delivery of push notifications.</li>
+        <li><strong>Mapbox:</strong> walking-route requests when that feature is available and configured.</li>
+        <li><strong>Carto, Stadia Maps and Esri ArcGIS:</strong> map tile delivery according to the selected map style.</li>
+        <li><strong>Quiz-generation service:</strong> the quiz request fields described above are sent to the configured Cesena Remembers quiz backend.</li>
+        <li><strong>Website hosting and Google Fonts:</strong> the website is hosted by its website provider and loads font resources from Google Fonts.</li>
+      </ul>
+      <p>Providers process data under their own service terms and privacy documentation. Data may be processed in countries outside the European Economic Area; where required, the operator must ensure an appropriate transfer mechanism. Information may also be disclosed where required by law or necessary to protect the service and its users.</p>
+    </section>
+
+    <section id="cookies">
+      <h2>6. Website cookies and local storage</h2>
+      <p>The app stores some settings, including the selected language, on the device. Pending quiz completions may also be stored locally when Firestore is unavailable; they are retained so they can be synchronised when connectivity returns.</p>
+      <p>The website source included with the project does not integrate Google Analytics. The website loads Google Fonts, which causes the browser to contact Google to retrieve font resources. The hosting provider may process technical logs as part of delivering the website. Browser cookie controls can be used to manage cookies set by the website or its providers.</p>
     </section>
 
     <section id="retention">
-      <h2>6. Data retention</h2>
-      <p>We retain your personal information for as long as necessary to provide our services and comply with legal obligations. You may request deletion of your data at any time by contacting us at <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>.</p>
+      <h2>7. Retention and deletion</h2>
+      <p>Account and progress data is retained while needed to provide the service and manage the account, subject to applicable legal requirements. Local pending quiz results remain on the device until synchronised or until the app's local data is cleared. Service providers may retain technical logs according to their own policies.</p>
+      <p>To request access, correction or deletion of account data, contact <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>. Requests may require verification that the requester controls the account.</p>
     </section>
 
     <section id="gdpr">
-      <h2>7. Your rights (GDPR)</h2>
-      <p>If you are located in the European Union or United Kingdom, you have the following rights under GDPR:</p>
-      <ul>
-        <li><strong>Right to access:</strong> request a copy of your personal data</li>
-        <li><strong>Right to rectification:</strong> correct inaccurate personal data</li>
-        <li><strong>Right to erasure:</strong> request deletion of your personal data</li>
-        <li><strong>Right to data portability:</strong> receive your data in a portable format</li>
-        <li><strong>Right to object:</strong> object to processing of your personal data</li>
-      </ul>
-      <p>To exercise these rights, contact us at <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>.</p>
+      <h2>8. Your privacy rights</h2>
+      <p>Where the GDPR applies, you may have the right to request access, correction, erasure, restriction of processing and data portability, or to object to certain processing. Where processing is based on consent, you may withdraw consent without affecting processing carried out before withdrawal. You may also lodge a complaint with your competent data-protection supervisory authority.</p>
+      <p>Contact <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a> to exercise a right or ask a question about this notice.</p>
     </section>
 
     <section id="children">
-      <h2>8. Children's privacy</h2>
-      <p>Our service is designed for users of all ages. We collect only the minimum information necessary from younger users and do not knowingly collect sensitive personal information from children under 13 without verifiable parental consent.</p>
+      <h2>9. Children and younger users</h2>
+      <p>Cesena Remembers may be used in educational contexts. Users who are minors should use the service with the guidance of a parent, guardian or educator where appropriate. The project operator should ensure that its account, consent and data-retention practices meet the rules applicable to its audience and jurisdiction.</p>
     </section>
 
     <section id="security">
-      <h2>9. Security</h2>
-      <p>We implement industry-standard security measures to protect your information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet is 100% secure.</p>
+      <h2>10. Security</h2>
+      <p>The project uses third-party services and access controls intended to protect data. No internet transmission or storage system can be guaranteed to be completely secure. Users should protect access to their device and account and contact the project if they suspect unauthorised use.</p>
     </section>
 
     <section id="changes">
-      <h2>10. Changes to this policy</h2>
-      <p>We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page and updating the "Last updated" date. Your continued use of Cesena Remembers after changes constitutes acceptance of the updated policy.</p>
+      <h2>11. Changes to this policy</h2>
+      <p>This notice may be updated when the app, its providers or applicable requirements change. The latest version and revision date will be published on this page.</p>
     </section>
 
     <section id="contact">
-      <h2>11. Contact us</h2>
-      <p>If you have questions about this Privacy Policy, please contact us at:</p>
+      <h2>12. Contact</h2>
+      <p>For privacy questions or requests, contact:</p>
       <ul>
         <li>Email: <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a></li>
         <li>Website: <a href="https://cesenaremembers.pages.dev">cesenaremembers.pages.dev</a></li>
