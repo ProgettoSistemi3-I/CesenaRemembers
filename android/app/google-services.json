@@ -72,6 +72,74 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966666011561:android:544cc27c63318947af3ab8",
+        "android_client_info": {
+          "package_name": "it.cesenaremembers.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "966666011561-6iqa2q1bn3vb3hcpi4428fek68924da0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.cesenaremembers.app",
+            "certificate_hash": "ac8c8d68a05d991b230fa03421e0f3747cf1c7a0"
+          }
+        },
+        {
+          "client_id": "966666011561-d9loov5lu4dcjrsr745fbs3n8ds1dgi4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.cesenaremembers.app",
+            "certificate_hash": "876979bc92ac5d89ee9744f03f07dad83b60bd41"
+          }
+        },
+        {
+          "client_id": "966666011561-eeqveef09992o4oboettjio7kjob4gjl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.cesenaremembers.app",
+            "certificate_hash": "60be4d8265571418141ea2194205008dae2b7fad"
+          }
+        },
+        {
+          "client_id": "966666011561-vbp97db44aig7k3ghisu5vke1a5mrtfs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.cesenaremembers.app",
+            "certificate_hash": "2b951cfa3bf942229203f9d954853871cfe0c7e5"
+          }
+        },
+        {
+          "client_id": "966666011561-jg82mh4vbt29s6cggi0kij05d6h0coo4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBDO1gfGazsXDkDL_GXR1Vmfcj3LN6qpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "966666011561-jg82mh4vbt29s6cggi0kij05d6h0coo4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "966666011561-2iovkjlf8f9faanpvf3r1328rre522mk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cesenaRemembers"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

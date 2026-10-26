@@ -827,12 +827,6 @@ abstract class AppLocalizations {
   /// **'Start tour'**
   String get tourStartButton;
 
-  /// No description provided for @tourArrivedButton.
-  ///
-  /// In en, this message translates to:
-  /// **'I\'m here'**
-  String get tourArrivedButton;
-
   /// No description provided for @tourStopCardArrived.
   ///
   /// In en, this message translates to:

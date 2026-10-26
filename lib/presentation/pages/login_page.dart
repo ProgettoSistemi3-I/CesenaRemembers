@@ -125,10 +125,7 @@ class _LoginPageState extends State<LoginPage>
     final double scale = (sh / 844).clamp(0.75, 1.3);
 
     final double titleSize = 52 * scale;
-    final double iconSize = 48 * scale;
-    final double iconPad = 16 * scale;
     final double spacingLg = 60 * scale;
-    final double spacingMd = 24 * scale;
     final double spacingSm = 16 * scale;
     final double hPadding = (sw * 0.08).clamp(20.0, 48.0);
     final double btnVertPad = 14 * scale;
@@ -184,20 +181,6 @@ class _LoginPageState extends State<LoginPage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(iconPad),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: _olive, width: 2),
-                            color: Colors.black.withValues(alpha: 0.45),
-                          ),
-                          child: Icon(
-                            Icons.military_tech,
-                            size: iconSize,
-                            color: _olive,
-                          ),
-                        ),
-                        SizedBox(height: spacingMd),
                         _LoginTitleLine(
                           text: 'CESENA',
                           fontSize: titleSize,

@@ -403,9 +403,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tourStartButton => 'Inizia il tour';
 
   @override
-  String get tourArrivedButton => 'Sono arrivato';
-
-  @override
   String get tourStopCardArrived => 'Sei arrivato! Tocca per aprire';
 
   @override

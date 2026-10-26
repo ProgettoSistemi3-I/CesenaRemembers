@@ -179,7 +179,6 @@
     }
   },
   "tourStartButton": "Inizia il tour",
-  "tourArrivedButton": "Sono arrivato",
   "tourStopCardArrived": "Sei arrivato! Tocca per aprire",
   "tourStopCardDistance": "{distance} · tappa {index}/{total}",
   "@tourStopCardDistance": {

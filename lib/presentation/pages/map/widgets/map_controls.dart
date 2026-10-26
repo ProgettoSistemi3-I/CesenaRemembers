@@ -194,51 +194,6 @@ class StartTourButton extends StatelessWidget {
   }
 }
 
-class ManualArrivalButton extends StatelessWidget {
-  const ManualArrivalButton({super.key, required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface.withValues(
-                alpha: 0.8,
-              ), // ADATTIVO
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppPalette.moss.withValues(alpha: 0.5)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.place, size: 15, color: AppPalette.olive),
-                SizedBox(width: 5),
-                Text(
-                  AppLocalizations.of(context)!.tourArrivedButton,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: AppPalette.olive,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class TourQuickActionButton extends StatelessWidget {
   const TourQuickActionButton({
     super.key,

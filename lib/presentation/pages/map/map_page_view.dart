@@ -138,14 +138,6 @@ extension _MapPageView on _MapPageState {
               right: 0,
               child: Center(child: StartTourButton(onTap: _startTour)),
             ),
-          if (data.isTourActive && _tourController.status == TourStatus.running)
-            Positioned(
-              right: 20,
-              bottom: cardBottom + 180,
-              child: ManualArrivalButton(
-                onTap: _tourController.markArrivedManually,
-              ),
-            ),
           if (data.isTourActive)
             Positioned(
               left: 16,

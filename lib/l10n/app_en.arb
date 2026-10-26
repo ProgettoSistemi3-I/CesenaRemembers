@@ -179,7 +179,6 @@
     }
   },
   "tourStartButton": "Start tour",
-  "tourArrivedButton": "I'm here",
   "tourStopCardArrived": "You arrived! Tap to open",
   "tourStopCardDistance": "{distance} · stop {index}/{total}",
   "@tourStopCardDistance": {

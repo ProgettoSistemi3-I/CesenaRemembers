@@ -113,11 +113,6 @@ class TourSessionController {
     return true;
   }
 
-  void markArrivedManually() {
-    if (_status != TourStatus.running) return;
-    _triggerArrival();
-  }
-
   bool advanceToNextStop() {
     if (_currentStopIndex < _orderedStops.length - 1) {
       _currentStopIndex++;
