@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../core/logging/app_logger.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/entities/userprofile.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -11,6 +12,7 @@ import '../pages/onboarding/onboarding_page.dart';
 import '../pages/profile/profile_setup_page.dart';
 import '../theme/theme_controller.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
+import '../widgets/connection_error_view.dart';
 import 'main_shell.dart';
 import 'notification_service.dart';
 import 'push_notification_service.dart';
@@ -28,16 +30,10 @@ class AuthGate extends StatelessWidget {
       stream: repository.userStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-
         final appUser = snapshot.data;
-        if (appUser == null) {
-          return const LoginPage();
-        }
-
+        if (appUser == null) return const LoginPage();
         return _AuthenticatedGate(appUser: appUser);
       },
     );
@@ -54,10 +50,16 @@ class _AuthenticatedGate extends StatefulWidget {
 }
 
 class _AuthenticatedGateState extends State<_AuthenticatedGate> {
+  static const _profileTimeoutDuration = Duration(seconds: 12);
+
   late final UserProfileUseCases _profileUseCases;
   late final AuthRepository _authRepository;
-  late final Future<void> _ensureFuture;
+  late Future<void> _ensureFuture;
+  late Stream<UserProfile?> _profileStream;
   StreamSubscription<UserProfile?>? _profileSubscription;
+  Timer? _profileTimeout;
+  bool _profileTimedOut = false;
+  bool _notificationsStarted = false;
   int _previousReceivedRequestsCount = -1;
   int _previousPendingAchievementsCount = -1;
 
@@ -66,153 +68,155 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     super.initState();
     _profileUseCases = sl<UserProfileUseCases>();
     _authRepository = sl<AuthRepository>();
+    _profileStream = _profileUseCases.getUserProfileStream(widget.appUser.id);
     _ensureFuture = _checkBanAndInit();
+    _startProfileTimeout();
+  }
+
+  void _startProfileTimeout() {
+    _profileTimeout?.cancel();
+    _profileTimeout = Timer(_profileTimeoutDuration, () {
+      if (mounted) setState(() => _profileTimedOut = true);
+    });
+  }
+
+  void _retry() {
+    setState(() {
+      _profileTimedOut = false;
+      _profileStream = _profileUseCases.getUserProfileStream(widget.appUser.id);
+      _ensureFuture = _checkBanAndInit();
+    });
+    _startProfileTimeout();
   }
 
   Future<void> _checkBanAndInit() async {
-    final isBanned = await _profileUseCases.isUserBanned(widget.appUser.id);
+    // Offline il controllo ban "fallisce aperto": le Security Rules restano
+    // la protezione reale lato server.
+    var isBanned = false;
+    try {
+      isBanned = await _profileUseCases.isUserBanned(widget.appUser.id);
+    } catch (e, st) {
+      AppLogger.error('Ban check skipped', error: e, stackTrace: st, name: 'AuthGate');
+    }
     if (isBanned) {
       await _authRepository.signOut();
       throw const _BannedFromFirestoreException();
     }
 
-    await _profileUseCases.ensureUserDocument(
-      uid: widget.appUser.id,
-      email: widget.appUser.email,
-    );
-    sl<ThemeController>().refreshFromProfile();
-    _initNotifications();
+    try {
+      await _profileUseCases.ensureUserDocument(
+        uid: widget.appUser.id,
+        email: widget.appUser.email,
+      );
+    } catch (e, st) {
+      AppLogger.error('ensureUserDocument skipped', error: e, stackTrace: st, name: 'AuthGate');
+    }
+
+    unawaited(sl<ThemeController>().refreshFromProfile().catchError((_) {}));
+    _startNotifications();
   }
 
-  void _initNotifications() async {
+  void _startNotifications() {
+    if (_notificationsStarted) return;
+    _notificationsStarted = true;
+    unawaited(_initNotifications());
+  }
+
+  Future<void> _initNotifications() async {
     final notificationService = NotificationService();
-    await notificationService.init(
-      _profileUseCases,
-      widget.appUser.id,
-      context,
-    );
+    try {
+      await notificationService.init(_profileUseCases, widget.appUser.id, context);
+    } catch (e, st) {
+      AppLogger.error('Notification init failed', error: e, stackTrace: st, name: 'AuthGate');
+    }
+    if (!mounted) return;
 
     _profileSubscription = _profileUseCases
         .getUserProfileStream(widget.appUser.id)
         .listen((profile) {
-          if (profile == null) return;
+      if (profile == null || !mounted) return;
 
-          // Friend requests
-          final currentRequestsCount = profile.receivedFriendRequests.length;
-          if (_previousReceivedRequestsCount != -1 &&
-              currentRequestsCount > _previousReceivedRequestsCount) {
-            final newRequestsCount =
-                currentRequestsCount - _previousReceivedRequestsCount;
-            notificationService.showFriendRequestNotification(newRequestsCount);
-          }
-          _previousReceivedRequestsCount = currentRequestsCount;
+      final currentRequests = profile.receivedFriendRequests.length;
+      if (_previousReceivedRequestsCount != -1 &&
+          currentRequests > _previousReceivedRequestsCount) {
+        notificationService.showFriendRequestNotification(
+          currentRequests - _previousReceivedRequestsCount,
+        );
+      }
+      _previousReceivedRequestsCount = currentRequests;
 
-          // Pending Achievements
-          final currentPendingCount = profile.pendingAchievements.length;
-          if (_previousPendingAchievementsCount != -1 &&
-              currentPendingCount > _previousPendingAchievementsCount) {
-            final scaffoldMessenger =
-                PushNotificationService.scaffoldMessengerKey.currentState;
-            final currentContext =
-                PushNotificationService.navigatorKey.currentContext ?? context;
-
-            if (scaffoldMessenger != null) {
-              final topMargin = MediaQuery.of(currentContext).size.height - 150;
-
-              showGlassSnackBar(
-                currentContext,
-                message:
-                    'Hai sbloccato un nuovo obiettivo! Tocca per andare a riscattarlo.',
-                type: GlassSnackType.success,
-                icon: Icons.emoji_events,
-                duration: const Duration(seconds: 10),
-                margin: EdgeInsets.only(
-                  bottom: topMargin > 0 ? topMargin : 600,
-                  left: 16,
-                  right: 16,
-                ),
-                onTap: () {
-                  ShellNavigationStore.goToTab(2); // Vai al profilo
-                },
-              );
-            }
-          }
-          _previousPendingAchievementsCount = currentPendingCount;
-        });
+      final currentPending = profile.pendingAchievements.length;
+      if (_previousPendingAchievementsCount != -1 &&
+          currentPending > _previousPendingAchievementsCount) {
+        final messenger = PushNotificationService.scaffoldMessengerKey.currentState;
+        final ctx = PushNotificationService.navigatorKey.currentContext ?? context;
+        if (messenger != null && ctx.mounted) {
+          final topMargin = MediaQuery.of(ctx).size.height - 150;
+          showGlassSnackBar(
+            ctx,
+            message: AppLocalizations.of(ctx)!.achievementUnlockedSnack,
+            type: GlassSnackType.success,
+            icon: Icons.emoji_events,
+            duration: const Duration(seconds: 10),
+            margin: EdgeInsets.only(
+              bottom: topMargin > 0 ? topMargin : 600,
+              left: 16,
+              right: 16,
+            ),
+            onTap: () => ShellNavigationStore.goToTab(2),
+          );
+        }
+      }
+      _previousPendingAchievementsCount = currentPending;
+    }, onError: (Object e, StackTrace st) {
+      AppLogger.error('Profile stream error', error: e, stackTrace: st, name: 'AuthGate');
+    });
   }
 
   @override
   void dispose() {
+    _profileTimeout?.cancel();
     _profileSubscription?.cancel();
     super.dispose();
   }
+
+  Widget _loading() =>
+      const Scaffold(body: Center(child: CircularProgressIndicator()));
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
       future: _ensureFuture,
-      builder: (context, ensureSnapshot) {
-        // Caso ban: il signOut ha già triggerato lo stream,
-        // AuthGate tornerà a LoginPage. Mostriamo uno schermo di caricamento
-        // neutro per evitare qualsiasi flash della _BannedScreen
-        // che poi scompare subito.
-        if (ensureSnapshot.hasError &&
-            ensureSnapshot.error is _BannedFromFirestoreException) {
-          // Mostriamo loading: tra pochi ms lo stream aggiorna e
-          // AuthGate mostra LoginPage (che gestisce il ban via isBanned flag
-          // settato dal FirebaseAuthException 'user-disabled', oppure
-          // semplicemente l'utente torna alla login normale se l'account
-          // non è disabilitato su Auth ma solo su Firestore).
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+      builder: (context, ensure) {
+        if (ensure.hasError && ensure.error is _BannedFromFirestoreException) {
+          return _loading(); // lo stream auth riporta alla LoginPage
         }
-
-        if (ensureSnapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (ensureSnapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  '${AppLocalizations.of(context)!.errorLoadProfile}: ${ensureSnapshot.error}',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          );
+        if (ensure.connectionState != ConnectionState.done) return _loading();
+        if (ensure.hasError) {
+          return Scaffold(body: ConnectionErrorView(onRetry: _retry));
         }
 
         return StreamBuilder<UserProfile?>(
-          stream: _profileUseCases.getUserProfileStream(widget.appUser.id),
-          builder: (context, profileSnapshot) {
-            if (!profileSnapshot.hasData) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
+          stream: _profileStream,
+          builder: (context, snap) {
+            final profile = snap.data;
+            if (profile == null) {
+              if (snap.hasError || _profileTimedOut) {
+                return Scaffold(body: ConnectionErrorView(onRetry: _retry));
+              }
+              return _loading();
             }
-            final profileCompleted =
-                profileSnapshot.data?.profileCompleted == true;
-            final onboardingCompleted =
-                profileSnapshot.data?.onboardingCompleted == true;
 
-            if (!profileCompleted) {
+            if (!profile.profileCompleted) {
               return ProfileSetupPage(
                 uid: widget.appUser.id,
                 email: widget.appUser.email,
                 suggestedName: widget.appUser.displayName,
               );
             }
-
-            if (!onboardingCompleted) {
+            if (!profile.onboardingCompleted) {
               return OnboardingPage(uid: widget.appUser.id);
             }
-
             return const MainShell();
           },
         );
@@ -221,7 +225,6 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
   }
 }
 
-/// Eccezione interna usata solo per segnalare il ban da Firestore.
 class _BannedFromFirestoreException implements Exception {
   const _BannedFromFirestoreException();
 }

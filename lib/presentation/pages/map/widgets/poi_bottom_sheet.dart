@@ -166,7 +166,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
                             ),
                           ),
                           Text(
-                            widget.stop.period,
+                            AppLocalizations.of(context)!.getPoiPeriod(widget.stop.period),
                             style: TextStyle(
                               fontSize: 12,
                               color: theme.colorScheme.onSurfaceVariant,
@@ -366,7 +366,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Text(
-            quizController.error!,
+            AppLocalizations.of(context)!.errorCommunication,
             style: const TextStyle(color: AppPalette.danger, fontSize: 14),
             textAlign: TextAlign.center,
           ),
@@ -738,66 +738,72 @@ class QuizResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final perfect = score == total;
+    final l10n = AppLocalizations.of(context)!;
+    final ratio = total <= 0 ? 0.0 : score / total;
+
+    final (title, body, icon, color) = switch (ratio) {
+      >= 1.0 => (l10n.quizResultPerfectTitle, l10n.quizResultPerfectBody,
+          Icons.emoji_events_rounded, AppPalette.olive),
+      >= 0.8 => (l10n.quizResultGreatTitle, l10n.quizResultGreatBody,
+          Icons.stars_rounded, AppPalette.olive),
+      >= 0.6 => (l10n.quizResultGoodTitle, l10n.quizResultGoodBody,
+          Icons.thumb_up_alt_rounded, AppPalette.moss),
+      >= 0.4 => (l10n.quizResultFairTitle, l10n.quizResultFairBody,
+          Icons.menu_book_rounded, AppPalette.tan),
+      _ => (l10n.quizResultPoorTitle, l10n.quizResultPoorBody,
+          Icons.history_edu_rounded, theme.colorScheme.onSurfaceVariant),
+    };
+    final highlighted = ratio >= 0.6;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: perfect
-            ? AppPalette.moss.withValues(alpha: 0.15)
+        color: highlighted
+            ? color.withValues(alpha: 0.15)
             : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: perfect
-              ? AppPalette.moss
-              : theme.colorScheme.surfaceContainerHighest,
+          color: highlighted ? color : theme.colorScheme.surfaceContainerHighest,
         ),
       ),
       child: Column(
         children: [
-          Icon(
-            perfect ? Icons.emoji_events_rounded : Icons.stars_rounded,
-            size: 48,
-            color: perfect ? AppPalette.olive : AppPalette.tan,
-          ),
+          Icon(icon, size: 48, color: color),
           const SizedBox(height: 12),
           Text(
-            perfect
-                ? AppLocalizations.of(context)!.quizAnswerPerfect
-                : AppLocalizations.of(context)!.quizAnswerGood,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: perfect ? AppPalette.olive : AppPalette.tan,
-            ),
+            title,
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: color),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           Text(
-            AppLocalizations.of(context)!.quizCorrectAnswers(
-              score,
-              total,
+            body,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.quizCorrectAnswers(score, total),
             style: TextStyle(
               fontSize: 15,
-              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.timer_outlined,
-                size: 13,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              Icon(Icons.timer_outlined, size: 13, color: theme.colorScheme.onSurfaceVariant),
               const SizedBox(width: 4),
               Text(
-                AppLocalizations.of(context)!.quizTime(formatElapsed(elapsed)),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                l10n.quizTime(formatElapsed(elapsed)),
+                style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           ),

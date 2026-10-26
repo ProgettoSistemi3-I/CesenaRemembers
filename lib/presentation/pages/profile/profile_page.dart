@@ -305,7 +305,7 @@ class _ProfilePageState extends State<ProfilePage>
       builder: (_) => FractionallySizedBox(
         heightFactor: 0.8,
         child: _buildNotificationsSheet(
-          'Notifiche',
+          AppLocalizations.of(context)!.notificationsTitle,
           friendRequestUsers,
           profile.pendingAchievements,
           theme,

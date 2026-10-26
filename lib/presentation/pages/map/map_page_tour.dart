@@ -198,7 +198,7 @@ extension _MapPageTourActions on _MapPageState {
 
     final score = _tourScoringService.calculate(
       correctAnswers: result.score,
-      totalElapsedSeconds: _tourController.totalElapsedSeconds,
+      legElapsedSeconds: _tourController.elapsedSeconds,
     );
 
     try {
@@ -214,10 +214,13 @@ extension _MapPageTourActions on _MapPageState {
       _cachedUserXp = (_cachedUserXp ?? 0) + score.totalXp;
       _tourXpEarned += score.totalXp;
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      final xpText = l10n.tourXpEarned(score.totalXp);
       showGlassSnackBar(
         context,
-        message:
-            '+${score.totalXp} XP  (${score.baseXp} × ${score.timeMultiplier.toStringAsFixed(2)})',
+        message: score.tier == SpeedTier.none
+            ? xpText
+            : '$xpText · ${l10n.speedBonusLabel(score.tier, score.bonusPercent)}',
         type: GlassSnackType.xp,
         icon: Icons.bolt_rounded,
         duration: const Duration(seconds: 4),

@@ -1173,7 +1173,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     const SizedBox(height: 20),
 
                     Text(
-                      'Statistiche Private',
+                      AppLocalizations.of(context)!.publicStatsPrivateTitle,
 
                       style: TextStyle(
                         fontSize: 20,
@@ -1189,7 +1189,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     const SizedBox(height: 8),
 
                     Text(
-                      'Diventa amico per vedere le statistiche dettagliate, i traguardi sbloccati e molto altro.',
+                      AppLocalizations.of(context)!.publicStatsPrivateBody,
 
                       textAlign: TextAlign.center,
 

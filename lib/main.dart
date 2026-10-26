@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
@@ -11,13 +12,18 @@ import 'presentation/services/push_notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (!kDebugMode) {
+    ErrorWidget.builder = (_) => const SizedBox.shrink();
+  }
+  await _bootstrapAndRun();
+}
 
-  final bootstrapResult = await AppBootstrap.run();
-  if (!bootstrapResult.success) {
-    runApp(BootstrapErrorApp(errorMessage: bootstrapResult.message));
+Future<void> _bootstrapAndRun() async {
+  final result = await AppBootstrap.run();
+  if (!result.success) {
+    runApp(BootstrapErrorApp(errorMessage: result.message, onRetry: _bootstrapAndRun));
     return;
   }
-
   runApp(const CesenaRemembersApp());
 }
 
@@ -38,7 +44,9 @@ class AppBootstrap {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       await di.init();
-      await di.sl<ThemeController>().initTheme();
+      try {
+        await di.sl<ThemeController>().initTheme();
+      } catch (_) {}
 
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
@@ -54,9 +62,10 @@ class AppBootstrap {
 }
 
 class BootstrapErrorApp extends StatelessWidget {
-  const BootstrapErrorApp({super.key, this.errorMessage});
+  const BootstrapErrorApp({super.key, this.errorMessage, required this.onRetry});
 
   final String? errorMessage;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +78,22 @@ class BootstrapErrorApp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 54, color: AppPalette.danger),
+                const Icon(Icons.cloud_off_rounded, size: 54, color: AppPalette.olive),
                 const SizedBox(height: 16),
                 const Text(
-                  'Initialization error',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  errorMessage ?? 'Unable to start application.',
+                  'Impossibile avviare l\'app\nUnable to start the app',
                   textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                if (kDebugMode && errorMessage != null) ...[
+                  const SizedBox(height: 8),
+                  Text(errorMessage!, textAlign: TextAlign.center),
+                ],
+                const SizedBox(height: 20),
+                FilledButton(
+                  onPressed: onRetry,
+                  style: FilledButton.styleFrom(backgroundColor: AppPalette.olive),
+                  child: const Text('Riprova / Retry'),
                 ),
               ],
             ),

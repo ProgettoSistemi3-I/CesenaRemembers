@@ -121,13 +121,15 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       }
     } catch (e) {
       final message = e.toString();
+      final isNetwork = e is FirebaseException &&
+          (e.code == 'unavailable' || e.code == 'network-request-failed');
       setState(() {
-        if (message.contains('USERNAME_NOT_AVAILABLE')) {
+        if (isNetwork) {
+          _error = AppLocalizations.of(context)!.errorOffline;
+        } else if (message.contains('USERNAME_NOT_AVAILABLE')) {
           _error = AppLocalizations.of(context)!.setupUsernameTaken;
         } else if (message.contains('USERNAME_INDEX_PERMISSION_DENIED')) {
-          _error = AppLocalizations.of(
-            context,
-          )!.setupFirestoreError(normalizedUsername);
+          _error = AppLocalizations.of(context)!.setupGenericError;
         } else if (message.contains('INVALID_DISPLAY_NAME')) {
           _error = AppLocalizations.of(context)!.profileNameTooShort(
             ProfileValidation.minDisplayNameLength,

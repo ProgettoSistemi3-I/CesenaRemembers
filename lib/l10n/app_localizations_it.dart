@@ -1234,4 +1234,69 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get onboardingSlide4Desc =>
       "Ogni traguardo sblocca un riconoscimento esclusivo. Completa tour, supera quiz e conquista amici.";
+
+  @override
+  String get quizResultPerfectTitle => 'Perfetto!';
+
+  @override
+  String get quizResultPerfectBody => 'Nemmeno un errore. Sei un vero storico!';
+
+  @override
+  String get quizResultGreatTitle => 'Ottimo lavoro!';
+
+  @override
+  String get quizResultGreatBody => 'Conosci bene questo luogo.';
+
+  @override
+  String get quizResultGoodTitle => 'Buon risultato!';
+
+  @override
+  String get quizResultGoodBody => 'Hai colto i punti principali. Ancora un po\' e lo padroneggi.';
+
+  @override
+  String get quizResultFairTitle => 'Ci sei quasi';
+
+  @override
+  String get quizResultFairBody => 'Rileggi la scheda storica e rifatti alla prossima tappa.';
+
+  @override
+  String get quizResultPoorTitle => 'Non stavolta';
+
+  @override
+  String get quizResultPoorBody => 'Niente paura: la storia si impara un passo alla volta.';
+
+  @override
+  String tourXpEarned(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String speedBonusSteady(int percent) {
+    return 'Buon ritmo! Bonus +$percent%';
+  }
+
+  @override
+  String speedBonusFast(int percent) {
+    return 'Passo svelto! Bonus +$percent%';
+  }
+
+  @override
+  String speedBonusLightning(int percent) {
+    return 'Velocissimo! Bonus +$percent%';
+  }
+
+  @override
+  String get connectionErrorTitle => 'Nessuna connessione';
+
+  @override
+  String get connectionErrorBody => 'Al momento non riusciamo a raggiungere il server. Controlla la connessione e riprova. Alcune funzioni potrebbero essere limitate offline.';
+
+  @override
+  String get achievementUnlockedSnack => 'Hai sbloccato un nuovo obiettivo! Tocca per riscattarlo.';
+
+  @override
+  String get publicStatsPrivateTitle => 'Statistiche private';
+
+  @override
+  String get publicStatsPrivateBody => 'Diventa amico per vedere statistiche dettagliate, traguardi sbloccati e molto altro.';
 }

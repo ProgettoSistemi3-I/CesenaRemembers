@@ -1,3 +1,4 @@
+import 'package:cesena_remembers/domain/services/tour_scoring_service.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 
 extension AppLocalizationsExtensions on AppLocalizations {
@@ -298,4 +299,42 @@ extension AppLocalizationsExtensions on AppLocalizations {
         return key; // Se non è una chiave, restituisci la stringa così com'è (API)
     }
   }
+
+  /// "15th Century" -> "XV secolo" (it) / invariato (en); "Medioevo" -> "Middle Ages" (en).
+  String getPoiPeriod(String raw) {
+    final isIt = localeName.startsWith('it');
+    final m = RegExp(r'^(\d{1,2})(?:st|nd|rd|th)\s+century$', caseSensitive: false)
+        .firstMatch(raw.trim());
+    if (m != null) {
+      final n = int.parse(m.group(1)!);
+      return isIt ? '${_toRoman(n)} secolo' : raw.trim();
+    }
+    final lower = raw.trim().toLowerCase();
+    if (lower == 'medioevo' || lower == 'middle ages') {
+      return isIt ? 'Medioevo' : 'Middle Ages';
+    }
+    return raw;
+  }
+
+  String _toRoman(int n) {
+    const map = [
+      (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I'),
+    ];
+    var rest = n;
+    final sb = StringBuffer();
+    for (final (value, sym) in map) {
+      while (rest >= value) {
+        sb.write(sym);
+        rest -= value;
+      }
+    }
+    return sb.toString(); // 11->XI, 15->XV, 19->XIX, 20->XX
+  }
+
+  String speedBonusLabel(SpeedTier tier, int percent) => switch (tier) {
+    SpeedTier.lightning => speedBonusLightning(percent),
+    SpeedTier.fast => speedBonusFast(percent),
+    SpeedTier.steady => speedBonusSteady(percent),
+    SpeedTier.none => '',
+  };
 }

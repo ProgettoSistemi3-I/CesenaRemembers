@@ -15,4 +15,9 @@ class AppRuntimeConfig {
     'MAPBOX_ACCESS_TOKEN',
     defaultValue: '',
   );
+
+  static const String cartoApiKey = String.fromEnvironment(
+    'CARTO_API_KEY',
+    defaultValue: '',
+  );
 }

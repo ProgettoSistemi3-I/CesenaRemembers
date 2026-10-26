@@ -2268,6 +2268,120 @@ abstract class AppLocalizations {
 
   /// No description provided for @onboardingSlide4Desc.
   String get onboardingSlide4Desc;
+
+  /// No description provided for @quizResultPerfectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect!'**
+  String get quizResultPerfectTitle;
+
+  /// No description provided for @quizResultPerfectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a single mistake. A true history buff!'**
+  String get quizResultPerfectBody;
+
+  /// No description provided for @quizResultGreatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job!'**
+  String get quizResultGreatTitle;
+
+  /// No description provided for @quizResultGreatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You know this place well.'**
+  String get quizResultGreatBody;
+
+  /// No description provided for @quizResultGoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Good result!'**
+  String get quizResultGoodTitle;
+
+  /// No description provided for @quizResultGoodBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You got the main points. A little more and you\'ll master it.'**
+  String get quizResultGoodBody;
+
+  /// No description provided for @quizResultFairTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there'**
+  String get quizResultFairTitle;
+
+  /// No description provided for @quizResultFairBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Reread the history card and try again at the next stop.'**
+  String get quizResultFairBody;
+
+  /// No description provided for @quizResultPoorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this time'**
+  String get quizResultPoorTitle;
+
+  /// No description provided for @quizResultPoorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t worry: history is learned one step at a time.'**
+  String get quizResultPoorBody;
+
+  /// No description provided for @tourXpEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'+{xp} XP'**
+  String tourXpEarned(int xp);
+
+  /// No description provided for @speedBonusSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady pace! +{percent}% bonus'**
+  String speedBonusSteady(int percent);
+
+  /// No description provided for @speedBonusFast.
+  ///
+  /// In en, this message translates to:
+  /// **'Brisk pace! +{percent}% bonus'**
+  String speedBonusFast(int percent);
+
+  /// No description provided for @speedBonusLightning.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning fast! +{percent}% bonus'**
+  String speedBonusLightning(int percent);
+
+  /// No description provided for @connectionErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get connectionErrorTitle;
+
+  /// No description provided for @connectionErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t reach the server right now. Check your connection and try again. Some features may be limited while offline.'**
+  String get connectionErrorBody;
+
+  /// No description provided for @achievementUnlockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You unlocked a new achievement! Tap to claim it.'**
+  String get achievementUnlockedSnack;
+
+  /// No description provided for @publicStatsPrivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Private statistics'**
+  String get publicStatsPrivateTitle;
+
+  /// No description provided for @publicStatsPrivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Become friends to see detailed stats, unlocked achievements and more.'**
+  String get publicStatsPrivateBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

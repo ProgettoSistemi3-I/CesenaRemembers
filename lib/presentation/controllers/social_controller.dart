@@ -111,6 +111,14 @@ class SocialController extends ChangeNotifier {
         );
   }
 
+  void retryLeaderboard() {
+    _leaderboardSub?.cancel();
+    errorMessage = null;
+    isLeaderboardLoading = true;
+    _safeNotifyListeners();
+    _startLeaderboardListener();
+  }
+
   Future<void> search(String query) async {
     _searchDebounce?.cancel();
     final normalizedQuery = query.trim().toLowerCase();

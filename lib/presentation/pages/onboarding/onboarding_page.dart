@@ -38,10 +38,10 @@ class _OnboardingPageState extends State<OnboardingPage>
     duration: const Duration(milliseconds: 1600),
   )..repeat(reverse: true);
 
-  late AnimationController _staggerCtrl = AnimationController(
+  late final AnimationController _staggerCtrl = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 540),
-  )..forward();
+  );
 
   late Animation<double> _tagAnim;
   late Animation<double> _titleAnim;
@@ -51,6 +51,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   void initState() {
     super.initState();
     _buildStagger();
+    _staggerCtrl.forward();
   }
 
   void _buildStagger() {
@@ -76,12 +77,7 @@ class _OnboardingPageState extends State<OnboardingPage>
       return;
     }
     setState(() => _page = index);
-    _staggerCtrl.dispose();
-    _staggerCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 540),
-    )..forward();
-    _buildStagger();
+    _staggerCtrl.forward(from: 0);
   }
 
   Future<void> _complete() async {

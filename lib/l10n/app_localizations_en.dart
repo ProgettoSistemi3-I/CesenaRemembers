@@ -1228,4 +1228,69 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingSlide4Desc =>
       'Every milestone unlocks an exclusive badge. Complete tours, ace quizzes and make friends.';
+
+  @override
+  String get quizResultPerfectTitle => 'Perfect!';
+
+  @override
+  String get quizResultPerfectBody => 'Not a single mistake. A true history buff!';
+
+  @override
+  String get quizResultGreatTitle => 'Great job!';
+
+  @override
+  String get quizResultGreatBody => 'You know this place well.';
+
+  @override
+  String get quizResultGoodTitle => 'Good result!';
+
+  @override
+  String get quizResultGoodBody => 'You got the main points. A little more and you\'ll master it.';
+
+  @override
+  String get quizResultFairTitle => 'Almost there';
+
+  @override
+  String get quizResultFairBody => 'Reread the history card and try again at the next stop.';
+
+  @override
+  String get quizResultPoorTitle => 'Not this time';
+
+  @override
+  String get quizResultPoorBody => 'Don\'t worry: history is learned one step at a time.';
+
+  @override
+  String tourXpEarned(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String speedBonusSteady(int percent) {
+    return 'Steady pace! +$percent% bonus';
+  }
+
+  @override
+  String speedBonusFast(int percent) {
+    return 'Brisk pace! +$percent% bonus';
+  }
+
+  @override
+  String speedBonusLightning(int percent) {
+    return 'Lightning fast! +$percent% bonus';
+  }
+
+  @override
+  String get connectionErrorTitle => 'No connection';
+
+  @override
+  String get connectionErrorBody => 'We can\'t reach the server right now. Check your connection and try again. Some features may be limited while offline.';
+
+  @override
+  String get achievementUnlockedSnack => 'You unlocked a new achievement! Tap to claim it.';
+
+  @override
+  String get publicStatsPrivateTitle => 'Private statistics';
+
+  @override
+  String get publicStatsPrivateBody => 'Become friends to see detailed stats, unlocked achievements and more.';
 }

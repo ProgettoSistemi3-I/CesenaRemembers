@@ -4,6 +4,7 @@ import '../../../injection_container.dart';
 import '../../controllers/social_controller.dart';
 import '../../services/shell_navigation_store.dart';
 import '../../theme/app_palette.dart';
+import '../../widgets/connection_error_view.dart';
 import '../profile/avatar_catalog.dart';
 import 'public_profile_page.dart';
 
@@ -147,6 +148,10 @@ class _SocialPageState extends State<SocialPage> {
           strokeWidth: 3,
         ),
       );
+    }
+    if (_controller.leaderboard.isEmpty &&
+        _controller.errorMessage == 'errorLoadLeaderboard') {
+      return ConnectionErrorView(onRetry: _controller.retryLeaderboard);
     }
     if (_controller.leaderboard.isEmpty) {
       return Center(
