@@ -1,4 +1,4 @@
-package com.example.cesena_remembers
+package it.cesenaremembers.app
 
 import io.flutter.embedding.android.FlutterActivity
 

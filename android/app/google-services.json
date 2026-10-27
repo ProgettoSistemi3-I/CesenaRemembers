@@ -106,6 +106,14 @@
           }
         },
         {
+          "client_id": "966666011561-ucpd1u976vngmr6g01maerjaig2qnohs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.cesenaremembers.app",
+            "certificate_hash": "ee64a668c57f0cc7e5ea4e929bd3c08c9ac872b3"
+          }
+        },
+        {
           "client_id": "966666011561-vbp97db44aig7k3ghisu5vke1a5mrtfs.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
