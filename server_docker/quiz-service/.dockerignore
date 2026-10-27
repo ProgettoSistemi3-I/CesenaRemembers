@@ -5,3 +5,7 @@ venv/
 env/
 .git
 .gitignore
+.pytest_cache
+tests/
+# ATTENZIONE: la cartella facts/ NON va esclusa: contiene le schede storiche
+# lette dal servizio a ogni richiesta.

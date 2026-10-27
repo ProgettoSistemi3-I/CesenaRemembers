@@ -1,143 +1,302 @@
-import os
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import List, Literal
-from groq import Groq
-from dotenv import load_dotenv
+"""Cesena Remembers — servizio di generazione dei quiz.
+
+Flusso di ogni richiesta POST /api/generate-quiz (contratto invariato):
+  1. validazione dei parametri (Pydantic) e del POI (whitelist);
+  2. lettura dei fatti verificati dalla memoria (caricati all'avvio da facts/);
+  3. selezione casuale di un sottoinsieme di fatti (varietà + prompt breve);
+  4. UNA chiamata al modello per 3 domande, con output strutturato;
+  5. validazione strutturale e storica di ogni domanda;
+  6. se mancano domande valide e resta tempo: UNA chiamata di riparazione
+     che chiede solo le domande mancanti, su fatti non ancora usati;
+  7. 200 solo con 3 domande valide; altrimenti errore HTTP non-200, che
+     nell'app attiva il fallback locale (HistoricPlacesSeed).
+
+Il quiz è generato a ogni richiesta: non esiste alcun archivio di domande.
+"""
+
+from __future__ import annotations
+
+import asyncio
 import json
+import logging
+import random
+import time
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 load_dotenv()
 
-app = FastAPI(title="Cesena Remembers - Quiz API")
+from config import load_settings  # noqa: E402  (dopo load_dotenv)
+from facts_loader import KNOWN_POI_IDS, Fact, load_all  # noqa: E402
+from llm_client import LlmClient, LlmError  # noqa: E402
+from models import PoiRequest, QuizMeta, QuizQuestionOut, QuizResponse  # noqa: E402
+from prompts import SYSTEM_PROMPT, build_user_prompt, difficulty_level, llm_json_schema  # noqa: E402
+from validation import StructuralError, check_question, near_duplicate, parse_llm_output  # noqa: E402
 
+N_QUESTIONS = 3  # requisito di progetto: esattamente tre domande
+
+settings = load_settings()
+logging.basicConfig(
+    level=getattr(logging, settings.log_level, logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("quiz")
+
+
+class QuizFailure(Exception):
+    """Fallimento che deve produrre una risposta non-200 (=> fallback nell'app)."""
+
+    def __init__(self, status: int, code: str, message: str):
+        super().__init__(message)
+        self.status = status
+        self.code = code
+        self.message = message
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.facts = load_all(settings.facts_dir)
+    app.state.llm = LlmClient(settings)
+    app.state.inflight = {}
+    logger.info(
+        "Avvio: provider=%s model=%s key=%s schede=%s",
+        settings.provider,
+        settings.model,
+        "configurata" if settings.key_configured else "MANCANTE",
+        {k: len(v.facts) for k, v in app.state.facts.items()},
+    )
+    yield
+    await app.state.llm.aclose()
+
+
+app = FastAPI(title="Cesena Remembers - Quiz API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-client = Groq()
 
-# --- MODELLI PYDANTIC ---
-class QuizQuestion(BaseModel):
-    question: str = Field(description="La domanda del quiz sul POI")
-    options: List[str] = Field(description="Esattamente 3 o 4 opzioni di risposta")
-    correctIndex: int = Field(description="L'indice (da 0 in poi) dell'opzione corretta")
+@app.exception_handler(QuizFailure)
+async def _quiz_failure_handler(_: Request, exc: QuizFailure):
+    return JSONResponse(status_code=exc.status, content={"detail": {"error": exc.code, "message": exc.message}})
 
-class QuizResponse(BaseModel):
-    questions: List[QuizQuestion] = Field(description="Una lista di esattamente 5 domande")
 
-class PoiRequest(BaseModel):
-    id: str
-    name: str
-    description: str
-    userXp: int
-    languageCode: Literal["it", "en"] = "it"
-# ------------------------
+# ---------------------------------------------------------------------------
+# Generazione
+# ---------------------------------------------------------------------------
+def _select_facts(facts: list[Fact], k: int, exclude: set[str]) -> list[Fact]:
+    pool = [f for f in facts if f.id not in exclude]
+    random.shuffle(pool)
+    return pool[: min(k, len(pool))]
 
+
+def _shuffle_options(options: list[str], correct_index: int) -> tuple[list[str], int]:
+    """Mescola le opzioni lato server: la posizione della risposta corretta
+    diventa uniforme indipendentemente dalle abitudini del modello."""
+    order = list(range(len(options)))
+    random.shuffle(order)
+    return [options[i] for i in order], order.index(correct_index)
+
+
+async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
+    started = time.perf_counter()
+    deadline = started + settings.request_deadline_s
+    poi_facts = app.state.facts.get(req.id)
+    if poi_facts is None:  # protetto anche dall'endpoint, difesa in profondità
+        raise QuizFailure(404, "unknown_poi", "POI sconosciuto")
+    if len(poi_facts.facts) < N_QUESTIONS:
+        raise QuizFailure(503, "insufficient_facts", "Fatti verificati insufficienti per tre domande")
+    if not settings.key_configured:
+        raise QuizFailure(503, "missing_api_key", "Provider non configurato")
+
+    level = difficulty_level(req.userXp)
+    lang = req.languageCode
+    place_name = (req.name or poi_facts.title).strip()[:120]
+    schema = llm_json_schema(N_QUESTIONS, settings.options_per_question)
+
+    accepted: list[tuple] = []  # (LlmQuestion, list[str] warnings)
+    used_fact_ids: set[str] = set()
+    attempts: list[dict] = []
+    last_error: LlmError | StructuralError | None = None
+
+    for call_no in range(1, settings.max_llm_calls + 1):
+        missing = N_QUESTIONS - len(accepted)
+        if missing <= 0:
+            break
+        remaining = deadline - time.perf_counter()
+        if remaining < settings.min_call_budget_s:
+            attempts.append({"call": call_no, "skipped": "no_time_left", "remaining_s": round(remaining, 2)})
+            break
+
+        selected = _select_facts(poi_facts.facts, settings.facts_per_prompt, used_fact_ids)
+        if len(selected) < missing:
+            attempts.append({"call": call_no, "skipped": "not_enough_unused_facts"})
+            break
+        allowed = {f.id: f for f in selected}
+        user_prompt = build_user_prompt(
+            place_name=place_name,
+            language=lang,
+            level=level,
+            facts=selected,
+            n_questions=missing,
+            n_options=settings.options_per_question,
+        )
+        attempt = {"call": call_no, "asked": missing, "facts": len(selected)}
+        try:
+            result = await app.state.llm.complete(
+                system=SYSTEM_PROMPT,
+                user=user_prompt,
+                schema=schema,
+                timeout_s=min(settings.llm_timeout_s, remaining - 0.3),
+            )
+            attempt["llm_s"] = round(result.latency_s, 2)
+            attempt["usage"] = {k: result.usage.get(k) for k in ("prompt_tokens", "completion_tokens") if k in result.usage}
+            questions = parse_llm_output(
+                result.content, expected_questions=missing, n_options=settings.options_per_question
+            )
+        except LlmError as exc:
+            attempt["error"] = exc.code
+            attempts.append(attempt)
+            last_error = exc
+            logger.warning("[%s] call %d: %s (%s)", request_id, call_no, exc.code, exc)
+            if not exc.retryable:
+                break
+            continue
+        except StructuralError as exc:
+            attempt["error"] = exc.code
+            attempts.append(attempt)
+            last_error = exc
+            logger.warning("[%s] call %d: output non valido: %s", request_id, call_no, exc)
+            continue
+
+        rejected = []
+        for q in questions:
+            check = check_question(
+                q,
+                language=lang,
+                allowed_facts=allowed,
+                place_name=place_name,
+                n_options=settings.options_per_question,
+            )
+            main_fact = q.factIds[0].strip() if q.factIds else ""
+            if check.ok and main_fact in used_fact_ids:
+                check.ok = False
+                check.errors.append("main_fact_already_used")
+            if check.ok and any(near_duplicate(q.question, a.question) for a, _ in accepted):
+                check.ok = False
+                check.errors.append("near_duplicate_question")
+            if check.ok and len(accepted) < N_QUESTIONS:
+                accepted.append((q, check.warnings))
+                used_fact_ids.update(fid.strip() for fid in q.factIds)
+            else:
+                rejected.append({"factIds": q.factIds, "errors": check.errors})
+                # i fatti di una domanda scartata non vengono riproposti subito
+                used_fact_ids.update(fid.strip() for fid in q.factIds if fid.strip() in allowed)
+        attempt["accepted"] = len(questions) - len(rejected)
+        if rejected:
+            attempt["rejected"] = rejected
+        attempts.append(attempt)
+
+    elapsed = time.perf_counter() - started
+    log_record = {
+        "request_id": request_id,
+        "poi": req.id,
+        "lang": lang,
+        "xp": req.userXp,
+        "level": level,
+        "model": settings.model,
+        "elapsed_s": round(elapsed, 2),
+        "accepted": len(accepted),
+        "attempts": attempts,
+    }
+
+    if len(accepted) < N_QUESTIONS:
+        log_record["outcome"] = "failed"
+        logger.warning("quiz %s", json.dumps(log_record, ensure_ascii=False))
+        if isinstance(last_error, LlmError):
+            if last_error.code == "timeout" or (deadline - time.perf_counter()) < settings.min_call_budget_s:
+                raise QuizFailure(504, last_error.code, "Il modello non ha risposto entro il tempo previsto")
+            raise QuizFailure(503, last_error.code, "Generazione non disponibile")
+        if isinstance(last_error, StructuralError) and not accepted:
+            raise QuizFailure(503, last_error.code, "Il modello ha restituito un output non valido")
+        if time.perf_counter() >= deadline - settings.min_call_budget_s and not accepted:
+            raise QuizFailure(504, "deadline_exceeded", "Tempo massimo di generazione superato")
+        raise QuizFailure(503, "validation_failed", "Il quiz generato non ha superato i controlli")
+
+    out_questions = []
+    for q, warnings in accepted:
+        options, correct = _shuffle_options([o.strip() for o in q.options], q.correctIndex)
+        out_questions.append(
+            QuizQuestionOut(
+                question=q.question.strip(),
+                options=options,
+                correctIndex=correct,
+                evidence=" | ".join(app.state.facts[req.id].by_id()[fid.strip()].text(lang) for fid in q.factIds),
+                factIds=[fid.strip() for fid in q.factIds],
+            )
+        )
+        if warnings:
+            log_record.setdefault("warnings", []).append({"factIds": q.factIds, "warnings": warnings})
+    log_record["outcome"] = "ok"
+    logger.info("quiz %s", json.dumps(log_record, ensure_ascii=False))
+    return QuizResponse(
+        questions=out_questions,
+        meta=QuizMeta(
+            poiId=req.id,
+            language=lang,
+            difficultyLevel=level,
+            model=settings.model,
+            generatedAt=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Endpoint
+# ---------------------------------------------------------------------------
 @app.post("/api/generate-quiz", response_model=QuizResponse)
 async def generate_quiz(poi: PoiRequest):
-    try:
-        # 1. Calcolo del livello di difficoltà in base agli XP
-        language_code = poi.languageCode if poi.languageCode in ("it", "en") else "it"
-        language_name = "Italiano" if language_code == "it" else "English"
-        sample_question = (
-            "testo della domanda in italiano"
-            if language_code == "it"
-            else "question text in English"
-        )
-        sample_options = (
-            ["opzione 1", "opzione 2", "opzione 3"]
-            if language_code == "it"
-            else ["option 1", "option 2", "option 3"]
-        )
+    if poi.id not in KNOWN_POI_IDS:
+        # Nessun accesso a file costruiti dall'input: l'ID deve essere in whitelist.
+        raise QuizFailure(404, "unknown_poi", "POI sconosciuto")
 
-        xp = poi.userXp
-        if language_code == "it":
-            if xp <= 200:
-                difficulty_level = "Livello 1 (Facile)"
-                difficulty_desc = "Domande sui fatti storici principali e più noti legati al luogo durante la guerra."
-            elif xp <= 400:
-                difficulty_level = "Livello 2 (Medio)"
-                difficulty_desc = "Dettagli meno noti, date specifiche o eventi tattici generali della Seconda Guerra Mondiale nel contesto locale."
-            elif xp <= 600:
-                difficulty_level = "Livello 3 (Difficile)"
-                difficulty_desc = "Cause, conseguenze complesse, figure chiave minori e dinamiche partigiane o militari specifiche di questo luogo."
-            else:
-                difficulty_level = "Livello 4 (Esperto)"
-                difficulty_desc = "Analisi profonda, aneddoti microscopici, documenti storici o dettagli tattici estremamente specifici della Seconda Guerra Mondiale a Cesena."
-        else:
-            if xp <= 200:
-                difficulty_level = "Level 1 (Easy)"
-                difficulty_desc = "Questions about the main and best-known historical facts connected to the place during the war."
-            elif xp <= 400:
-                difficulty_level = "Level 2 (Medium)"
-                difficulty_desc = "Less-known details, specific dates, or general tactical events from World War II in the local context."
-            elif xp <= 600:
-                difficulty_level = "Level 3 (Hard)"
-                difficulty_desc = "Causes, complex consequences, minor key figures, and partisan or military dynamics specific to this place."
-            else:
-                difficulty_level = "Level 4 (Expert)"
-                difficulty_desc = "Deep analysis, micro-anecdotes, historical documents, or extremely specific tactical details about World War II in Cesena."
+    # Richieste identiche contemporanee (es. doppio tap o retry di rete mentre
+    # la prima è ancora in corso) condividono la stessa generazione. Appena
+    # conclusa, la chiave viene rimossa: nessun riuso dei quiz.
+    key = (poi.id, poi.userXp, poi.languageCode)
+    inflight: dict = app.state.inflight
+    task = inflight.get(key)
+    if task is None:
+        request_id = f"{int(time.time() * 1000) % 10_000_000:07d}"
+        task = asyncio.ensure_future(_generate(poi, request_id))
+        inflight[key] = task
+        task.add_done_callback(lambda _t, k=key: inflight.pop(k, None))
+    return await asyncio.shield(task)
 
-        # 2. Prompt aggiornato con focus sulla WWII, blocco delle banalità, difficoltà e lingua scelta nell'app
-        prompt = f"""
-        Sei un esperto di storia locale della città di Cesena e un creatore di quiz storici di alto livello.
-        Devi generare un quiz a risposta multipla su questo luogo storico:
-
-        NOME LUOGO: {poi.name}
-        DESCRIZIONE: {poi.description}
-        LINGUA OBBLIGATORIA DEL QUIZ: {language_name} ({language_code})
-        DIFFICOLTÀ RICHIESTA: {difficulty_level} - {difficulty_desc}
-
-        Regole FONDAMENTALI:
-        1. Genera esattamente 5 domande nella LINGUA OBBLIGATORIA indicata sopra.
-        2. Anche tutte le opzioni di risposta devono essere nella LINGUA OBBLIGATORIA.
-        3. TEMA CENTRALE: La stragrande maggioranza delle domande DEVE riguardare vicende, eventi o il contesto della Seconda Guerra Mondiale (WWII) legati a questo luogo.
-        4. DIVIETO ASSOLUTO DI BANALITÀ: Non fare MAI domande scontate come "In che città si trova?", "Come si chiama questo luogo?" o dettagli visivi ovvi. Dai per scontato che l'utente sia già fisicamente lì.
-        5. VARIETÀ DEI TEMI: Ogni domanda delle 5 richieste deve trattare un aspetto, un aneddoto o un dettaglio storico DIFFERENTE della Seconda Guerra Mondiale. Evita assolutamente di ripetere lo stesso concetto o lo stesso evento (es. rastrellamenti) in più domande.
-        6. INTEGRAZIONE: Usa le informazioni della DESCRIZIONE, ma arricchiscile con la tua conoscenza storica accurata sulla Seconda Guerra Mondiale a Cesena per rispettare il livello di difficoltà richiesto.
-        7. Ogni domanda deve avere tra 3 e 4 opzioni di risposta sensate. Non mettere opzioni palesemente false o ridicole.
-        8. Indica l'indice corretto (partendo da 0). Randomizza la posizione della risposta corretta (non metterla sempre alla posizione 0).
-
-        DEVI e puoi SOLO restituire un oggetto JSON valido con questa esatta struttura:
-        {{
-            "questions": [
-                {{
-                    "question": "{sample_question}",
-                    "options": {json.dumps(sample_options, ensure_ascii=False)},
-                    "correctIndex": 0
-                }}
-            ]
-        }}
-        """
-
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"You are a JSON generator. Return ONLY valid JSON matching the requested schema. All human-readable quiz text must be in {language_name}."
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="openai/gpt-oss-120b",
-            response_format={"type": "json_object"},
-            temperature=0.2,
-        )
-
-        response_content = chat_completion.choices[0].message.content
-        return json.loads(response_content)
-
-    except Exception as e:
-        print(f"Errore durante la generazione del quiz: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 async def root():
     return {"status": "Il server dei quiz di Cesena Remembers è online!"}
+
+
+@app.get("/health")
+async def health():
+    facts = app.state.facts
+    return {
+        "status": "ok",
+        "provider": settings.provider,
+        "model": settings.model,
+        "apiKeyConfigured": settings.key_configured,
+        "factsPerPoi": {k: len(v.facts) for k, v in facts.items()},
+        "questionsPerQuiz": N_QUESTIONS,
+        "optionsPerQuestion": settings.options_per_question,
+        "requestDeadlineSeconds": settings.request_deadline_s,
+    }
