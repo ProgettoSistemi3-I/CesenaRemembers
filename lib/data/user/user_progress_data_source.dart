@@ -10,9 +10,11 @@ class UserProgressDataSource {
 
   CollectionReference<Map<String, dynamic>> get _users =>
       _firestore.collection('users');
+  CollectionReference<Map<String, dynamic>> get _publicProfiles =>
+      _firestore.collection('public_profiles');
 
   Stream<List<Map<String, dynamic>>> getLeaderboardStream({int limit = 50}) {
-    return _users.orderBy('xp', descending: true).limit(limit).snapshots().map((
+    return _publicProfiles.orderBy('xp', descending: true).limit(limit).snapshots().map((
       snapshot,
     ) {
       return snapshot.docs.map((doc) {
@@ -34,11 +36,16 @@ class UserProgressDataSource {
     required int totalQuestions,
     required int tourElapsedSeconds,
     bool isTourComplete = false,
+    int? tourTotalXp,
+    int? tourCorrectAnswers,
+    int? tourTotalQuestions,
   }) async {
     final userRef = _users.doc(uid);
+    final publicRef = _publicProfiles.doc(uid);
 
     await _firestore.runTransaction((transaction) async {
       final snapshot = await transaction.get(userRef);
+      final publicSnapshot = await transaction.get(publicRef);
       final data = snapshot.data() ?? <String, dynamic>{};
 
       // ── Visited POIs ───────────────────────────────────────────────────
@@ -55,8 +62,10 @@ class UserProgressDataSource {
       // ── Max XP in un singolo tour ─────────────────────────────────────
       final currentMaxSingleTourXp =
           (data['maxSingleTourXp'] as num?)?.toInt() ?? 0;
-      final nextMaxSingleTourXp = isTourComplete && xpGained > currentMaxSingleTourXp
-          ? xpGained
+      final xpForCompletedTour = tourTotalXp ?? xpGained;
+      final nextMaxSingleTourXp = isTourComplete &&
+              xpForCompletedTour > currentMaxSingleTourXp
+          ? xpForCompletedTour
           : currentMaxSingleTourXp;
 
       // ── Quiz stats ────────────────────────────────────────────────────
@@ -97,8 +106,14 @@ class UserProgressDataSource {
         totalQuizCompleted: nextQuizCompleted,
         totalToursCompleted: nextToursCompleted,
         totalXp: nextXp,
-        correctAnswers: correctAnswers,
-        totalQuestions: totalQuestions,
+        // Sul completamento confrontiamo tutte le risposte del tour, non solo
+        // quelle dell'ultima tappa.
+        correctAnswers: isTourComplete
+            ? (tourCorrectAnswers ?? correctAnswers)
+            : correctAnswers,
+        totalQuestions: isTourComplete
+            ? (tourTotalQuestions ?? totalQuestions)
+            : totalQuestions,
         tourElapsedSeconds: tourElapsedSeconds,
         isTourComplete: isTourComplete,
       );
@@ -106,29 +121,57 @@ class UserProgressDataSource {
       final nextPending = [...alreadyPending, ...newUnlocks];
 
       // ── Write ─────────────────────────────────────────────────────────
-      transaction.set(userRef, {
+      final nextMaxQuizScore = quizScorePercent > currentMaxQuizScore
+          ? quizScorePercent
+          : currentMaxQuizScore;
+      final nextUserFields = <String, dynamic>{
         'visitedPoiIds': visitedPoiIds,
         'xp': nextXp,
         'leaderboardScore': nextXp,
         'maxSingleTourXp': nextMaxSingleTourXp,
-        'maxQuizScore': quizScorePercent > currentMaxQuizScore
-            ? quizScorePercent
-            : currentMaxQuizScore,
+        'maxQuizScore': nextMaxQuizScore,
         'totalQuizCompleted': nextQuizCompleted,
         'totalToursCompleted': nextToursCompleted,
         'totalCorrectAnswers': nextCorrectAnswers,
         'bestTourTimeSeconds': nextBestTourTime,
-        'unlockedAchievements': alreadyUnlocked, // Resta inalterato
-        'pendingAchievements': nextPending, // Aggiungi ai pending
+        'unlockedAchievements': alreadyUnlocked,
+        'pendingAchievements': nextPending,
         'updatedAt': FieldValue.serverTimestamp(),
+      };
+      transaction.set(userRef, nextUserFields, SetOptions(merge: true));
+
+      // La classifica e i profili pubblici usano una proiezione senza email,
+      // preferenze, richieste di amicizia o token FCM.
+      final currentPublic = publicSnapshot.data() ?? <String, dynamic>{};
+      transaction.set(publicRef, {
+        'displayName': data['displayName'] ?? currentPublic['displayName'] ?? 'Utente',
+        'displayNameNormalized': data['displayNameNormalized'] ?? currentPublic['displayNameNormalized'] ?? 'utente',
+        'username': data['username'] ?? currentPublic['username'] ?? '',
+        'usernameNormalized': data['usernameNormalized'] ?? currentPublic['usernameNormalized'] ?? '',
+        'avatarId': data['avatarId'] ?? currentPublic['avatarId'] ?? 'soldato',
+        'profileCompleted': data['profileCompleted'] == true,
+        'onboardingCompleted': data['onboardingCompleted'] == true,
+        'xp': nextXp,
+        'leaderboardScore': nextXp,
+        'visitedPoiIds': visitedPoiIds,
+        'unlockedAchievements': alreadyUnlocked,
+        'maxQuizScore': nextMaxQuizScore,
+        'totalQuizCompleted': nextQuizCompleted,
+        'totalToursCompleted': nextToursCompleted,
+        'totalCorrectAnswers': nextCorrectAnswers,
+        'bestTourTimeSeconds': nextBestTourTime,
+        'maxSingleTourXp': nextMaxSingleTourXp,
+        'friends': List<String>.from(data['friends'] ?? currentPublic['friends'] ?? const []),
       }, SetOptions(merge: true));
     });
   }
 
   Future<void> unlockPendingAchievement(String uid, String achievementId) async {
     final userRef = _users.doc(uid);
+    final publicRef = _publicProfiles.doc(uid);
     await _firestore.runTransaction((transaction) async {
       final snapshot = await transaction.get(userRef);
+      final publicSnapshot = await transaction.get(publicRef);
       if (!snapshot.exists) return;
 
       final data = snapshot.data() ?? {};
@@ -146,6 +189,11 @@ class UserProgressDataSource {
           'unlockedAchievements': unlocked,
           'updatedAt': FieldValue.serverTimestamp(),
         });
+        if (publicSnapshot.exists) {
+          transaction.update(publicRef, {
+            'unlockedAchievements': unlocked,
+          });
+        }
       }
     });
   }

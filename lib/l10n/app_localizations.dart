@@ -461,17 +461,17 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
-  /// No description provided for @navSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get navSettings;
-
   /// No description provided for @navCommunity.
   ///
   /// In en, this message translates to:
   /// **'Community'**
   String get navCommunity;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
 
   /// No description provided for @errorLoadPreferences.
   ///
@@ -610,12 +610,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'🎉 Tour completed! Great job.'**
   String get tourCompleted;
-
-  /// XP gained badge shown in the tour completion animation
-  ///
-  /// In en, this message translates to:
-  /// **'+{xp} XP earned'**
-  String tourCompletionXpGained(int xp);
 
   /// No description provided for @tourStopButton.
   ///
@@ -2194,73 +2188,149 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1945–1946'**
   String get quiz_rifugi_antiaerei_q2_o3;
+
+  /// XP gained badge shown in the tour completion animation
+  ///
+  /// In en, this message translates to:
+  /// **'+{xp} XP earned'**
+  String tourCompletionXpGained(int xp);
+
   /// No description provided for @notificationNoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications at the moment.'**
   String get notificationNoNotifications;
 
   /// No description provided for @notificationAchievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Unlocked!'**
   String get notificationAchievementUnlocked;
 
   /// No description provided for @notificationFriendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request'**
   String get notificationFriendRequest;
 
   /// No description provided for @notificationRedeemButton.
+  ///
+  /// In en, this message translates to:
+  /// **'REDEEM'**
   String get notificationRedeemButton;
 
   /// No description provided for @achievementUnlockButton.
+  ///
+  /// In en, this message translates to:
+  /// **'UNLOCK'**
   String get achievementUnlockButton;
 
   /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
   String get onboardingSkip;
 
   /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
   String get onboardingNext;
 
   /// No description provided for @onboardingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start exploring'**
   String get onboardingStart;
 
   /// No description provided for @onboardingSlide0Tag.
+  ///
+  /// In en, this message translates to:
+  /// **'WELCOME'**
   String get onboardingSlide0Tag;
 
   /// No description provided for @onboardingSlide0Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cesena\nRemembers'**
   String get onboardingSlide0Title;
 
   /// No description provided for @onboardingSlide0Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the places that shaped the history of Cesena. A journey through memories, quizzes and people.'**
   String get onboardingSlide0Desc;
 
   /// No description provided for @onboardingSlide1Tag.
+  ///
+  /// In en, this message translates to:
+  /// **'01 — TOUR'**
   String get onboardingSlide1Tag;
 
   /// No description provided for @onboardingSlide1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow\nthe route'**
   String get onboardingSlide1Title;
 
   /// No description provided for @onboardingSlide1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a guided tour and walk through historical sites. GPS guides you step by step.'**
   String get onboardingSlide1Desc;
 
   /// No description provided for @onboardingSlide2Tag.
+  ///
+  /// In en, this message translates to:
+  /// **'02 — QUIZ'**
   String get onboardingSlide2Tag;
 
   /// No description provided for @onboardingSlide2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Put yourself\nto the test'**
   String get onboardingSlide2Title;
 
   /// No description provided for @onboardingSlide2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer questions about each location. The more accurate you are, the more XP you earn.'**
   String get onboardingSlide2Desc;
 
   /// No description provided for @onboardingSlide3Tag.
+  ///
+  /// In en, this message translates to:
+  /// **'03 — LEADERBOARD'**
   String get onboardingSlide3Tag;
 
   /// No description provided for @onboardingSlide3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Climb\nthe top'**
   String get onboardingSlide3Title;
 
   /// No description provided for @onboardingSlide3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Compete with other explorers on the real-time leaderboard.'**
   String get onboardingSlide3Desc;
 
   /// No description provided for @onboardingSlide4Tag.
+  ///
+  /// In en, this message translates to:
+  /// **'04 — ACHIEVEMENTS'**
   String get onboardingSlide4Tag;
 
   /// No description provided for @onboardingSlide4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect\nbadges'**
   String get onboardingSlide4Title;
 
   /// No description provided for @onboardingSlide4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Every milestone unlocks an exclusive badge. Complete tours, ace quizzes and make friends.'**
   String get onboardingSlide4Desc;
 
   /// No description provided for @quizResultPerfectTitle.

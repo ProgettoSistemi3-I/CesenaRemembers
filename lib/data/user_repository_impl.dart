@@ -86,6 +86,9 @@ class UserRepositoryImpl implements IUserRepository {
     required int totalQuestions,
     required int tourElapsedSeconds,
     bool isTourComplete = false,
+    int? tourTotalXp,
+    int? tourCorrectAnswers,
+    int? tourTotalQuestions,
   }) => _progress.registerQuizCompletion(
     uid: uid,
     poiId: poiId,
@@ -94,6 +97,9 @@ class UserRepositoryImpl implements IUserRepository {
     totalQuestions: totalQuestions,
     tourElapsedSeconds: tourElapsedSeconds,
     isTourComplete: isTourComplete,
+    tourTotalXp: tourTotalXp,
+    tourCorrectAnswers: tourCorrectAnswers,
+    tourTotalQuestions: tourTotalQuestions,
   );
 
   @override
@@ -143,6 +149,10 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<void> saveFcmToken(String uid, String token) =>
       _profile.saveFcmToken(uid, token);
+
+  @override
+  Future<void> removeFcmToken(String uid, String token) =>
+      _profile.removeFcmToken(uid, token);
 
   // --- BAN ---
   @override

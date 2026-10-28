@@ -3,10 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Verifica la presenza della chiave
-const keyPath = path.join(__dirname, 'serviceAccountKey.json');
+const keyPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(__dirname, 'serviceAccountKey.json');
 if (!fs.existsSync(keyPath)) {
-  console.error("ERRORE CRITICO: Il file 'serviceAccountKey.json' non e' presente.");
-  console.error("Scaricalo dalla console di Firebase (Impostazioni Progetto -> Account di Servizio) e inseriscilo in questa cartella.");
+  console.error('ERRORE CRITICO: credenziali Firebase non trovate nel percorso configurato.');
+  console.error('Configura FIREBASE_SERVICE_ACCOUNT_PATH e monta il file come secret read-only.');
   process.exit(1);
 }
 
@@ -41,18 +41,20 @@ db.collection('users').onSnapshot(snapshot => {
       global.usersCache[userId] = {
         requestsCount: receivedRequests.length,
         friendsCount: friends.length,
-        sentCount: sentRequests.length // 🔴 NUOVO
+        sentCount: sentRequests.length,
+        notificationsEnabled: newData.preferences?.notifiche !== false
       };
 
       // Se non avevamo lo stato precedente, lo saltiamo per evitare falsi positivi all'avvio
       if (!previousState) return;
+      if (newData.preferences?.notifiche === false) return;
 
       // ------------------------------------------------------------------
       // CASO 1: NUOVA RICHIESTA RICEVUTA
       // ------------------------------------------------------------------
       if (receivedRequests.length > previousState.requestsCount) {
         console.log(`🔔 Nuova richiesta di amicizia per l'utente ${userId}!`);
-        await inviaNotifica(fcmTokens, {
+        await inviaNotifica(userId, fcmTokens, {
           title: 'Nuova richiesta di amicizia',
           body: 'Qualcuno vuole stringere amicizia con te su Cesena Remembers!',
           type: 'friend_request'
@@ -65,7 +67,7 @@ db.collection('users').onSnapshot(snapshot => {
       // 🔴 IL FIX: Inviamo la notifica SOLO a chi ha visto diminuire le sue richieste INVIATE
       if (friends.length > previousState.friendsCount && sentRequests.length < previousState.sentCount) {
         console.log(`🤝 L'utente ${userId} ha un nuovo amico (aveva inviato lui la richiesta)!`);
-        await inviaNotifica(fcmTokens, {
+        await inviaNotifica(userId, fcmTokens, {
           title: 'Nuova Amicizia!',
           body: 'La tua richiesta di amicizia è stata accettata.',
           type: 'friend_accepted'
@@ -78,7 +80,8 @@ db.collection('users').onSnapshot(snapshot => {
       global.usersCache[change.doc.id] = {
         requestsCount: (change.doc.data().receivedFriendRequests || []).length,
         friendsCount: (change.doc.data().friends || []).length,
-        sentCount: (change.doc.data().sentFriendRequests || []).length // 🔴 NUOVO
+        sentCount: (change.doc.data().sentFriendRequests || []).length,
+        notificationsEnabled: change.doc.data().preferences?.notifiche !== false
       };
     }
   });
@@ -87,7 +90,7 @@ db.collection('users').onSnapshot(snapshot => {
 });
 
 // Funzione helper per inviare la notifica pulendo il codice principale
-async function inviaNotifica(tokens, payload) {
+async function inviaNotifica(userId, tokens, payload) {
   if (tokens.length === 0) {
     console.log(`⚠️ Impossibile inviare notifica: Nessun token FCM registrato.`);
     return;
@@ -106,7 +109,19 @@ async function inviaNotifica(tokens, payload) {
 
   try {
     const response = await admin.messaging().sendEachForMulticast(message);
-    console.log(`✅ Notifica "${payload.title}" inviata a ${response.successCount} dispositivi.`);
+    console.log(`Notifica "${payload.title}" inviata a ${response.successCount} dispositivi.`);
+    const invalidTokens = [];
+    response.responses.forEach((item, index) => {
+      const code = item.error?.code || '';
+      if (!item.success && (code.includes('registration-token-not-registered') || code.includes('invalid-registration-token'))) {
+        invalidTokens.push(tokens[index]);
+      }
+    });
+    if (invalidTokens.length) {
+      await db.collection('users').doc(userId).update({
+        fcmTokens: admin.firestore.FieldValue.arrayRemove(...invalidTokens)
+      });
+    }
   } catch (error) {
     console.error("Errore durante l'invio della notifica:", error);
   }

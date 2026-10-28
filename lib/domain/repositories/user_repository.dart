@@ -32,6 +32,9 @@ abstract class IUserRepository {
     required int totalQuestions,
     required int tourElapsedSeconds,
     bool isTourComplete = false,
+    int? tourTotalXp,
+    int? tourCorrectAnswers,
+    int? tourTotalQuestions,
   });
   Future<void> unlockPendingAchievement(String uid, String achievementId);
   Future<void> deleteUserData({required String uid});
@@ -47,6 +50,7 @@ abstract class IUserRepository {
   Future<List<UserProfile>> getUsersByIds(List<String> uids);
   Future<bool> checkAreFriends(String currentUid, String targetUid);
   Future<void> saveFcmToken(String uid, String token);
+  Future<void> removeFcmToken(String uid, String token);
 
   // Ban
   Future<bool> isUserBanned(String uid);

@@ -42,6 +42,7 @@ class PublicProfilePage extends StatefulWidget {
 
 class _PublicProfilePageState extends State<PublicProfilePage> {
   UserProfile? _targetProfile;
+  UserProfile? _myProfile;
 
   bool _isLoading = true;
 
@@ -66,14 +67,16 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
     });
 
     try {
-      final profile = await sl<UserProfileUseCases>().getUserProfile(
-        widget.uid,
-      );
+      final profiles = sl<UserProfileUseCases>();
+      final profile = await profiles.getUserProfile(widget.uid);
+      final myUid = _socialCtrl.currentUserId;
+      final myProfile = myUid.isEmpty ? null : await profiles.getUserProfile(myUid);
 
       if (!mounted) return;
 
       setState(() {
         _targetProfile = profile;
+        _myProfile = myProfile;
 
         _isLoading = false;
 
@@ -92,47 +95,54 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
   void _onFriendAction(String action) async {
     final myUid = _socialCtrl.currentUserId;
+    final target = _targetProfile;
+    final me = _myProfile;
+    if (target == null || me == null || myUid.isEmpty) return;
 
-    if (_targetProfile == null) return;
-
-    final previousFriends = List<String>.from(_targetProfile!.friends);
-
-    final previousSent = List<String>.from(_targetProfile!.sentFriendRequests);
-
-    final previousReceived = List<String>.from(
-      _targetProfile!.receivedFriendRequests,
-    );
+    final previousTargetFriends = List<String>.from(target.friends);
+    final previousMyFriends = List<String>.from(me.friends);
+    final previousSent = List<String>.from(me.sentFriendRequests);
+    final previousReceived = List<String>.from(me.receivedFriendRequests);
 
     setState(() {
-      if (action == 'send') {
-        _targetProfile!.receivedFriendRequests.add(myUid);
-      } else if (action == 'cancel') {
-        _targetProfile!.receivedFriendRequests.remove(myUid);
-      } else if (action == 'remove') {
-        _targetProfile!.friends.remove(myUid);
-      } else if (action == 'accept') {
-        _targetProfile!.sentFriendRequests.remove(myUid);
-
-        _targetProfile!.friends.add(myUid);
-      } else if (action == 'reject') {
-        _targetProfile!.sentFriendRequests.remove(myUid);
+      switch (action) {
+        case 'send':
+          if (!me.sentFriendRequests.contains(widget.uid)) {
+            me.sentFriendRequests.add(widget.uid);
+          }
+          break;
+        case 'cancel':
+          me.sentFriendRequests.remove(widget.uid);
+          break;
+        case 'accept':
+          me.receivedFriendRequests.remove(widget.uid);
+          if (!me.friends.contains(widget.uid)) me.friends.add(widget.uid);
+          if (!target.friends.contains(myUid)) target.friends.add(myUid);
+          break;
+        case 'reject':
+          me.receivedFriendRequests.remove(widget.uid);
+          break;
+        case 'remove':
+          me.friends.remove(widget.uid);
+          target.friends.remove(myUid);
+          break;
       }
     });
 
     final success = await _socialCtrl.handleFriendAction(action, widget.uid);
-
     if (success || !mounted) return;
 
     setState(() {
-      _targetProfile!.friends
+      target.friends
         ..clear()
-        ..addAll(previousFriends);
-
-      _targetProfile!.sentFriendRequests
+        ..addAll(previousTargetFriends);
+      me.friends
+        ..clear()
+        ..addAll(previousMyFriends);
+      me.sentFriendRequests
         ..clear()
         ..addAll(previousSent);
-
-      _targetProfile!.receivedFriendRequests
+      me.receivedFriendRequests
         ..clear()
         ..addAll(previousReceived);
     });
@@ -140,9 +150,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.errorOperationFailed),
-
         backgroundColor: AppPalette.danger,
-
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -431,11 +439,11 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
     final myUid = _socialCtrl.currentUserId;
 
-    bool isFriend = profile.friends.contains(myUid);
-
-    bool requestSent = profile.receivedFriendRequests.contains(myUid);
-
-    bool requestReceived = profile.sentFriendRequests.contains(myUid);
+    final myProfile = _myProfile;
+    final isFriend = myProfile?.friends.contains(profile.uid) == true ||
+        profile.friends.contains(myUid);
+    final requestSent = myProfile?.sentFriendRequests.contains(profile.uid) == true;
+    final requestReceived = myProfile?.receivedFriendRequests.contains(profile.uid) == true;
 
     final bestTourTimeLabel = profile.bestTourTimeSeconds > 0
         ? '${profile.bestTourTimeSeconds ~/ 60}m ${profile.bestTourTimeSeconds % 60}s'

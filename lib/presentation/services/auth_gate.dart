@@ -125,7 +125,7 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
   Future<void> _initNotifications() async {
     final notificationService = NotificationService();
     try {
-      await notificationService.init(_profileUseCases, widget.appUser.id, context);
+      await notificationService.init();
     } catch (e, st) {
       AppLogger.error('Notification init failed', error: e, stackTrace: st, name: 'AuthGate');
     }
@@ -137,11 +137,13 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       if (profile == null || !mounted) return;
 
       final currentRequests = profile.receivedFriendRequests.length;
-      if (_previousReceivedRequestsCount != -1 &&
+      if (profile.notificheEnabled && _previousReceivedRequestsCount != -1 &&
           currentRequests > _previousReceivedRequestsCount) {
-        notificationService.showFriendRequestNotification(
+        unawaited(notificationService.showFriendRequestNotification(
           currentRequests - _previousReceivedRequestsCount,
-        );
+          title: AppLocalizations.of(context)!.notificationFriendRequest,
+          languageCode: Localizations.localeOf(context).languageCode,
+        ));
       }
       _previousReceivedRequestsCount = currentRequests;
 

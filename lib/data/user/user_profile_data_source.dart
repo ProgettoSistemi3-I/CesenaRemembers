@@ -15,11 +15,45 @@ class UserProfileDataSource {
       _firestore.collection('users');
   CollectionReference<Map<String, dynamic>> get _usernames =>
       _firestore.collection('usernames');
+  CollectionReference<Map<String, dynamic>> get _publicProfiles =>
+      _firestore.collection('public_profiles');
+
+  /// I documenti pubblici non contengono email, token FCM, preferenze o richieste di amicizia.
+  /// La copia viene aggiornata nella stessa transazione/batch del documento privato.
+  Map<String, dynamic> _publicProfilePayload(Map<String, dynamic> data) => {
+    'displayName': data['displayName'] ?? 'Utente',
+    'displayNameNormalized': data['displayNameNormalized'] ??
+        (data['displayName'] ?? 'Utente').toString().toLowerCase(),
+    'username': data['username'] ?? '',
+    'usernameNormalized': data['usernameNormalized'] ?? '',
+    'avatarId': data['avatarId'] ?? 'soldato',
+    'profileCompleted': data['profileCompleted'] == true,
+    'onboardingCompleted': data['onboardingCompleted'] == true,
+    'xp': (data['xp'] as num?)?.toInt() ?? 0,
+    'leaderboardScore': (data['leaderboardScore'] as num?)?.toInt() ??
+        (data['xp'] as num?)?.toInt() ?? 0,
+    'visitedPoiIds': List<String>.from(data['visitedPoiIds'] ?? const []),
+    'unlockedAchievements': List<String>.from(
+      data['unlockedAchievements'] ?? const [],
+    ),
+    'maxQuizScore': (data['maxQuizScore'] as num?)?.toInt() ?? 0,
+    'totalQuizCompleted': (data['totalQuizCompleted'] as num?)?.toInt() ?? 0,
+    'totalToursCompleted': (data['totalToursCompleted'] as num?)?.toInt() ?? 0,
+    'totalCorrectAnswers': (data['totalCorrectAnswers'] as num?)?.toInt() ?? 0,
+    'bestTourTimeSeconds': (data['bestTourTimeSeconds'] as num?)?.toInt() ?? 0,
+    'maxSingleTourXp': (data['maxSingleTourXp'] as num?)?.toInt() ?? 0,
+    'friends': List<String>.from(data['friends'] ?? const []),
+  };
 
   String? getCurrentUserUid() => FirebaseAuth.instance.currentUser?.uid;
 
   Future<UserProfile> getUserProfile(String uid) async {
-    final snapshot = await _users.doc(uid).get();
+    // I dati completi (email, preferenze e token FCM) sono leggibili solo dal
+    // proprietario. Per gli altri profili leggiamo esclusivamente la proiezione pubblica.
+    final isOwner = getCurrentUserUid() == uid;
+    final snapshot = isOwner
+        ? await _users.doc(uid).get()
+        : await _publicProfiles.doc(uid).get();
 
     if (!snapshot.exists || snapshot.data() == null) {
       throw Exception('Profilo utente non trovato per uid: $uid');
@@ -29,7 +63,9 @@ class UserProfileDataSource {
   }
 
   Stream<UserProfile?> getUserProfileStream(String uid) {
-    return _users.doc(uid).snapshots().map((snapshot) {
+    final isOwner = getCurrentUserUid() == uid;
+    final source = isOwner ? _users.doc(uid).snapshots() : _publicProfiles.doc(uid).snapshots();
+    return source.map((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
         return UserModel.fromJson(snapshot.data()!, snapshot.id);
       }
@@ -94,22 +130,28 @@ class UserProfileDataSource {
           return;
         }
 
-        transaction.set(usernameRef, {
-          'uid': uid,
-          'username': username.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+        // Se l'indice esiste già ed è di questo UID, non eseguire un update:
+        // le Rules rendono immutabile l'indice username dopo la creazione.
+        if (!existingUsername.exists) {
+          transaction.set(usernameRef, {
+            'uid': uid,
+            'username': normalizedUsername,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
 
+        final completedPayload = _buildCompletedProfilePayload(
+          existingData: existingData,
+          email: email,
+          username: username,
+          normalizedUsername: normalizedUsername,
+          displayName: displayName,
+          avatarId: avatarId,
+        );
+        transaction.set(userRef, completedPayload, SetOptions(merge: true));
         transaction.set(
-          userRef,
-          _buildCompletedProfilePayload(
-            existingData: existingData,
-            email: email,
-            username: username,
-            normalizedUsername: normalizedUsername,
-            displayName: displayName,
-            avatarId: avatarId,
-          ),
+          _publicProfiles.doc(uid),
+          _publicProfilePayload({...existingData, ...completedPayload}),
           SetOptions(merge: true),
         );
       });
@@ -137,25 +179,41 @@ class UserProfileDataSource {
       'email': email,
       'displayName': displayName.trim(),
       'displayNameNormalized': displayName.trim().toLowerCase(),
-      'username': username.trim(),
+      'username': normalizedUsername,
       'usernameNormalized': normalizedUsername,
       'avatarId': avatarId,
       'profileCompleted': true,
+      'onboardingCompleted': existingData['onboardingCompleted'] == true,
       'profileCompletedAt': FieldValue.serverTimestamp(),
       'xp': (existingData['xp'] as num?)?.toInt() ?? 0,
       'visitedPoiIds': List<String>.from(existingData['visitedPoiIds'] ?? []),
       'unlockedAchievements': List<String>.from(
         existingData['unlockedAchievements'] ?? [],
       ),
+      'pendingAchievements': List<String>.from(
+        existingData['pendingAchievements'] ?? [],
+      ),
       'maxQuizScore': (existingData['maxQuizScore'] as num?)?.toInt() ?? 0,
       'totalQuizCompleted':
           (existingData['totalQuizCompleted'] as num?)?.toInt() ?? 0,
+      'totalToursCompleted':
+          (existingData['totalToursCompleted'] as num?)?.toInt() ?? 0,
       'totalCorrectAnswers':
           (existingData['totalCorrectAnswers'] as num?)?.toInt() ?? 0,
       'bestTourTimeSeconds':
           (existingData['bestTourTimeSeconds'] as num?)?.toInt() ?? 0,
-      'leaderboardScore':
-          (existingData['leaderboardScore'] as num?)?.toInt() ?? 0,
+      'maxSingleTourXp':
+          (existingData['maxSingleTourXp'] as num?)?.toInt() ?? 0,
+      // La classifica deriva sempre dall'XP: evita divergenze da vecchi dati.
+      'leaderboardScore': (existingData['xp'] as num?)?.toInt() ?? 0,
+      'friends': List<String>.from(existingData['friends'] ?? []),
+      'sentFriendRequests': List<String>.from(
+        existingData['sentFriendRequests'] ?? [],
+      ),
+      'receivedFriendRequests': List<String>.from(
+        existingData['receivedFriendRequests'] ?? [],
+      ),
+      'fcmTokens': List<String>.from(existingData['fcmTokens'] ?? []),
       'preferences': {
         'notifiche': existingPrefs['notifiche'] ?? true,
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
@@ -189,7 +247,20 @@ class UserProfileDataSource {
       updates['avatarId'] = avatarId.trim();
     }
 
-    await _users.doc(uid).update(updates);
+    final batch = _firestore.batch();
+    batch.update(_users.doc(uid), updates);
+    final publicUpdates = <String, dynamic>{};
+    if (updates.containsKey('displayName')) {
+      publicUpdates['displayName'] = updates['displayName'];
+      publicUpdates['displayNameNormalized'] = updates['displayNameNormalized'];
+    }
+    if (updates.containsKey('avatarId')) {
+      publicUpdates['avatarId'] = updates['avatarId'];
+    }
+    if (publicUpdates.isNotEmpty) {
+      batch.update(_publicProfiles.doc(uid), publicUpdates);
+    }
+    await batch.commit();
   }
 
   Future<bool> isUsernameAvailable(String username) async {
@@ -232,12 +303,12 @@ class UserProfileDataSource {
         ..removeWhere((value) => value.trim().isEmpty);
 
       final queries = <Future<QuerySnapshot<Map<String, dynamic>>>>[
-        _users
+        _publicProfiles
             .where('usernameNormalized', isGreaterThanOrEqualTo: cleanQuery)
             .where('usernameNormalized', isLessThanOrEqualTo: '$cleanQuery\uf8ff')
             .limit(10)
             .get(),
-        _users
+        _publicProfiles
             .where('displayNameNormalized', isGreaterThanOrEqualTo: cleanQuery)
             .where('displayNameNormalized', isLessThanOrEqualTo: '$cleanQuery\uf8ff')
             .limit(10)
@@ -246,7 +317,7 @@ class UserProfileDataSource {
 
       for (final probe in displayNameProbes) {
         queries.add(
-          _users
+          _publicProfiles
               .where('displayName', isGreaterThanOrEqualTo: probe)
               .where('displayName', isLessThanOrEqualTo: '$probe\uf8ff')
               .limit(10)
@@ -273,19 +344,41 @@ class UserProfileDataSource {
   }
 
   Future<void> markOnboardingCompleted(String uid) async {
-    await _users.doc(uid).update({
+    final batch = _firestore.batch();
+    final update = {
       'onboardingCompleted': true,
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    };
+    batch.update(_users.doc(uid), update);
+    batch.update(_publicProfiles.doc(uid), update);
+    await batch.commit();
   }
 
   Future<void> saveFcmToken(String uid, String token) async {
     try {
-      await _users.doc(uid).set({
+      final ref = _users.doc(uid);
+      final snapshot = await ref.get();
+      if (!snapshot.exists) return;
+      final existing = List<String>.from(snapshot.data()?['fcmTokens'] ?? const []);
+      if (existing.contains(token)) return;
+      await ref.update({
         'fcmTokens': FieldValue.arrayUnion([token]),
-      }, SetOptions(merge: true));
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
       throw Exception('Impossibile salvare il token FCM: $e');
     }
+  }
+
+  Future<void> removeFcmToken(String uid, String token) async {
+    final ref = _users.doc(uid);
+    final snapshot = await ref.get();
+    if (!snapshot.exists) return;
+    final existing = List<String>.from(snapshot.data()?['fcmTokens'] ?? const []);
+    if (!existing.contains(token)) return;
+    await ref.update({
+      'fcmTokens': FieldValue.arrayRemove([token]),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }

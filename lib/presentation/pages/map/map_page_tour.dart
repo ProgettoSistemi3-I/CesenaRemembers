@@ -20,6 +20,9 @@ extension _MapPageTourActions on _MapPageState {
     final hasStarted = await _tourController.startTour();
     if (hasStarted) {
       _tourXpEarned = 0;
+      _tourCorrectAnswers = 0;
+      _tourTotalQuestions = 0;
+      _pendingQuizSave = Future<void>.value();
     }
     if (hasStarted && mounted && _tourController.currentStop != null) {
       _centerOnStop(_toLatLng(_tourController.currentStop!.position));
@@ -149,7 +152,19 @@ extension _MapPageTourActions on _MapPageState {
         iconBackground: visual.iconBackground,
         elapsedSeconds: _tourController.elapsedSeconds,
         userXp: userXp,
-        onNextStop: () {
+        onClose: () async {
+          // La tappa è modale durante il quiz: per evitare un blocco, il tasto
+          // chiudi chiede conferma e termina il tour solo se l'utente conferma.
+          await _confirmStopTour();
+          if (mounted && !_tourController.isActive) {
+            Navigator.of(context).pop();
+          }
+        },
+        onNextStop: () async {
+          // La registrazione del quiz è asincrona: il popup finale deve attendere
+          // il salvataggio dell'ultima tappa per mostrare l'XP corretto.
+          await _pendingQuizSave;
+          if (!mounted) return;
           Navigator.pop(context);
           if (_tourController.advanceToNextStop()) {
             if (_tourController.currentStop != null) {
@@ -174,7 +189,7 @@ extension _MapPageTourActions on _MapPageState {
           }
         },
         onQuizCompleted: (result) {
-          _registerQuizCompletion(
+          _pendingQuizSave = _registerQuizCompletion(
             currentStop.id,
             result,
             isLastStop: isLastStop,
@@ -200,6 +215,9 @@ extension _MapPageTourActions on _MapPageState {
       correctAnswers: result.score,
       legElapsedSeconds: _tourController.elapsedSeconds,
     );
+    final nextTourXp = _tourXpEarned + score.totalXp;
+    final nextTourCorrect = _tourCorrectAnswers + result.score;
+    final nextTourQuestions = _tourTotalQuestions + result.totalQuestions;
 
     try {
       await _progressUseCases.registerQuizCompletion(
@@ -210,9 +228,14 @@ extension _MapPageTourActions on _MapPageState {
         totalQuestions: result.totalQuestions,
         tourElapsedSeconds: _tourController.totalElapsedSeconds,
         isTourComplete: isLastStop,
+        tourTotalXp: nextTourXp,
+        tourCorrectAnswers: nextTourCorrect,
+        tourTotalQuestions: nextTourQuestions,
       );
       _cachedUserXp = (_cachedUserXp ?? 0) + score.totalXp;
-      _tourXpEarned += score.totalXp;
+      _tourXpEarned = nextTourXp;
+      _tourCorrectAnswers = nextTourCorrect;
+      _tourTotalQuestions = nextTourQuestions;
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
       final xpText = l10n.tourXpEarned(score.totalXp);

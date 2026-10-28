@@ -52,6 +52,9 @@ class UserProfileUseCases {
   Future<void> saveFcmToken(String uid, String token) =>
       _repository.saveFcmToken(uid, token);
 
+  Future<void> removeFcmToken(String uid, String token) =>
+      _repository.removeFcmToken(uid, token);
+
   // --- BAN ---
   /// Ritorna true se l'utente è presente nella collection banned_users.
   Future<bool> isUserBanned(String uid) => _repository.isUserBanned(uid);

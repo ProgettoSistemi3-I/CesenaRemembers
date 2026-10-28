@@ -19,12 +19,12 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_v
 # Contratto HTTP con Flutter (lib/data/quiz_repository_impl.dart)
 # --------------------------------------------------------------------------
 class PoiRequest(BaseModel):
-    id: str = Field(max_length=64)
-    name: str = Field(default="", max_length=200)
+    id: str = Field(min_length=1, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")
+    name: str = Field(default="", max_length=120)
     # Ricevuta per compatibilità ma NON usata come fonte di fatti: le
     # descrizioni ARB contengono affermazioni non verificate.
     description: str = Field(default="", max_length=4000)
-    userXp: int
+    userXp: int = Field(ge=0, le=1000000)
     languageCode: Literal["it", "en"] = "it"
 
 

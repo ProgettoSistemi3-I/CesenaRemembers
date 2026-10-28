@@ -1,77 +1,123 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
 import 'shell_navigation_store.dart';
 
 class PushNotificationService {
-  static bool _isInitialized = false;
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
-  static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static String? _initializedUid;
+  static String? _registeredToken;
+  static StreamSubscription<String>? _tokenRefreshSubscription;
+  static StreamSubscription<RemoteMessage>? _openedSubscription;
 
   static Future<void> initializeAndSaveToken() async {
-    if (_isInitialized) return;
+    final profiles = sl<UserProfileUseCases>();
+    final uid = profiles.getCurrentUserUid();
+    if (uid == null || uid.isEmpty) return;
+
+    if (_initializedUid != uid) {
+      final oldUid = _initializedUid;
+      if (oldUid != null) {
+        await _unregisterTokenForUid(oldUid, profiles, deleteFcmToken: false);
+      }
+      _initializedUid = uid;
+    }
+
     try {
       final messaging = FirebaseMessaging.instance;
-
-      // 1. Richiedi i permessi all'utente
-      NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        // 2. Prendi l'UID corrente ed estrai il Token FCM
-        final profileUseCases = sl<UserProfileUseCases>();
-        final uid = profileUseCases.getCurrentUserUid();
-
-        if (uid != null) {
-          String? token = await messaging.getToken();
-          if (token != null) {
-            await profileUseCases.saveFcmToken(uid, token);
-          }
-        }
-
-        // 3. Configura i Listener per gestire le notifiche in tempo reale
+      final profile = await profiles.getUserProfile(uid);
+      // Non chiedere il permesso di sistema quando l'utente ha disattivato
+      // esplicitamente le notifiche nell'app.
+      if (!profile.notificheEnabled) {
+        await _unregisterTokenForUid(uid, profiles, deleteFcmToken: false);
         _setupNotificationListeners();
-        _isInitialized = true;
+        return;
       }
+      final permission = await messaging.requestPermission(
+        alert: true, badge: true, sound: true,
+      );
+      if (permission.authorizationStatus != AuthorizationStatus.authorized) {
+        await _unregisterTokenForUid(uid, profiles, deleteFcmToken: false);
+        _setupNotificationListeners();
+        return;
+      }
+
+      final token = await messaging.getToken();
+      if (token != null && token.isNotEmpty) {
+        await profiles.saveFcmToken(uid, token);
+        _registeredToken = token;
+      }
+      _tokenRefreshSubscription ??= messaging.onTokenRefresh.listen((newToken) async {
+        final activeUid = profiles.getCurrentUserUid();
+        if (activeUid == null || activeUid.isEmpty) return;
+        try {
+          final activeProfile = await profiles.getUserProfile(activeUid);
+          if (activeProfile.notificheEnabled) {
+            await profiles.saveFcmToken(activeUid, newToken);
+            _registeredToken = newToken;
+          } else {
+            await profiles.removeFcmToken(activeUid, newToken);
+          }
+        } catch (_) {
+          // Push non deve impedire l'uso dell'app in caso di rete/permessi.
+        }
+      });
+      _setupNotificationListeners();
     } catch (_) {
-      // Evitiamo log rumorosi o sensibili in produzione.
+      // L'app resta utilizzabile anche se FCM non è disponibile.
+    }
+  }
+
+  static Future<void> unregisterCurrentUser() async {
+    final profiles = sl<UserProfileUseCases>();
+    final uid = profiles.getCurrentUserUid();
+    if (uid != null && uid.isNotEmpty) {
+      await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
+    }
+    _initializedUid = null;
+  }
+
+  static Future<void> _unregisterTokenForUid(
+    String uid,
+    UserProfileUseCases profiles, {
+    required bool deleteFcmToken,
+  }) async {
+    final token = _registeredToken;
+    if (token != null) {
+      try {
+        await profiles.removeFcmToken(uid, token);
+      } catch (_) {}
+    }
+    if (deleteFcmToken) {
+      try {
+        await FirebaseMessaging.instance.deleteToken();
+      } catch (_) {}
+      _registeredToken = null;
     }
   }
 
   static void _setupNotificationListeners() {
-    // ------------------------------------------------------------------
-    // 1. APP IN BACKGROUND: L'utente clicca sulla notifica nel sistema
-    // ------------------------------------------------------------------
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _openedSubscription ??= FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNotificationClick(message.data);
     });
-
-    // ------------------------------------------------------------------
-    // 2. APP CHIUSA (Terminata): L'utente clicca e l'app si accende da zero
-    // ------------------------------------------------------------------
-    FirebaseMessaging.instance.getInitialMessage().then((
-      RemoteMessage? message,
-    ) {
-      if (message != null) {
-        _handleNotificationClick(message.data);
-      }
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) _handleNotificationClick(message.data);
     });
   }
 
   static void _handleNotificationClick(Map<String, dynamic> data) {
     final notificationType = data['type'];
-
     if (notificationType == 'friend_request') {
       ShellNavigationStore.openFriendRequestsPanel.value = true;
-      ShellNavigationStore.goToTab(2); // Apri tab Profilo
+      ShellNavigationStore.goToTab(2);
     } else if (notificationType == 'friend_accepted') {
-      ShellNavigationStore.goToTab(1); // Apri tab Community
+      ShellNavigationStore.goToTab(1);
     }
   }
 }

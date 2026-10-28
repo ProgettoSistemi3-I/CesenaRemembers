@@ -9,13 +9,19 @@ services:
     ports:
       - "8000:8000" # Porta esposta su internet tramite Ngrok
     env_file:
-      - ./quiz-service/.env # Passa la chiave GROQ_API_KEY al container
+      - ./quiz-service/.env # Chiave provider LLM, esclusa dal repository
+    environment:
+      QUIZ_RATE_LIMIT_PER_MINUTE: "30"
     restart: unless-stopped
 
   # 2. MICROSERVIZIO NOTIFICHE (Node.js)
   notifier-service:
-    build: 
+    build:
       context: ./notifier-service
     container_name: cesena-notifier-service
+    environment:
+      FIREBASE_SERVICE_ACCOUNT_PATH: /run/secrets/firebase-service-account.json
+    volumes:
+      - ./notifier-service/serviceAccountKey.json:/run/secrets/firebase-service-account.json:ro
     # Nessuna porta esposta, lavora in background ascoltando Firestore
     restart: unless-stopped

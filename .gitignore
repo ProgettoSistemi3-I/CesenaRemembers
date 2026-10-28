@@ -49,3 +49,9 @@ server_docker/quiz-service/.env
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+**/.env
+**/serviceAccountKey*.json
+android/key.properties
+*.jks
+*.keystore

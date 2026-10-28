@@ -9,8 +9,8 @@ class _HeaderCard extends StatelessWidget {
   const _HeaderCard({
     required this.title,
     required this.subtitle,
-    this.imageAsset,
     this.icon,
+    this.imageAsset,
   });
 
   @override

@@ -6,134 +6,187 @@ import '../../models/user_model.dart';
 
 class UserSocialDataSource {
   UserSocialDataSource({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+      : _firestore = firestore;
 
   final FirebaseFirestore _firestore;
+  CollectionReference<Map<String, dynamic>> get _users => _firestore.collection('users');
+  CollectionReference<Map<String, dynamic>> get _publicProfiles => _firestore.collection('public_profiles');
+  CollectionReference<Map<String, dynamic>> get _friendRequestRoots => _firestore.collection('friend_requests');
 
-  CollectionReference<Map<String, dynamic>> get _users =>
-      _firestore.collection('users');
+  DocumentReference<Map<String, dynamic>> _requestRef(String recipientUid, String senderUid) =>
+      _friendRequestRoots.doc(recipientUid).collection('inbox').doc(senderUid);
 
   Future<void> sendFriendRequest(String currentUid, String targetUid) async {
+    if (currentUid == targetUid) throw ArgumentError('Non puoi aggiungere te stesso.');
     await _firestore.runTransaction((tx) async {
-      tx.update(_users.doc(currentUid), {
-        'sentFriendRequests': FieldValue.arrayUnion([targetUid]),
+      final currentRef = _users.doc(currentUid);
+      final targetPublicRef = _publicProfiles.doc(targetUid);
+      final reverseRequestRef = _requestRef(currentUid, targetUid);
+      final outgoingRequestRef = _requestRef(targetUid, currentUid);
+      final currentSnap = await tx.get(currentRef);
+      final targetPublicSnap = await tx.get(targetPublicRef);
+      final reverseSnap = await tx.get(reverseRequestRef);
+      if (!currentSnap.exists || !targetPublicSnap.exists) {
+        throw StateError('Profilo utente non disponibile.');
+      }
+      final current = currentSnap.data()!;
+      final target = targetPublicSnap.data()!;
+      final currentFriends = List<String>.from(current['friends'] ?? const []);
+      final currentSent = List<String>.from(current['sentFriendRequests'] ?? const []);
+      if (currentFriends.contains(targetUid) || currentSent.contains(targetUid)) return;
+      if (reverseSnap.exists || List<String>.from(current['receivedFriendRequests'] ?? const []).contains(targetUid)) {
+        throw StateError('L’utente ti ha già inviato una richiesta.');
+      }
+      if (List<String>.from(target['friends'] ?? const []).contains(currentUid)) return;
+      tx.set(outgoingRequestRef, {
+        'senderUid': currentUid,
+        'recipientUid': targetUid,
+        'createdAt': FieldValue.serverTimestamp(),
       });
+      tx.update(currentRef, {
+        'sentFriendRequests': FieldValue.arrayUnion([targetUid]),
+        'lastFriendActionPeerUid': targetUid,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      // Nessun read del documento privato del destinatario: viene modificato
+      // solo il suo array richieste, validato in modo stretto dalle Rules.
       tx.update(_users.doc(targetUid), {
         'receivedFriendRequests': FieldValue.arrayUnion([currentUid]),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
     });
   }
 
   Future<void> cancelFriendRequest(String currentUid, String targetUid) async {
-    await _firestore.runTransaction((tx) async {
-      tx.update(_users.doc(currentUid), {
-        'sentFriendRequests': FieldValue.arrayRemove([targetUid]),
-      });
-      tx.update(_users.doc(targetUid), {
-        'receivedFriendRequests': FieldValue.arrayRemove([currentUid]),
-      });
-    });
-  }
-
-  Future<void> acceptFriendRequest(
-    String currentUid,
-    String requesterUid,
-  ) async {
-    // Legge solo il documento dell'utente corrente per calcolare gli achievement.
-    // NON leggiamo il documento del richiedente in transazione: le Security Rules
-    // vietano di scrivere campi al di fuori di
-    // ['receivedFriendRequests','sentFriendRequests','friends','updatedAt']
-    // sul documento altrui. Scrivere 'unlockedAchievements' sul richiedente
-    // viola questa regola e causa il rollback con "Operazione non riuscita".
-    final currentSnap = await _users.doc(currentUid).get();
-    final currentData = currentSnap.data() ?? <String, dynamic>{};
-
-    final currentFriends = List<String>.from(currentData['friends'] ?? []);
-    if (!currentFriends.contains(requesterUid)) {
-      currentFriends.add(requesterUid);
-    }
-
-    final currentUnlocked = List<String>.from(
-      currentData['unlockedAchievements'] ?? [],
-    );
-    final newForCurrent = AchievementService.evaluateOnFriendAdded(
-      alreadyUnlocked: currentUnlocked,
-      friendCount: currentFriends.length,
-    );
-
-    // Usa un batch: nessun tx.get sul documento del richiedente,
-    // quindi nessuna violazione di rules.
     final batch = _firestore.batch();
-
-    // Aggiorna il documento dell'utente corrente (owner: può scrivere tutto).
     batch.update(_users.doc(currentUid), {
-      'receivedFriendRequests': FieldValue.arrayRemove([requesterUid]),
-      'friends': currentFriends,
-      if (newForCurrent.isNotEmpty)
-        'unlockedAchievements': FieldValue.arrayUnion(newForCurrent),
+      'sentFriendRequests': FieldValue.arrayRemove([targetUid]),
+      'lastFriendActionPeerUid': targetUid,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
-
-    // Aggiorna il documento del richiedente usando SOLO i campi consentiti
-    // dalla regola "non-owner" delle Security Rules:
-    // ['receivedFriendRequests', 'sentFriendRequests', 'friends', 'updatedAt'].
-    // Gli achievement del richiedente verranno valutati dal suo dispositivo
-    // alla prossima sessione tramite getUserProfileStream.
-    batch.update(_users.doc(requesterUid), {
-      'sentFriendRequests': FieldValue.arrayRemove([currentUid]),
-      'friends': FieldValue.arrayUnion([currentUid]),
+    batch.update(_users.doc(targetUid), {
+      'receivedFriendRequests': FieldValue.arrayRemove([currentUid]),
+      'lastFriendActionPeerUid': currentUid,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
-
+    batch.delete(_requestRef(targetUid, currentUid));
     await batch.commit();
   }
 
-  Future<void> rejectFriendRequest(
-    String currentUid,
-    String requesterUid,
-  ) async {
+  Future<void> acceptFriendRequest(String currentUid, String requesterUid) async {
+    if (currentUid == requesterUid) throw ArgumentError('Richiesta non valida.');
+    final currentRef = _users.doc(currentUid);
+    final currentPublicRef = _publicProfiles.doc(currentUid);
+    final requesterPublicRef = _publicProfiles.doc(requesterUid);
+    final requestRef = _requestRef(currentUid, requesterUid);
     await _firestore.runTransaction((tx) async {
-      tx.update(_users.doc(currentUid), {
+      final currentSnap = await tx.get(currentRef);
+      final currentPublicSnap = await tx.get(currentPublicRef);
+      final requesterPublicSnap = await tx.get(requesterPublicRef);
+      final requestSnap = await tx.get(requestRef);
+      if (!currentSnap.exists || !currentPublicSnap.exists || !requesterPublicSnap.exists || !requestSnap.exists) {
+        throw StateError('Profilo o richiesta non disponibile.');
+      }
+      final current = currentSnap.data()!;
+      final publicRequester = requesterPublicSnap.data()!;
+      final currentReceived = List<String>.from(current['receivedFriendRequests'] ?? const []);
+      if (!currentReceived.contains(requesterUid)) {
+        throw StateError('La richiesta non è più disponibile.');
+      }
+      final currentFriends = List<String>.from(current['friends'] ?? const []);
+      final requesterFriends = List<String>.from(publicRequester['friends'] ?? const []);
+      if (currentFriends.contains(requesterUid) || requesterFriends.contains(currentUid)) return;
+
+      final currentUnlocked = List<String>.from(current['unlockedAchievements'] ?? const []);
+      final requesterUnlocked = List<String>.from(publicRequester['unlockedAchievements'] ?? const []);
+      final currentPending = List<String>.from(current['pendingAchievements'] ?? const []);
+      final currentAwards = AchievementService.evaluateOnFriendAdded(
+        alreadyUnlocked: [...currentUnlocked, ...currentPending],
+        friendCount: currentFriends.length + 1,
+      );
+      // Le ricompense del richiedente sono determinate dal conteggio pubblico
+      // degli amici, senza leggere email, token o preferenze dell'altro utente.
+      final requesterAwards = <String>[];
+      if (requesterFriends.length + 1 >= 1 && !requesterUnlocked.contains('friend_1')) {
+        requesterAwards.add('friend_1');
+      }
+      if (requesterFriends.length + 1 >= 5 && !requesterUnlocked.contains('friend_5')) {
+        requesterAwards.add('friend_5');
+      }
+
+      tx.update(currentRef, {
         'receivedFriendRequests': FieldValue.arrayRemove([requesterUid]),
+        'friends': FieldValue.arrayUnion([requesterUid]),
+        'lastFriendActionPeerUid': requesterUid,
+        if (currentAwards.isNotEmpty) 'pendingAchievements': FieldValue.arrayUnion(currentAwards),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
       tx.update(_users.doc(requesterUid), {
         'sentFriendRequests': FieldValue.arrayRemove([currentUid]),
+        'friends': FieldValue.arrayUnion([currentUid]),
+        'lastFriendActionPeerUid': currentUid,
+        if (requesterAwards.isNotEmpty) 'pendingAchievements': FieldValue.arrayUnion(requesterAwards),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
+      tx.update(currentPublicRef, {'friends': FieldValue.arrayUnion([requesterUid])});
+      tx.update(requesterPublicRef, {'friends': FieldValue.arrayUnion([currentUid])});
+      tx.delete(requestRef);
     });
   }
 
-  Future<void> removeFriend(String currentUid, String friendUid) async {
-    await _firestore.runTransaction((tx) async {
-      tx.update(_users.doc(currentUid), {
-        'friends': FieldValue.arrayRemove([friendUid]),
-      });
-      tx.update(_users.doc(friendUid), {
-        'friends': FieldValue.arrayRemove([currentUid]),
-      });
+  Future<void> rejectFriendRequest(String currentUid, String requesterUid) async {
+    final batch = _firestore.batch();
+    batch.update(_users.doc(currentUid), {
+      'receivedFriendRequests': FieldValue.arrayRemove([requesterUid]),
+      'lastFriendActionPeerUid': requesterUid,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
+    batch.update(_users.doc(requesterUid), {
+      'sentFriendRequests': FieldValue.arrayRemove([currentUid]),
+      'lastFriendActionPeerUid': currentUid,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    batch.delete(_requestRef(currentUid, requesterUid));
+    await batch.commit();
+  }
+
+  Future<void> removeFriend(String currentUid, String friendUid) async {
+    if (currentUid == friendUid) return;
+    final batch = _firestore.batch();
+    batch.update(_users.doc(currentUid), {
+      'friends': FieldValue.arrayRemove([friendUid]),
+      'lastFriendActionPeerUid': friendUid,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    batch.update(_users.doc(friendUid), {
+      'friends': FieldValue.arrayRemove([currentUid]),
+      'lastFriendActionPeerUid': currentUid,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    batch.update(_publicProfiles.doc(currentUid), {
+      'friends': FieldValue.arrayRemove([friendUid]),
+    });
+    batch.update(_publicProfiles.doc(friendUid), {
+      'friends': FieldValue.arrayRemove([currentUid]),
+    });
+    await batch.commit();
   }
 
   Future<List<UserProfile>> getUsersByIds(List<String> uids) async {
     if (uids.isEmpty) return [];
     final result = <UserProfile>[];
-
     for (var i = 0; i < uids.length; i += 10) {
-      final chunk = uids.sublist(
-        i,
-        i + 10 > uids.length ? uids.length : i + 10,
-      );
-      final snap = await _users
-          .where(FieldPath.documentId, whereIn: chunk)
-          .get();
-      result.addAll(
-        snap.docs.map((doc) => UserModel.fromJson(doc.data(), doc.id)),
-      );
+      final chunk = uids.sublist(i, i + 10 > uids.length ? uids.length : i + 10);
+      final snap = await _publicProfiles.where(FieldPath.documentId, whereIn: chunk).get();
+      result.addAll(snap.docs.map((doc) => UserModel.fromJson(doc.data(), doc.id)));
     }
     return result;
   }
 
   Future<bool> checkAreFriends(String currentUid, String targetUid) async {
-    final doc = await _users.doc(targetUid).get();
+    if (currentUid == targetUid) return false;
+    final doc = await _users.doc(currentUid).get();
     if (!doc.exists) return false;
-    final friends = List<String>.from(doc.data()?['friends'] ?? []);
-    return friends.contains(currentUid);
+    return List<String>.from(doc.data()?['friends'] ?? const []).contains(targetUid);
   }
 }

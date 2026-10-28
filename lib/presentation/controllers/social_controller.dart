@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/userprofile.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../domain/usecases/user_progress_use_cases.dart';
@@ -46,13 +47,15 @@ class SocialController extends ChangeNotifier {
   }) : _profileUseCases = profileUseCases,
        _progressUseCases = progressUseCases,
        _socialUseCases = socialUseCases {
-    _startLeaderboardListener();
+    _authSub = FirebaseAuth.instance.authStateChanges().listen(_onAuthChanged);
   }
 
   final UserProfileUseCases _profileUseCases;
   final UserProgressUseCases _progressUseCases;
   final UserSocialUseCases _socialUseCases;
   StreamSubscription<List<Map<String, dynamic>>>? _leaderboardSub;
+  StreamSubscription<User?>? _authSub;
+  String? _leaderboardUid;
   Timer? _searchDebounce;
   bool _isDisposed = false;
 
@@ -85,7 +88,27 @@ class SocialController extends ChangeNotifier {
     if (!_isDisposed) notifyListeners();
   }
 
+  void _onAuthChanged(User? user) {
+    final uid = user?.uid;
+    if (uid == _leaderboardUid) return;
+    _leaderboardSub?.cancel();
+    _leaderboardSub = null;
+    _leaderboardUid = uid;
+    leaderboard = [];
+    errorMessage = null;
+    isLeaderboardLoading = uid != null;
+    if (uid != null) _startLeaderboardListener();
+    _safeNotifyListeners();
+  }
+
   void _startLeaderboardListener() {
+    if (currentUserId.isEmpty) {
+      leaderboard = [];
+      isLeaderboardLoading = false;
+      _safeNotifyListeners();
+      return;
+    }
+    _leaderboardSub?.cancel();
     _leaderboardSub = _progressUseCases
         .getLeaderboardStream(limit: 50)
         .listen(
@@ -106,6 +129,7 @@ class SocialController extends ChangeNotifier {
           onError: (error) {
             isLeaderboardLoading = false;
             errorMessage = 'errorLoadLeaderboard';
+            _leaderboardSub = null; // Firestore termina lo stream dopo un errore di permessi.
             _safeNotifyListeners();
           },
         );
@@ -113,8 +137,9 @@ class SocialController extends ChangeNotifier {
 
   void retryLeaderboard() {
     _leaderboardSub?.cancel();
+    _leaderboardSub = null;
     errorMessage = null;
-    isLeaderboardLoading = true;
+    isLeaderboardLoading = currentUserId.isNotEmpty;
     _safeNotifyListeners();
     _startLeaderboardListener();
   }
@@ -165,6 +190,7 @@ class SocialController extends ChangeNotifier {
     _isDisposed = true;
     _searchDebounce?.cancel();
     _leaderboardSub?.cancel();
+    _authSub?.cancel();
     super.dispose();
   }
 

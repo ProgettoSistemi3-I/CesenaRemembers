@@ -17,6 +17,7 @@ Il quiz è generato a ogni richiesta: non esiste alcun archivio di domande.
 from __future__ import annotations
 
 import asyncio
+from collections import defaultdict, deque
 import json
 import logging
 import random
@@ -63,6 +64,7 @@ async def lifespan(app: FastAPI):
     app.state.facts = load_all(settings.facts_dir)
     app.state.llm = LlmClient(settings)
     app.state.inflight = {}
+    app.state.rate_limits = defaultdict(deque)
     logger.info(
         "Avvio: provider=%s model=%s key=%s schede=%s",
         settings.provider,
@@ -75,13 +77,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Cesena Remembers - Quiz API", lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# L'app Flutter nativa non usa CORS. Se in futuro viene chiamata da un browser,
+# impostare QUIZ_CORS_ORIGINS con una lista esplicita di origini autorizzate.
+_cors_origins = [origin.strip() for origin in __import__("os").getenv("QUIZ_CORS_ORIGINS", "").split(",") if origin.strip()]
+if _cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_cors_origins,
+        allow_credentials=False,
+        allow_methods=["POST", "GET", "OPTIONS"],
+        allow_headers=["Content-Type"],
+    )
 
 
 @app.exception_handler(QuizFailure)
@@ -119,7 +125,8 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
 
     level = difficulty_level(req.userXp)
     lang = req.languageCode
-    place_name = (req.name or poi_facts.title).strip()[:120]
+    # Non usare mai nomi/descrizioni provenienti dal client nel prompt.
+    place_name = poi_facts.title
     schema = llm_json_schema(N_QUESTIONS, settings.options_per_question)
 
     accepted: list[tuple] = []  # (LlmQuestion, list[str] warnings)
@@ -263,7 +270,18 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
 # Endpoint
 # ---------------------------------------------------------------------------
 @app.post("/api/generate-quiz", response_model=QuizResponse)
-async def generate_quiz(poi: PoiRequest):
+async def generate_quiz(poi: PoiRequest, request: Request):
+    # Rate limit per IP: protegge da tap/loop eccessivi senza trasmettere
+    # Firebase ID token in chiaro sull'endpoint HTTP del progetto.
+    now = time.monotonic()
+    address = request.client.host if request.client else "unknown"
+    bucket = app.state.rate_limits[address]
+    while bucket and now - bucket[0] > 60:
+        bucket.popleft()
+    if len(bucket) >= int(__import__("os").getenv("QUIZ_RATE_LIMIT_PER_MINUTE", "30")):
+        raise QuizFailure(429, "rate_limited", "Troppe richieste. Riprova tra poco.")
+    bucket.append(now)
+
     if poi.id not in KNOWN_POI_IDS:
         # Nessun accesso a file costruiti dall'input: l'ID deve essere in whitelist.
         raise QuizFailure(404, "unknown_poi", "POI sconosciuto")
@@ -279,7 +297,13 @@ async def generate_quiz(poi: PoiRequest):
         task = asyncio.ensure_future(_generate(poi, request_id))
         inflight[key] = task
         task.add_done_callback(lambda _t, k=key: inflight.pop(k, None))
-    return await asyncio.shield(task)
+    try:
+        return await asyncio.shield(task)
+    except QuizFailure:
+        raise
+    except Exception:
+        logger.exception("Errore interno nella generazione quiz")
+        raise QuizFailure(500, "quiz_generation_failed", "Impossibile generare il quiz in questo momento")
 
 
 @app.get("/")

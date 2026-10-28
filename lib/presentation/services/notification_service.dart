@@ -1,9 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
-
-import '../../domain/usecases/user_profile_use_cases.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -12,110 +7,51 @@ class NotificationService {
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  bool _pluginInitialized = false;
 
-  bool _initialized = false;
-
-  Future<void> init(
-    UserProfileUseCases profileUseCases,
-    String uid,
-    BuildContext context,
-  ) async {
-    if (_initialized) return;
-
-    // Initialization settings for Android local notifications (foreground)
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/launcher_icon');
-
-    const DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
-          requestSoundPermission: true,
-          requestBadgePermission: true,
-          requestAlertPermission: true,
-        );
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS,
-        );
-
+  Future<void> init() async {
+    // Il token FCM è gestito da PushNotificationService, associato all'UID
+    // attivo; qui inizializziamo solo le notifiche locali.
+    if (_pluginInitialized) return;
+    const initializationSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/launcher_icon'),
+      iOS: DarwinInitializationSettings(),
+    );
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle foreground notification tap
-      },
+      onDidReceiveNotificationResponse: (_) {},
     );
-
-    await requestPermissions();
-
-    // Ottieni il token FCM
-    try {
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      if (fcmToken != null) {
-        await profileUseCases.saveFcmToken(uid, fcmToken);
-      }
-
-      // Ascolta l'aggiornamento del token
-      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-        profileUseCases.saveFcmToken(uid, newToken);
-      });
-    } catch (_) {
-      // Evitiamo log rumorosi o sensibili in produzione.
-    }
-
-    _initialized = true;
-  }
-
-  Future<void> requestPermissions() async {
-    // Richiedi permesso FCM (importante specialmente su iOS)
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    // Permessi standard FlutterLocalNotifications
-    await Permission.notification.request();
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+    _pluginInitialized = true;
   }
 
   Future<void> showLocalNotification(String title, String body) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-          'social_channel',
-          'Social Notifications',
-          channelDescription:
-              'Notifiche per le interazioni sociali come richieste di amicizia',
-          importance: Importance.high,
-          priority: Priority.high,
-          ticker: 'ticker',
-        );
-
-    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
-        DarwinNotificationDetails();
-
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics,
+    const androidDetails = AndroidNotificationDetails(
+      'social_channel',
+      'Social Notifications',
+      channelDescription: 'Notifiche per le interazioni sociali',
+      importance: Importance.high,
+      priority: Priority.high,
     );
-
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(),
+    );
     await flutterLocalNotificationsPlugin.show(
       DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
-      platformChannelSpecifics,
+      details,
     );
   }
 
-  // Questo serve solo per testare il flusso o in fallback se il backend ritarda
-  Future<void> showFriendRequestNotification(int newRequestsCount) async {
-    await showLocalNotification(
-      'Nuova richiesta di amicizia',
-      'Hai ricevuto $newRequestsCount nuov${newRequestsCount > 1 ? 'e' : 'a'} richiest${newRequestsCount > 1 ? 'e' : 'a'} di amicizia!',
-    );
+  Future<void> showFriendRequestNotification(
+    int newRequestsCount, {
+    required String title,
+    required String languageCode,
+  }) async {
+    final body = languageCode == 'en'
+        ? '$newRequestsCount new friend request${newRequestsCount == 1 ? '' : 's'} received.'
+        : 'Hai ricevuto $newRequestsCount ${newRequestsCount == 1 ? 'nuova richiesta' : 'nuove richieste'} di amicizia.';
+    await showLocalNotification(title, body);
   }
 }

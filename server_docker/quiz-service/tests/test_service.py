@@ -98,9 +98,12 @@ def test_all_ten_pois_accepted():
 
 def test_unknown_poi_and_path_traversal_rejected():
     with make_client("fake-good") as c:
-        for poi in ("unknown", "../main", "rocca/../../etc/passwd", ""):
+        # Un ID sintatticamente valido ma non in whitelist è 404; valori che
+        # non superano la regex Pydantic sono respinti prima come 422.
+        assert c.post("/api/generate-quiz", json={**BODY, "id": "unknown"}).status_code == 404
+        for poi in ("../main", "rocca/../../etc/passwd", ""):
             r = c.post("/api/generate-quiz", json={**BODY, "id": poi})
-            assert r.status_code == 404, poi
+            assert r.status_code == 422, poi
 
 
 def test_invalid_parameters_rejected():

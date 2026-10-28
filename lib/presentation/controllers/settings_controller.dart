@@ -7,6 +7,7 @@ import '../../core/logging/app_logger.dart';
 import '../theme/theme_controller.dart';
 import '../services/location_permission_service.dart';
 import '../services/location_preference_store.dart';
+import '../services/push_notification_service.dart';
 
 class SettingsController extends ChangeNotifier {
   bool _isDisposed = false;
@@ -128,6 +129,9 @@ class SettingsController extends ChangeNotifier {
         darkMode: newModalitaNotte,
         gps: newPosizione,
       );
+      if (newNotifiche != null) {
+        await PushNotificationService.initializeAndSaveToken();
+      }
     } catch (e) {
       // 3) Rollback
       errorMessage = 'errorConnectionSettings';
@@ -143,6 +147,7 @@ class SettingsController extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
+      await PushNotificationService.unregisterCurrentUser();
       await _signOutUseCase();
       return true;
     } catch (e) {
@@ -161,6 +166,7 @@ class SettingsController extends ChangeNotifier {
     final uid = _currentUid;
 
     try {
+      await PushNotificationService.unregisterCurrentUser();
       await _profileUseCases.deleteUserData(uid: uid);
     } catch (e) {
       AppLogger.error(

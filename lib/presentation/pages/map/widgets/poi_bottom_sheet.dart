@@ -17,6 +17,7 @@ class PoiBottomSheet extends StatefulWidget {
     required this.elapsedSeconds,
     required this.onQuizCompleted,
     required this.onNextStop,
+    required this.onClose,
     this.userXp = 0,
   });
 
@@ -26,6 +27,7 @@ class PoiBottomSheet extends StatefulWidget {
   final int elapsedSeconds;
   final ValueChanged<QuizCompletionData> onQuizCompleted;
   final VoidCallback onNextStop;
+  final VoidCallback onClose;
 
   /// XP dell'utente passato dal genitore per evitare una lettura Firestore extra.
   final int userXp;
@@ -203,6 +205,11 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: widget.onClose,
                     ),
                   ],
                 ),

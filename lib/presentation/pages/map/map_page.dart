@@ -26,6 +26,7 @@ import '../../../domain/usecases/user_progress_use_cases.dart';
 import '../../../injection_container.dart';
 import '../../controllers/tour_session_controller.dart';
 import '../../services/location_preference_store.dart';
+import '../../services/shared_position_stream.dart';
 import '../../services/poi_marker_factory.dart';
 import '../../services/shell_navigation_store.dart';
 import '../../services/tour_stop_mapper.dart';
@@ -74,6 +75,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   StreamSubscription<ServiceStatus>? _serviceStatusSub;
   StreamSubscription<void>? _tourUpdatesSub;
   CacheStore? _tileCacheStore;
+  CachedTileProvider? _tileProvider;
 
   AlignOnUpdate _alignPositionOnUpdate = AlignOnUpdate.never;
   double _currentRotation = 0.0;
@@ -87,6 +89,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   bool _isCenteringOnUser = false;
   bool _isSavingQuizResult = false;
   int _tourXpEarned = 0;
+  int _tourCorrectAnswers = 0;
+  int _tourTotalQuestions = 0;
+  Future<void> _pendingQuizSave = Future<void>.value();
   int? _cachedUserXp;
   Locale? _lastLocale;
   late VoidCallback _onLocaleChanged;
@@ -188,19 +193,19 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     final cacheDir = await getApplicationSupportDirectory();
     final cachePath = '${cacheDir.path}/map_tiles_cache';
     final cacheStore = FileCacheStore(cachePath);
-    if (!mounted) return;
-    setState(() => _tileCacheStore = cacheStore);
-  }
-
-  CachedTileProvider? get _cachedTileProvider {
-    final store = _tileCacheStore;
-    if (store == null) return null;
-    return CachedTileProvider(
-      store: store,
+    final provider = CachedTileProvider(
+      store: cacheStore,
       maxStale: const Duration(days: 120),
       hitCacheOnNetworkFailure: true,
     );
+    if (!mounted) return;
+    setState(() {
+      _tileCacheStore = cacheStore;
+      _tileProvider = provider;
+    });
   }
+
+  CachedTileProvider? get _cachedTileProvider => _tileProvider;
 
   @override
   Widget build(BuildContext context) => _buildPage();

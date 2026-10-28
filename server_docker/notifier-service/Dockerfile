@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Imposta la directory di lavoro
 WORKDIR /usr/src/app
@@ -7,10 +7,13 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Installa le dipendenze
-RUN npm install
+RUN npm install --omit=dev
 
 # Copia il codice sorgente
 COPY . .
+
+# Esegui il processo senza privilegi di root.
+USER node
 
 # Comando per avviare il servizio
 CMD [ "npm", "start" ]

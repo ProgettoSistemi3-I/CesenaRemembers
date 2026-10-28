@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
+import '../services/shared_position_stream.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/entities/tour_stop.dart';
@@ -182,12 +183,7 @@ class TourSessionController {
 
   void _startPositionTracking() {
     _positionSubscription?.cancel();
-    _positionSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 5,
-      ),
-    ).listen((position) {
+    _positionSubscription = SharedPositionStream.positions.listen((position) {
       _userPosition = LatLng(position.latitude, position.longitude);
       if (_status == TourStatus.running &&
           distanceToCurrentStop >= 0 &&

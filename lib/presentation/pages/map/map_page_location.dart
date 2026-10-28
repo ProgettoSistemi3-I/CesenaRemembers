@@ -92,7 +92,9 @@ extension _MapPageLocationLogic on _MapPageState {
       Position? position;
       try {
         position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.bestForNavigation,
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
           timeLimit: const Duration(seconds: 6),
         );
       } catch (_) {

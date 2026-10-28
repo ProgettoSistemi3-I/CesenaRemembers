@@ -298,16 +298,9 @@ class _MapCanvasState extends State<_MapCanvas> {
   // Il position stream viene creato UNA SOLA VOLTA e riutilizzato ad ogni rebuild.
   // Se fosse dentro build(), verrebbe ricreato ad ogni setState() del genitore
   // (es. ogni secondo durante il tour), causando N subscription aperte.
-  static const _locationSettings = LocationSettings(
-    accuracy: LocationAccuracy.bestForNavigation,
-    distanceFilter: 5, // aggiorna solo ogni 5 metri, non ad ogni tick GPS
-  );
-
   late final Stream<LocationMarkerPosition?> _positionStream =
       const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream(
-        stream: Geolocator.getPositionStream(
-          locationSettings: _locationSettings,
-        ),
+        stream: SharedPositionStream.positions,
       );
 
   static const _defaultCesenaCenter = LatLng(44.1384, 12.2471);
@@ -352,7 +345,7 @@ class _MapCanvasState extends State<_MapCanvas> {
           key: ValueKey<MapStyle>(widget.selectedMapStyle),
           urlTemplate: widget.currentMapUrl,
           subdomains: const ['a', 'b', 'c', 'd'],
-          userAgentPackageName: 'com.geoapp.prototype',
+          userAgentPackageName: 'it.cesenaremembers.app',
           maxZoom: 19,
           tileBounds: widget.cesenaBounds,
           tileProvider: widget.cachedTileProvider,
