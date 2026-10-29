@@ -49,7 +49,8 @@ service cloud.firestore {
         ]);
     }
 
-    // Shape completa del profilo pubblico: usata solo negli UPDATE del proprietario.
+    // La shape completa viene usata per gli aggiornamenti ordinari del profilo pubblico
+    // e per l'eventuale ricreazione di un profilo pubblico già completato.
     function validPublicProfileShape(data) {
       return data.keys().hasOnly([
           'displayName', 'displayNameNormalized', 'username',
@@ -100,13 +101,34 @@ service cloud.firestore {
         data.maxSingleTourXp >= 0;
     }
 
-    // Versione leggera per la CREAZIONE: tutti i contatori sono 0 e le liste vuote,
-    // e i campi anagrafici devono coincidere con users/{uid}.
-    function validPublicProfileCreate(uid) {
-      let p = request.resource.data;
-      let u = getAfter(/databases/$(database)/documents/users/$(uid)).data;
+    // Confronta i campi speculari una sola volta, passando i due documenti già disponibili.
+    function publicProfileFieldsMatch(privateData, publicData) {
+      return publicData.displayName == privateData.displayName &&
+        publicData.displayNameNormalized == privateData.displayNameNormalized &&
+        publicData.username == privateData.username &&
+        publicData.usernameNormalized == privateData.usernameNormalized &&
+        publicData.avatarId == privateData.avatarId &&
+        publicData.profileCompleted == privateData.profileCompleted &&
+        publicData.onboardingCompleted == privateData.get('onboardingCompleted', false) &&
+        publicData.xp == privateData.get('xp', 0) &&
+        publicData.leaderboardScore ==
+          privateData.get('leaderboardScore', privateData.get('xp', 0)) &&
+        publicData.visitedPoiIds == privateData.get('visitedPoiIds', []) &&
+        publicData.unlockedAchievements == privateData.get('unlockedAchievements', []) &&
+        publicData.maxQuizScore == privateData.get('maxQuizScore', 0) &&
+        publicData.totalQuizCompleted == privateData.get('totalQuizCompleted', 0) &&
+        publicData.totalToursCompleted == privateData.get('totalToursCompleted', 0) &&
+        publicData.totalCorrectAnswers == privateData.get('totalCorrectAnswers', 0) &&
+        publicData.bestTourTimeSeconds == privateData.get('bestTourTimeSeconds', 0) &&
+        publicData.maxSingleTourXp == privateData.get('maxSingleTourXp', 0) &&
+        publicData.friends == privateData.get('friends', []);
+    }
 
-      return p.keys().hasOnly([
+    // Al primo completamento, la shape e la coerenza del profilo pubblico vengono
+    // controllate dal ramo update di users. Il create pubblico evita di rifare tutti
+    // gli stessi controlli durante la stessa transazione.
+    function initialPublicMirrorMatches(privateData, publicData) {
+      return publicData.keys().hasOnly([
           'displayName', 'displayNameNormalized', 'username',
           'usernameNormalized', 'avatarId', 'profileCompleted',
           'onboardingCompleted', 'xp', 'leaderboardScore', 'visitedPoiIds',
@@ -114,25 +136,7 @@ service cloud.firestore {
           'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
           'maxSingleTourXp', 'friends'
         ]) &&
-        p.profileCompleted == true &&
-        u.get('profileCompleted', false) == true &&
-        p.xp == 0 &&
-        p.leaderboardScore == 0 &&
-        p.maxQuizScore == 0 &&
-        p.totalQuizCompleted == 0 &&
-        p.totalToursCompleted == 0 &&
-        p.totalCorrectAnswers == 0 &&
-        p.bestTourTimeSeconds == 0 &&
-        p.maxSingleTourXp == 0 &&
-        p.visitedPoiIds.size() == 0 &&
-        p.unlockedAchievements.size() == 0 &&
-        p.friends.size() == 0 &&
-        p.displayName == u.displayName &&
-        p.displayNameNormalized == u.displayNameNormalized &&
-        p.username == u.username &&
-        p.usernameNormalized == u.usernameNormalized &&
-        p.avatarId == u.avatarId &&
-        p.onboardingCompleted == u.get('onboardingCompleted', false);
+        publicProfileFieldsMatch(privateData, publicData);
     }
 
     function publicMirrorMatches(uid) {
@@ -140,33 +144,7 @@ service cloud.firestore {
         getAfter(/databases/$(database)/documents/users/$(uid)).data;
       let publicData =
         getAfter(/databases/$(database)/documents/public_profiles/$(uid)).data;
-
-      return publicData.displayName == privateData.displayName &&
-        publicData.displayNameNormalized == privateData.displayNameNormalized &&
-        publicData.username == privateData.username &&
-        publicData.usernameNormalized == privateData.usernameNormalized &&
-        publicData.avatarId == privateData.avatarId &&
-        publicData.profileCompleted == privateData.profileCompleted &&
-        publicData.onboardingCompleted ==
-          privateData.get('onboardingCompleted', false) &&
-        publicData.xp == privateData.get('xp', 0) &&
-        publicData.leaderboardScore ==
-          privateData.get('leaderboardScore', privateData.get('xp', 0)) &&
-        publicData.visitedPoiIds == privateData.get('visitedPoiIds', []) &&
-        publicData.unlockedAchievements ==
-          privateData.get('unlockedAchievements', []) &&
-        publicData.maxQuizScore == privateData.get('maxQuizScore', 0) &&
-        publicData.totalQuizCompleted ==
-          privateData.get('totalQuizCompleted', 0) &&
-        publicData.totalToursCompleted ==
-          privateData.get('totalToursCompleted', 0) &&
-        publicData.totalCorrectAnswers ==
-          privateData.get('totalCorrectAnswers', 0) &&
-        publicData.bestTourTimeSeconds ==
-          privateData.get('bestTourTimeSeconds', 0) &&
-        publicData.maxSingleTourXp ==
-          privateData.get('maxSingleTourXp', 0) &&
-        publicData.friends == privateData.get('friends', []);
+      return publicProfileFieldsMatch(privateData, publicData);
     }
 
     function listAddsOne(oldList, newList) {
@@ -232,11 +210,49 @@ service cloud.firestore {
            newData.get('bestTourTimeSeconds', 0) < 1800));
     }
 
-    // Completamento iniziale del profilo (versione leggera, niente validPrivateUserShape).
+    function publicProfileInitialProgressIsEmpty(data) {
+      return data.xp == 0 &&
+        data.leaderboardScore == 0 &&
+        data.maxQuizScore == 0 &&
+        data.totalQuizCompleted == 0 &&
+        data.totalToursCompleted == 0 &&
+        data.totalCorrectAnswers == 0 &&
+        data.bestTourTimeSeconds == 0 &&
+        data.maxSingleTourXp == 0 &&
+        data.visitedPoiIds == [] &&
+        data.unlockedAchievements == [] &&
+        data.friends == [];
+    }
+
+    // Il create iniziale è autorizzato solo come parte del completamento atomico
+    // di users/{uid}. In quel ramo, validInitialProfileCompletion verifica già
+    // shape e coerenza completa del documento pubblico. Se l'utente era già
+    // completato, la ricreazione richiede invece tutte le verifiche complete qui.
+    function validPublicProfileCreate(uid) {
+      let p = request.resource.data;
+      let userPath = /databases/$(database)/documents/users/$(uid);
+      let oldUser = get(userPath).data;
+      let userAfter = getAfter(userPath).data;
+
+      return userAfter.get('profileCompleted', false) == true &&
+        (
+          (oldUser.get('profileCompleted', false) != true &&
+           p.get('profileCompleted', false) == true) ||
+          (oldUser.get('profileCompleted', false) == true &&
+           validPublicProfileShape(p) &&
+           publicProfileInitialProgressIsEmpty(p) &&
+           publicProfileFieldsMatch(userAfter, p))
+        );
+    }
+
+    // Primo completamento del profilo: tutti i valori di progressione devono partire
+    // da zero/vuoti e i documenti username e public_profiles devono esistere dopo il commit.
     function validInitialProfileCompletion(uid) {
       let d = request.resource.data;
       let usernamePath =
         /databases/$(database)/documents/usernames/$(d.usernameNormalized);
+      let publicPath =
+        /databases/$(database)/documents/public_profiles/$(uid);
 
       return resource.data.get('profileCompleted', false) != true &&
         d.profileCompleted == true &&
@@ -272,17 +288,18 @@ service cloud.firestore {
         d.totalCorrectAnswers == 0 &&
         d.bestTourTimeSeconds == 0 &&
         d.maxSingleTourXp == 0 &&
-        d.visitedPoiIds.size() == 0 &&
-        d.unlockedAchievements.size() == 0 &&
-        d.pendingAchievements.size() == 0 &&
-        d.friends.size() == 0 &&
-        d.sentFriendRequests.size() == 0 &&
-        d.receivedFriendRequests.size() == 0 &&
-        d.fcmTokens.size() == 0 &&
+        d.visitedPoiIds == [] &&
+        d.unlockedAchievements == [] &&
+        d.pendingAchievements == [] &&
+        d.friends == [] &&
+        d.sentFriendRequests == [] &&
+        d.receivedFriendRequests == [] &&
+        d.fcmTokens == [] &&
         validPreferences(d.preferences) &&
         existsAfter(usernamePath) &&
         getAfter(usernamePath).data.uid == uid &&
-        existsAfter(/databases/$(database)/documents/public_profiles/$(uid));
+        existsAfter(publicPath) &&
+        initialPublicMirrorMatches(d, getAfter(publicPath).data);
     }
 
     function validOwnerProgressUpdate() {
@@ -440,6 +457,8 @@ service cloud.firestore {
     function validIncomingRequestAdd(uid) {
       let path =
         /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(request.auth.uid);
+      let callerAfter =
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data;
 
       return !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
         request.resource.data.diff(resource.data).affectedKeys()
@@ -451,11 +470,9 @@ service cloud.firestore {
         ) &&
         !resource.data.get('sentFriendRequests', []).hasAny([request.auth.uid]) &&
         !resource.data.get('friends', []).hasAny([request.auth.uid]) &&
-        !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
-          .get('friends', []).hasAny([uid]) &&
+        !callerAfter.get('friends', []).hasAny([uid]) &&
         existsAfter(path) &&
-        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
-          .get('sentFriendRequests', []).hasAny([uid]);
+        callerAfter.get('sentFriendRequests', []).hasAny([uid]);
     }
 
     function validCrossSentRequestRemoval(uid) {
@@ -604,8 +621,7 @@ service cloud.firestore {
             .get('friends', []).hasAny([uid]));
     }
 
-    // Il ramo "completamento profilo" viene scelto solo se cambia usernameNormalized,
-    // cosi' gli altri update non pagano il costo della validazione iniziale.
+    // Il ramo iniziale è separato dagli aggiornamenti normali.
     function ownerUserUpdateAllowed(uid) {
       let changed = request.resource.data.diff(resource.data).affectedKeys();
 
@@ -628,6 +644,13 @@ service cloud.firestore {
       );
     }
 
+    function userAfterCanClaimUsername(usernameId) {
+      let userAfter =
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return userAfter.get('profileCompleted', false) == true &&
+        userAfter.get('usernameNormalized', '') == usernameId;
+    }
+
     match /users/{userId} {
       allow get: if isOwner(userId) && isNotBanned();
       allow list: if false;
@@ -640,13 +663,24 @@ service cloud.firestore {
         request.resource.data.createdAt is timestamp &&
         request.resource.data.updatedAt is timestamp;
 
+      // I percorsi che modificano il documento altrui sono valutati solo quando
+      // l'utente autenticato non è il proprietario. Questo evita di valutare
+      // validatori di richieste/amicizie non pertinenti durante il completamento profilo.
       allow update: if isNotBanned() && (
-        (isOwner(userId) && ownerUserUpdateAllowed(userId)) ||
-        validIncomingRequestAdd(userId) ||
-        validReceivedRequestRemoval(userId) ||
-        validCrossSentRequestRemoval(userId) ||
-        validAcceptedFriendUpdate(userId) ||
-        validCrossFriendRemoval(userId)
+        (isOwner(userId) && (
+          ownerUserUpdateAllowed(userId) ||
+          (
+            !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['usernameNormalized']) &&
+            validReceivedRequestRemoval(userId)
+          )
+        )) ||
+        (!isOwner(userId) && (
+          validIncomingRequestAdd(userId) ||
+          validCrossSentRequestRemoval(userId) ||
+          validAcceptedFriendUpdate(userId) ||
+          validCrossFriendRemoval(userId)
+        ))
       );
 
       allow delete: if isOwner(userId) &&
@@ -710,10 +744,7 @@ service cloud.firestore {
         request.resource.data.uid == request.auth.uid &&
         request.resource.data.username == usernameId &&
         request.resource.data.createdAt is timestamp &&
-        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
-          .get('profileCompleted', false) == true &&
-        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
-          .get('usernameNormalized', '') == usernameId;
+        userAfterCanClaimUsername(usernameId);
 
       allow update: if false;
 
@@ -767,3 +798,4 @@ service cloud.firestore {
     }
   }
 }
+
