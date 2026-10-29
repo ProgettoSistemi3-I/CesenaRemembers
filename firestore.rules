@@ -52,8 +52,11 @@ service cloud.firestore {
         (!('usernameNormalized' in data) || (isValidUsernameId(data.usernameNormalized) && (!('username' in data) || data.usernameNormalized == data.username.lower()))) &&
         (!('avatarId' in data) || (data.avatarId is string && data.avatarId.size() > 0 && data.avatarId.size() <= 40)) &&
         (!('profileCompleted' in data) || data.profileCompleted is bool) &&
+        (!('profileCompletedAt' in data) || data.profileCompletedAt is timestamp) &&
         (!('onboardingCompleted' in data) || data.onboardingCompleted is bool) &&
         (!('lastFriendActionPeerUid' in data) || (data.lastFriendActionPeerUid is string && data.lastFriendActionPeerUid.size() <= 128)) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp) &&
         data.get('xp', 0) is int && data.get('xp', 0) >= 0 && data.get('xp', 0) <= 1000000000 &&
         data.get('leaderboardScore', data.get('xp', 0)) is int && data.get('leaderboardScore', data.get('xp', 0)) >= 0 &&
         validVisitedPoiIds(data.get('visitedPoiIds', [])) &&
@@ -99,11 +102,11 @@ service cloud.firestore {
         data.get('bestTourTimeSeconds', 0) is int && data.bestTourTimeSeconds >= 0 &&
         data.get('maxSingleTourXp', 0) is int && data.maxSingleTourXp >= 0;
     }
+    // getAfter su un documento inesistente fa fallire la regola: niente existsAfter.
     function publicMirrorMatches(uid) {
       let privateData = getAfter(/databases/$(database)/documents/users/$(uid)).data;
       let publicData = getAfter(/databases/$(database)/documents/public_profiles/$(uid)).data;
-      return existsAfter(/databases/$(database)/documents/public_profiles/$(uid)) &&
-        publicData.displayName == privateData.displayName &&
+      return publicData.displayName == privateData.displayName &&
         publicData.displayNameNormalized == privateData.displayNameNormalized &&
         publicData.username == privateData.username &&
         publicData.usernameNormalized == privateData.usernameNormalized &&
@@ -136,25 +139,23 @@ service cloud.firestore {
     function listRemovesOnly(oldList, newList, item) {
       return oldList.hasAny([item]) && !newList.hasAny([item]) && listRemovesOne(oldList, newList);
     }
-    function validAchievementIdsAdded(oldList, newList) {
-      let old = resource.data;
-      let next = request.resource.data;
+    function validAchievementIdsAdded(oldData, newData, oldList, newList) {
       let added = newList.toSet().difference(oldList.toSet());
-      let completedTourNow = next.get('totalToursCompleted', 0) > old.get('totalToursCompleted', 0);
+      let completedTourNow = newData.get('totalToursCompleted', 0) > oldData.get('totalToursCompleted', 0);
       return newList is list && oldList is list && newList.hasAll(oldList) &&
         newList.size() <= oldList.size() + 10 &&
         added.hasOnly([
           'first_visit', 'first_quiz', 'first_tour', 'quiz_15',
           'perfect_tour', 'xp_500', 'tour_under_1h', 'tour_under_30m'
         ]) &&
-        (!added.hasAny(['first_visit']) || next.get('visitedPoiIds', []).size() > 0) &&
-        (!added.hasAny(['first_quiz']) || next.get('totalQuizCompleted', 0) >= 1) &&
-        (!added.hasAny(['first_tour']) || next.get('totalToursCompleted', 0) >= 1) &&
-        (!added.hasAny(['quiz_15']) || next.get('totalQuizCompleted', 0) >= 15) &&
-        (!added.hasAny(['perfect_tour']) || (completedTourNow && next.get('totalCorrectAnswers', 0) > old.get('totalCorrectAnswers', 0))) &&
-        (!added.hasAny(['xp_500']) || next.get('xp', 0) >= 500) &&
-        (!added.hasAny(['tour_under_1h']) || (completedTourNow && next.get('bestTourTimeSeconds', 0) > 0 && next.get('bestTourTimeSeconds', 0) < 3600)) &&
-        (!added.hasAny(['tour_under_30m']) || (completedTourNow && next.get('bestTourTimeSeconds', 0) > 0 && next.get('bestTourTimeSeconds', 0) < 1800));
+        (!added.hasAny(['first_visit']) || newData.get('visitedPoiIds', []).size() > 0) &&
+        (!added.hasAny(['first_quiz']) || newData.get('totalQuizCompleted', 0) >= 1) &&
+        (!added.hasAny(['first_tour']) || newData.get('totalToursCompleted', 0) >= 1) &&
+        (!added.hasAny(['quiz_15']) || newData.get('totalQuizCompleted', 0) >= 15) &&
+        (!added.hasAny(['perfect_tour']) || (completedTourNow && newData.get('totalCorrectAnswers', 0) > oldData.get('totalCorrectAnswers', 0))) &&
+        (!added.hasAny(['xp_500']) || newData.get('xp', 0) >= 500) &&
+        (!added.hasAny(['tour_under_1h']) || (completedTourNow && newData.get('bestTourTimeSeconds', 0) > 0 && newData.get('bestTourTimeSeconds', 0) < 3600)) &&
+        (!added.hasAny(['tour_under_30m']) || (completedTourNow && newData.get('bestTourTimeSeconds', 0) > 0 && newData.get('bestTourTimeSeconds', 0) < 1800));
     }
     function validInitialProfileCompletion(uid) {
       let d = request.resource.data;
@@ -183,6 +184,7 @@ service cloud.firestore {
         existsAfter(/databases/$(database)/documents/usernames/$(d.usernameNormalized)) &&
         getAfter(/databases/$(database)/documents/usernames/$(d.usernameNormalized)).data.uid == uid &&
         getAfter(/databases/$(database)/documents/usernames/$(d.usernameNormalized)).data.username == d.usernameNormalized &&
+        existsAfter(/databases/$(database)/documents/public_profiles/$(uid)) &&
         publicMirrorMatches(uid);
     }
     function validOwnerProgressUpdate() {
@@ -198,7 +200,8 @@ service cloud.firestore {
         next.get('xp', 0) >= old.get('xp', 0) &&
         next.get('xp', 0) <= old.get('xp', 0) + 250 &&
         next.get('leaderboardScore', 0) == next.get('xp', 0) &&
-        next.get('totalQuizCompleted', 0) == old.get('totalQuizCompleted', 0) + 1 &&
+        next.get('totalQuizCompleted', 0) >= old.get('totalQuizCompleted', 0) &&
+        next.get('totalQuizCompleted', 0) <= old.get('totalQuizCompleted', 0) + 1 &&
         next.get('totalCorrectAnswers', 0) >= old.get('totalCorrectAnswers', 0) &&
         next.get('totalCorrectAnswers', 0) <= old.get('totalCorrectAnswers', 0) + 3 &&
         next.get('maxQuizScore', 0) >= old.get('maxQuizScore', 0) &&
@@ -211,7 +214,7 @@ service cloud.firestore {
         next.get('visitedPoiIds', []).size() <= old.get('visitedPoiIds', []).size() + 1 &&
         next.get('visitedPoiIds', []).size() <= 200 &&
         next.get('visitedPoiIds', []).hasAll(old.get('visitedPoiIds', [])) &&
-        validAchievementIdsAdded(old.get('pendingAchievements', []), next.get('pendingAchievements', [])) &&
+        validAchievementIdsAdded(old, next, old.get('pendingAchievements', []), next.get('pendingAchievements', [])) &&
         (next.get('totalToursCompleted', 0) > old.get('totalToursCompleted', 0)
           ? (next.get('bestTourTimeSeconds', 0) > 0 &&
              (old.get('bestTourTimeSeconds', 0) == 0 || next.get('bestTourTimeSeconds', 0) <= old.get('bestTourTimeSeconds', 0)))
@@ -231,10 +234,17 @@ service cloud.firestore {
         publicMirrorMatches(request.auth.uid);
     }
     function validProfileBasicsUpdate(uid) {
-      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let next = request.resource.data;
+      let changed = next.diff(resource.data).affectedKeys();
       return changed.hasOnly(['displayName', 'displayNameNormalized', 'avatarId', 'updatedAt']) &&
-        validPrivateUserShape(request.resource.data) &&
-        request.resource.data.displayNameNormalized == request.resource.data.displayName.lower() &&
+        (!('displayName' in changed) ||
+          (next.displayName is string && next.displayName.size() >= 2 && next.displayName.size() <= 30)) &&
+        (!('displayNameNormalized' in changed) ||
+          (next.displayNameNormalized is string && next.displayNameNormalized.size() <= 30 &&
+           next.displayNameNormalized == next.displayName.lower())) &&
+        (!('avatarId' in changed) ||
+          (next.avatarId is string && next.avatarId.size() > 0 && next.avatarId.size() <= 40)) &&
+        next.displayNameNormalized == next.displayName.lower() &&
         publicMirrorMatches(uid);
     }
     function validPreferencesUpdate() {
@@ -354,8 +364,11 @@ service cloud.firestore {
           !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('friends', []).hasAny([uid]));
     }
     function ownerUserUpdateAllowed(uid) {
-      return validPrivateUserShape(request.resource.data) && (
-        validInitialProfileCompletion(uid) ||
+      // Non validare l'intero documento per ogni update: i documenti storici
+      // possono contenere campi legacy. Ogni funzione qui sotto limita i campi
+      // modificabili e ne valida i valori. Lo shape completo resta obbligatorio
+      // per il completamento iniziale del profilo.
+      return validInitialProfileCompletion(uid) ||
         validProfileBasicsUpdate(uid) ||
         validPreferencesUpdate() ||
         validOnboardingUpdate(uid) ||
@@ -365,11 +378,9 @@ service cloud.firestore {
         validSentRequestAdd(uid) ||
         validSentRequestRemoval(uid) ||
         validAcceptingFriendUpdate(uid) ||
-        validOwnerFriendRemoval(uid)
-      );
+        validOwnerFriendRemoval(uid);
     }
 
-    // USERS contiene solo dati privati: leggibili e modificabili dal proprietario.
     match /users/{userId} {
       allow get: if isOwner(userId) && isNotBanned();
       allow list: if false;
@@ -389,9 +400,7 @@ service cloud.firestore {
         !existsAfter(/databases/$(database)/documents/public_profiles/$(userId));
     }
 
-    // La proiezione pubblica esclude email, preferenze, token FCM e richieste.
     match /public_profiles/{userId} {
-      // No filtro sui ban del target: Firestore Rules non sono filtri di query.
       allow get, list: if isSignedIn() && isNotBanned();
       allow create: if isOwner(userId) && isNotBanned() &&
         validPublicProfileShape(request.resource.data) && publicMirrorMatches(userId);
@@ -411,7 +420,6 @@ service cloud.firestore {
     }
 
     match /usernames/{usernameId} {
-      // Il GET del document ID deve funzionare anche quando l'username non esiste.
       allow get: if isSignedIn() && (isNotBanned() || resource.data.uid == request.auth.uid);
       allow list: if false;
       allow create: if isSignedIn() && isNotBanned() && isValidUsernameId(usernameId) &&
