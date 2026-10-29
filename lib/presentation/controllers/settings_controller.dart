@@ -71,19 +71,13 @@ class SettingsController extends ChangeNotifier {
       notifiche = profile.notificheEnabled;
       modalitaNotte = profile.darkModeEnabled;
 
-      // Usa hasPermissionGranted() per il toggle: se l'utente ha concesso
-      // il permesso all'app, il toggle risulta attivo anche quando il
-      // servizio GPS hardware è temporaneamente spento.
-      final hasPermission = await _locationService.hasPermissionGranted();
-      posizione = hasPermission;
+      // Il toggle rappresenta la preferenza scelta/salvata dall'utente,
+      // non lo stato momentaneo del permesso Android. All'avvio Android può
+      // ancora restituire "denied" prima che MainShell mostri il dialogo:
+      // usare quel valore qui spegneva il toggle e lasciava il banner attivo
+      // anche dopo che l'utente concedeva il permesso.
+      posizione = profile.gpsEnabled;
       LocationPreferenceStore.setGpsEnabled(posizione);
-
-      if (hasPermission && !profile.gpsEnabled) {
-        await _preferencesUseCases.updatePreferences(
-          uid: _currentUid,
-          gps: true,
-        );
-      }
 
       errorMessage = null;
 
