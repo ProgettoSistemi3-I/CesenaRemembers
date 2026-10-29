@@ -47,9 +47,9 @@ service cloud.firestore {
         ]) &&
         (!('email' in data) || (data.email is string && data.email.size() <= 254)) &&
         (!('displayName' in data) || (data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 30)) &&
-        (!('displayNameNormalized' in data) || (data.displayNameNormalized is string && data.displayNameNormalized.size() <= 30 && (!('displayName' in data) || data.displayNameNormalized == data.displayName.toLowerCase()))) &&
-        (!('username' in data) || (data.username is string && isValidUsernameId(data.username.toLowerCase()))) &&
-        (!('usernameNormalized' in data) || (isValidUsernameId(data.usernameNormalized) && (!('username' in data) || data.usernameNormalized == data.username.toLowerCase()))) &&
+        (!('displayNameNormalized' in data) || (data.displayNameNormalized is string && data.displayNameNormalized.size() <= 30 && (!('displayName' in data) || data.displayNameNormalized == data.displayName.lower()))) &&
+        (!('username' in data) || (data.username is string && isValidUsernameId(data.username.lower()))) &&
+        (!('usernameNormalized' in data) || (isValidUsernameId(data.usernameNormalized) && (!('username' in data) || data.usernameNormalized == data.username.lower()))) &&
         (!('avatarId' in data) || (data.avatarId is string && data.avatarId.size() > 0 && data.avatarId.size() <= 40)) &&
         (!('profileCompleted' in data) || data.profileCompleted is bool) &&
         (!('onboardingCompleted' in data) || data.onboardingCompleted is bool) &&
@@ -81,9 +81,9 @@ service cloud.firestore {
           'maxSingleTourXp', 'friends'
         ]) &&
         data.get('displayName', null) is string && data.displayName.size() >= 2 && data.displayName.size() <= 30 &&
-        data.get('displayNameNormalized', null) is string && data.displayNameNormalized.size() <= 30 && data.displayNameNormalized == data.displayName.toLowerCase() &&
-        data.get('username', null) is string && isValidUsernameId(data.username.toLowerCase()) &&
-        data.get('usernameNormalized', null) is string && isValidUsernameId(data.usernameNormalized) && data.usernameNormalized == data.username.toLowerCase() &&
+        data.get('displayNameNormalized', null) is string && data.displayNameNormalized.size() <= 30 && data.displayNameNormalized == data.displayName.lower() &&
+        data.get('username', null) is string && isValidUsernameId(data.username.lower()) &&
+        data.get('usernameNormalized', null) is string && isValidUsernameId(data.usernameNormalized) && data.usernameNormalized == data.username.lower() &&
         data.get('avatarId', null) is string && data.avatarId.size() > 0 && data.avatarId.size() <= 40 &&
         data.get('profileCompleted', false) == true &&
         data.get('onboardingCompleted', false) is bool &&
@@ -234,7 +234,7 @@ service cloud.firestore {
       let changed = request.resource.data.diff(resource.data).affectedKeys();
       return changed.hasOnly(['displayName', 'displayNameNormalized', 'avatarId', 'updatedAt']) &&
         validPrivateUserShape(request.resource.data) &&
-        request.resource.data.displayNameNormalized == request.resource.data.displayName.toLowerCase() &&
+        request.resource.data.displayNameNormalized == request.resource.data.displayName.lower() &&
         publicMirrorMatches(uid);
     }
     function validPreferencesUpdate() {

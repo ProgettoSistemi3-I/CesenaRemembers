@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/userprofile.dart';
 import '../../domain/validation/profile_validation.dart';
@@ -22,7 +23,8 @@ class UserProfileDataSource {
   /// La copia viene aggiornata nella stessa transazione/batch del documento privato.
   Map<String, dynamic> _publicProfilePayload(Map<String, dynamic> data) => {
     'displayName': data['displayName'] ?? 'Utente',
-    'displayNameNormalized': data['displayNameNormalized'] ??
+    'displayNameNormalized':
+        data['displayNameNormalized'] ??
         (data['displayName'] ?? 'Utente').toString().toLowerCase(),
     'username': data['username'] ?? '',
     'usernameNormalized': data['usernameNormalized'] ?? '',
@@ -30,8 +32,10 @@ class UserProfileDataSource {
     'profileCompleted': data['profileCompleted'] == true,
     'onboardingCompleted': data['onboardingCompleted'] == true,
     'xp': (data['xp'] as num?)?.toInt() ?? 0,
-    'leaderboardScore': (data['leaderboardScore'] as num?)?.toInt() ??
-        (data['xp'] as num?)?.toInt() ?? 0,
+    'leaderboardScore':
+        (data['leaderboardScore'] as num?)?.toInt() ??
+        (data['xp'] as num?)?.toInt() ??
+        0,
     'visitedPoiIds': List<String>.from(data['visitedPoiIds'] ?? const []),
     'unlockedAchievements': List<String>.from(
       data['unlockedAchievements'] ?? const [],
@@ -64,7 +68,9 @@ class UserProfileDataSource {
 
   Stream<UserProfile?> getUserProfileStream(String uid) {
     final isOwner = getCurrentUserUid() == uid;
-    final source = isOwner ? _users.doc(uid).snapshots() : _publicProfiles.doc(uid).snapshots();
+    final source = isOwner
+        ? _users.doc(uid).snapshots()
+        : _publicProfiles.doc(uid).snapshots();
     return source.map((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
         return UserModel.fromJson(snapshot.data()!, snapshot.id);
@@ -109,30 +115,80 @@ class UserProfileDataSource {
     }
 
     final normalizedUsername = ProfileValidation.normalizeUsername(username);
+
     final userRef = _users.doc(uid);
     final usernameRef = _usernames.doc(normalizedUsername);
+    final publicProfileRef = _publicProfiles.doc(uid);
 
     try {
+      debugPrint('[PROFILE DEBUG] Inizio completamento profilo');
+      debugPrint(
+        '[PROFILE DEBUG] Firebase projectId: '
+        '${_firestore.app.options.projectId}',
+      );
       await _firestore.runTransaction((transaction) async {
+        // 1. Lettura indice username
+        debugPrint('[PROFILE DEBUG] Lettura usernames/$normalizedUsername');
+
         final existingUsername = await transaction.get(usernameRef);
+
+        debugPrint(
+          '[PROFILE DEBUG] Username letto: '
+          'exists=${existingUsername.exists}',
+        );
+
         if (existingUsername.exists) {
           final ownerUid = existingUsername.data()?['uid'];
+
           if (ownerUid != uid) {
+            debugPrint('[PROFILE DEBUG] Username già occupato');
             throw Exception('USERNAME_NOT_AVAILABLE');
           }
         }
 
+        // 2. Lettura profilo utente
+        debugPrint('[PROFILE DEBUG] Lettura users/$uid');
+
         final existingUser = await transaction.get(userRef);
         final existingData = existingUser.data() ?? <String, dynamic>{};
 
+        debugPrint('[PROFILE DEBUG] USERS keys: ${existingData.keys.toList()}');
+        debugPrint(
+          '[PROFILE DEBUG] USERS createdAt: ${existingData['createdAt']}',
+        );
+
+        // Leggi anche il profilo pubblico prima di eseguire qualsiasi scrittura.
+        final existingPublicProfile = await transaction.get(publicProfileRef);
+
+        debugPrint(
+          '[PROFILE DEBUG] PUBLIC PROFILE exists: '
+          '${existingPublicProfile.exists}',
+        );
+        debugPrint(
+          '[PROFILE DEBUG] PUBLIC PROFILE keys: '
+          '${existingPublicProfile.data()?.keys.toList()}',
+        );
+
+        debugPrint(
+          '[PROFILE DEBUG] Utente letto: '
+          'exists=${existingUser.exists}, '
+          'profileCompleted=${existingData['profileCompleted']}',
+        );
+
         final alreadyCompleted = existingData['profileCompleted'] == true;
+
         if (alreadyCompleted) {
+          debugPrint(
+            '[PROFILE DEBUG] Profilo già completato: '
+            'nessuna scrittura necessaria',
+          );
           return;
         }
 
-        // Se l'indice esiste già ed è di questo UID, non eseguire un update:
-        // le Rules rendono immutabile l'indice username dopo la creazione.
+        // 3. Preparazione indice username
         if (!existingUsername.exists) {
+          debugPrint('[PROFILE DEBUG] Preparazione scrittura usernames');
+
           transaction.set(usernameRef, {
             'uid': uid,
             'username': normalizedUsername,
@@ -140,6 +196,7 @@ class UserProfileDataSource {
           });
         }
 
+        // 4. Preparazione profilo privato
         final completedPayload = _buildCompletedProfilePayload(
           existingData: existingData,
           email: email,
@@ -148,17 +205,47 @@ class UserProfileDataSource {
           displayName: displayName,
           avatarId: avatarId,
         );
+
+        debugPrint('[PROFILE DEBUG] Preparazione scrittura users');
+
         transaction.set(userRef, completedPayload, SetOptions(merge: true));
+
+        // 5. Preparazione profilo pubblico
+        final publicPayload = _publicProfilePayload({
+          ...existingData,
+          ...completedPayload,
+        });
+
+        debugPrint('[PROFILE DEBUG] Preparazione scrittura public_profiles');
+
         transaction.set(
-          _publicProfiles.doc(uid),
-          _publicProfilePayload({...existingData, ...completedPayload}),
+          publicProfileRef,
+          publicPayload,
           SetOptions(merge: true),
         );
+
+        debugPrint(
+          '[PROFILE DEBUG] Scritture preparate; '
+          'in attesa del risultato della transazione',
+        );
       });
-    } on FirebaseException catch (e) {
+
+      debugPrint('[PROFILE DEBUG] Transazione completata correttamente');
+    } on FirebaseException catch (e, stackTrace) {
+      debugPrint('[PROFILE DEBUG] ERRORE FIREBASE');
+      debugPrint('[PROFILE DEBUG] Code: ${e.code}');
+      debugPrint('[PROFILE DEBUG] Message: ${e.message}');
+      debugPrint('[PROFILE DEBUG] Plugin: ${e.plugin}');
+      debugPrintStack(stackTrace: stackTrace);
+
       if (e.code == 'permission-denied') {
         throw Exception('USERNAME_INDEX_PERMISSION_DENIED');
       }
+
+      rethrow;
+    } catch (e, stackTrace) {
+      debugPrint('[PROFILE DEBUG] ERRORE GENERICO: $e');
+      debugPrintStack(stackTrace: stackTrace);
       rethrow;
     }
   }
@@ -219,7 +306,6 @@ class UserProfileDataSource {
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
         'posizioneGps': existingPrefs['posizioneGps'] ?? true,
       },
-      'createdAt': existingData['createdAt'] ?? FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
@@ -305,12 +391,18 @@ class UserProfileDataSource {
       final queries = <Future<QuerySnapshot<Map<String, dynamic>>>>[
         _publicProfiles
             .where('usernameNormalized', isGreaterThanOrEqualTo: cleanQuery)
-            .where('usernameNormalized', isLessThanOrEqualTo: '$cleanQuery\uf8ff')
+            .where(
+              'usernameNormalized',
+              isLessThanOrEqualTo: '$cleanQuery\uf8ff',
+            )
             .limit(10)
             .get(),
         _publicProfiles
             .where('displayNameNormalized', isGreaterThanOrEqualTo: cleanQuery)
-            .where('displayNameNormalized', isLessThanOrEqualTo: '$cleanQuery\uf8ff')
+            .where(
+              'displayNameNormalized',
+              isLessThanOrEqualTo: '$cleanQuery\uf8ff',
+            )
             .limit(10)
             .get(),
       ];
@@ -345,12 +437,13 @@ class UserProfileDataSource {
 
   Future<void> markOnboardingCompleted(String uid) async {
     final batch = _firestore.batch();
-    final update = {
+    // Documento privato: le Rules ammettono onboardingCompleted + updatedAt.
+    batch.update(_users.doc(uid), {
       'onboardingCompleted': true,
       'updatedAt': FieldValue.serverTimestamp(),
-    };
-    batch.update(_users.doc(uid), update);
-    batch.update(_publicProfiles.doc(uid), update);
+    });
+    // Proiezione pubblica: NON ha il campo updatedAt (le Rules lo rifiutano).
+    batch.update(_publicProfiles.doc(uid), {'onboardingCompleted': true});
     await batch.commit();
   }
 
@@ -359,7 +452,9 @@ class UserProfileDataSource {
       final ref = _users.doc(uid);
       final snapshot = await ref.get();
       if (!snapshot.exists) return;
-      final existing = List<String>.from(snapshot.data()?['fcmTokens'] ?? const []);
+      final existing = List<String>.from(
+        snapshot.data()?['fcmTokens'] ?? const [],
+      );
       if (existing.contains(token)) return;
       await ref.update({
         'fcmTokens': FieldValue.arrayUnion([token]),
@@ -374,7 +469,9 @@ class UserProfileDataSource {
     final ref = _users.doc(uid);
     final snapshot = await ref.get();
     if (!snapshot.exists) return;
-    final existing = List<String>.from(snapshot.data()?['fcmTokens'] ?? const []);
+    final existing = List<String>.from(
+      snapshot.data()?['fcmTokens'] ?? const [],
+    );
     if (!existing.contains(token)) return;
     await ref.update({
       'fcmTokens': FieldValue.arrayRemove([token]),

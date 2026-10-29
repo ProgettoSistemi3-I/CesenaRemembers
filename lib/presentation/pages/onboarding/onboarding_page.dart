@@ -86,7 +86,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     try {
       await sl<UserProfileUseCases>().markOnboardingCompleted(widget.uid);
     } catch (_) {
-      setState(() => _completing = false);
+      if (mounted) setState(() => _completing = false);
     }
   }
 
