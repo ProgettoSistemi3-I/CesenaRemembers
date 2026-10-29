@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,12 @@ Future<void> main() async {
 Future<void> _bootstrapAndRun() async {
   final result = await AppBootstrap.run();
   if (!result.success) {
-    runApp(BootstrapErrorApp(errorMessage: result.message, onRetry: _bootstrapAndRun));
+    runApp(
+      BootstrapErrorApp(
+        errorMessage: result.message,
+        onRetry: _bootstrapAndRun,
+      ),
+    );
     return;
   }
   runApp(const CesenaRemembersApp());
@@ -43,6 +49,26 @@ class AppBootstrap {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+
+      // DIAGNOSTICA TEMPORANEA: usare solo con --dart-define in debug.
+      // Di default l'app continua a usare Firestore di produzione.
+      if (kDebugMode && const bool.fromEnvironment('USE_FIRESTORE_EMULATOR')) {
+        const emulatorHost = String.fromEnvironment(
+          'FIRESTORE_EMULATOR_HOST',
+          defaultValue: '127.0.0.1',
+        );
+
+        FirebaseFirestore.instance.useFirestoreEmulator(
+          emulatorHost,
+          8080,
+          automaticHostMapping: false,
+        );
+
+        debugPrint(
+          '[FIRESTORE DIAGNOSTIC] Emulator attivo: $emulatorHost:8080',
+        );
+      }
+
       await di.init();
       try {
         await di.sl<ThemeController>().initTheme();
@@ -62,7 +88,11 @@ class AppBootstrap {
 }
 
 class BootstrapErrorApp extends StatelessWidget {
-  const BootstrapErrorApp({super.key, this.errorMessage, required this.onRetry});
+  const BootstrapErrorApp({
+    super.key,
+    this.errorMessage,
+    required this.onRetry,
+  });
 
   final String? errorMessage;
   final VoidCallback onRetry;
@@ -78,7 +108,11 @@ class BootstrapErrorApp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.cloud_off_rounded, size: 54, color: AppPalette.olive),
+                const Icon(
+                  Icons.cloud_off_rounded,
+                  size: 54,
+                  color: AppPalette.olive,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'Impossibile avviare l\'app\nUnable to start the app',
@@ -92,7 +126,9 @@ class BootstrapErrorApp extends StatelessWidget {
                 const SizedBox(height: 20),
                 FilledButton(
                   onPressed: onRetry,
-                  style: FilledButton.styleFrom(backgroundColor: AppPalette.olive),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppPalette.olive,
+                  ),
                   child: const Text('Riprova / Retry'),
                 ),
               ],

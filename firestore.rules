@@ -1,15 +1,24 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() { return request.auth != null; }
-    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
     function isNotBanned() {
       return isSignedIn() &&
         !exists(/databases/$(database)/documents/banned_users/$(request.auth.uid));
     }
+
     function isValidUsernameId(value) {
       return value is string && value.matches('^[a-z0-9_.]{3,20}$');
     }
+
     function validPreferences(prefs) {
       return prefs is map &&
         prefs.keys().hasOnly(['notifiche', 'modalitaNotte', 'posizioneGps']) &&
@@ -17,63 +26,30 @@ service cloud.firestore {
         (!('modalitaNotte' in prefs) || prefs.modalitaNotte is bool) &&
         (!('posizioneGps' in prefs) || prefs.posizioneGps is bool);
     }
+
     function validVisitedPoiIds(ids) {
-      return ids is list && ids.size() <= 200 && ids.toSet().size() == ids.size() &&
+      return ids is list &&
+        ids.size() <= 200 &&
+        ids.toSet().size() == ids.size() &&
         ids.hasOnly([
           'santa_cristina', 'rocca', 'san_rocco', 'abbazia_monte',
           'osservanza', 'palazzo_ridotto', 'stazione', 'arrigoni',
           'fantaguzzi', 'rifugi_antiaerei'
         ]);
     }
+
     function validAchievementList(ids) {
-      return ids is list && ids.size() <= 100 && ids.toSet().size() == ids.size() &&
+      return ids is list &&
+        ids.size() <= 100 &&
+        ids.toSet().size() == ids.size() &&
         ids.hasOnly([
           'first_visit', 'first_quiz', 'first_tour', 'quiz_15',
           'perfect_tour', 'xp_500', 'tour_under_1h', 'tour_under_30m',
           'friend_1', 'friend_5'
         ]);
     }
-    function validPrivateUserShape(data) {
-      return data.keys().hasOnly([
-          'email', 'displayName', 'displayNameNormalized', 'username',
-          'usernameNormalized', 'avatarId', 'profileCompleted',
-          'profileCompletedAt', 'onboardingCompleted', 'xp',
-          'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
-          'pendingAchievements', 'maxQuizScore', 'totalQuizCompleted',
-          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
-          'maxSingleTourXp', 'friends', 'sentFriendRequests',
-          'receivedFriendRequests', 'fcmTokens', 'preferences',
-          'lastFriendActionPeerUid', 'createdAt', 'updatedAt'
-        ]) &&
-        (!('email' in data) || (data.email is string && data.email.size() <= 254)) &&
-        (!('displayName' in data) || (data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 30)) &&
-        (!('displayNameNormalized' in data) || (data.displayNameNormalized is string && data.displayNameNormalized.size() <= 30 && (!('displayName' in data) || data.displayNameNormalized == data.displayName.lower()))) &&
-        (!('username' in data) || (data.username is string && isValidUsernameId(data.username.lower()))) &&
-        (!('usernameNormalized' in data) || (isValidUsernameId(data.usernameNormalized) && (!('username' in data) || data.usernameNormalized == data.username.lower()))) &&
-        (!('avatarId' in data) || (data.avatarId is string && data.avatarId.size() > 0 && data.avatarId.size() <= 40)) &&
-        (!('profileCompleted' in data) || data.profileCompleted is bool) &&
-        (!('profileCompletedAt' in data) || data.profileCompletedAt is timestamp) &&
-        (!('onboardingCompleted' in data) || data.onboardingCompleted is bool) &&
-        (!('lastFriendActionPeerUid' in data) || (data.lastFriendActionPeerUid is string && data.lastFriendActionPeerUid.size() <= 128)) &&
-        (!('createdAt' in data) || data.createdAt is timestamp) &&
-        (!('updatedAt' in data) || data.updatedAt is timestamp) &&
-        data.get('xp', 0) is int && data.get('xp', 0) >= 0 && data.get('xp', 0) <= 1000000000 &&
-        data.get('leaderboardScore', data.get('xp', 0)) is int && data.get('leaderboardScore', data.get('xp', 0)) >= 0 &&
-        validVisitedPoiIds(data.get('visitedPoiIds', [])) &&
-        validAchievementList(data.get('unlockedAchievements', [])) &&
-        validAchievementList(data.get('pendingAchievements', [])) &&
-        data.get('friends', []) is list && data.get('friends', []).size() <= 500 && data.get('friends', []).toSet().size() == data.get('friends', []).size() &&
-        data.get('sentFriendRequests', []) is list && data.get('sentFriendRequests', []).size() <= 500 && data.get('sentFriendRequests', []).toSet().size() == data.get('sentFriendRequests', []).size() &&
-        data.get('receivedFriendRequests', []) is list && data.get('receivedFriendRequests', []).size() <= 500 && data.get('receivedFriendRequests', []).toSet().size() == data.get('receivedFriendRequests', []).size() &&
-        data.get('fcmTokens', []) is list && data.get('fcmTokens', []).size() <= 20 && data.get('fcmTokens', []).toSet().size() == data.get('fcmTokens', []).size() &&
-        data.get('maxQuizScore', 0) is int && data.get('maxQuizScore', 0) >= 0 && data.get('maxQuizScore', 0) <= 100 &&
-        data.get('totalQuizCompleted', 0) is int && data.get('totalQuizCompleted', 0) >= 0 &&
-        data.get('totalToursCompleted', 0) is int && data.get('totalToursCompleted', 0) >= 0 &&
-        data.get('totalCorrectAnswers', 0) is int && data.get('totalCorrectAnswers', 0) >= 0 &&
-        data.get('bestTourTimeSeconds', 0) is int && data.get('bestTourTimeSeconds', 0) >= 0 &&
-        data.get('maxSingleTourXp', 0) is int && data.get('maxSingleTourXp', 0) >= 0 &&
-        validPreferences(data.get('preferences', {}));
-    }
+
+    // Shape completa del profilo pubblico: usata solo negli UPDATE del proprietario.
     function validPublicProfileShape(data) {
       return data.keys().hasOnly([
           'displayName', 'displayNameNormalized', 'username',
@@ -83,115 +59,237 @@ service cloud.firestore {
           'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
           'maxSingleTourXp', 'friends'
         ]) &&
-        data.get('displayName', null) is string && data.displayName.size() >= 2 && data.displayName.size() <= 30 &&
-        data.get('displayNameNormalized', null) is string && data.displayNameNormalized.size() <= 30 && data.displayNameNormalized == data.displayName.lower() &&
-        data.get('username', null) is string && isValidUsernameId(data.username.lower()) &&
-        data.get('usernameNormalized', null) is string && isValidUsernameId(data.usernameNormalized) && data.usernameNormalized == data.username.lower() &&
-        data.get('avatarId', null) is string && data.avatarId.size() > 0 && data.avatarId.size() <= 40 &&
+        data.get('displayName', null) is string &&
+        data.displayName.size() >= 2 &&
+        data.displayName.size() <= 30 &&
+        data.get('displayNameNormalized', null) is string &&
+        data.displayNameNormalized.size() <= 30 &&
+        data.displayNameNormalized == data.displayName.lower() &&
+        data.get('username', null) is string &&
+        isValidUsernameId(data.username.lower()) &&
+        data.get('usernameNormalized', null) is string &&
+        isValidUsernameId(data.usernameNormalized) &&
+        data.usernameNormalized == data.username.lower() &&
+        data.get('avatarId', null) is string &&
+        data.avatarId.size() > 0 &&
+        data.avatarId.size() <= 40 &&
         data.get('profileCompleted', false) == true &&
         data.get('onboardingCompleted', false) is bool &&
-        data.get('xp', 0) is int && data.xp >= 0 && data.xp <= 1000000000 &&
-        data.get('leaderboardScore', data.xp) is int && data.leaderboardScore == data.xp &&
+        data.get('xp', 0) is int &&
+        data.xp >= 0 &&
+        data.xp <= 1000000000 &&
+        data.get('leaderboardScore', data.xp) is int &&
+        data.leaderboardScore == data.xp &&
         validVisitedPoiIds(data.get('visitedPoiIds', [])) &&
         validAchievementList(data.get('unlockedAchievements', [])) &&
-        data.get('friends', []) is list && data.friends.size() <= 500 && data.friends.toSet().size() == data.friends.size() &&
-        data.get('maxQuizScore', 0) is int && data.maxQuizScore >= 0 && data.maxQuizScore <= 100 &&
-        data.get('totalQuizCompleted', 0) is int && data.totalQuizCompleted >= 0 &&
-        data.get('totalToursCompleted', 0) is int && data.totalToursCompleted >= 0 &&
-        data.get('totalCorrectAnswers', 0) is int && data.totalCorrectAnswers >= 0 &&
-        data.get('bestTourTimeSeconds', 0) is int && data.bestTourTimeSeconds >= 0 &&
-        data.get('maxSingleTourXp', 0) is int && data.maxSingleTourXp >= 0;
+        data.get('friends', []) is list &&
+        data.friends.size() <= 500 &&
+        data.friends.toSet().size() == data.friends.size() &&
+        data.get('maxQuizScore', 0) is int &&
+        data.maxQuizScore >= 0 &&
+        data.maxQuizScore <= 100 &&
+        data.get('totalQuizCompleted', 0) is int &&
+        data.totalQuizCompleted >= 0 &&
+        data.get('totalToursCompleted', 0) is int &&
+        data.totalToursCompleted >= 0 &&
+        data.get('totalCorrectAnswers', 0) is int &&
+        data.totalCorrectAnswers >= 0 &&
+        data.get('bestTourTimeSeconds', 0) is int &&
+        data.bestTourTimeSeconds >= 0 &&
+        data.get('maxSingleTourXp', 0) is int &&
+        data.maxSingleTourXp >= 0;
     }
-    // getAfter su un documento inesistente fa fallire la regola: niente existsAfter.
+
+    // Versione leggera per la CREAZIONE: tutti i contatori sono 0 e le liste vuote,
+    // e i campi anagrafici devono coincidere con users/{uid}.
+    function validPublicProfileCreate(uid) {
+      let p = request.resource.data;
+      let u = getAfter(/databases/$(database)/documents/users/$(uid)).data;
+
+      return p.keys().hasOnly([
+          'displayName', 'displayNameNormalized', 'username',
+          'usernameNormalized', 'avatarId', 'profileCompleted',
+          'onboardingCompleted', 'xp', 'leaderboardScore', 'visitedPoiIds',
+          'unlockedAchievements', 'maxQuizScore', 'totalQuizCompleted',
+          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
+          'maxSingleTourXp', 'friends'
+        ]) &&
+        p.profileCompleted == true &&
+        u.get('profileCompleted', false) == true &&
+        p.xp == 0 &&
+        p.leaderboardScore == 0 &&
+        p.maxQuizScore == 0 &&
+        p.totalQuizCompleted == 0 &&
+        p.totalToursCompleted == 0 &&
+        p.totalCorrectAnswers == 0 &&
+        p.bestTourTimeSeconds == 0 &&
+        p.maxSingleTourXp == 0 &&
+        p.visitedPoiIds.size() == 0 &&
+        p.unlockedAchievements.size() == 0 &&
+        p.friends.size() == 0 &&
+        p.displayName == u.displayName &&
+        p.displayNameNormalized == u.displayNameNormalized &&
+        p.username == u.username &&
+        p.usernameNormalized == u.usernameNormalized &&
+        p.avatarId == u.avatarId &&
+        p.onboardingCompleted == u.get('onboardingCompleted', false);
+    }
+
     function publicMirrorMatches(uid) {
-      let privateData = getAfter(/databases/$(database)/documents/users/$(uid)).data;
-      let publicData = getAfter(/databases/$(database)/documents/public_profiles/$(uid)).data;
+      let privateData =
+        getAfter(/databases/$(database)/documents/users/$(uid)).data;
+      let publicData =
+        getAfter(/databases/$(database)/documents/public_profiles/$(uid)).data;
+
       return publicData.displayName == privateData.displayName &&
         publicData.displayNameNormalized == privateData.displayNameNormalized &&
         publicData.username == privateData.username &&
         publicData.usernameNormalized == privateData.usernameNormalized &&
         publicData.avatarId == privateData.avatarId &&
         publicData.profileCompleted == privateData.profileCompleted &&
-        publicData.onboardingCompleted == privateData.get('onboardingCompleted', false) &&
+        publicData.onboardingCompleted ==
+          privateData.get('onboardingCompleted', false) &&
         publicData.xp == privateData.get('xp', 0) &&
-        publicData.leaderboardScore == privateData.get('leaderboardScore', privateData.get('xp', 0)) &&
+        publicData.leaderboardScore ==
+          privateData.get('leaderboardScore', privateData.get('xp', 0)) &&
         publicData.visitedPoiIds == privateData.get('visitedPoiIds', []) &&
-        publicData.unlockedAchievements == privateData.get('unlockedAchievements', []) &&
+        publicData.unlockedAchievements ==
+          privateData.get('unlockedAchievements', []) &&
         publicData.maxQuizScore == privateData.get('maxQuizScore', 0) &&
-        publicData.totalQuizCompleted == privateData.get('totalQuizCompleted', 0) &&
-        publicData.totalToursCompleted == privateData.get('totalToursCompleted', 0) &&
-        publicData.totalCorrectAnswers == privateData.get('totalCorrectAnswers', 0) &&
-        publicData.bestTourTimeSeconds == privateData.get('bestTourTimeSeconds', 0) &&
-        publicData.maxSingleTourXp == privateData.get('maxSingleTourXp', 0) &&
+        publicData.totalQuizCompleted ==
+          privateData.get('totalQuizCompleted', 0) &&
+        publicData.totalToursCompleted ==
+          privateData.get('totalToursCompleted', 0) &&
+        publicData.totalCorrectAnswers ==
+          privateData.get('totalCorrectAnswers', 0) &&
+        publicData.bestTourTimeSeconds ==
+          privateData.get('bestTourTimeSeconds', 0) &&
+        publicData.maxSingleTourXp ==
+          privateData.get('maxSingleTourXp', 0) &&
         publicData.friends == privateData.get('friends', []);
     }
+
     function listAddsOne(oldList, newList) {
-      return oldList is list && newList is list &&
-        newList.size() == oldList.size() + 1 && newList.hasAll(oldList);
+      return oldList is list &&
+        newList is list &&
+        newList.size() == oldList.size() + 1 &&
+        newList.hasAll(oldList);
     }
+
     function listRemovesOne(oldList, newList) {
-      return oldList is list && newList is list &&
-        oldList.size() == newList.size() + 1 && oldList.hasAll(newList);
+      return oldList is list &&
+        newList is list &&
+        oldList.size() == newList.size() + 1 &&
+        oldList.hasAll(newList);
     }
+
     function listAddsOnly(oldList, newList, item) {
-      return !oldList.hasAny([item]) && newList.hasAny([item]) && listAddsOne(oldList, newList);
+      return !oldList.hasAny([item]) &&
+        newList.hasAny([item]) &&
+        listAddsOne(oldList, newList);
     }
+
     function listRemovesOnly(oldList, newList, item) {
-      return oldList.hasAny([item]) && !newList.hasAny([item]) && listRemovesOne(oldList, newList);
+      return oldList.hasAny([item]) &&
+        !newList.hasAny([item]) &&
+        listRemovesOne(oldList, newList);
     }
+
     function validAchievementIdsAdded(oldData, newData, oldList, newList) {
       let added = newList.toSet().difference(oldList.toSet());
-      let completedTourNow = newData.get('totalToursCompleted', 0) > oldData.get('totalToursCompleted', 0);
-      return newList is list && oldList is list && newList.hasAll(oldList) &&
+      let completedTourNow =
+        newData.get('totalToursCompleted', 0) >
+        oldData.get('totalToursCompleted', 0);
+
+      return newList is list &&
+        oldList is list &&
+        newList.hasAll(oldList) &&
         newList.size() <= oldList.size() + 10 &&
         added.hasOnly([
           'first_visit', 'first_quiz', 'first_tour', 'quiz_15',
           'perfect_tour', 'xp_500', 'tour_under_1h', 'tour_under_30m'
         ]) &&
-        (!added.hasAny(['first_visit']) || newData.get('visitedPoiIds', []).size() > 0) &&
-        (!added.hasAny(['first_quiz']) || newData.get('totalQuizCompleted', 0) >= 1) &&
-        (!added.hasAny(['first_tour']) || newData.get('totalToursCompleted', 0) >= 1) &&
-        (!added.hasAny(['quiz_15']) || newData.get('totalQuizCompleted', 0) >= 15) &&
-        (!added.hasAny(['perfect_tour']) || (completedTourNow && newData.get('totalCorrectAnswers', 0) > oldData.get('totalCorrectAnswers', 0))) &&
+        (!added.hasAny(['first_visit']) ||
+          newData.get('visitedPoiIds', []).size() > 0) &&
+        (!added.hasAny(['first_quiz']) ||
+          newData.get('totalQuizCompleted', 0) >= 1) &&
+        (!added.hasAny(['first_tour']) ||
+          newData.get('totalToursCompleted', 0) >= 1) &&
+        (!added.hasAny(['quiz_15']) ||
+          newData.get('totalQuizCompleted', 0) >= 15) &&
+        (!added.hasAny(['perfect_tour']) ||
+          (completedTourNow &&
+           newData.get('totalCorrectAnswers', 0) >
+             oldData.get('totalCorrectAnswers', 0))) &&
         (!added.hasAny(['xp_500']) || newData.get('xp', 0) >= 500) &&
-        (!added.hasAny(['tour_under_1h']) || (completedTourNow && newData.get('bestTourTimeSeconds', 0) > 0 && newData.get('bestTourTimeSeconds', 0) < 3600)) &&
-        (!added.hasAny(['tour_under_30m']) || (completedTourNow && newData.get('bestTourTimeSeconds', 0) > 0 && newData.get('bestTourTimeSeconds', 0) < 1800));
+        (!added.hasAny(['tour_under_1h']) ||
+          (completedTourNow &&
+           newData.get('bestTourTimeSeconds', 0) > 0 &&
+           newData.get('bestTourTimeSeconds', 0) < 3600)) &&
+        (!added.hasAny(['tour_under_30m']) ||
+          (completedTourNow &&
+           newData.get('bestTourTimeSeconds', 0) > 0 &&
+           newData.get('bestTourTimeSeconds', 0) < 1800));
     }
+
+    // Completamento iniziale del profilo (versione leggera, niente validPrivateUserShape).
     function validInitialProfileCompletion(uid) {
       let d = request.resource.data;
+      let usernamePath =
+        /databases/$(database)/documents/usernames/$(d.usernameNormalized);
+
       return resource.data.get('profileCompleted', false) != true &&
-        d.get('profileCompleted', false) == true &&
-        validPrivateUserShape(d) &&
-        d.get('xp', 0) == 0 && d.get('leaderboardScore', 0) == 0 &&
-        d.get('visitedPoiIds', []).size() == 0 &&
-        d.get('unlockedAchievements', []).size() == 0 &&
-        d.get('pendingAchievements', []).size() == 0 &&
-        d.get('maxQuizScore', 0) == 0 && d.get('totalQuizCompleted', 0) == 0 &&
-        d.get('totalToursCompleted', 0) == 0 && d.get('totalCorrectAnswers', 0) == 0 &&
-        d.get('bestTourTimeSeconds', 0) == 0 && d.get('maxSingleTourXp', 0) == 0 &&
-        d.get('friends', []).size() == 0 && d.get('sentFriendRequests', []).size() == 0 &&
-        d.get('receivedFriendRequests', []).size() == 0 &&
-        d.get('fcmTokens', []).size() == 0 &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'email', 'displayName', 'displayNameNormalized', 'username', 'usernameNormalized',
-          'avatarId', 'profileCompleted', 'profileCompletedAt', 'onboardingCompleted', 'xp',
-          'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements', 'pendingAchievements',
-          'maxQuizScore', 'totalQuizCompleted', 'totalToursCompleted', 'totalCorrectAnswers',
-          'bestTourTimeSeconds', 'maxSingleTourXp', 'friends', 'sentFriendRequests',
-          'receivedFriendRequests', 'fcmTokens', 'preferences', 'updatedAt'
+        d.profileCompleted == true &&
+        d.keys().hasOnly([
+          'email', 'displayName', 'displayNameNormalized', 'username',
+          'usernameNormalized', 'avatarId', 'profileCompleted',
+          'profileCompletedAt', 'onboardingCompleted', 'xp',
+          'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
+          'pendingAchievements', 'maxQuizScore', 'totalQuizCompleted',
+          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
+          'maxSingleTourXp', 'friends', 'sentFriendRequests',
+          'receivedFriendRequests', 'fcmTokens', 'preferences',
+          'createdAt', 'updatedAt'
         ]) &&
-        isValidUsernameId(d.usernameNormalized) && d.username == d.usernameNormalized &&
-        existsAfter(/databases/$(database)/documents/usernames/$(d.usernameNormalized)) &&
-        getAfter(/databases/$(database)/documents/usernames/$(d.usernameNormalized)).data.uid == uid &&
-        getAfter(/databases/$(database)/documents/usernames/$(d.usernameNormalized)).data.username == d.usernameNormalized &&
-        existsAfter(/databases/$(database)/documents/public_profiles/$(uid)) &&
-        publicMirrorMatches(uid);
+        d.email is string &&
+        d.email.size() <= 254 &&
+        d.createdAt is timestamp &&
+        d.displayName is string &&
+        d.displayName.size() >= 2 &&
+        d.displayName.size() <= 30 &&
+        d.displayNameNormalized == d.displayName.lower() &&
+        isValidUsernameId(d.usernameNormalized) &&
+        d.username == d.usernameNormalized &&
+        d.avatarId is string &&
+        d.avatarId.size() > 0 &&
+        d.avatarId.size() <= 40 &&
+        d.onboardingCompleted is bool &&
+        d.xp == 0 &&
+        d.leaderboardScore == 0 &&
+        d.maxQuizScore == 0 &&
+        d.totalQuizCompleted == 0 &&
+        d.totalToursCompleted == 0 &&
+        d.totalCorrectAnswers == 0 &&
+        d.bestTourTimeSeconds == 0 &&
+        d.maxSingleTourXp == 0 &&
+        d.visitedPoiIds.size() == 0 &&
+        d.unlockedAchievements.size() == 0 &&
+        d.pendingAchievements.size() == 0 &&
+        d.friends.size() == 0 &&
+        d.sentFriendRequests.size() == 0 &&
+        d.receivedFriendRequests.size() == 0 &&
+        d.fcmTokens.size() == 0 &&
+        validPreferences(d.preferences) &&
+        existsAfter(usernamePath) &&
+        getAfter(usernamePath).data.uid == uid &&
+        existsAfter(/databases/$(database)/documents/public_profiles/$(uid));
     }
+
     function validOwnerProgressUpdate() {
       let old = resource.data;
       let next = request.resource.data;
-      let changed = next.diff(old).affectedKeys();
-      return changed.hasOnly([
+
+      return next.diff(old).affectedKeys().hasOnly([
           'visitedPoiIds', 'xp', 'leaderboardScore', 'maxSingleTourXp',
           'maxQuizScore', 'totalQuizCompleted', 'totalToursCompleted',
           'totalCorrectAnswers', 'bestTourTimeSeconds', 'pendingAchievements',
@@ -214,180 +312,334 @@ service cloud.firestore {
         next.get('visitedPoiIds', []).size() <= old.get('visitedPoiIds', []).size() + 1 &&
         next.get('visitedPoiIds', []).size() <= 200 &&
         next.get('visitedPoiIds', []).hasAll(old.get('visitedPoiIds', [])) &&
-        validAchievementIdsAdded(old, next, old.get('pendingAchievements', []), next.get('pendingAchievements', [])) &&
+        validAchievementIdsAdded(
+          old, next,
+          old.get('pendingAchievements', []),
+          next.get('pendingAchievements', [])
+        ) &&
         (next.get('totalToursCompleted', 0) > old.get('totalToursCompleted', 0)
           ? (next.get('bestTourTimeSeconds', 0) > 0 &&
-             (old.get('bestTourTimeSeconds', 0) == 0 || next.get('bestTourTimeSeconds', 0) <= old.get('bestTourTimeSeconds', 0)))
+             (old.get('bestTourTimeSeconds', 0) == 0 ||
+              next.get('bestTourTimeSeconds', 0) <= old.get('bestTourTimeSeconds', 0)))
           : next.get('bestTourTimeSeconds', 0) == old.get('bestTourTimeSeconds', 0)) &&
         publicMirrorMatches(request.auth.uid);
     }
+
     function validAchievementClaim() {
       let old = resource.data;
       let next = request.resource.data;
-      let changed = next.diff(old).affectedKeys();
-      return changed.hasOnly(['pendingAchievements', 'unlockedAchievements', 'updatedAt']) &&
-        listRemovesOne(old.get('pendingAchievements', []), next.get('pendingAchievements', [])) &&
-        next.get('unlockedAchievements', []).size() <= old.get('unlockedAchievements', []).size() + 1 &&
-        next.get('unlockedAchievements', []).hasAll(old.get('unlockedAchievements', [])) &&
-        next.get('unlockedAchievements', []).toSet().difference(old.get('unlockedAchievements', []).toSet()).hasOnly(old.get('pendingAchievements', [])) &&
+
+      return next.diff(old).affectedKeys().hasOnly([
+          'pendingAchievements', 'unlockedAchievements', 'updatedAt'
+        ]) &&
+        listRemovesOne(
+          old.get('pendingAchievements', []),
+          next.get('pendingAchievements', [])
+        ) &&
+        next.get('unlockedAchievements', []).size() <=
+          old.get('unlockedAchievements', []).size() + 1 &&
+        next.get('unlockedAchievements', []).hasAll(
+          old.get('unlockedAchievements', [])
+        ) &&
+        next.get('unlockedAchievements', []).toSet()
+          .difference(old.get('unlockedAchievements', []).toSet())
+          .hasOnly(old.get('pendingAchievements', [])) &&
         next.get('unlockedAchievements', []).size() <= 100 &&
         publicMirrorMatches(request.auth.uid);
     }
+
     function validProfileBasicsUpdate(uid) {
       let next = request.resource.data;
       let changed = next.diff(resource.data).affectedKeys();
-      return changed.hasOnly(['displayName', 'displayNameNormalized', 'avatarId', 'updatedAt']) &&
+
+      return changed.hasOnly([
+          'displayName', 'displayNameNormalized', 'avatarId', 'updatedAt'
+        ]) &&
         (!('displayName' in changed) ||
-          (next.displayName is string && next.displayName.size() >= 2 && next.displayName.size() <= 30)) &&
+          (next.displayName is string &&
+           next.displayName.size() >= 2 &&
+           next.displayName.size() <= 30)) &&
         (!('displayNameNormalized' in changed) ||
-          (next.displayNameNormalized is string && next.displayNameNormalized.size() <= 30 &&
+          (next.displayNameNormalized is string &&
+           next.displayNameNormalized.size() <= 30 &&
            next.displayNameNormalized == next.displayName.lower())) &&
         (!('avatarId' in changed) ||
-          (next.avatarId is string && next.avatarId.size() > 0 && next.avatarId.size() <= 40)) &&
+          (next.avatarId is string &&
+           next.avatarId.size() > 0 &&
+           next.avatarId.size() <= 40)) &&
         next.displayNameNormalized == next.displayName.lower() &&
         publicMirrorMatches(uid);
     }
+
     function validPreferencesUpdate() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['preferences', 'updatedAt']) &&
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['preferences', 'updatedAt']) &&
         validPreferences(request.resource.data.get('preferences', {}));
     }
+
     function validOnboardingUpdate(uid) {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['onboardingCompleted', 'updatedAt']) &&
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['onboardingCompleted', 'updatedAt']) &&
         request.resource.data.get('onboardingCompleted', false) == true &&
         publicMirrorMatches(uid);
     }
+
     function validFcmTokenUpdate() {
       let oldTokens = resource.data.get('fcmTokens', []);
       let newTokens = request.resource.data.get('fcmTokens', []);
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcmTokens', 'updatedAt']) &&
-        newTokens is list && newTokens.size() <= 20 &&
-        (listAddsOne(oldTokens, newTokens) || listRemovesOne(oldTokens, newTokens));
+
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['fcmTokens', 'updatedAt']) &&
+        newTokens is list &&
+        newTokens.size() <= 20 &&
+        (listAddsOne(oldTokens, newTokens) ||
+         listRemovesOne(oldTokens, newTokens));
     }
+
     function validSentRequestAdd(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let path = /databases/$(database)/documents/friend_requests/$(peer)/inbox/$(uid);
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
-        peer is string && peer.size() > 0 && peer != uid &&
+      let path =
+        /databases/$(database)/documents/friend_requests/$(peer)/inbox/$(uid);
+
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
+        peer is string &&
+        peer.size() > 0 &&
+        peer != uid &&
         !resource.data.get('friends', []).hasAny([peer]) &&
         !resource.data.get('receivedFriendRequests', []).hasAny([peer]) &&
         !exists(/databases/$(database)/documents/banned_users/$(peer)) &&
         !exists(/databases/$(database)/documents/friend_requests/$(uid)/inbox/$(peer)) &&
-        listAddsOnly(resource.data.get('sentFriendRequests', []), request.resource.data.get('sentFriendRequests', []), peer) &&
-        existsAfter(path) && getAfter(path).data.senderUid == uid && getAfter(path).data.recipientUid == peer;
+        listAddsOnly(
+          resource.data.get('sentFriendRequests', []),
+          request.resource.data.get('sentFriendRequests', []),
+          peer
+        ) &&
+        existsAfter(path) &&
+        getAfter(path).data.senderUid == uid &&
+        getAfter(path).data.recipientUid == peer;
     }
+
     function validSentRequestRemoval(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let path = /databases/$(database)/documents/friend_requests/$(peer)/inbox/$(uid);
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
-        peer is string && peer.size() > 0 &&
-        listRemovesOnly(resource.data.get('sentFriendRequests', []), request.resource.data.get('sentFriendRequests', []), peer) &&
+      let path =
+        /databases/$(database)/documents/friend_requests/$(peer)/inbox/$(uid);
+
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
+        peer is string &&
+        peer.size() > 0 &&
+        listRemovesOnly(
+          resource.data.get('sentFriendRequests', []),
+          request.resource.data.get('sentFriendRequests', []),
+          peer
+        ) &&
         !existsAfter(path);
     }
+
     function validIncomingRequestAdd(uid) {
-      let path = /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(request.auth.uid);
+      let path =
+        /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(request.auth.uid);
+
       return !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['receivedFriendRequests', 'updatedAt']) &&
-        listAddsOnly(resource.data.get('receivedFriendRequests', []), request.resource.data.get('receivedFriendRequests', []), request.auth.uid) &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['receivedFriendRequests', 'updatedAt']) &&
+        listAddsOnly(
+          resource.data.get('receivedFriendRequests', []),
+          request.resource.data.get('receivedFriendRequests', []),
+          request.auth.uid
+        ) &&
         !resource.data.get('sentFriendRequests', []).hasAny([request.auth.uid]) &&
         !resource.data.get('friends', []).hasAny([request.auth.uid]) &&
-        !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('friends', []).hasAny([uid]) &&
+        !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+          .get('friends', []).hasAny([uid]) &&
         existsAfter(path) &&
-        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('sentFriendRequests', []).hasAny([uid]);
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+          .get('sentFriendRequests', []).hasAny([uid]);
     }
+
     function validCrossSentRequestRemoval(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let requestPath = /databases/$(database)/documents/friend_requests/$(request.auth.uid)/inbox/$(uid);
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
+      let requestPath =
+        /databases/$(database)/documents/friend_requests/$(request.auth.uid)/inbox/$(uid);
+
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
         peer == request.auth.uid &&
-        listRemovesOnly(resource.data.get('sentFriendRequests', []), request.resource.data.get('sentFriendRequests', []), request.auth.uid) &&
+        listRemovesOnly(
+          resource.data.get('sentFriendRequests', []),
+          request.resource.data.get('sentFriendRequests', []),
+          request.auth.uid
+        ) &&
         !existsAfter(requestPath) &&
         (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-          !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('receivedFriendRequests', []).hasAny([uid]));
+          !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+            .get('receivedFriendRequests', []).hasAny([uid]));
     }
+
     function validReceivedRequestRemoval(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let path = /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(peer);
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['receivedFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
-        peer is string && peer.size() > 0 &&
-        listRemovesOnly(resource.data.get('receivedFriendRequests', []), request.resource.data.get('receivedFriendRequests', []), peer) &&
+      let path =
+        /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(peer);
+
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['receivedFriendRequests', 'lastFriendActionPeerUid', 'updatedAt']) &&
+        peer is string &&
+        peer.size() > 0 &&
+        listRemovesOnly(
+          resource.data.get('receivedFriendRequests', []),
+          request.resource.data.get('receivedFriendRequests', []),
+          peer
+        ) &&
         !existsAfter(path);
     }
+
     function friendAchievementChangeAllowed(oldList, newList) {
-      return newList is list && oldList is list && newList.hasAll(oldList) &&
+      return newList is list &&
+        oldList is list &&
+        newList.hasAll(oldList) &&
         newList.size() <= oldList.size() + 2 &&
-        newList.toSet().difference(oldList.toSet()).hasOnly(['friend_1', 'friend_5']);
+        newList.toSet().difference(oldList.toSet())
+          .hasOnly(['friend_1', 'friend_5']);
     }
+
     function validAcceptingFriendUpdate(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let requestPath = /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(peer);
-      let peerAfter = getAfter(/databases/$(database)/documents/users/$(peer)).data;
+      let requestPath =
+        /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(peer);
+      let peerAfter =
+        getAfter(/databases/$(database)/documents/users/$(peer)).data;
+
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'receivedFriendRequests', 'friends', 'pendingAchievements', 'lastFriendActionPeerUid', 'updatedAt'
-        ]) && peer is string && peer.size() > 0 && peer != uid &&
-        listRemovesOnly(resource.data.get('receivedFriendRequests', []), request.resource.data.get('receivedFriendRequests', []), peer) &&
-        listAddsOnly(resource.data.get('friends', []), request.resource.data.get('friends', []), peer) &&
-        exists(requestPath) && !existsAfter(requestPath) &&
+          'receivedFriendRequests', 'friends', 'pendingAchievements',
+          'lastFriendActionPeerUid', 'updatedAt'
+        ]) &&
+        peer is string &&
+        peer.size() > 0 &&
+        peer != uid &&
+        listRemovesOnly(
+          resource.data.get('receivedFriendRequests', []),
+          request.resource.data.get('receivedFriendRequests', []),
+          peer
+        ) &&
+        listAddsOnly(
+          resource.data.get('friends', []),
+          request.resource.data.get('friends', []),
+          peer
+        ) &&
+        exists(requestPath) &&
+        !existsAfter(requestPath) &&
         !exists(/databases/$(database)/documents/banned_users/$(peer)) &&
         peerAfter.get('friends', []).hasAny([uid]) &&
         !peerAfter.get('sentFriendRequests', []).hasAny([uid]) &&
-        friendAchievementChangeAllowed(resource.data.get('pendingAchievements', []), request.resource.data.get('pendingAchievements', [])) &&
+        friendAchievementChangeAllowed(
+          resource.data.get('pendingAchievements', []),
+          request.resource.data.get('pendingAchievements', [])
+        ) &&
         publicMirrorMatches(uid);
     }
+
     function validAcceptedFriendUpdate(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let requestPath = /databases/$(database)/documents/friend_requests/$(request.auth.uid)/inbox/$(uid);
+      let requestPath =
+        /databases/$(database)/documents/friend_requests/$(request.auth.uid)/inbox/$(uid);
+
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'sentFriendRequests', 'friends', 'pendingAchievements', 'lastFriendActionPeerUid', 'updatedAt'
-        ]) && peer == request.auth.uid &&
-        listRemovesOnly(resource.data.get('sentFriendRequests', []), request.resource.data.get('sentFriendRequests', []), request.auth.uid) &&
-        listAddsOnly(resource.data.get('friends', []), request.resource.data.get('friends', []), request.auth.uid) &&
-        exists(requestPath) && !existsAfter(requestPath) &&
+          'sentFriendRequests', 'friends', 'pendingAchievements',
+          'lastFriendActionPeerUid', 'updatedAt'
+        ]) &&
+        peer == request.auth.uid &&
+        listRemovesOnly(
+          resource.data.get('sentFriendRequests', []),
+          request.resource.data.get('sentFriendRequests', []),
+          request.auth.uid
+        ) &&
+        listAddsOnly(
+          resource.data.get('friends', []),
+          request.resource.data.get('friends', []),
+          request.auth.uid
+        ) &&
+        exists(requestPath) &&
+        !existsAfter(requestPath) &&
         !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
-        friendAchievementChangeAllowed(resource.data.get('pendingAchievements', []), request.resource.data.get('pendingAchievements', []));
+        friendAchievementChangeAllowed(
+          resource.data.get('pendingAchievements', []),
+          request.resource.data.get('pendingAchievements', [])
+        );
     }
+
     function validOwnerFriendRemoval(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
-      let changed = request.resource.data.diff(resource.data).affectedKeys();
-      return changed.hasOnly(['friends', 'lastFriendActionPeerUid', 'updatedAt']) &&
-        peer is string && peer.size() > 0 && peer != uid &&
-        listRemovesOnly(resource.data.get('friends', []), request.resource.data.get('friends', []), peer) &&
-        !getAfter(/databases/$(database)/documents/users/$(peer)).data.get('friends', []).hasAny([uid]) &&
-        !getAfter(/databases/$(database)/documents/public_profiles/$(peer)).data.get('friends', []).hasAny([uid]) &&
+
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['friends', 'lastFriendActionPeerUid', 'updatedAt']) &&
+        peer is string &&
+        peer.size() > 0 &&
+        peer != uid &&
+        listRemovesOnly(
+          resource.data.get('friends', []),
+          request.resource.data.get('friends', []),
+          peer
+        ) &&
+        !getAfter(/databases/$(database)/documents/users/$(peer)).data
+          .get('friends', []).hasAny([uid]) &&
+        !getAfter(/databases/$(database)/documents/public_profiles/$(peer)).data
+          .get('friends', []).hasAny([uid]) &&
         publicMirrorMatches(uid);
     }
+
     function validCrossFriendRemoval(uid) {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends', 'updatedAt', 'lastFriendActionPeerUid']) &&
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['friends', 'updatedAt', 'lastFriendActionPeerUid']) &&
         request.resource.data.get('lastFriendActionPeerUid', '') == request.auth.uid &&
-        listRemovesOnly(resource.data.get('friends', []), request.resource.data.get('friends', []), request.auth.uid) &&
-        request.resource.data.get('friends', []) == getAfter(/databases/$(database)/documents/users/$(uid)).data.get('friends', []) &&
+        listRemovesOnly(
+          resource.data.get('friends', []),
+          request.resource.data.get('friends', []),
+          request.auth.uid
+        ) &&
+        request.resource.data.get('friends', []) ==
+          getAfter(/databases/$(database)/documents/users/$(uid)).data.get('friends', []) &&
         (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-          !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('friends', []).hasAny([uid]));
+          !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+            .get('friends', []).hasAny([uid]));
     }
+
+    // Il ramo "completamento profilo" viene scelto solo se cambia usernameNormalized,
+    // cosi' gli altri update non pagano il costo della validazione iniziale.
     function ownerUserUpdateAllowed(uid) {
-      // Non validare l'intero documento per ogni update: i documenti storici
-      // possono contenere campi legacy. Ogni funzione qui sotto limita i campi
-      // modificabili e ne valida i valori. Lo shape completo resta obbligatorio
-      // per il completamento iniziale del profilo.
-      return validInitialProfileCompletion(uid) ||
-        validProfileBasicsUpdate(uid) ||
-        validPreferencesUpdate() ||
-        validOnboardingUpdate(uid) ||
-        validFcmTokenUpdate() ||
-        validOwnerProgressUpdate() ||
-        validAchievementClaim() ||
-        validSentRequestAdd(uid) ||
-        validSentRequestRemoval(uid) ||
-        validAcceptingFriendUpdate(uid) ||
-        validOwnerFriendRemoval(uid);
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+
+      return (
+        changed.hasAny(['usernameNormalized']) &&
+        validInitialProfileCompletion(uid)
+      ) || (
+        !changed.hasAny(['usernameNormalized']) && (
+          validProfileBasicsUpdate(uid) ||
+          validPreferencesUpdate() ||
+          validOnboardingUpdate(uid) ||
+          validFcmTokenUpdate() ||
+          validOwnerProgressUpdate() ||
+          validAchievementClaim() ||
+          validSentRequestAdd(uid) ||
+          validSentRequestRemoval(uid) ||
+          validAcceptingFriendUpdate(uid) ||
+          validOwnerFriendRemoval(uid)
+        )
+      );
     }
 
     match /users/{userId} {
       allow get: if isOwner(userId) && isNotBanned();
       allow list: if false;
-      allow create: if isOwner(userId) && isNotBanned() &&
+
+      allow create: if isOwner(userId) &&
+        isNotBanned() &&
         request.resource.data.keys().hasOnly(['email', 'createdAt', 'updatedAt']) &&
-        request.resource.data.email is string && request.resource.data.email.size() <= 254 &&
-        request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
+        request.resource.data.email is string &&
+        request.resource.data.email.size() <= 254 &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.updatedAt is timestamp;
+
       allow update: if isNotBanned() && (
         (isOwner(userId) && ownerUserUpdateAllowed(userId)) ||
         validIncomingRequestAdd(userId) ||
@@ -396,54 +648,92 @@ service cloud.firestore {
         validAcceptedFriendUpdate(userId) ||
         validCrossFriendRemoval(userId)
       );
+
       allow delete: if isOwner(userId) &&
         !existsAfter(/databases/$(database)/documents/public_profiles/$(userId));
     }
 
     match /public_profiles/{userId} {
       allow get, list: if isSignedIn() && isNotBanned();
-      allow create: if isOwner(userId) && isNotBanned() &&
-        validPublicProfileShape(request.resource.data) && publicMirrorMatches(userId);
+
+      allow create: if isOwner(userId) &&
+        isNotBanned() &&
+        validPublicProfileCreate(userId);
+
       allow update: if isNotBanned() && (
-        (isOwner(userId) && validPublicProfileShape(request.resource.data) && publicMirrorMatches(userId)) ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends']) &&
-          listAddsOnly(resource.data.get('friends', []), request.resource.data.get('friends', []), request.auth.uid) &&
-          getAfter(/databases/$(database)/documents/users/$(userId)).data.get('friends', []).hasAny([request.auth.uid]) &&
-          request.resource.data.friends == getAfter(/databases/$(database)/documents/users/$(userId)).data.get('friends', [])) ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends']) &&
-          listRemovesOnly(resource.data.get('friends', []), request.resource.data.get('friends', []), request.auth.uid) &&
-          getAfter(/databases/$(database)/documents/users/$(userId)).data.get('friends', []) == request.resource.data.friends &&
+        (
+          isOwner(userId) &&
+          validPublicProfileShape(request.resource.data) &&
+          publicMirrorMatches(userId)
+        ) ||
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends']) &&
+          listAddsOnly(
+            resource.data.get('friends', []),
+            request.resource.data.get('friends', []),
+            request.auth.uid
+          ) &&
+          getAfter(/databases/$(database)/documents/users/$(userId)).data
+            .get('friends', []).hasAny([request.auth.uid]) &&
+          request.resource.data.friends ==
+            getAfter(/databases/$(database)/documents/users/$(userId)).data.get('friends', [])
+        ) ||
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends']) &&
+          listRemovesOnly(
+            resource.data.get('friends', []),
+            request.resource.data.get('friends', []),
+            request.auth.uid
+          ) &&
+          getAfter(/databases/$(database)/documents/users/$(userId)).data
+            .get('friends', []) == request.resource.data.friends &&
           (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-            !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('friends', []).hasAny([userId])))
+            !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+              .get('friends', []).hasAny([userId]))
+        )
       );
+
       allow delete: if isOwner(userId);
     }
 
     match /usernames/{usernameId} {
-      allow get: if isSignedIn() && (isNotBanned() || resource.data.uid == request.auth.uid);
+      allow get: if isSignedIn() &&
+        (isNotBanned() || resource.data.uid == request.auth.uid);
+
       allow list: if false;
-      allow create: if isSignedIn() && isNotBanned() && isValidUsernameId(usernameId) &&
+
+      allow create: if isSignedIn() &&
+        isNotBanned() &&
+        isValidUsernameId(usernameId) &&
         !exists(/databases/$(database)/documents/usernames/$(usernameId)) &&
         request.resource.data.keys().hasOnly(['uid', 'username', 'createdAt']) &&
         request.resource.data.uid == request.auth.uid &&
-        request.resource.data.username is string && request.resource.data.username == usernameId &&
+        request.resource.data.username == usernameId &&
         request.resource.data.createdAt is timestamp &&
-        existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('profileCompleted', false) == true &&
-        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('usernameNormalized', '') == usernameId &&
-        existsAfter(/databases/$(database)/documents/public_profiles/$(request.auth.uid)) &&
-        getAfter(/databases/$(database)/documents/public_profiles/$(request.auth.uid)).data.get('usernameNormalized', '') == usernameId;
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+          .get('profileCompleted', false) == true &&
+        getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+          .get('usernameNormalized', '') == usernameId;
+
       allow update: if false;
-      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid &&
+
+      allow delete: if isSignedIn() &&
+        resource.data.uid == request.auth.uid &&
         (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-          getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('usernameNormalized', '') != usernameId);
+          getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
+            .get('usernameNormalized', '') != usernameId);
     }
 
     match /friend_requests/{recipientUid}/inbox/{senderUid} {
-      allow get: if isSignedIn() && isNotBanned() &&
+      allow get: if isSignedIn() &&
+        isNotBanned() &&
         (request.auth.uid == recipientUid || request.auth.uid == senderUid);
+
       allow list: if isOwner(recipientUid) && isNotBanned();
-      allow create: if isOwner(senderUid) && isNotBanned() && recipientUid != senderUid &&
+
+      allow create: if isOwner(senderUid) &&
+        isNotBanned() &&
+        recipientUid != senderUid &&
         !exists(/databases/$(database)/documents/banned_users/$(recipientUid)) &&
         exists(/databases/$(database)/documents/public_profiles/$(recipientUid)) &&
         request.resource.data.keys().hasOnly(['senderUid', 'recipientUid', 'createdAt']) &&
@@ -452,16 +742,22 @@ service cloud.firestore {
         request.resource.data.createdAt is timestamp &&
         !exists(/databases/$(database)/documents/friend_requests/$(recipientUid)/inbox/$(senderUid)) &&
         existsAfter(/databases/$(database)/documents/users/$(senderUid)) &&
-        getAfter(/databases/$(database)/documents/users/$(senderUid)).data.get('sentFriendRequests', []).hasAny([recipientUid]) &&
+        getAfter(/databases/$(database)/documents/users/$(senderUid)).data
+          .get('sentFriendRequests', []).hasAny([recipientUid]) &&
         existsAfter(/databases/$(database)/documents/users/$(recipientUid)) &&
-        getAfter(/databases/$(database)/documents/users/$(recipientUid)).data.get('receivedFriendRequests', []).hasAny([senderUid]);
+        getAfter(/databases/$(database)/documents/users/$(recipientUid)).data
+          .get('receivedFriendRequests', []).hasAny([senderUid]);
+
       allow update: if false;
+
       allow delete: if isSignedIn() &&
         (request.auth.uid == recipientUid || request.auth.uid == senderUid) &&
         (!existsAfter(/databases/$(database)/documents/users/$(senderUid)) ||
-          !getAfter(/databases/$(database)/documents/users/$(senderUid)).data.get('sentFriendRequests', []).hasAny([recipientUid])) &&
+          !getAfter(/databases/$(database)/documents/users/$(senderUid)).data
+            .get('sentFriendRequests', []).hasAny([recipientUid])) &&
         (!existsAfter(/databases/$(database)/documents/users/$(recipientUid)) ||
-          !getAfter(/databases/$(database)/documents/users/$(recipientUid)).data.get('receivedFriendRequests', []).hasAny([senderUid]));
+          !getAfter(/databases/$(database)/documents/users/$(recipientUid)).data
+            .get('receivedFriendRequests', []).hasAny([senderUid]));
     }
 
     match /banned_users/{uid} {

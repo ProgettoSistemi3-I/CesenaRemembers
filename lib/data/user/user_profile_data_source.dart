@@ -204,6 +204,7 @@ class UserProfileDataSource {
           normalizedUsername: normalizedUsername,
           displayName: displayName,
           avatarId: avatarId,
+          includeCreatedAt: !existingUser.exists,
         );
 
         debugPrint('[PROFILE DEBUG] Preparazione scrittura users');
@@ -257,6 +258,7 @@ class UserProfileDataSource {
     required String normalizedUsername,
     required String displayName,
     required String avatarId,
+    required bool includeCreatedAt,
   }) {
     final existingPrefs = Map<String, dynamic>.from(
       existingData['preferences'] as Map<String, dynamic>? ?? const {},
@@ -264,6 +266,7 @@ class UserProfileDataSource {
 
     return {
       'email': email,
+      if (includeCreatedAt) 'createdAt': FieldValue.serverTimestamp(),
       'displayName': displayName.trim(),
       'displayNameNormalized': displayName.trim().toLowerCase(),
       'username': normalizedUsername,
