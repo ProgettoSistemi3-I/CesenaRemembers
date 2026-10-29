@@ -13,10 +13,7 @@ extension _MapPageLocationLogic on _MapPageState {
   }
 
   Future<void> _initLocationLogic() async {
-    final shouldRequestPermission =
-        !_MapPageState._hasRequestedInitialLocationPermission;
-    _MapPageState._hasRequestedInitialLocationPermission = true;
-    await _verifyLocationState(requestPerms: shouldRequestPermission);
+    await _verifyLocationState(requestPerms: false);
     if (kIsWeb) return;
     _serviceStatusSub = Geolocator.getServiceStatusStream().listen((status) {
       if (!mounted) return;
@@ -34,7 +31,8 @@ extension _MapPageLocationLogic on _MapPageState {
         perm = await Geolocator.requestPermission();
       }
       final hasPerm =
-          perm == LocationPermission.whileInUse || perm == LocationPermission.always;
+          perm == LocationPermission.whileInUse ||
+          perm == LocationPermission.always;
       if (mounted) {
         setState(() {
           _isGpsEnabled = true;
@@ -55,7 +53,8 @@ extension _MapPageLocationLogic on _MapPageState {
     }
 
     final hasPerm =
-        perm == LocationPermission.whileInUse || perm == LocationPermission.always;
+        perm == LocationPermission.whileInUse ||
+        perm == LocationPermission.always;
 
     if (mounted) {
       setState(() {

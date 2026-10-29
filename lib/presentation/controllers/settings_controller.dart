@@ -8,6 +8,7 @@ import '../theme/theme_controller.dart';
 import '../services/location_permission_service.dart';
 import '../services/location_preference_store.dart';
 import '../services/push_notification_service.dart';
+import '../services/shell_navigation_store.dart';
 
 class SettingsController extends ChangeNotifier {
   bool _isDisposed = false;
@@ -78,7 +79,10 @@ class SettingsController extends ChangeNotifier {
       LocationPreferenceStore.setGpsEnabled(posizione);
 
       if (hasPermission && !profile.gpsEnabled) {
-        await _preferencesUseCases.updatePreferences(uid: _currentUid, gps: true);
+        await _preferencesUseCases.updatePreferences(
+          uid: _currentUid,
+          gps: true,
+        );
       }
 
       errorMessage = null;
@@ -100,8 +104,7 @@ class SettingsController extends ChangeNotifier {
     if (newPosizione == true) {
       final status = await _locationService.ensureLocationAccess();
       if (status != LocationAccessStatus.granted) {
-        errorMessage =
-            'errorGpsDenied';
+        errorMessage = 'errorGpsDenied';
         posizione = false;
         LocationPreferenceStore.setGpsEnabled(false);
         _safeNotifyListeners();
@@ -161,6 +164,7 @@ class SettingsController extends ChangeNotifier {
   Future<bool> handleDeleteAccount() async {
     isDeletingAccount = true;
     errorMessage = null;
+    ShellNavigationStore.deletingAccount.value = true;
     _safeNotifyListeners();
 
     final uid = _currentUid;
@@ -169,32 +173,25 @@ class SettingsController extends ChangeNotifier {
       await PushNotificationService.unregisterCurrentUser();
       await _profileUseCases.deleteUserData(uid: uid);
     } catch (e) {
-      AppLogger.error(
-        'Delete account failed at Firestore cleanup',
-        error: e,
-        name: 'SettingsController',
-      );
+      AppLogger.error('Delete account failed at Firestore cleanup',
+          error: e, name: 'SettingsController');
       errorMessage = 'errorDeleteAccount';
       isDeletingAccount = false;
+      ShellNavigationStore.deletingAccount.value = false;
       _safeNotifyListeners();
       return false;
     }
 
     try {
       await _deleteCurrentUserUseCase();
-      return true;
+      return true; // il flag resta true: lo resetta AuthGate quando arriva il login
     } catch (e) {
-      AppLogger.error(
-        'Delete account failed at Auth deletion after Firestore cleanup',
-        error: e,
-        name: 'SettingsController',
-      );
-      errorMessage =
-          'errorDeleteAccountAuth';
-      try {
-        await _signOutUseCase();
-      } catch (_) {}
+      AppLogger.error('Delete account failed at Auth deletion after Firestore cleanup',
+          error: e, name: 'SettingsController');
+      errorMessage = 'errorDeleteAccountAuth';
+      try { await _signOutUseCase(); } catch (_) {}
       isDeletingAccount = false;
+      ShellNavigationStore.deletingAccount.value = false;
       _safeNotifyListeners();
       return false;
     }

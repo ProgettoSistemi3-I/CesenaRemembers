@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 class ShellNavigationStore {
   ShellNavigationStore._();
 
+  static final ValueNotifier<bool> deletingAccount = ValueNotifier<bool>(false);
+  static final ValueNotifier<int> locationPermissionChanged = ValueNotifier<int>(0);
+
   static final ValueNotifier<int> tabIndex = ValueNotifier<int>(0);
   static final ValueNotifier<bool> focusGpsToggleInSettings =
       ValueNotifier<bool>(false);

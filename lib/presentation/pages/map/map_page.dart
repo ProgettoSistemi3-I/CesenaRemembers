@@ -69,7 +69,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   static List<Poi>? _cachedPois;
   static List<TourStop>? _cachedStops;
-  static bool _hasRequestedInitialLocationPermission = false;
+
+  void _onLocationPermissionChanged() {
+    if (mounted) _verifyLocationState(requestPerms: false);
+  }
 
   late TourSessionController _tourController;
   StreamSubscription<ServiceStatus>? _serviceStatusSub;
@@ -153,11 +156,17 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     localeNotifier.addListener(_onLocaleChanged);
 
     _initLocationLogic();
+    ShellNavigationStore.locationPermissionChanged.addListener(
+      _onLocationPermissionChanged,
+    );
     _loadPois();
   }
 
   @override
   void dispose() {
+    ShellNavigationStore.locationPermissionChanged.removeListener(
+      _onLocationPermissionChanged,
+    );
     WidgetsBinding.instance.removeObserver(this);
     _serviceStatusSub?.cancel();
     _tourUpdatesSub?.cancel();

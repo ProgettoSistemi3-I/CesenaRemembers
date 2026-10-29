@@ -30,10 +30,15 @@ class AuthGate extends StatelessWidget {
       stream: repository.userStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final appUser = snapshot.data;
-        if (appUser == null) return const LoginPage();
+        if (appUser == null) {
+          ShellNavigationStore.deletingAccount.value = false;
+          return const LoginPage();
+        }
         return _AuthenticatedGate(appUser: appUser);
       },
     );
@@ -96,7 +101,12 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     try {
       isBanned = await _profileUseCases.isUserBanned(widget.appUser.id);
     } catch (e, st) {
-      AppLogger.error('Ban check skipped', error: e, stackTrace: st, name: 'AuthGate');
+      AppLogger.error(
+        'Ban check skipped',
+        error: e,
+        stackTrace: st,
+        name: 'AuthGate',
+      );
     }
     if (isBanned) {
       await _authRepository.signOut();
@@ -109,7 +119,12 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
         email: widget.appUser.email,
       );
     } catch (e, st) {
-      AppLogger.error('ensureUserDocument skipped', error: e, stackTrace: st, name: 'AuthGate');
+      AppLogger.error(
+        'ensureUserDocument skipped',
+        error: e,
+        stackTrace: st,
+        name: 'AuthGate',
+      );
     }
 
     unawaited(sl<ThemeController>().refreshFromProfile().catchError((_) {}));
@@ -127,52 +142,73 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     try {
       await notificationService.init();
     } catch (e, st) {
-      AppLogger.error('Notification init failed', error: e, stackTrace: st, name: 'AuthGate');
+      AppLogger.error(
+        'Notification init failed',
+        error: e,
+        stackTrace: st,
+        name: 'AuthGate',
+      );
     }
     if (!mounted) return;
 
     _profileSubscription = _profileUseCases
         .getUserProfileStream(widget.appUser.id)
-        .listen((profile) {
-      if (profile == null || !mounted) return;
+        .listen(
+          (profile) {
+            if (profile == null || !mounted) return;
 
-      final currentRequests = profile.receivedFriendRequests.length;
-      if (profile.notificheEnabled && _previousReceivedRequestsCount != -1 &&
-          currentRequests > _previousReceivedRequestsCount) {
-        unawaited(notificationService.showFriendRequestNotification(
-          currentRequests - _previousReceivedRequestsCount,
-          title: AppLocalizations.of(context)!.notificationFriendRequest,
-          languageCode: Localizations.localeOf(context).languageCode,
-        ));
-      }
-      _previousReceivedRequestsCount = currentRequests;
+            final currentRequests = profile.receivedFriendRequests.length;
+            if (profile.notificheEnabled &&
+                _previousReceivedRequestsCount != -1 &&
+                currentRequests > _previousReceivedRequestsCount) {
+              unawaited(
+                notificationService.showFriendRequestNotification(
+                  currentRequests - _previousReceivedRequestsCount,
+                  title: AppLocalizations.of(
+                    context,
+                  )!.notificationFriendRequest,
+                  languageCode: Localizations.localeOf(context).languageCode,
+                ),
+              );
+            }
+            _previousReceivedRequestsCount = currentRequests;
 
-      final currentPending = profile.pendingAchievements.length;
-      if (_previousPendingAchievementsCount != -1 &&
-          currentPending > _previousPendingAchievementsCount) {
-        final messenger = PushNotificationService.scaffoldMessengerKey.currentState;
-        final ctx = PushNotificationService.navigatorKey.currentContext ?? context;
-        if (messenger != null && ctx.mounted) {
-          final topMargin = MediaQuery.of(ctx).size.height - 150;
-          showGlassSnackBar(
-            ctx,
-            message: AppLocalizations.of(ctx)!.achievementUnlockedSnack,
-            type: GlassSnackType.success,
-            icon: Icons.emoji_events,
-            duration: const Duration(seconds: 10),
-            margin: EdgeInsets.only(
-              bottom: topMargin > 0 ? topMargin : 600,
-              left: 16,
-              right: 16,
-            ),
-            onTap: () => ShellNavigationStore.goToTab(2),
-          );
-        }
-      }
-      _previousPendingAchievementsCount = currentPending;
-    }, onError: (Object e, StackTrace st) {
-      AppLogger.error('Profile stream error', error: e, stackTrace: st, name: 'AuthGate');
-    });
+            final currentPending = profile.pendingAchievements.length;
+            if (_previousPendingAchievementsCount != -1 &&
+                currentPending > _previousPendingAchievementsCount) {
+              final messenger =
+                  PushNotificationService.scaffoldMessengerKey.currentState;
+              final ctx =
+                  PushNotificationService.navigatorKey.currentContext ??
+                  context;
+              if (messenger != null && ctx.mounted) {
+                final topMargin = MediaQuery.of(ctx).size.height - 150;
+                showGlassSnackBar(
+                  ctx,
+                  message: AppLocalizations.of(ctx)!.achievementUnlockedSnack,
+                  type: GlassSnackType.success,
+                  icon: Icons.emoji_events,
+                  duration: const Duration(seconds: 10),
+                  margin: EdgeInsets.only(
+                    bottom: topMargin > 0 ? topMargin : 600,
+                    left: 16,
+                    right: 16,
+                  ),
+                  onTap: () => ShellNavigationStore.goToTab(2),
+                );
+              }
+            }
+            _previousPendingAchievementsCount = currentPending;
+          },
+          onError: (Object e, StackTrace st) {
+            AppLogger.error(
+              'Profile stream error',
+              error: e,
+              stackTrace: st,
+              name: 'AuthGate',
+            );
+          },
+        );
   }
 
   @override
@@ -187,6 +223,16 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: ShellNavigationStore.deletingAccount,
+      builder: (context, deleting, _) {
+        if (deleting) return _loading();
+        return _buildGate(context);
+      },
+    );
+  }
+
+  Widget _buildGate(BuildContext context) {
     return FutureBuilder<void>(
       future: _ensureFuture,
       builder: (context, ensure) {

@@ -6,6 +6,7 @@ import 'shell_navigation_store.dart';
 import '../pages/social/social_page.dart';
 import 'push_notification_service.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -32,8 +33,15 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _initializeNotifications() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      PushNotificationService.initializeAndSaveToken();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await PushNotificationService.initializeAndSaveToken();
+      try {
+        var perm = await Geolocator.checkPermission();
+        if (perm == LocationPermission.denied) {
+          perm = await Geolocator.requestPermission();
+        }
+      } catch (_) {}
+      ShellNavigationStore.locationPermissionChanged.value++;
     });
   }
 
