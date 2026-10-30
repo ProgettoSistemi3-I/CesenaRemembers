@@ -45,9 +45,39 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-		<key>NSLocationWhenInUseUsageDescription</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>La tua posizione viene usata per centrarti sulla mappa e mostrarti dove ti trovi.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>La tua posizione viene usata per centrarti sulla mappa e mostrarti dove ti trovi.</string>
+
+	<!-- Configurazione Google Sign-In per iOS -->
+	<key>GIDClientID</key>
+	<string>966666011561-2iovkjlf8f9faanpvf3r1328rre522mk.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.966666011561-2iovkjlf8f9faanpvf3r1328rre522mk</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- Permesso HTTP cleartext per il backend quiz (pascal.ispascalcomandini.it) -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>pascal.ispascalcomandini.it</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

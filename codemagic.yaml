@@ -18,7 +18,7 @@ workflows:
       - name: Builda archivio iOS (senza firma)
         script: |
           flutter build ipa --release --no-codesign
-      - name: Crea pacchetto .ipa da archivio non firmato
+      - name: Impacchetta file .ipa da archivio non firmato
         script: |
           mkdir -p build/ios/ipa/Payload
           cp -r build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/ios/ipa/Payload/
