@@ -2,7 +2,7 @@ workflows:
   ios-workflow:
     name: Flutter iOS Build
     max_build_duration: 60
-    instance_type: mac_mini_co2e
+    instance_type: mac_mini_m1
     environment:
       flutter: stable
       xcode: latest
@@ -10,12 +10,12 @@ workflows:
       events:
         - push
       branch_patterns:
-        - target: main  # Cambialo in 'master' se il tuo branch principale si chiama così
+        - target: main
     scripts:
       - name: Installa dipendenze Flutter
         script: |
           flutter packages pub get
-      - name: Builda l'app in modalità release (senza codice di firma)
+      - name: Builda l'app in modalita release (senza codice di firma)
         script: |
           flutter build ipa --release --no-codesign
     artifacts:
