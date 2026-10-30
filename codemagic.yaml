@@ -15,6 +15,13 @@ workflows:
       - name: Installa dipendenze Flutter
         script: |
           flutter pub get
+      - name: Importa API keys da variabili d'ambiente
+        script: |
+          flutter build apk --release \
+            --dart-define=GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID \
+            --dart-define=STADIA_MAPS_API_KEY=$STADIA_MAPS_API_KEY \
+            --dart-define=MAPBOX_ACCESS_TOKEN=$MAPBOX_ACCESS_TOKEN \
+            --dart-define=CARTO_API_KEY=$CARTO_API_KEY
       - name: Builda archivio iOS (senza firma)
         script: |
           flutter build ipa --release --no-codesign
