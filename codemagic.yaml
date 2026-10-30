@@ -12,9 +12,10 @@ workflows:
       branch_patterns:
         - pattern: main
     scripts:
-      - name: Installa dipendenze Flutter
+      - name: Installa e aggiorna dipendenze Flutter
         script: |
           flutter packages pub get
+          flutter pub upgrade firebase_core cloud_firestore
       - name: Builda l'app in modalita release (senza codice di firma)
         script: |
           flutter build ipa --release --no-codesign
