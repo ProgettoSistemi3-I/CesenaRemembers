@@ -12,12 +12,18 @@ workflows:
       branch_patterns:
         - pattern: main
     scripts:
-      - name: Installa e aggiorna dipendenze Flutter
+      - name: Installa dipendenze Flutter
         script: |
-          flutter packages pub get
-          flutter pub upgrade firebase_core cloud_firestore
-      - name: Builda l'app in modalita release (senza codice di firma)
+          flutter pub get
+      - name: Builda archivio iOS (senza firma)
         script: |
           flutter build ipa --release --no-codesign
+      - name: Crea pacchetto .ipa da archivio non firmato
+        script: |
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -r -q CesenaRemembers_unsigned.ipa Payload
     artifacts:
+      - build/ios/ipa/*.ipa
       - build/ios/archive/*.xcarchive
