@@ -6,6 +6,8 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      groups:                 
+        - dart-define            
     triggering:
       events:
         - push
@@ -15,7 +17,6 @@ workflows:
       - name: Installa dipendenze Flutter
         script: |
           flutter pub get
-
       - name: Builda archivio iOS (senza firma) + API keys
         script: |
           flutter build ipa --release --no-codesign \
@@ -23,7 +24,6 @@ workflows:
             --dart-define=STADIA_MAPS_API_KEY=$STADIA_MAPS_API_KEY \
             --dart-define=MAPBOX_ACCESS_TOKEN=$MAPBOX_ACCESS_TOKEN \
             --dart-define=CARTO_API_KEY=$CARTO_API_KEY
-
       - name: Impacchetta file .ipa da archivio non firmato
         script: |
           mkdir -p build/ios/ipa/Payload
