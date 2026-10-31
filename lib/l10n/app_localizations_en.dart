@@ -432,10 +432,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialSearchHint => 'Search user...';
 
   @override
-  String get socialLeaderboardEmpty => 'Add friends to see your leaderboard.';
+  String get socialLeaderboardEmpty => 'No scores available on the global leaderboard yet.';
 
   @override
-  String get socialLeaderboard => 'Friends leaderboard';
+  String get socialLeaderboard => 'Global leaderboard';
 
   @override
   String get socialNoUserFound => 'No user found.';
@@ -510,6 +510,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginGoogleButton => 'SIGN IN WITH GOOGLE';
+
+  @override
+  String get loginTermsNoticePrefix => 'By continuing, you agree to the ';
+
+  @override
+  String get loginTermsLink => 'Terms of Service';
+
+  @override
+  String get loginTermsAnd => ' and ';
+
+  @override
+  String get loginPrivacyLink => 'Privacy Policy';
 
   @override
   String get errorCommunication => 'Error communicating with the server.';
@@ -1145,7 +1157,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingSlide3Title => 'Climb\nthe top';
 
   @override
-  String get onboardingSlide3Desc => 'Compare your progress with your friends.';
+  String get onboardingSlide3Desc => 'Climb the global leaderboard and compare your progress with all explorers.';
 
   @override
   String get onboardingSlide4Tag => '04 — ACHIEVEMENTS';

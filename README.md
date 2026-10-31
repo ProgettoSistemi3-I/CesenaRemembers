@@ -88,7 +88,7 @@ python scripts/migrate_public_profiles.py --project-id cesenaremembers1945 --app
 
 Su PowerShell usa `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\percorso\protetto\service-account.json"` e gli stessi comandi Python. Senza `--apply` lo script è solo dry-run. Prima fai un backup: con `--apply` normalizza e sostituisce i documenti `users/{uid}` completati e le relative proiezioni pubbliche, rimuovendo i campi legacy non previsti dallo schema; ripulisce i profili incompleti, riallinea gli indici username e ricrea solo richieste di amicizia reciproche e rimuove le proiezioni pubbliche, gli indici username e le relazioni dei profili presenti in `banned_users` (senza cancellare i documenti privati/Auth degli account bannati). Se trova un profilo completato non valido o username duplicati si ferma senza scrivere: correggi i dati segnalati, ripeti il dry-run e applica solo quando il riepilogo è coerente. Poi distribuisci le regole con `firebase deploy --only firestore:rules` (Firebase CLI autenticata sul progetto corretto). Non caricare mai la chiave Admin nel repository o nell'APK.
 
-L'output del dry-run mostra anche il numero di amici reciproci per username e quanti `friend_stats` mancano. La classifica è volutamente limitata a te e ai tuoi amici con relazione reciproca: se compare soltanto il tuo account, controlla prima che la migrazione sia stata eseguita con `--apply`, che il tuo username abbia almeno un amico reciproco nel riepilogo e che anche il documento `friend_stats` del suo account sia presente. Non aggiungere una query globale su `friend_stats`: violerebbe la privacy richiesta.
+L'output del dry-run mostra anche il numero di amici reciproci per username e quanti `friend_stats` mancano. La classifica è globale (Top 50 basata sulla raccolta `leaderboard` e sui profili pubblici), mentre le statistiche dettagliate e i progressi approfonditi restano riservati in `friend_stats` e consultabili esclusivamente dal proprietario e dai suoi amici con relazione reciproca. Non aggiungere query globali aperte su `friend_stats`: violerebbe la riservatezza delle statistiche dettagliate.
 
 Le regole del completamento profilo sono state alleggerite: verificano l'esistenza delle proiezioni nel commit, mentre le regole dedicate di `public_profiles`, `friend_stats` e `usernames` verificano che i dati corrispondano. Nei profili incompleti esistenti vengono controllate le sole chiavi modificate, così i campi legacy non toccati non bloccano l'onboarding. È previsto anche un percorso sicuro per creare nello stesso commit il documento utente completo se `ensureUserDocument` non lo ha creato.
 
@@ -153,3 +153,26 @@ firebase deploy --only firestore:rules
 ```
 
 Le nuove versioni dell'app creano e aggiornano il documento `leaderboard/{uid}` nella stessa transazione che aggiorna XP. La cancellazione account rimuove anche il relativo documento dalla classifica.
+
+### Gestione Ban e pulizia proiezioni
+
+Per bannare un account e rimuoverne contestualmente tutte le proiezioni pubbliche (`leaderboard`, `public_profiles`, `friend_stats` e `usernames`), usa lo script di amministrazione `scripts/ban_user.py`:
+
+```powershell
+# Simulazione (dry-run)
+python scripts/ban_user.py --uid ID_UTENTE --reason "Violazione termini"
+
+# Esecuzione effettiva
+python scripts/ban_user.py --uid ID_UTENTE --reason "Violazione termini" --apply
+
+# Pulizia proiezioni residue per tutti gli utenti già presenti in banned_users
+python scripts/ban_user.py --cleanup-banned --apply
+```
+
+### Licenze e Termini d'Uso delle Mappe
+
+L'app visualizza direttamente sulla mappa l'attribuzione interattiva obbligatoria (`RichAttributionWidget`) richiesta dai rispettivi fornitori di tile:
+- **OpenStreetMap & CARTO:** dati © OpenStreetMap contributors (ODbL) e tile stile Voyager © CARTO. Richiedono attribuzione visibile sulla mappa con link ai termini.
+- **Stadia Maps:** il piano gratuito di Stadia Maps è concesso esclusivamente per **uso non commerciale e valutazione**. Trattandosi di un'applicazione didattico-culturale senza scopo di lucro, l'utilizzo rientra nelle condizioni consentite. In caso di ridistribuzione commerciale o ad alto traffico, è obbligatorio sottoscrivere un piano a pagamento Stadia Maps.
+- **Esri World Imagery:** l'endpoint diretto dei tile satellite (`server.arcgisonline.com`) senza chiave API è consentito da Esri per test e finalità non commerciali. Per utilizzi in produzione o distribuzioni commerciali su larga scala, è richiesta una chiave API / account ArcGIS Developer conforme all'Esri Master Agreement, oppure il passaggio a un provider di immagini aeree open-data.
+- L'attribuzione a schermo interattiva è integrata in `FlutterMap` tramite `RichAttributionWidget`, linkando le rispettive licenze e note legali ufficiali.

@@ -34,15 +34,25 @@ class UserProgressDataSource {
         .snapshots()
         .asyncMap((snapshot) async {
           final rows = await Future.wait(snapshot.docs.map((doc) async {
-            final publicSnapshot = await _publicProfiles.doc(doc.id).get();
-            if (!publicSnapshot.exists || publicSnapshot.data() == null) {
+            try {
+              final publicSnapshot = await _publicProfiles.doc(doc.id).get();
+              if (!publicSnapshot.exists || publicSnapshot.data() == null) {
+                return null;
+              }
+              return <String, dynamic>{
+                ...publicSnapshot.data()!,
+                'uid': doc.id,
+                'xp': (doc.data()['xp'] as num?)?.toInt() ?? 0,
+              };
+            } catch (e, stackTrace) {
+              AppLogger.error(
+                'Impossibile recuperare public_profile per uid=${doc.id} (utente bannato o permessi negati): $e',
+                error: e,
+                stackTrace: stackTrace,
+                name: 'UserProgressDataSource',
+              );
               return null;
             }
-            return <String, dynamic>{
-              ...publicSnapshot.data()!,
-              'uid': doc.id,
-              'xp': (doc.data()['xp'] as num?)?.toInt() ?? 0,
-            };
           }));
           return rows.whereType<Map<String, dynamic>>().toList(growable: false);
         });

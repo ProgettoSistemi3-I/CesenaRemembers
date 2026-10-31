@@ -60,6 +60,7 @@
       <h2>2. Dati trattati</h2>
       <ul>
         <li><strong>Account:</strong> identificativo Firebase, indirizzo email, nome visualizzato, username e avatar. L'email è conservata nel documento privato dell'account; nome visualizzato, username e avatar costituiscono il profilo minimo ricercabile dagli utenti autenticati.</li>
+        <li><strong>Classifica globale (Leaderboard):</strong> nome visualizzato, username, avatar e totale punti esperienza (XP) sono esposti nella classifica globale (Top 50) e visibili a tutti gli utenti registrati all'applicazione.</li>
         <li><strong>Relazioni social:</strong> richieste di amicizia inviate e ricevute e lista amici.</li>
         <li><strong>Progressi e statistiche:</strong> luoghi visitati, XP, risultati e numero di quiz, risposte corrette, tour completati, tempi e achievement.</li>
         <li><strong>Preferenze:</strong> impostazioni dell'app, tra cui notifiche, tema e preferenza relativa al GPS.</li>
@@ -84,8 +85,9 @@
 
     <section id="visibilita">
       <h2>5. Visibilità del profilo e delle statistiche</h2>
-      <p>Gli utenti autenticati possono cercare e visualizzare il profilo minimo di altri account, composto da nome visualizzato, username e avatar. Le statistiche, i progressi, gli achievement e la lista amici non sono pubblici: possono essere letti dal titolare dell'account e dagli utenti che risultano amici in modo reciproco. Le regole di sicurezza Firestore applicano questo controllo anche a livello di accesso ai dati, non soltanto nell'interfaccia.</p>
-      <p>Le richieste di amicizia e gli altri dati privati dell'account non sono consultabili liberamente dagli altri utenti.</p>
+      <p>L'applicazione include una <strong>Classifica globale</strong> accessibile a tutti gli utenti registrati e autenticati: i primi 50 account ordinati per esperienza (XP) compaiono pubblicamente con nome visualizzato, username, avatar e totale XP. Ciascun utente autenticato può inoltre visualizzare la propria posizione o il proprio punteggio all'interno della classifica.</p>
+      <p>Gli utenti autenticati possono inoltre cercare il profilo pubblico minimo di altri account (nome visualizzato, username e avatar) per inviare richieste di amicizia. Al contrario, le statistiche dettagliate e i progressi di approfondimento (dettaglio dei POI visitati, risultati e risposte dei singoli quiz, tempi di percorrenza, achievement e lista amici) <strong>non sono pubblici</strong> e sono archiviati nella raccolta protetta <code>friend_stats</code>: possono essere letti esclusivamente dal titolare dell'account e dagli amici reciproci. Le regole di sicurezza Firestore impediscono accessi non autorizzati direttamente a livello di database.</p>
+      <p>Le richieste di amicizia e gli altri dati privati dell'account (inclusa l'email) non sono mai consultabili dagli altri utenti.</p>
     </section>
 
     <section id="fornitori">
@@ -111,7 +113,8 @@
 
     <section id="conservazione">
       <h2>8. Conservazione e cancellazione</h2>
-      <p>I dati sono conservati per il tempo necessario alle finalità per cui sono trattati e secondo i tempi che il titolare deve stabilire e documentare in relazione agli obblighi applicabili. L'utente può avviare la cancellazione dall'app, se la funzione è disponibile, oppure seguire le istruzioni nella <a href="delete-account.html">pagina dedicata alla cancellazione dell'account</a>. Eventuali dati che debbano essere conservati per obbligo di legge o per la sicurezza saranno trattati nei limiti previsti dalla normativa.</p>
+      <p>I dati sono conservati per il tempo necessario alle finalità per cui sono trattati e secondo i tempi che il titolare deve stabilire e documentare in relazione agli obblighi applicabili.</p>
+      <p>L'utente può eliminare in qualunque momento il proprio account e tutti i dati associati in modo autonomo e immediato direttamente dall'app: aprendo <strong>Impostazioni → Elimina account</strong> e confermando la richiesta. La cancellazione in-app rimuove definitivamente il profilo, il nome utente registrato, la presenza nella classifica globale (leaderboard), le statistiche e i dati privati. In alternativa, è possibile seguire le istruzioni nella <a href="delete-account.html">pagina dedicata alla cancellazione dell'account</a> via email. Eventuali dati che debbano essere conservati per obbligo di legge o per la sicurezza saranno trattati nei limiti previsti dalla normativa.</p>
       <p>Prima della pubblicazione, il titolare deve completare i tempi di conservazione per ciascuna categoria di dati e verificare le politiche di conservazione dei fornitori e dei backup.</p>
     </section>
 
@@ -122,7 +125,7 @@
 
     <section id="minori">
       <h2>10. Utenti minorenni</h2>
-      <p>Il progetto può essere utilizzato in contesti educativi. Il titolare deve definire e applicare procedure adeguate all'età degli utenti, alle eventuali autorizzazioni richieste e alle norme applicabili ai servizi della società dell'informazione rivolti a minori.</p>
+      <p>Il progetto è pensato anche per l'utilizzo in contesti didattici e scolastici da parte di studenti minorenni. A tutela dei minori, l'app espone nella classifica globale e nella ricerca unicamente pseudonimi (username e nome scelto), avatar grafici non fotografici e punteggio XP: nessun dato anagrafico sensibile, email o storico dei percorsi viene reso pubblico o condiviso con terzi. Il titolare e le istituzioni scolastiche coinvolte devono verificare l'adeguatezza delle procedure, dei consensi informati e dei regolamenti d'istituto in relazione alle normative vigenti sulla tutela dei minori nei servizi digitali.</p>
     </section>
 
     <section id="sicurezza">

@@ -1,7 +1,9 @@
 import 'dart:ui';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/usecases/auth_use_cases.dart';
 import '../../injection_container.dart';
@@ -20,7 +22,6 @@ const String _googleLogoSvg = '''
 const _cream = Color(0xFFF7F3EE);
 const _olive = Color(0xFF5C6B3A);
 const _tan = Color(0xFFB5885A);
-const _tanLight = Color(0xFFE8D4BE);
 const _textDark = Color(0xFF2C2C2C);
 
 class LoginPage extends StatefulWidget {
@@ -205,12 +206,15 @@ class _LoginPageState extends State<LoginPage>
                         SizedBox(height: spacingLg),
                         if (_isLoading)
                           const CircularProgressIndicator(color: _olive)
-                        else
+                        else ...[
                           _buildGoogleButton(
                             btnVertPad: btnVertPad,
                             btnFontSize: btnFontSize,
                             logoSize: logoSize,
                           ),
+                          SizedBox(height: spacingSm),
+                          _buildTermsAndPrivacyNotice(scale),
+                        ],
                         if (_error != null) ...[
                           SizedBox(height: spacingSm),
                           ClipRRect(
@@ -301,6 +305,57 @@ class _LoginPageState extends State<LoginPage>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTermsAndPrivacyNotice(double scale) {
+    final l10n = AppLocalizations.of(context)!;
+    final textStyle = TextStyle(
+      fontSize: 11.5 * scale,
+      color: Colors.white.withValues(alpha: 0.78),
+      height: 1.45,
+    );
+    final linkStyle = TextStyle(
+      fontSize: 11.5 * scale,
+      color: _tan,
+      fontWeight: FontWeight.w700,
+      decoration: TextDecoration.underline,
+      decorationColor: _tan,
+    );
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10 * scale),
+      child: Text.rich(
+        TextSpan(
+          text: l10n.loginTermsNoticePrefix,
+          style: textStyle,
+          children: [
+            TextSpan(
+              text: l10n.loginTermsLink,
+              style: linkStyle,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrl(
+                  Uri.parse('https://cesenaremembers.com/legal/terms.html'),
+                  mode: LaunchMode.externalApplication,
+                ),
+            ),
+            TextSpan(
+              text: l10n.loginTermsAnd,
+              style: textStyle,
+            ),
+            TextSpan(
+              text: l10n.loginPrivacyLink,
+              style: linkStyle,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrl(
+                  Uri.parse('https://cesenaremembers.com/legal/privacy.html'),
+                  mode: LaunchMode.externalApplication,
+                ),
+            ),
+          ],
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

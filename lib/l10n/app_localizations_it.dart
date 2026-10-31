@@ -432,10 +432,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get socialSearchHint => 'Cerca utente...';
 
   @override
-  String get socialLeaderboardEmpty => 'Aggiungi amici per vedere la classifica tra voi.';
+  String get socialLeaderboardEmpty => 'Nessun punteggio disponibile nella classifica globale.';
 
   @override
-  String get socialLeaderboard => 'Classifica amici';
+  String get socialLeaderboard => 'Classifica globale';
 
   @override
   String get socialNoUserFound => 'Nessun utente trovato.';
@@ -510,6 +510,18 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get loginGoogleButton => 'ACCEDI CON GOOGLE';
+
+  @override
+  String get loginTermsNoticePrefix => 'Continuando accetti i ';
+
+  @override
+  String get loginTermsLink => 'Termini di Servizio';
+
+  @override
+  String get loginTermsAnd => ' e l\'';
+
+  @override
+  String get loginPrivacyLink => 'Informativa sulla Privacy';
 
   @override
   String get errorCommunication => 'Errore durante la comunicazione con il server.';
@@ -1145,7 +1157,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get onboardingSlide3Title => 'Scala\nla vetta';
 
   @override
-  String get onboardingSlide3Desc => 'Confronta i tuoi progressi con quelli dei tuoi amici.';
+  String get onboardingSlide3Desc => 'Scala la classifica globale e confronta i tuoi progressi con tutti gli esploratori.';
 
   @override
   String get onboardingSlide4Tag => '04 — ACHIEVEMENT';

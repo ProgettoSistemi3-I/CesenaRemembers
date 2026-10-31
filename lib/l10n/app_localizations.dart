@@ -908,13 +908,13 @@ abstract class AppLocalizations {
   /// No description provided for @socialLeaderboardEmpty.
   ///
   /// In en, this message translates to:
-  /// **'Add friends to see your leaderboard.'**
+  /// **'No scores available on the global leaderboard yet.'**
   String get socialLeaderboardEmpty;
 
   /// No description provided for @socialLeaderboard.
   ///
   /// In en, this message translates to:
-  /// **'Friends leaderboard'**
+  /// **'Global leaderboard'**
   String get socialLeaderboard;
 
   /// No description provided for @socialNoUserFound.
@@ -1060,6 +1060,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SIGN IN WITH GOOGLE'**
   String get loginGoogleButton;
+
+  /// No description provided for @loginTermsNoticePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you agree to the '**
+  String get loginTermsNoticePrefix;
+
+  /// No description provided for @loginTermsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get loginTermsLink;
+
+  /// No description provided for @loginTermsAnd.
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get loginTermsAnd;
+
+  /// No description provided for @loginPrivacyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get loginPrivacyLink;
 
   /// No description provided for @errorCommunication.
   ///
@@ -2318,7 +2342,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingSlide3Desc.
   ///
   /// In en, this message translates to:
-  /// **'Compare your progress with your friends.'**
+  /// **'Climb the global leaderboard and compare your progress with all explorers.'**
   String get onboardingSlide3Desc;
 
   /// No description provided for @onboardingSlide4Tag.

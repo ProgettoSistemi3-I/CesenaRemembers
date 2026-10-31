@@ -54,8 +54,10 @@ class SocialController extends ChangeNotifier {
   final UserProgressUseCases _progressUseCases;
   final UserSocialUseCases _socialUseCases;
   StreamSubscription<List<Map<String, dynamic>>>? _leaderboardSub;
+  StreamSubscription<UserProfile?>? _profileSub;
   StreamSubscription<User?>? _authSub;
   String? _leaderboardUid;
+  UserProfile? _currentUserProfile;
   Timer? _searchDebounce;
   bool _isDisposed = false;
 
@@ -76,10 +78,21 @@ class SocialController extends ChangeNotifier {
 
   LeaderboardEntry? get currentUserEntry {
     final myUid = currentUserId;
-    if (myUid.isEmpty || leaderboard.isEmpty) return null;
+    if (myUid.isEmpty) return null;
     try {
       return leaderboard.firstWhere((e) => e.uid == myUid);
     } catch (_) {
+      final p = _currentUserProfile;
+      if (p != null) {
+        return LeaderboardEntry(
+          uid: p.uid,
+          displayName: p.displayName,
+          username: p.username,
+          avatarId: p.avatarId,
+          xp: p.xp,
+          rank: 51,
+        );
+      }
       return null;
     }
   }
@@ -93,12 +106,26 @@ class SocialController extends ChangeNotifier {
     if (uid == _leaderboardUid) return;
     _leaderboardSub?.cancel();
     _leaderboardSub = null;
+    _profileSub?.cancel();
+    _profileSub = null;
+    _currentUserProfile = null;
     _leaderboardUid = uid;
     leaderboard = [];
     errorMessage = null;
     isLeaderboardLoading = uid != null;
-    if (uid != null) _startLeaderboardListener();
+    if (uid != null) {
+      _startLeaderboardListener();
+      _startProfileListener(uid);
+    }
     _safeNotifyListeners();
+  }
+
+  void _startProfileListener(String uid) {
+    _profileSub?.cancel();
+    _profileSub = _profileUseCases.getUserProfileStream(uid).listen((profile) {
+      _currentUserProfile = profile;
+      _safeNotifyListeners();
+    });
   }
 
   void _startLeaderboardListener() {
@@ -178,9 +205,10 @@ class SocialController extends ChangeNotifier {
         if (_isDisposed || searchId != _searchSequence) return;
         errorMessage = 'errorSearch';
       } finally {
-        if (_isDisposed || searchId != _searchSequence) return;
-        isSearching = false;
-        _safeNotifyListeners();
+        if (!_isDisposed && searchId == _searchSequence) {
+          isSearching = false;
+          _safeNotifyListeners();
+        }
       }
     });
   }
@@ -190,6 +218,7 @@ class SocialController extends ChangeNotifier {
     _isDisposed = true;
     _searchDebounce?.cancel();
     _leaderboardSub?.cancel();
+    _profileSub?.cancel();
     _authSub?.cancel();
     super.dispose();
   }

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('every seeded POI exposes an existing image asset', () async {
     final pois = await PoiRepositoryImpl().getPois();
 
@@ -13,8 +14,16 @@ void main() {
     for (final poi in pois) {
       final imagePath = poi.imagePath;
 
-      expect(imagePath, isNotNull, reason: '${poi.id} is missing an image path');
-      expect(imagePath, isNotEmpty, reason: '${poi.id} has an empty image path');
+      expect(
+        imagePath,
+        isNotNull,
+        reason: '${poi.id} is missing an image path',
+      );
+      expect(
+        imagePath,
+        isNotEmpty,
+        reason: '${poi.id} has an empty image path',
+      );
       expect(
         File(imagePath!).existsSync(),
         isTrue,

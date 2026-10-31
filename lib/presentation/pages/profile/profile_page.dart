@@ -160,11 +160,10 @@ class _ProfilePageState extends State<ProfilePage>
     final initialIndex = avatarOptions.indexWhere(
       (opt) => opt.id == profile.avatarId,
     );
-    if (initialIndex != -1) {
-      setState(() {
-        _selectedAvatarIndex = initialIndex;
-      });
-    }
+    final validInitial = initialIndex != -1 ? initialIndex : 1;
+    setState(() {
+      _selectedAvatarIndex = validInitial;
+    });
 
     await showModalBottomSheet<void>(
       context: context,
@@ -198,7 +197,11 @@ class _ProfilePageState extends State<ProfilePage>
   }) async {
     final updatedName = _nameController.text.trim();
 
-    final activeIndex = selectedAvatarIndex ?? _selectedAvatarIndex;
+    final profileAvatarIndex = avatarOptions.indexWhere(
+      (o) => o.id == profile.avatarId,
+    );
+    final fallbackIndex = profileAvatarIndex != -1 ? profileAvatarIndex : 1;
+    final activeIndex = selectedAvatarIndex ?? fallbackIndex;
     final selectedAvatarId = avatarOptions[activeIndex].id;
 
     if (updatedName.isEmpty) {
