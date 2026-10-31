@@ -79,36 +79,37 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> reauthenticateCurrentUser() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('No authenticated user found.');
+    }
+
+    final googleUser =
+        await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
+    if (googleUser == null) {
+      throw Exception('Re-authentication required but cancelled by user.');
+    }
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    await user.reauthenticateWithCredential(credential);
+  }
+
+  @override
   Future<void> deleteCurrentUser() async {
     final user = _firebaseAuth.currentUser;
     if (user == null) {
       throw Exception('No authenticated user found.');
     }
 
-    try {
-      await user.delete();
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'requires-recent-login') {
-        final googleUser =
-            await _googleSignIn.signInSilently() ??
-            await _googleSignIn.signIn();
-
-        if (googleUser == null) {
-          throw Exception('Re-authentication required but cancelled by user.');
-        }
-
-        final googleAuth = await googleUser.authentication;
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-
-        await user.reauthenticateWithCredential(credential);
-        await user.delete();
-      } else {
-        rethrow;
-      }
-    }
+    // La riautenticazione viene eseguita prima della cancellazione dei dati
+    // Firestore dal flusso di SettingsController. Qui non va più ritentata
+    // dopo che la pulizia remota è stata completata.
+    await user.delete();
 
     try {
       if (await _googleSignIn.isSignedIn()) {

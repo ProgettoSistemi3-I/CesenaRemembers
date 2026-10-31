@@ -21,6 +21,9 @@ extension _MapPageLocationLogic on _MapPageState {
         _isGpsEnabled = (status == ServiceStatus.enabled);
       });
       _verifyLocationState(requestPerms: false);
+    }, onError: (Object error, StackTrace stackTrace) {
+      if (!mounted) return;
+      setState(() => _isGpsEnabled = false);
     });
   }
 

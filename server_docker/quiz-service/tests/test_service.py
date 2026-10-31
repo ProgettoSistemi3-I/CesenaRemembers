@@ -165,9 +165,15 @@ def test_missing_key_is_not_200():
         assert r.status_code == 503
 
 
-def test_health_reports_facts():
+def test_health_exposes_only_non_sensitive_service_metadata():
     with make_client("fake-good") as c:
         h = c.get("/health").json()
-        assert h["questionsPerQuiz"] == 3
-        assert all(n >= 3 for n in h["factsPerPoi"].values())
+        assert h == {
+            "status": "ok",
+            "placesConfigured": 10,
+            "questionsPerQuiz": 3,
+        }
+        assert "provider" not in h
+        assert "model" not in h
+        assert "keyConfigured" not in h
         assert c.get("/").status_code == 200

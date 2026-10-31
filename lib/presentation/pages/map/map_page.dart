@@ -135,6 +135,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   );
 
   MapStyle _selectedMapStyle = MapStyle.standard;
+  bool _poisLoadScheduled = false;
 
   @override
   void initState() {
@@ -159,7 +160,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     ShellNavigationStore.locationPermissionChanged.addListener(
       _onLocationPermissionChanged,
     );
-    _loadPois();
   }
 
   @override
@@ -180,6 +180,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (!_poisLoadScheduled) {
+      _poisLoadScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadPois();
+      });
+    }
     final locale = Localizations.localeOf(context);
     if (_lastLocale == locale) return;
     _lastLocale = locale;

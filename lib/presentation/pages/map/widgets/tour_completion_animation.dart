@@ -99,7 +99,7 @@ class _TourCompletionAnimationState extends State<TourCompletionAnimation>
                   filter: ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surface.withOpacity(0.55),
+                      color: theme.colorScheme.surface.withValues(alpha: 0.55),
                     ),
                   ),
                 ),
@@ -122,21 +122,21 @@ class _TourCompletionAnimationState extends State<TourCompletionAnimation>
                             vertical: 48,
                           ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withOpacity(0.65),
+                            color: theme.colorScheme.surface.withValues(alpha: 0.65),
                             borderRadius: BorderRadius.circular(32),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               width: 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppPalette.olive.withOpacity(0.15),
+                                color: AppPalette.olive.withValues(alpha: 0.15),
                                 blurRadius: 40,
                                 spreadRadius: -10,
                                 offset: const Offset(0, 20),
                               ),
                               BoxShadow(
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                                 blurRadius: 10,
                                 spreadRadius: 1,
                                 offset: const Offset(0, -1), // Inner top light
@@ -156,7 +156,7 @@ class _TourCompletionAnimationState extends State<TourCompletionAnimation>
                                     color: theme.colorScheme.surface,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppPalette.olive.withOpacity(0.3),
+                                        color: AppPalette.olive.withValues(alpha: 0.3),
                                         blurRadius: 30,
                                         spreadRadius: 5,
                                       ),
@@ -195,10 +195,10 @@ class _TourCompletionAnimationState extends State<TourCompletionAnimation>
                                           vertical: 8,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: AppPalette.olive.withOpacity(0.1),
+                                          color: AppPalette.olive.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(99),
                                           border: Border.all(
-                                            color: AppPalette.olive.withOpacity(0.2),
+                                            color: AppPalette.olive.withValues(alpha: 0.2),
                                           ),
                                         ),
                                         child: Text(
@@ -278,7 +278,7 @@ class _MagneticButtonState extends State<_MagneticButton> {
               boxShadow: _isHovered
                   ? [
                       BoxShadow(
-                        color: theme.colorScheme.onSurface.withOpacity(0.2),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                         blurRadius: 12,
                         offset: const Offset(0, 6),
                       )

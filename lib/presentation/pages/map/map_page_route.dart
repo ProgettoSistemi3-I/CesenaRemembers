@@ -47,7 +47,8 @@ extension _MapPageRouteLine on _MapPageState {
     ].join('|');
   }
 
-  int _coordinateBucket(double coordinate) => (coordinate * 10000).round();
+  // Circa 40-45 m per bucket: riduce le chiamate Directions durante il tour.
+  int _coordinateBucket(double coordinate) => (coordinate * 2500).round();
 
   List<LatLng> _toRouteLinePoints(RoutePath path) {
     return path.points

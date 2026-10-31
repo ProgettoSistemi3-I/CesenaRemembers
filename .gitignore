@@ -40,8 +40,6 @@ app.*.symbols
 app.*.map.json
 
 # Ignora TUTTI i file JSON delle chiavi segrete nella cartella notifier_service
-notifier_service/*.json
-notifier_service/*serviceAccountKey*.json
 server_docker/notifier-service/serviceAccountKey.json
 server_docker/quiz-service/.env
 
@@ -55,3 +53,6 @@ server_docker/quiz-service/.env
 android/key.properties
 *.jks
 *.keystore
+
+# Build output for all packages and Android reports
+**/build/

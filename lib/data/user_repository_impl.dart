@@ -115,8 +115,8 @@ class UserRepositoryImpl implements IUserRepository {
       _profile.searchUsers(query);
 
   @override
-  Stream<List<Map<String, dynamic>>> getLeaderboardStream({int limit = 50}) =>
-      _progress.getLeaderboardStream(limit: limit);
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50}) =>
+      _progress.getLeaderboardStream(uid: uid, limit: limit);
 
   @override
   Future<void> sendFriendRequest(String currentUid, String targetUid) =>

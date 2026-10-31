@@ -19,5 +19,6 @@ class DeleteCurrentUserUseCase {
   final AuthRepository _repository;
   const DeleteCurrentUserUseCase(this._repository);
 
+  Future<void> reauthenticate() => _repository.reauthenticateCurrentUser();
   Future<void> call() => _repository.deleteCurrentUser();
 }

@@ -33,6 +33,7 @@ class TourSessionController {
   List<TourStop> _orderedStops = [];
   int _currentStopIndex = 0;
   LatLng? _userPosition;
+  bool _hasRealUserPosition = false;
   int _elapsedSeconds = 0;
   int _totalElapsedSeconds = 0;
 
@@ -110,7 +111,8 @@ class TourSessionController {
     _emit();
 
     _startPositionTracking();
-    _startTimer();
+    _checkCurrentStopArrival();
+    if (_status == TourStatus.running) _startTimer();
     return true;
   }
 
@@ -120,7 +122,8 @@ class TourSessionController {
       _status = TourStatus.running;
       _elapsedSeconds = 0;
       _emit();
-      _startTimer();
+      _checkCurrentStopArrival();
+      if (_status == TourStatus.running) _startTimer();
       return true;
     }
 
@@ -148,6 +151,8 @@ class TourSessionController {
     if (upcomingLength < 2) return;
     if (oldRelativeIndex < 0 || oldRelativeIndex >= upcomingLength) return;
     if (newRelativeIndex < 0 || newRelativeIndex >= upcomingLength) return;
+    // L'indice relativo 0 è la tappa già attiva: non deve essere spostata.
+    if (oldRelativeIndex == 0 || newRelativeIndex == 0) return;
 
     final absoluteOldIndex = _currentStopIndex + oldRelativeIndex;
     final absoluteNewIndex = _currentStopIndex + newRelativeIndex;
@@ -174,8 +179,10 @@ class TourSessionController {
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       ).timeout(const Duration(seconds: 4));
       _userPosition = LatLng(pos.latitude, pos.longitude);
+      _hasRealUserPosition = true;
       return _userPosition!;
     } catch (_) {
+      _hasRealUserPosition = false;
       _userPosition = defaultCesenaCenter;
       return defaultCesenaCenter;
     }
@@ -183,16 +190,26 @@ class TourSessionController {
 
   void _startPositionTracking() {
     _positionSubscription?.cancel();
-    _positionSubscription = SharedPositionStream.positions.listen((position) {
-      _userPosition = LatLng(position.latitude, position.longitude);
-      if (_status == TourStatus.running &&
-          distanceToCurrentStop >= 0 &&
-          distanceToCurrentStop <= _arrivedThresholdMeters) {
-        _triggerArrival();
-      } else {
+    _positionSubscription = SharedPositionStream.positions.listen(
+      (position) {
+        _userPosition = LatLng(position.latitude, position.longitude);
+        _hasRealUserPosition = true;
+        _checkCurrentStopArrival();
+        if (_status != TourStatus.arrived) _emit();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        // Un errore del GPS non deve terminare silenziosamente il tour.
         _emit();
-      }
-    });
+      },
+    );
+  }
+
+  void _checkCurrentStopArrival() {
+    if (_status != TourStatus.running || !_hasRealUserPosition) return;
+    final distance = distanceToCurrentStop;
+    if (distance >= 0 && distance <= _arrivedThresholdMeters) {
+      _triggerArrival();
+    }
   }
 
   void _triggerArrival() {

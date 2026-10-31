@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/userprofile.dart';
 import '../../domain/validation/profile_validation.dart';
@@ -18,9 +17,11 @@ class UserProfileDataSource {
       _firestore.collection('usernames');
   CollectionReference<Map<String, dynamic>> get _publicProfiles =>
       _firestore.collection('public_profiles');
+  CollectionReference<Map<String, dynamic>> get _friendStats =>
+      _firestore.collection('friend_stats');
 
-  /// I documenti pubblici non contengono email, token FCM, preferenze o richieste di amicizia.
-  /// La copia viene aggiornata nella stessa transazione/batch del documento privato.
+  /// La proiezione pubblica contiene soltanto i dati minimi per trovare un profilo.
+  /// XP, progressi, achievement e lista amici sono conservati in friend_stats.
   Map<String, dynamic> _publicProfilePayload(Map<String, dynamic> data) => {
     'displayName': data['displayName'] ?? 'Utente',
     'displayNameNormalized':
@@ -31,11 +32,10 @@ class UserProfileDataSource {
     'avatarId': data['avatarId'] ?? 'soldato',
     'profileCompleted': data['profileCompleted'] == true,
     'onboardingCompleted': data['onboardingCompleted'] == true,
+  };
+
+  Map<String, dynamic> _friendStatsPayload(Map<String, dynamic> data) => {
     'xp': (data['xp'] as num?)?.toInt() ?? 0,
-    'leaderboardScore':
-        (data['leaderboardScore'] as num?)?.toInt() ??
-        (data['xp'] as num?)?.toInt() ??
-        0,
     'visitedPoiIds': List<String>.from(data['visitedPoiIds'] ?? const []),
     'unlockedAchievements': List<String>.from(
       data['unlockedAchievements'] ?? const [],
@@ -52,18 +52,38 @@ class UserProfileDataSource {
   String? getCurrentUserUid() => FirebaseAuth.instance.currentUser?.uid;
 
   Future<UserProfile> getUserProfile(String uid) async {
-    // I dati completi (email, preferenze e token FCM) sono leggibili solo dal
-    // proprietario. Per gli altri profili leggiamo esclusivamente la proiezione pubblica.
-    final isOwner = getCurrentUserUid() == uid;
-    final snapshot = isOwner
-        ? await _users.doc(uid).get()
-        : await _publicProfiles.doc(uid).get();
+    final currentUid = getCurrentUserUid();
+    if (currentUid == uid) {
+      final privateSnapshot = await _users.doc(uid).get();
+      if (!privateSnapshot.exists || privateSnapshot.data() == null) {
+        throw Exception('Profilo utente non trovato per uid: $uid');
+      }
+      return UserModel.fromJson(privateSnapshot.data()!, privateSnapshot.id);
+    }
 
-    if (!snapshot.exists || snapshot.data() == null) {
+    final publicSnapshot = await _publicProfiles.doc(uid).get();
+    if (!publicSnapshot.exists || publicSnapshot.data() == null) {
       throw Exception('Profilo utente non trovato per uid: $uid');
     }
 
-    return UserModel.fromJson(snapshot.data()!, snapshot.id);
+    final profileData = Map<String, dynamic>.from(publicSnapshot.data()!);
+    if (currentUid != null && currentUid.isNotEmpty) {
+      // Si tenta la lettura delle statistiche soltanto per un'amicizia già
+      // presente nel documento privato del chiamante. Le Rules ricontrollano
+      // comunque la relazione e negano ogni accesso non autorizzato.
+      final mySnapshot = await _users.doc(currentUid).get();
+      final myFriends = List<String>.from(
+        mySnapshot.data()?['friends'] ?? const [],
+      );
+      if (myFriends.contains(uid)) {
+        final statsSnapshot = await _friendStats.doc(uid).get();
+        if (statsSnapshot.exists && statsSnapshot.data() != null) {
+          profileData.addAll(statsSnapshot.data()!);
+        }
+      }
+    }
+
+    return UserModel.fromJson(profileData, publicSnapshot.id);
   }
 
   Stream<UserProfile?> getUserProfileStream(String uid) {
@@ -119,75 +139,35 @@ class UserProfileDataSource {
     final userRef = _users.doc(uid);
     final usernameRef = _usernames.doc(normalizedUsername);
     final publicProfileRef = _publicProfiles.doc(uid);
+    final friendStatsRef = _friendStats.doc(uid);
 
     try {
-      debugPrint('[PROFILE DEBUG] Inizio completamento profilo');
-      debugPrint(
-        '[PROFILE DEBUG] Firebase projectId: '
-        '${_firestore.app.options.projectId}',
-      );
       await _firestore.runTransaction((transaction) async {
         // 1. Lettura indice username
-        debugPrint('[PROFILE DEBUG] Lettura usernames/$normalizedUsername');
 
         final existingUsername = await transaction.get(usernameRef);
-
-        debugPrint(
-          '[PROFILE DEBUG] Username letto: '
-          'exists=${existingUsername.exists}',
-        );
 
         if (existingUsername.exists) {
           final ownerUid = existingUsername.data()?['uid'];
 
           if (ownerUid != uid) {
-            debugPrint('[PROFILE DEBUG] Username già occupato');
             throw Exception('USERNAME_NOT_AVAILABLE');
           }
         }
 
         // 2. Lettura profilo utente
-        debugPrint('[PROFILE DEBUG] Lettura users/$uid');
 
         final existingUser = await transaction.get(userRef);
         final existingData = existingUser.data() ?? <String, dynamic>{};
 
-        debugPrint('[PROFILE DEBUG] USERS keys: ${existingData.keys.toList()}');
-        debugPrint(
-          '[PROFILE DEBUG] USERS createdAt: ${existingData['createdAt']}',
-        );
-
-        // Leggi anche il profilo pubblico prima di eseguire qualsiasi scrittura.
-        final existingPublicProfile = await transaction.get(publicProfileRef);
-
-        debugPrint(
-          '[PROFILE DEBUG] PUBLIC PROFILE exists: '
-          '${existingPublicProfile.exists}',
-        );
-        debugPrint(
-          '[PROFILE DEBUG] PUBLIC PROFILE keys: '
-          '${existingPublicProfile.data()?.keys.toList()}',
-        );
-
-        debugPrint(
-          '[PROFILE DEBUG] Utente letto: '
-          'exists=${existingUser.exists}, '
-          'profileCompleted=${existingData['profileCompleted']}',
-        );
-
         final alreadyCompleted = existingData['profileCompleted'] == true;
 
         if (alreadyCompleted) {
-          debugPrint(
-            '[PROFILE DEBUG] Profilo già completato: '
-            'nessuna scrittura necessaria',
-          );
           return;
         }
 
         // 3. Preparazione indice username
         if (!existingUsername.exists) {
-          debugPrint('[PROFILE DEBUG] Preparazione scrittura usernames');
 
           transaction.set(usernameRef, {
             'uid': uid,
@@ -207,8 +187,6 @@ class UserProfileDataSource {
           includeCreatedAt: !existingUser.exists,
         );
 
-        debugPrint('[PROFILE DEBUG] Preparazione scrittura users');
-
         transaction.set(userRef, completedPayload, SetOptions(merge: true));
 
         // 5. Preparazione profilo pubblico
@@ -217,36 +195,22 @@ class UserProfileDataSource {
           ...completedPayload,
         });
 
-        debugPrint('[PROFILE DEBUG] Preparazione scrittura public_profiles');
+        transaction.set(publicProfileRef, publicPayload);
 
+        // Le statistiche sono separate e accessibili solo al proprietario e
+        // agli amici reciproci secondo firestore.rules.
         transaction.set(
-          publicProfileRef,
-          publicPayload,
-          SetOptions(merge: true),
-        );
-
-        debugPrint(
-          '[PROFILE DEBUG] Scritture preparate; '
-          'in attesa del risultato della transazione',
+          friendStatsRef,
+          _friendStatsPayload({...existingData, ...completedPayload}),
         );
       });
-
-      debugPrint('[PROFILE DEBUG] Transazione completata correttamente');
-    } on FirebaseException catch (e, stackTrace) {
-      debugPrint('[PROFILE DEBUG] ERRORE FIREBASE');
-      debugPrint('[PROFILE DEBUG] Code: ${e.code}');
-      debugPrint('[PROFILE DEBUG] Message: ${e.message}');
-      debugPrint('[PROFILE DEBUG] Plugin: ${e.plugin}');
-      debugPrintStack(stackTrace: stackTrace);
-
+    } on FirebaseException catch (e) {
       if (e.code == 'permission-denied') {
         throw Exception('USERNAME_INDEX_PERMISSION_DENIED');
       }
 
       rethrow;
-    } catch (e, stackTrace) {
-      debugPrint('[PROFILE DEBUG] ERRORE GENERICO: $e');
-      debugPrintStack(stackTrace: stackTrace);
+    } catch (_) {
       rethrow;
     }
   }

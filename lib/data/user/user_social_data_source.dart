@@ -11,6 +11,7 @@ class UserSocialDataSource {
   final FirebaseFirestore _firestore;
   CollectionReference<Map<String, dynamic>> get _users => _firestore.collection('users');
   CollectionReference<Map<String, dynamic>> get _publicProfiles => _firestore.collection('public_profiles');
+  CollectionReference<Map<String, dynamic>> get _friendStats => _firestore.collection('friend_stats');
   CollectionReference<Map<String, dynamic>> get _friendRequestRoots => _firestore.collection('friend_requests');
 
   DocumentReference<Map<String, dynamic>> _requestRef(String recipientUid, String senderUid) =>
@@ -30,14 +31,12 @@ class UserSocialDataSource {
         throw StateError('Profilo utente non disponibile.');
       }
       final current = currentSnap.data()!;
-      final target = targetPublicSnap.data()!;
       final currentFriends = List<String>.from(current['friends'] ?? const []);
       final currentSent = List<String>.from(current['sentFriendRequests'] ?? const []);
       if (currentFriends.contains(targetUid) || currentSent.contains(targetUid)) return;
       if (reverseSnap.exists || List<String>.from(current['receivedFriendRequests'] ?? const []).contains(targetUid)) {
         throw StateError('L’utente ti ha già inviato una richiesta.');
       }
-      if (List<String>.from(target['friends'] ?? const []).contains(currentUid)) return;
       tx.set(outgoingRequestRef, {
         'senderUid': currentUid,
         'recipientUid': targetUid,
@@ -76,43 +75,28 @@ class UserSocialDataSource {
   Future<void> acceptFriendRequest(String currentUid, String requesterUid) async {
     if (currentUid == requesterUid) throw ArgumentError('Richiesta non valida.');
     final currentRef = _users.doc(currentUid);
-    final currentPublicRef = _publicProfiles.doc(currentUid);
-    final requesterPublicRef = _publicProfiles.doc(requesterUid);
     final requestRef = _requestRef(currentUid, requesterUid);
     await _firestore.runTransaction((tx) async {
       final currentSnap = await tx.get(currentRef);
-      final currentPublicSnap = await tx.get(currentPublicRef);
-      final requesterPublicSnap = await tx.get(requesterPublicRef);
       final requestSnap = await tx.get(requestRef);
-      if (!currentSnap.exists || !currentPublicSnap.exists || !requesterPublicSnap.exists || !requestSnap.exists) {
+      if (!currentSnap.exists || !requestSnap.exists) {
         throw StateError('Profilo o richiesta non disponibile.');
       }
       final current = currentSnap.data()!;
-      final publicRequester = requesterPublicSnap.data()!;
       final currentReceived = List<String>.from(current['receivedFriendRequests'] ?? const []);
       if (!currentReceived.contains(requesterUid)) {
         throw StateError('La richiesta non è più disponibile.');
       }
+
       final currentFriends = List<String>.from(current['friends'] ?? const []);
-      final requesterFriends = List<String>.from(publicRequester['friends'] ?? const []);
-      if (currentFriends.contains(requesterUid) || requesterFriends.contains(currentUid)) return;
+      if (currentFriends.contains(requesterUid)) return;
 
       final currentUnlocked = List<String>.from(current['unlockedAchievements'] ?? const []);
-      final requesterUnlocked = List<String>.from(publicRequester['unlockedAchievements'] ?? const []);
       final currentPending = List<String>.from(current['pendingAchievements'] ?? const []);
       final currentAwards = AchievementService.evaluateOnFriendAdded(
         alreadyUnlocked: [...currentUnlocked, ...currentPending],
         friendCount: currentFriends.length + 1,
       );
-      // Le ricompense del richiedente sono determinate dal conteggio pubblico
-      // degli amici, senza leggere email, token o preferenze dell'altro utente.
-      final requesterAwards = <String>[];
-      if (requesterFriends.length + 1 >= 1 && !requesterUnlocked.contains('friend_1')) {
-        requesterAwards.add('friend_1');
-      }
-      if (requesterFriends.length + 1 >= 5 && !requesterUnlocked.contains('friend_5')) {
-        requesterAwards.add('friend_5');
-      }
 
       tx.update(currentRef, {
         'receivedFriendRequests': FieldValue.arrayRemove([requesterUid]),
@@ -125,11 +109,14 @@ class UserSocialDataSource {
         'sentFriendRequests': FieldValue.arrayRemove([currentUid]),
         'friends': FieldValue.arrayUnion([currentUid]),
         'lastFriendActionPeerUid': currentUid,
-        if (requesterAwards.isNotEmpty) 'pendingAchievements': FieldValue.arrayUnion(requesterAwards),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      tx.update(currentPublicRef, {'friends': FieldValue.arrayUnion([requesterUid])});
-      tx.update(requesterPublicRef, {'friends': FieldValue.arrayUnion([currentUid])});
+      tx.update(_friendStats.doc(currentUid), {
+        'friends': FieldValue.arrayUnion([requesterUid]),
+      });
+      tx.update(_friendStats.doc(requesterUid), {
+        'friends': FieldValue.arrayUnion([currentUid]),
+      });
       tx.delete(requestRef);
     });
   }
@@ -163,10 +150,10 @@ class UserSocialDataSource {
       'lastFriendActionPeerUid': currentUid,
       'updatedAt': FieldValue.serverTimestamp(),
     });
-    batch.update(_publicProfiles.doc(currentUid), {
+    batch.update(_friendStats.doc(currentUid), {
       'friends': FieldValue.arrayRemove([friendUid]),
     });
-    batch.update(_publicProfiles.doc(friendUid), {
+    batch.update(_friendStats.doc(friendUid), {
       'friends': FieldValue.arrayRemove([currentUid]),
     });
     await batch.commit();
@@ -177,7 +164,7 @@ class UserSocialDataSource {
     final result = <UserProfile>[];
     for (var i = 0; i < uids.length; i += 10) {
       final chunk = uids.sublist(i, i + 10 > uids.length ? uids.length : i + 10);
-      final snap = await _publicProfiles.where(FieldPath.documentId, whereIn: chunk).get();
+      final snap = await _publicProfiles.where(FieldPath.documentId, whereIn: chunk).limit(chunk.length).get();
       result.addAll(snap.docs.map((doc) => UserModel.fromJson(doc.data(), doc.id)));
     }
     return result;

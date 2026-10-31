@@ -49,16 +49,16 @@ service cloud.firestore {
         ]);
     }
 
-    // La shape completa viene usata per gli aggiornamenti ordinari del profilo pubblico
-    // e per l'eventuale ricreazione di un profilo pubblico già completato.
+    // public_profiles contiene solo i campi identificativi ricercabili.
+    // Le statistiche sono in friend_stats e sono leggibili dal proprietario e dagli amici
+    // reciproci. Firestore Security Rules non supporta cicli: qui non ci sono iterazioni;
+    // le liste dinamiche sono limitate a 100/200/500 elementi, sempre sotto 1.000.
+    // I controlli usano insiemi/list methods su liste già limitate, mai scansioni illimitate.
     function validPublicProfileShape(data) {
       return data.keys().hasOnly([
           'displayName', 'displayNameNormalized', 'username',
           'usernameNormalized', 'avatarId', 'profileCompleted',
-          'onboardingCompleted', 'xp', 'leaderboardScore', 'visitedPoiIds',
-          'unlockedAchievements', 'maxQuizScore', 'totalQuizCompleted',
-          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
-          'maxSingleTourXp', 'friends'
+          'onboardingCompleted'
         ]) &&
         data.get('displayName', null) is string &&
         data.displayName.size() >= 2 &&
@@ -75,33 +75,9 @@ service cloud.firestore {
         data.avatarId.size() > 0 &&
         data.avatarId.size() <= 40 &&
         data.get('profileCompleted', false) == true &&
-        data.get('onboardingCompleted', false) is bool &&
-        data.get('xp', 0) is int &&
-        data.xp >= 0 &&
-        data.xp <= 1000000000 &&
-        data.get('leaderboardScore', data.xp) is int &&
-        data.leaderboardScore == data.xp &&
-        validVisitedPoiIds(data.get('visitedPoiIds', [])) &&
-        validAchievementList(data.get('unlockedAchievements', [])) &&
-        data.get('friends', []) is list &&
-        data.friends.size() <= 500 &&
-        data.friends.toSet().size() == data.friends.size() &&
-        data.get('maxQuizScore', 0) is int &&
-        data.maxQuizScore >= 0 &&
-        data.maxQuizScore <= 100 &&
-        data.get('totalQuizCompleted', 0) is int &&
-        data.totalQuizCompleted >= 0 &&
-        data.get('totalToursCompleted', 0) is int &&
-        data.totalToursCompleted >= 0 &&
-        data.get('totalCorrectAnswers', 0) is int &&
-        data.totalCorrectAnswers >= 0 &&
-        data.get('bestTourTimeSeconds', 0) is int &&
-        data.bestTourTimeSeconds >= 0 &&
-        data.get('maxSingleTourXp', 0) is int &&
-        data.maxSingleTourXp >= 0;
+        data.get('onboardingCompleted', false) is bool;
     }
 
-    // Confronta i campi speculari una sola volta, passando i due documenti già disponibili.
     function publicProfileFieldsMatch(privateData, publicData) {
       return publicData.displayName == privateData.displayName &&
         publicData.displayNameNormalized == privateData.displayNameNormalized &&
@@ -109,33 +85,11 @@ service cloud.firestore {
         publicData.usernameNormalized == privateData.usernameNormalized &&
         publicData.avatarId == privateData.avatarId &&
         publicData.profileCompleted == privateData.profileCompleted &&
-        publicData.onboardingCompleted == privateData.get('onboardingCompleted', false) &&
-        publicData.xp == privateData.get('xp', 0) &&
-        publicData.leaderboardScore ==
-          privateData.get('leaderboardScore', privateData.get('xp', 0)) &&
-        publicData.visitedPoiIds == privateData.get('visitedPoiIds', []) &&
-        publicData.unlockedAchievements == privateData.get('unlockedAchievements', []) &&
-        publicData.maxQuizScore == privateData.get('maxQuizScore', 0) &&
-        publicData.totalQuizCompleted == privateData.get('totalQuizCompleted', 0) &&
-        publicData.totalToursCompleted == privateData.get('totalToursCompleted', 0) &&
-        publicData.totalCorrectAnswers == privateData.get('totalCorrectAnswers', 0) &&
-        publicData.bestTourTimeSeconds == privateData.get('bestTourTimeSeconds', 0) &&
-        publicData.maxSingleTourXp == privateData.get('maxSingleTourXp', 0) &&
-        publicData.friends == privateData.get('friends', []);
+        publicData.onboardingCompleted == privateData.get('onboardingCompleted', false);
     }
 
-    // Al primo completamento, la shape e la coerenza del profilo pubblico vengono
-    // controllate dal ramo update di users. Il create pubblico evita di rifare tutti
-    // gli stessi controlli durante la stessa transazione.
     function initialPublicMirrorMatches(privateData, publicData) {
-      return publicData.keys().hasOnly([
-          'displayName', 'displayNameNormalized', 'username',
-          'usernameNormalized', 'avatarId', 'profileCompleted',
-          'onboardingCompleted', 'xp', 'leaderboardScore', 'visitedPoiIds',
-          'unlockedAchievements', 'maxQuizScore', 'totalQuizCompleted',
-          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
-          'maxSingleTourXp', 'friends'
-        ]) &&
+      return validPublicProfileShape(publicData) &&
         publicProfileFieldsMatch(privateData, publicData);
     }
 
@@ -145,6 +99,89 @@ service cloud.firestore {
       let publicData =
         getAfter(/databases/$(database)/documents/public_profiles/$(uid)).data;
       return publicProfileFieldsMatch(privateData, publicData);
+    }
+
+    function validFriendStatsShape(data) {
+      return data.keys().hasOnly([
+          'xp', 'visitedPoiIds', 'unlockedAchievements', 'maxQuizScore',
+          'totalQuizCompleted', 'totalToursCompleted', 'totalCorrectAnswers',
+          'bestTourTimeSeconds', 'maxSingleTourXp', 'friends'
+        ]) &&
+        data.get('xp', 0) is int && data.xp >= 0 && data.xp <= 1000000000 &&
+        validVisitedPoiIds(data.get('visitedPoiIds', [])) &&
+        validAchievementList(data.get('unlockedAchievements', [])) &&
+        data.get('maxQuizScore', 0) is int && data.maxQuizScore >= 0 && data.maxQuizScore <= 100 &&
+        data.get('totalQuizCompleted', 0) is int && data.totalQuizCompleted >= 0 &&
+        data.get('totalToursCompleted', 0) is int && data.totalToursCompleted >= 0 &&
+        data.get('totalCorrectAnswers', 0) is int && data.totalCorrectAnswers >= 0 &&
+        data.get('bestTourTimeSeconds', 0) is int && data.bestTourTimeSeconds >= 0 &&
+        data.get('maxSingleTourXp', 0) is int && data.maxSingleTourXp >= 0 &&
+        data.get('friends', []) is list && data.friends.size() <= 500 &&
+        data.friends.toSet().size() == data.friends.size();
+    }
+
+    function friendStatsFieldsMatch(privateData, statsData) {
+      return statsData.get('xp', 0) == privateData.get('xp', 0) &&
+        statsData.get('visitedPoiIds', []) == privateData.get('visitedPoiIds', []) &&
+        statsData.get('unlockedAchievements', []) == privateData.get('unlockedAchievements', []) &&
+        statsData.get('maxQuizScore', 0) == privateData.get('maxQuizScore', 0) &&
+        statsData.get('totalQuizCompleted', 0) == privateData.get('totalQuizCompleted', 0) &&
+        statsData.get('totalToursCompleted', 0) == privateData.get('totalToursCompleted', 0) &&
+        statsData.get('totalCorrectAnswers', 0) == privateData.get('totalCorrectAnswers', 0) &&
+        statsData.get('bestTourTimeSeconds', 0) == privateData.get('bestTourTimeSeconds', 0) &&
+        statsData.get('maxSingleTourXp', 0) == privateData.get('maxSingleTourXp', 0) &&
+        statsData.get('friends', []) == privateData.get('friends', []);
+    }
+
+    function friendStatsMirrorMatches(uid) {
+      let privateData =
+        getAfter(/databases/$(database)/documents/users/$(uid)).data;
+      let statsData =
+        getAfter(/databases/$(database)/documents/friend_stats/$(uid)).data;
+      return validFriendStatsShape(statsData) &&
+        friendStatsFieldsMatch(privateData, statsData);
+    }
+
+    function validFriendStatsCreate(uid) {
+      let userPath = /databases/$(database)/documents/users/$(uid);
+      let userAfter = getAfter(userPath).data;
+      return userAfter.get('profileCompleted', false) == true &&
+        validFriendStatsShape(request.resource.data) &&
+        friendStatsFieldsMatch(userAfter, request.resource.data);
+    }
+
+    function areFriends(uid) {
+      let callerPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      let targetPath = /databases/$(database)/documents/users/$(uid);
+      return isSignedIn() &&
+        exists(callerPath) && exists(targetPath) &&
+        get(callerPath).data.get('friends', []).hasAny([uid]) &&
+        get(targetPath).data.get('friends', []).hasAny([request.auth.uid]);
+    }
+
+    function canReadFriendStats(uid) {
+      return isNotBanned() &&
+        !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
+        (isOwner(uid) || areFriends(uid));
+    }
+
+    function validCrossFriendStatsUpdate(uid) {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let targetAfter = getAfter(/databases/$(database)/documents/users/$(uid)).data;
+      let callerAfter = getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      let oldFriends = resource.data.get('friends', []);
+      let newFriends = request.resource.data.get('friends', []);
+      return changed.hasOnly(['friends']) &&
+        request.resource.data.keys().hasOnly([
+          'xp', 'visitedPoiIds', 'unlockedAchievements', 'maxQuizScore',
+          'totalQuizCompleted', 'totalToursCompleted', 'totalCorrectAnswers',
+          'bestTourTimeSeconds', 'maxSingleTourXp', 'friends'
+        ]) &&
+        newFriends == targetAfter.get('friends', []) &&
+        ((listAddsOnly(oldFriends, newFriends, request.auth.uid) &&
+          callerAfter.get('friends', []).hasAny([uid])) ||
+         (listRemovesOnly(oldFriends, newFriends, request.auth.uid) &&
+          !callerAfter.get('friends', []).hasAny([uid])));
     }
 
     function listAddsOne(oldList, newList) {
@@ -202,47 +239,34 @@ service cloud.firestore {
         (!added.hasAny(['xp_500']) || newData.get('xp', 0) >= 500) &&
         (!added.hasAny(['tour_under_1h']) ||
           (completedTourNow &&
-           newData.get('bestTourTimeSeconds', 0) > 0 &&
+           newData.get('bestTourTimeSeconds', 0) >= 300 &&
            newData.get('bestTourTimeSeconds', 0) < 3600)) &&
         (!added.hasAny(['tour_under_30m']) ||
           (completedTourNow &&
-           newData.get('bestTourTimeSeconds', 0) > 0 &&
+           newData.get('bestTourTimeSeconds', 0) >= 300 &&
            newData.get('bestTourTimeSeconds', 0) < 1800));
     }
 
-    function publicProfileInitialProgressIsEmpty(data) {
-      return data.xp == 0 &&
-        data.leaderboardScore == 0 &&
-        data.maxQuizScore == 0 &&
-        data.totalQuizCompleted == 0 &&
-        data.totalToursCompleted == 0 &&
-        data.totalCorrectAnswers == 0 &&
-        data.bestTourTimeSeconds == 0 &&
-        data.maxSingleTourXp == 0 &&
-        data.visitedPoiIds == [] &&
-        data.unlockedAchievements == [] &&
-        data.friends == [];
+    // Le statistiche iniziali sono vuote e vengono create nello stesso commit del profilo.
+    function friendStatsInitialProgressIsEmpty(data) {
+      return data.xp == 0 && data.visitedPoiIds == [] &&
+        data.unlockedAchievements == [] && data.maxQuizScore == 0 &&
+        data.totalQuizCompleted == 0 && data.totalToursCompleted == 0 &&
+        data.totalCorrectAnswers == 0 && data.bestTourTimeSeconds == 0 &&
+        data.maxSingleTourXp == 0 && data.friends == [];
     }
 
-    // Il create iniziale è autorizzato solo come parte del completamento atomico
-    // di users/{uid}. In quel ramo, validInitialProfileCompletion verifica già
-    // shape e coerenza completa del documento pubblico. Se l'utente era già
-    // completato, la ricreazione richiede invece tutte le verifiche complete qui.
     function validPublicProfileCreate(uid) {
       let p = request.resource.data;
       let userPath = /databases/$(database)/documents/users/$(uid);
       let oldUser = get(userPath).data;
       let userAfter = getAfter(userPath).data;
-
       return userAfter.get('profileCompleted', false) == true &&
-        (
-          (oldUser.get('profileCompleted', false) != true &&
-           p.get('profileCompleted', false) == true) ||
-          (oldUser.get('profileCompleted', false) == true &&
-           validPublicProfileShape(p) &&
-           publicProfileInitialProgressIsEmpty(p) &&
-           publicProfileFieldsMatch(userAfter, p))
-        );
+        validPublicProfileShape(p) &&
+        ((oldUser.get('profileCompleted', false) != true &&
+          p.get('profileCompleted', false) == true) ||
+         (oldUser.get('profileCompleted', false) == true &&
+          publicProfileFieldsMatch(userAfter, p)));
     }
 
     // Primo completamento del profilo: tutti i valori di progressione devono partire
@@ -253,6 +277,8 @@ service cloud.firestore {
         /databases/$(database)/documents/usernames/$(d.usernameNormalized);
       let publicPath =
         /databases/$(database)/documents/public_profiles/$(uid);
+      let statsPath =
+        /databases/$(database)/documents/friend_stats/$(uid);
 
       return resource.data.get('profileCompleted', false) != true &&
         d.profileCompleted == true &&
@@ -299,7 +325,11 @@ service cloud.firestore {
         existsAfter(usernamePath) &&
         getAfter(usernamePath).data.uid == uid &&
         existsAfter(publicPath) &&
-        initialPublicMirrorMatches(d, getAfter(publicPath).data);
+        initialPublicMirrorMatches(d, getAfter(publicPath).data) &&
+        existsAfter(statsPath) &&
+        validFriendStatsShape(getAfter(statsPath).data) &&
+        friendStatsInitialProgressIsEmpty(getAfter(statsPath).data) &&
+        friendStatsFieldsMatch(d, getAfter(statsPath).data);
     }
 
     function validOwnerProgressUpdate() {
@@ -310,10 +340,13 @@ service cloud.firestore {
           'visitedPoiIds', 'xp', 'leaderboardScore', 'maxSingleTourXp',
           'maxQuizScore', 'totalQuizCompleted', 'totalToursCompleted',
           'totalCorrectAnswers', 'bestTourTimeSeconds', 'pendingAchievements',
-          'updatedAt'
+          'updatedAt', 'lastProgressAt'
         ]) &&
         next.get('xp', 0) >= old.get('xp', 0) &&
-        next.get('xp', 0) <= old.get('xp', 0) + 250 &&
+        next.get('xp', 0) <= old.get('xp', 0) + 80 &&
+        next.get('lastProgressAt', null) == request.time &&
+        (!('lastProgressAt' in old) ||
+          request.time >= old.lastProgressAt + duration.value(5, 's')) &&
         next.get('leaderboardScore', 0) == next.get('xp', 0) &&
         next.get('totalQuizCompleted', 0) >= old.get('totalQuizCompleted', 0) &&
         next.get('totalQuizCompleted', 0) <= old.get('totalQuizCompleted', 0) + 1 &&
@@ -323,6 +356,12 @@ service cloud.firestore {
         next.get('maxQuizScore', 0) <= 100 &&
         next.get('totalToursCompleted', 0) >= old.get('totalToursCompleted', 0) &&
         next.get('totalToursCompleted', 0) <= old.get('totalToursCompleted', 0) + 1 &&
+        (next.get('totalToursCompleted', 0) == old.get('totalToursCompleted', 0) ||
+          (next.get('visitedPoiIds', []).hasAll([
+            'santa_cristina', 'rocca', 'san_rocco', 'abbazia_monte',
+            'osservanza', 'palazzo_ridotto', 'stazione', 'arrigoni',
+            'fantaguzzi', 'rifugi_antiaerei'
+          ]) && next.get('bestTourTimeSeconds', 0) >= 300)) &&
         next.get('maxSingleTourXp', 0) >= old.get('maxSingleTourXp', 0) &&
         next.get('maxSingleTourXp', 0) <= next.get('xp', 0) &&
         next.get('visitedPoiIds', []) is list &&
@@ -339,7 +378,8 @@ service cloud.firestore {
              (old.get('bestTourTimeSeconds', 0) == 0 ||
               next.get('bestTourTimeSeconds', 0) <= old.get('bestTourTimeSeconds', 0)))
           : next.get('bestTourTimeSeconds', 0) == old.get('bestTourTimeSeconds', 0)) &&
-        publicMirrorMatches(request.auth.uid);
+        publicMirrorMatches(request.auth.uid) &&
+        friendStatsMirrorMatches(request.auth.uid);
     }
 
     function validAchievementClaim() {
@@ -362,7 +402,8 @@ service cloud.firestore {
           .difference(old.get('unlockedAchievements', []).toSet())
           .hasOnly(old.get('pendingAchievements', [])) &&
         next.get('unlockedAchievements', []).size() <= 100 &&
-        publicMirrorMatches(request.auth.uid);
+        publicMirrorMatches(request.auth.uid) &&
+        friendStatsMirrorMatches(request.auth.uid);
     }
 
     function validProfileBasicsUpdate(uid) {
@@ -432,6 +473,7 @@ service cloud.firestore {
           request.resource.data.get('sentFriendRequests', []),
           peer
         ) &&
+        request.resource.data.get('sentFriendRequests', []).size() <= 100 &&
         existsAfter(path) &&
         getAfter(path).data.senderUid == uid &&
         getAfter(path).data.recipientUid == peer;
@@ -468,6 +510,7 @@ service cloud.firestore {
           request.resource.data.get('receivedFriendRequests', []),
           request.auth.uid
         ) &&
+        request.resource.data.get('receivedFriendRequests', []).size() <= 100 &&
         !resource.data.get('sentFriendRequests', []).hasAny([request.auth.uid]) &&
         !resource.data.get('friends', []).hasAny([request.auth.uid]) &&
         !callerAfter.get('friends', []).hasAny([uid]) &&
@@ -492,6 +535,20 @@ service cloud.firestore {
         (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
           !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
             .get('receivedFriendRequests', []).hasAny([uid]));
+    }
+
+    function validCrossReceivedRequestRemoval(uid) {
+      let path = /databases/$(database)/documents/friend_requests/$(uid)/inbox/$(request.auth.uid);
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'receivedFriendRequests', 'lastFriendActionPeerUid', 'updatedAt'
+        ]) &&
+        request.resource.data.get('lastFriendActionPeerUid', '') == request.auth.uid &&
+        listRemovesOnly(
+          resource.data.get('receivedFriendRequests', []),
+          request.resource.data.get('receivedFriendRequests', []),
+          request.auth.uid
+        ) &&
+        !existsAfter(path);
     }
 
     function validReceivedRequestRemoval(uid) {
@@ -553,7 +610,8 @@ service cloud.firestore {
           resource.data.get('pendingAchievements', []),
           request.resource.data.get('pendingAchievements', [])
         ) &&
-        publicMirrorMatches(uid);
+        publicMirrorMatches(uid) &&
+        friendStatsMirrorMatches(uid);
     }
 
     function validAcceptedFriendUpdate(uid) {
@@ -582,7 +640,8 @@ service cloud.firestore {
         friendAchievementChangeAllowed(
           resource.data.get('pendingAchievements', []),
           request.resource.data.get('pendingAchievements', [])
-        );
+        ) &&
+        friendStatsMirrorMatches(uid);
     }
 
     function validOwnerFriendRemoval(uid) {
@@ -600,9 +659,10 @@ service cloud.firestore {
         ) &&
         !getAfter(/databases/$(database)/documents/users/$(peer)).data
           .get('friends', []).hasAny([uid]) &&
-        !getAfter(/databases/$(database)/documents/public_profiles/$(peer)).data
+        !getAfter(/databases/$(database)/documents/friend_stats/$(peer)).data
           .get('friends', []).hasAny([uid]) &&
-        publicMirrorMatches(uid);
+        publicMirrorMatches(uid) &&
+        friendStatsMirrorMatches(uid);
     }
 
     function validCrossFriendRemoval(uid) {
@@ -618,7 +678,8 @@ service cloud.firestore {
           getAfter(/databases/$(database)/documents/users/$(uid)).data.get('friends', []) &&
         (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
           !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
-            .get('friends', []).hasAny([uid]));
+            .get('friends', []).hasAny([uid])) &&
+        friendStatsMirrorMatches(uid);
     }
 
     // Il ramo iniziale è separato dagli aggiornamenti normali.
@@ -660,6 +721,7 @@ service cloud.firestore {
         request.resource.data.keys().hasOnly(['email', 'createdAt', 'updatedAt']) &&
         request.resource.data.email is string &&
         request.resource.data.email.size() <= 254 &&
+        request.auth.token.email == request.resource.data.email &&
         request.resource.data.createdAt is timestamp &&
         request.resource.data.updatedAt is timestamp;
 
@@ -678,6 +740,7 @@ service cloud.firestore {
         (!isOwner(userId) && (
           validIncomingRequestAdd(userId) ||
           validCrossSentRequestRemoval(userId) ||
+          validCrossReceivedRequestRemoval(userId) ||
           validAcceptedFriendUpdate(userId) ||
           validCrossFriendRemoval(userId)
         ))
@@ -688,45 +751,34 @@ service cloud.firestore {
     }
 
     match /public_profiles/{userId} {
-      allow get, list: if isSignedIn() && isNotBanned();
+      allow get: if isSignedIn() && isNotBanned() &&
+        !exists(/databases/$(database)/documents/banned_users/$(userId));
+      allow list: if isSignedIn() && isNotBanned() &&
+        request.query.limit != null && request.query.limit <= 50;
 
       allow create: if isOwner(userId) &&
         isNotBanned() &&
         validPublicProfileCreate(userId);
 
-      allow update: if isNotBanned() && (
-        (
-          isOwner(userId) &&
-          validPublicProfileShape(request.resource.data) &&
-          publicMirrorMatches(userId)
-        ) ||
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends']) &&
-          listAddsOnly(
-            resource.data.get('friends', []),
-            request.resource.data.get('friends', []),
-            request.auth.uid
-          ) &&
-          getAfter(/databases/$(database)/documents/users/$(userId)).data
-            .get('friends', []).hasAny([request.auth.uid]) &&
-          request.resource.data.friends ==
-            getAfter(/databases/$(database)/documents/users/$(userId)).data.get('friends', [])
-        ) ||
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friends']) &&
-          listRemovesOnly(
-            resource.data.get('friends', []),
-            request.resource.data.get('friends', []),
-            request.auth.uid
-          ) &&
-          getAfter(/databases/$(database)/documents/users/$(userId)).data
-            .get('friends', []) == request.resource.data.friends &&
-          (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)) ||
-            !getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data
-              .get('friends', []).hasAny([userId]))
-        )
-      );
+      allow update: if isOwner(userId) &&
+        isNotBanned() &&
+        validPublicProfileShape(request.resource.data) &&
+        publicMirrorMatches(userId);
 
+      allow delete: if isOwner(userId);
+    }
+
+    match /friend_stats/{userId} {
+      allow get: if canReadFriendStats(userId);
+      // I documenti contengono statistiche personali: non sono interrogabili in raccolta.
+      allow list: if false;
+      allow create: if isOwner(userId) && isNotBanned() &&
+        validFriendStatsCreate(userId);
+      allow update: if isNotBanned() && (
+        (isOwner(userId) && validFriendStatsShape(request.resource.data) &&
+          friendStatsMirrorMatches(userId)) ||
+        (!isOwner(userId) && validCrossFriendStatsUpdate(userId))
+      );
       allow delete: if isOwner(userId);
     }
 

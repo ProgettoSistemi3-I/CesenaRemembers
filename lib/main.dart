@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,25 +48,6 @@ class AppBootstrap {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-
-      // DIAGNOSTICA TEMPORANEA: usare solo con --dart-define in debug.
-      // Di default l'app continua a usare Firestore di produzione.
-      if (kDebugMode && const bool.fromEnvironment('USE_FIRESTORE_EMULATOR')) {
-        const emulatorHost = String.fromEnvironment(
-          'FIRESTORE_EMULATOR_HOST',
-          defaultValue: '127.0.0.1',
-        );
-
-        FirebaseFirestore.instance.useFirestoreEmulator(
-          emulatorHost,
-          8080,
-          automaticHostMapping: false,
-        );
-
-        debugPrint(
-          '[FIRESTORE DIAGNOSTIC] Emulator attivo: $emulatorHost:8080',
-        );
-      }
 
       await di.init();
       try {

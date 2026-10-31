@@ -130,7 +130,13 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
     });
 
     final success = await _socialCtrl.handleFriendAction(action, widget.uid);
-    if (success || !mounted) return;
+    if (!mounted) return;
+    if (success) {
+      // Dopo accept/remove ricarica dal server la proiezione corretta: le
+      // statistiche vengono restituite solo quando l'amicizia è reciproca.
+      await _loadProfile();
+      return;
+    }
 
     setState(() {
       target.friends
@@ -730,8 +736,8 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     const SizedBox(height: 28),
                   ],
 
-                  // Statistiche Rapide (Amici, Punti, Livello)
-                  Container(
+                  // Le statistiche sono mostrate soltanto al proprietario e agli amici.
+                  if (isFriend || myUid == profile.uid) Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
 
                     decoration: BoxDecoration(

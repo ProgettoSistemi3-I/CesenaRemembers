@@ -39,7 +39,7 @@ abstract class IUserRepository {
   Future<void> unlockPendingAchievement(String uid, String achievementId);
   Future<void> deleteUserData({required String uid});
   Future<List<UserProfile>> searchUsers(String query);
-  Stream<List<Map<String, dynamic>>> getLeaderboardStream({int limit = 50});
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50});
 
   // Social
   Future<void> sendFriendRequest(String currentUid, String targetUid);

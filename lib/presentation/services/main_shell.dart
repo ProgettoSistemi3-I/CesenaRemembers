@@ -28,6 +28,9 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
+    // Evita che il tab statico di una sessione precedente sopravviva al logout.
+    ShellNavigationStore.tabIndex.value = 0;
+    _currentIndex = 0;
     ShellNavigationStore.tabIndex.addListener(_onTabIndexChanged);
     _initializeNotifications();
   }

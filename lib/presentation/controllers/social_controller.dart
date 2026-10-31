@@ -110,7 +110,7 @@ class SocialController extends ChangeNotifier {
     }
     _leaderboardSub?.cancel();
     _leaderboardSub = _progressUseCases
-        .getLeaderboardStream(limit: 50)
+        .getLeaderboardStream(uid: currentUserId, limit: 50)
         .listen(
           (docsData) {
             leaderboard = docsData

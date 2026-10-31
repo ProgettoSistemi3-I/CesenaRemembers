@@ -17,7 +17,7 @@ Il quiz è generato a ogni richiesta: non esiste alcun archivio di domande.
 from __future__ import annotations
 
 import asyncio
-from collections import defaultdict, deque
+from collections import deque
 import json
 import logging
 import random
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
     app.state.facts = load_all(settings.facts_dir)
     app.state.llm = LlmClient(settings)
     app.state.inflight = {}
-    app.state.rate_limits = defaultdict(deque)
+    app.state.rate_limits = {}
     logger.info(
         "Avvio: provider=%s model=%s key=%s schede=%s",
         settings.provider,
@@ -275,10 +275,30 @@ async def generate_quiz(poi: PoiRequest, request: Request):
     # Firebase ID token in chiaro sull'endpoint HTTP del progetto.
     now = time.monotonic()
     address = request.client.host if request.client else "unknown"
-    bucket = app.state.rate_limits[address]
+    rate_limits: dict[str, deque[float]] = app.state.rate_limits
+    bucket = rate_limits.get(address)
+
+    # I bucket inattivi vengono rimossi quando serve spazio. Il dizionario ha
+    # una dimensione massima: non può crescere senza limite con IP casuali.
+    max_clients = max(100, int(__import__("os").getenv("QUIZ_RATE_LIMIT_MAX_CLIENTS", "10000")))
+    if bucket is None and len(rate_limits) >= max_clients:
+        for client_ip, client_bucket in list(rate_limits.items()):
+            while client_bucket and now - client_bucket[0] > 60:
+                client_bucket.popleft()
+            if not client_bucket:
+                rate_limits.pop(client_ip, None)
+        if len(rate_limits) >= max_clients:
+            raise QuizFailure(429, "rate_limit_capacity", "Servizio temporaneamente occupato. Riprova tra poco.")
+        bucket = deque()
+        rate_limits[address] = bucket
+    elif bucket is None:
+        bucket = deque()
+        rate_limits[address] = bucket
+
     while bucket and now - bucket[0] > 60:
         bucket.popleft()
-    if len(bucket) >= int(__import__("os").getenv("QUIZ_RATE_LIMIT_PER_MINUTE", "30")):
+    limit_per_minute = max(1, int(__import__("os").getenv("QUIZ_RATE_LIMIT_PER_MINUTE", "30")))
+    if len(bucket) >= limit_per_minute:
         raise QuizFailure(429, "rate_limited", "Troppe richieste. Riprova tra poco.")
     bucket.append(now)
 
@@ -316,11 +336,6 @@ async def health():
     facts = app.state.facts
     return {
         "status": "ok",
-        "provider": settings.provider,
-        "model": settings.model,
-        "apiKeyConfigured": settings.key_configured,
-        "factsPerPoi": {k: len(v.facts) for k, v in facts.items()},
+        "placesConfigured": len(facts),
         "questionsPerQuiz": N_QUESTIONS,
-        "optionsPerQuestion": settings.options_per_question,
-        "requestDeadlineSeconds": settings.request_deadline_s,
     }

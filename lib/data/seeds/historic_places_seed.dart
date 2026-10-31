@@ -42,7 +42,7 @@ class HistoricPlacesSeed {
       latitude: 44.14100,
       longitude: 12.24236,
       type: 'church',
-      period: '17th Century',
+      period: '19th Century',
       description:
           'poi_santa_cristina_description',
       icon: Icons.church_outlined,
@@ -55,7 +55,7 @@ class HistoricPlacesSeed {
             'quiz_santa_cristina_q1_o2',
             'quiz_santa_cristina_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question:
@@ -65,7 +65,7 @@ class HistoricPlacesSeed {
             'quiz_santa_cristina_q2_o2',
             'quiz_santa_cristina_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -87,7 +87,7 @@ class HistoricPlacesSeed {
         QuizQuestion(
           question: 'quiz_rocca_q1',
           options: ['quiz_rocca_q1_o1', 'quiz_rocca_q1_o2', 'quiz_rocca_q1_o3'],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question:
@@ -125,7 +125,7 @@ class HistoricPlacesSeed {
         QuizQuestion(
           question: 'quiz_san_rocco_q1',
           options: ['quiz_san_rocco_q1_o1', 'quiz_san_rocco_q1_o2', 'quiz_san_rocco_q1_o3'],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_san_rocco_q2',
@@ -134,7 +134,7 @@ class HistoricPlacesSeed {
             'quiz_san_rocco_q2_o2',
             'quiz_san_rocco_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -160,7 +160,7 @@ class HistoricPlacesSeed {
             'quiz_abbazia_monte_q1_o2',
             'quiz_abbazia_monte_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_abbazia_monte_q2',
@@ -169,7 +169,7 @@ class HistoricPlacesSeed {
             'quiz_abbazia_monte_q2_o2',
             'quiz_abbazia_monte_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 2,
         ),
       ],
     ),
@@ -191,7 +191,7 @@ class HistoricPlacesSeed {
         QuizQuestion(
           question: 'quiz_osservanza_q1',
           options: ['quiz_osservanza_q1_o1', 'quiz_osservanza_q1_o2', 'quiz_osservanza_q1_o3'],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_osservanza_q2',
@@ -200,7 +200,7 @@ class HistoricPlacesSeed {
             'quiz_osservanza_q2_o2',
             'quiz_osservanza_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -226,7 +226,7 @@ class HistoricPlacesSeed {
             'quiz_palazzo_ridotto_q1_o2',
             'quiz_palazzo_ridotto_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_palazzo_ridotto_q2',
@@ -235,7 +235,7 @@ class HistoricPlacesSeed {
             'quiz_palazzo_ridotto_q2_o2',
             'quiz_palazzo_ridotto_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -262,7 +262,7 @@ class HistoricPlacesSeed {
             'quiz_stazione_q1_o2',
             'quiz_stazione_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question:
@@ -272,7 +272,7 @@ class HistoricPlacesSeed {
             'quiz_stazione_q2_o2',
             'quiz_stazione_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -298,7 +298,7 @@ class HistoricPlacesSeed {
             'quiz_arrigoni_q1_o2',
             'quiz_arrigoni_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_arrigoni_q2',
@@ -307,7 +307,7 @@ class HistoricPlacesSeed {
             'quiz_arrigoni_q2_o2',
             'quiz_arrigoni_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -334,7 +334,7 @@ class HistoricPlacesSeed {
             'quiz_fantaguzzi_q1_o2',
             'quiz_fantaguzzi_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_fantaguzzi_q2',
@@ -369,12 +369,12 @@ class HistoricPlacesSeed {
             'quiz_rifugi_antiaerei_q1_o2',
             'quiz_rifugi_antiaerei_q1_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_rifugi_antiaerei_q2',
           options: ['quiz_rifugi_antiaerei_q2_o1', 'quiz_rifugi_antiaerei_q2_o2', 'quiz_rifugi_antiaerei_q2_o3'],
-          correctIndex: 1,
+          correctIndex: 2,
         ),
       ],
     ),

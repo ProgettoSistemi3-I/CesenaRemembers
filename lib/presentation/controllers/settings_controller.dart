@@ -164,6 +164,9 @@ class SettingsController extends ChangeNotifier {
     final uid = _currentUid;
 
     try {
+      // Riautentica prima di qualsiasi cancellazione irreversibile: Firebase
+      // può richiedere credenziali recenti per eliminare l'account Auth.
+      await _deleteCurrentUserUseCase.reauthenticate();
       await PushNotificationService.unregisterCurrentUser();
       await _profileUseCases.deleteUserData(uid: uid);
     } catch (e) {
@@ -180,7 +183,7 @@ class SettingsController extends ChangeNotifier {
       await _deleteCurrentUserUseCase();
       return true; // il flag resta true: lo resetta AuthGate quando arriva il login
     } catch (e) {
-      AppLogger.error('Delete account failed at Auth deletion after Firestore cleanup',
+      AppLogger.error('Delete account failed during re-authentication or Firestore cleanup',
           error: e, name: 'SettingsController');
       errorMessage = 'errorDeleteAccountAuth';
       try { await _signOutUseCase(); } catch (_) {}

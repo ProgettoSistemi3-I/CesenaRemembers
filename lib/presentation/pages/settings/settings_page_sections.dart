@@ -294,7 +294,7 @@ class _SwitchRow extends StatelessWidget {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: AppPalette.olive,
             inactiveTrackColor: theme.colorScheme.surfaceContainerHighest,
             inactiveThumbColor: theme.colorScheme.outline,

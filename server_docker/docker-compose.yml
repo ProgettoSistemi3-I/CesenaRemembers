@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. MICROSERVIZIO QUIZ (Python)
   quiz-server:
@@ -12,6 +10,10 @@ services:
       - ./quiz-service/.env # Chiave provider LLM, esclusa dal repository
     environment:
       QUIZ_RATE_LIMIT_PER_MINUTE: "30"
+      QUIZ_RATE_LIMIT_MAX_CLIENTS: "10000"
+      # Impostare l'IP effettivo del proxy/tunnel che raggiunge il container.
+      # Non usare '*' su una porta direttamente esposta a Internet.
+      FORWARDED_ALLOW_IPS: "${FORWARDED_ALLOW_IPS:-127.0.0.1}"
     restart: unless-stopped
 
   # 2. MICROSERVIZIO NOTIFICHE (Node.js)

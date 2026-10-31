@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 
@@ -61,11 +62,30 @@ class QuizRepositoryImpl implements IQuizRepository {
         throw StateError('HTTP ${response.statusCode}');
       }
 
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> questionsJson = data['questions'] ?? [];
-      final questions = questionsJson
-          .map((q) => QuizQuestion.fromJson(q))
-          .toList();
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['questions'] is! List) {
+        throw const FormatException('Risposta quiz non valida: questions assente.');
+      }
+      final List<dynamic> questionsJson = decoded['questions'] as List<dynamic>;
+      if (questionsJson.length != 3) {
+        throw FormatException('Attese 3 domande, ricevute ${questionsJson.length}.');
+      }
+      final questions = questionsJson.map((rawQuestion) {
+        if (rawQuestion is! Map<String, dynamic>) {
+          throw const FormatException('Domanda quiz non valida.');
+        }
+        final question = QuizQuestion.fromJson(rawQuestion);
+        final options = question.options;
+        if (question.question.trim().isEmpty ||
+            options.length < 3 || options.length > 4 ||
+            options.any((option) => option.trim().isEmpty) ||
+            options.toSet().length != options.length ||
+            question.correctIndex < 0 ||
+            question.correctIndex >= options.length) {
+          throw const FormatException('Domanda quiz incompleta o non valida.');
+        }
+        return question;
+      }).toList(growable: false);
 
       final result = QuizLoadResult(
         questions: questions,
@@ -81,15 +101,30 @@ class QuizRepositoryImpl implements IQuizRepository {
         name: 'QuizRepository',
       );
 
-      final fallbackResult = QuizLoadResult(
-        questions: _fallbackQuestions(poiId),
+      // Il fallback non viene memorizzato: ogni apertura rimescola le risposte.
+      return QuizLoadResult(
+        questions: _shuffleFallbackQuestions(_fallbackQuestions(poiId)),
         usesPersonalizedQuestions: false,
         fallbackNotice: 'quiz_fallback_desc',
         fallbackDifficultyLabel: _fallbackDifficultyLabel,
       );
-      _memoryCache[cacheKey] = fallbackResult;
-      return fallbackResult;
     }
+  }
+
+  List<QuizQuestion> _shuffleFallbackQuestions(List<QuizQuestion> questions) {
+    final random = Random();
+    return questions.map((question) {
+      final indexedOptions = question.options.asMap().entries.toList()
+        ..shuffle(random);
+      final shuffledCorrectIndex = indexedOptions.indexWhere(
+        (entry) => entry.key == question.correctIndex,
+      );
+      return QuizQuestion(
+        question: question.question,
+        options: indexedOptions.map((entry) => entry.value).toList(growable: false),
+        correctIndex: shuffledCorrectIndex,
+      );
+    }).toList(growable: false);
   }
 
   List<QuizQuestion> _fallbackQuestions(String poiId) {

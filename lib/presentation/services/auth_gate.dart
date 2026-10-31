@@ -19,8 +19,20 @@ import 'push_notification_service.dart';
 import 'shell_navigation_store.dart';
 import '../widgets/glass_snackbar.dart';
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _bannedAccountWasDetected = false;
+  String? _lastAuthenticatedUid;
+
+  void _onBannedAccountDetected() {
+    if (mounted) setState(() => _bannedAccountWasDetected = true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,18 +49,30 @@ class AuthGate extends StatelessWidget {
         final appUser = snapshot.data;
         if (appUser == null) {
           ShellNavigationStore.deletingAccount.value = false;
-          return const LoginPage();
+          final showBannedMessage = _bannedAccountWasDetected;
+          return LoginPage(showBannedAccount: showBannedMessage);
         }
-        return _AuthenticatedGate(appUser: appUser);
+        if (_lastAuthenticatedUid != appUser.id) {
+          _lastAuthenticatedUid = appUser.id;
+          _bannedAccountWasDetected = false;
+        }
+        return _AuthenticatedGate(
+          appUser: appUser,
+          onBannedAccount: _onBannedAccountDetected,
+        );
       },
     );
   }
 }
 
 class _AuthenticatedGate extends StatefulWidget {
-  const _AuthenticatedGate({required this.appUser});
+  const _AuthenticatedGate({
+    required this.appUser,
+    required this.onBannedAccount,
+  });
 
   final AppUser appUser;
+  final VoidCallback onBannedAccount;
 
   @override
   State<_AuthenticatedGate> createState() => _AuthenticatedGateState();
@@ -65,7 +89,6 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
   Timer? _profileTimeout;
   bool _profileTimedOut = false;
   bool _notificationsStarted = false;
-  int _previousReceivedRequestsCount = -1;
   int _previousPendingAchievementsCount = -1;
 
   @override
@@ -109,6 +132,7 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       );
     }
     if (isBanned) {
+      widget.onBannedAccount();
       await _authRepository.signOut();
       throw const _BannedFromFirestoreException();
     }
@@ -156,22 +180,6 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
         .listen(
           (profile) {
             if (profile == null || !mounted) return;
-
-            final currentRequests = profile.receivedFriendRequests.length;
-            if (profile.notificheEnabled &&
-                _previousReceivedRequestsCount != -1 &&
-                currentRequests > _previousReceivedRequestsCount) {
-              unawaited(
-                notificationService.showFriendRequestNotification(
-                  currentRequests - _previousReceivedRequestsCount,
-                  title: AppLocalizations.of(
-                    context,
-                  )!.notificationFriendRequest,
-                  languageCode: Localizations.localeOf(context).languageCode,
-                ),
-              );
-            }
-            _previousReceivedRequestsCount = currentRequests;
 
             final currentPending = profile.pendingAchievements.length;
             if (_previousPendingAchievementsCount != -1 &&

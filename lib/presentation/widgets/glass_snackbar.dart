@@ -92,23 +92,23 @@ class _GlassSnackContent extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
           decoration: BoxDecoration(
             color: isDark
-                ? Colors.black.withOpacity(0.58)
-                : Colors.white.withOpacity(0.65),
+                ? Colors.black.withValues(alpha: 0.58)
+                : Colors.white.withValues(alpha: 0.65),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withOpacity(0.13)
-                  : Colors.white.withOpacity(0.9),
+                  ? Colors.white.withValues(alpha: 0.13)
+                  : Colors.white.withValues(alpha: 0.9),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: accentColor.withOpacity(0.22),
+                color: accentColor.withValues(alpha: 0.22),
                 blurRadius: 18,
                 offset: const Offset(0, 5),
               ),
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.35 : 0.06),
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.06),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -120,10 +120,10 @@ class _GlassSnackContent extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(isDark ? 0.22 : 0.1),
+                  color: accentColor.withValues(alpha: isDark ? 0.22 : 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: accentColor.withOpacity(isDark ? 0.5 : 0.28),
+                    color: accentColor.withValues(alpha: isDark ? 0.5 : 0.28),
                     width: 1,
                   ),
                 ),
@@ -138,7 +138,7 @@ class _GlassSnackContent extends StatelessWidget {
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: isDark
-                        ? Colors.white.withOpacity(0.95)
+                        ? Colors.white.withValues(alpha: 0.95)
                         : const Color(0xFF1A1A1A),
                     letterSpacing: 0.1,
                     height: 1.3,

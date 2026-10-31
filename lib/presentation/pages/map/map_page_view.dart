@@ -41,6 +41,7 @@ extension _MapPageView on _MapPageState {
                 setState(() => _alignPositionOnUpdate = AlignOnUpdate.never),
             canUseLocation: data.canUseLocation,
             currentMapUrl: currentMapUrl,
+            standardMapUrl: data.standardMapUrl,
             selectedMapStyle: _selectedMapStyle,
             cachedTileProvider: _cachedTileProvider,
             markers: _markers,
@@ -264,6 +265,7 @@ class _MapCanvas extends StatefulWidget {
     required this.onDisableFollowUser,
     required this.canUseLocation,
     required this.currentMapUrl,
+    required this.standardMapUrl,
     required this.selectedMapStyle,
     required this.cachedTileProvider,
     required this.markers,
@@ -283,6 +285,7 @@ class _MapCanvas extends StatefulWidget {
   final VoidCallback onDisableFollowUser;
   final bool canUseLocation;
   final String currentMapUrl;
+  final String standardMapUrl;
   final MapStyle selectedMapStyle;
   final CachedTileProvider? cachedTileProvider;
   final List<Marker> markers;
@@ -376,6 +379,24 @@ class _MapCanvasState extends State<_MapCanvas> {
             positionStream: _positionStream,
           ),
         MarkerLayer(markers: widget.markers),
+        RichAttributionWidget(
+          alignment: AttributionAlignment.bottomRight,
+          attributions: widget.selectedMapStyle == MapStyle.satellite
+              ? const [
+                  TextSourceAttribution(
+                    'Tiles © Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+                  ),
+                ]
+              : [
+                  const TextSourceAttribution('© OpenStreetMap contributors'),
+                  if (widget.standardMapUrl.contains('cartocdn.com'))
+                    const TextSourceAttribution('© CARTO'),
+                  if (widget.standardMapUrl.contains('stadia')) ...[
+                    const TextSourceAttribution('© Stadia Maps'),
+                    const TextSourceAttribution('© Stamen Design'),
+                  ],
+                ],
+        ),
       ],
     );
   }

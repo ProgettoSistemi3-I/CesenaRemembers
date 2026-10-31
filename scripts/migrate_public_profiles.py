@@ -100,8 +100,8 @@ def build_private_profile(data: dict[str, Any]) -> dict[str, Any] | None:
         "bestTourTimeSeconds": as_int(data.get("bestTourTimeSeconds")),
         "maxSingleTourXp": max_tour_xp,
         "friends": string_list(data.get("friends"), 500),
-        "sentFriendRequests": string_list(data.get("sentFriendRequests"), 500),
-        "receivedFriendRequests": string_list(data.get("receivedFriendRequests"), 500),
+        "sentFriendRequests": string_list(data.get("sentFriendRequests"), 100),
+        "receivedFriendRequests": string_list(data.get("receivedFriendRequests"), 100),
         "fcmTokens": string_list(data.get("fcmTokens"), 20),
         "preferences": prefs,
         "createdAt": created_at if valid_timestamp(created_at) else firestore.SERVER_TIMESTAMP,
@@ -117,12 +117,22 @@ def build_private_profile(data: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def build_public_profile(private: dict[str, Any]) -> dict[str, Any]:
+    """Only fields needed to discover and identify an account are public."""
     return {
         key: private[key]
         for key in (
             "displayName", "displayNameNormalized", "username", "usernameNormalized",
-            "avatarId", "profileCompleted", "onboardingCompleted", "xp",
-            "leaderboardScore", "visitedPoiIds", "unlockedAchievements", "maxQuizScore",
+            "avatarId", "profileCompleted", "onboardingCompleted",
+        )
+    }
+
+
+def build_friend_stats(private: dict[str, Any]) -> dict[str, Any]:
+    """Progress and the friend list are readable only by the owner and friends."""
+    return {
+        key: private[key]
+        for key in (
+            "xp", "visitedPoiIds", "unlockedAchievements", "maxQuizScore",
             "totalQuizCompleted", "totalToursCompleted", "totalCorrectAnswers",
             "bestTourTimeSeconds", "maxSingleTourXp", "friends",
         )
@@ -155,13 +165,18 @@ def main() -> int:
     db = firestore.client()
 
     source_users = list(db.collection("users").stream())
-    migrated: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
+    banned_uids = {doc.id for doc in db.collection("banned_users").stream()}
+    migrated: dict[str, tuple[dict[str, Any], dict[str, Any], dict[str, Any]]] = {}
     incomplete: dict[str, dict[str, Any]] = {}
     skipped: list[str] = []
     username_owners: dict[str, str] = {}
     duplicate_usernames: list[tuple[str, str, str]] = []
 
     for doc in source_users:
+        # Gli account bannati non devono conservare proiezioni pubbliche o statistiche
+        # visibili agli amici. I loro documenti privati/Auth restano intatti per audit.
+        if doc.id in banned_uids:
+            continue
         data = doc.to_dict() or {}
         if data.get("profileCompleted") is not True:
             incomplete[doc.id] = minimal_incomplete_profile(data)
@@ -178,7 +193,7 @@ def main() -> int:
             migrated.pop(other, None)
             continue
         username_owners[uname] = doc.id
-        migrated[doc.id] = (private, build_public_profile(private))
+        migrated[doc.id] = (private, build_public_profile(private), build_friend_stats(private))
 
     # Do not write any data until every completed profile has a valid username/name
     # and all profile usernames are unique; otherwise an operator must fix it first.
@@ -198,7 +213,7 @@ def main() -> int:
     raw_sent = {uid: set(profile[0]["sentFriendRequests"]) for uid, profile in migrated.items()}
     raw_received = {uid: set(profile[0]["receivedFriendRequests"]) for uid, profile in migrated.items()}
     valid_friends: dict[str, list[str]] = {}
-    for uid, (private, _) in migrated.items():
+    for uid, (private, _, _) in migrated.items():
         valid_friends[uid] = [
             peer for peer in private["friends"]
             if peer != uid and peer in migrated and uid in raw_friends.get(peer, set())
@@ -218,14 +233,15 @@ def main() -> int:
     crossed = {(a, b) for a, b in valid_requests if (b, a) in valid_requests}
     valid_requests -= crossed
 
-    for uid, (private, _) in migrated.items():
+    for uid, (private, _, _) in migrated.items():
         private["friends"] = valid_friends[uid]
         private["sentFriendRequests"] = [peer for peer in private["sentFriendRequests"] if (uid, peer) in valid_requests]
         private["receivedFriendRequests"] = [peer for peer in private["receivedFriendRequests"] if (peer, uid) in valid_requests]
-        migrated[uid] = (private, build_public_profile(private))
+        migrated[uid] = (private, build_public_profile(private), build_friend_stats(private))
 
     existing_public = list(db.collection("public_profiles").stream())
     existing_usernames = list(db.collection("usernames").stream())
+    existing_friend_stats = list(db.collection("friend_stats").stream())
     existing_inbox_docs = []
     for doc in db.collection_group("inbox").stream():
         parts = doc.reference.path.split("/")
@@ -233,9 +249,10 @@ def main() -> int:
             existing_inbox_docs.append(doc)
 
     operations: list[tuple[str, Any, Any]] = []
-    for uid, (private, public) in migrated.items():
+    for uid, (private, public, stats) in migrated.items():
         operations.append(("set", db.collection("users").document(uid), private))
         operations.append(("set", db.collection("public_profiles").document(uid), public))
+        operations.append(("set", db.collection("friend_stats").document(uid), stats))
     for uid, minimal in incomplete.items():
         operations.append(("set", db.collection("users").document(uid), minimal))
 
@@ -243,10 +260,13 @@ def main() -> int:
     for doc in existing_public:
         if doc.id not in all_valid_uids:
             operations.append(("delete", doc.reference, None))
+    for doc in existing_friend_stats:
+        if doc.id not in all_valid_uids:
+            operations.append(("delete", doc.reference, None))
 
     # Reconcile immutable username-index docs to the profiles that actually own them.
     target_usernames: dict[str, tuple[str, Any]] = {}
-    for uid, (private, _) in migrated.items():
+    for uid, (private, _, _) in migrated.items():
         username_id = private["usernameNormalized"]
         target_usernames[username_id] = (uid, None)
     existing_username_data = {doc.id: doc.to_dict() or {} for doc in existing_usernames}
@@ -279,7 +299,8 @@ def main() -> int:
             "senderUid": sender, "recipientUid": recipient, "createdAt": created_at,
         }))
 
-    print(f"Utenti letti: {len(source_users)}; profili completati: {len(migrated)}; profili incompleti ripuliti: {len(incomplete)}")
+    print(f"Utenti letti: {len(source_users)}; account bannati esclusi dalle proiezioni: {len(banned_uids)}; profili completati: {len(migrated)}; profili incompleti ripuliti: {len(incomplete)}")
+    print(f"Documenti friend_stats da sincronizzare: {len(migrated)}")
     print(f"Amicizie reciproche mantenute: {sum(len(p[0]['friends']) for p in migrated.values()) // 2}; richieste valide: {len(valid_requests)}")
     print(f"Operazioni previste: {len(operations)}; modalità: {'APPLY' if args.apply else 'DRY-RUN (nessuna scrittura)'}")
 
@@ -292,7 +313,7 @@ def main() -> int:
                 else:
                     batch.delete(ref)
             batch.commit()
-        print("Migrazione completata. Ora distribuisci firestore.rules.")
+        print("Migrazione completata: public_profiles ora contiene solo dati identificativi e friend_stats contiene i dati riservati. Ora distribuisci firestore.rules.")
     else:
         print("Nessuna scrittura eseguita. Fai un backup e ripeti con --apply per applicare la migrazione.")
     return 0

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
 import 'shell_navigation_store.dart';
+import 'notification_service.dart';
 
 class PushNotificationService {
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -15,6 +16,7 @@ class PushNotificationService {
   static String? _registeredToken;
   static StreamSubscription<String>? _tokenRefreshSubscription;
   static StreamSubscription<RemoteMessage>? _openedSubscription;
+  static StreamSubscription<RemoteMessage>? _foregroundSubscription;
 
   static Future<void> initializeAndSaveToken() async {
     final profiles = sl<UserProfileUseCases>();
@@ -103,12 +105,30 @@ class PushNotificationService {
   }
 
   static void _setupNotificationListeners() {
+    // In foreground FCM non mostra automaticamente la notifica di sistema:
+    // la mostriamo qui. In background se ne occupa FCM, evitando il doppio invio
+    // che si verificava ascoltando anche gli aggiornamenti Firestore in AuthGate.
+    _foregroundSubscription ??= FirebaseMessaging.onMessage.listen((message) {
+      final notification = message.notification;
+      if (notification == null) return;
+      unawaited(_showForegroundNotification(
+        notification.title ?? 'Cesena Remembers',
+        notification.body ?? '',
+      ));
+    });
     _openedSubscription ??= FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNotificationClick(message.data);
     });
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) _handleNotificationClick(message.data);
     });
+  }
+
+
+  static Future<void> _showForegroundNotification(String title, String body) async {
+    final service = NotificationService();
+    await service.init();
+    await service.showLocalNotification(title, body);
   }
 
   static void _handleNotificationClick(Map<String, dynamic> data) {

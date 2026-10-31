@@ -24,7 +24,9 @@ const _tanLight = Color(0xFFE8D4BE);
 const _textDark = Color(0xFF2C2C2C);
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.showBannedAccount = false});
+
+  final bool showBannedAccount;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -61,7 +63,16 @@ class _LoginPageState extends State<LoginPage>
           CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
         );
 
+    _isBanned = widget.showBannedAccount;
     _animController.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant LoginPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.showBannedAccount && !oldWidget.showBannedAccount && !_isBanned) {
+      setState(() => _isBanned = true);
+    }
   }
 
   @override

@@ -5,8 +5,8 @@ class UserProgressUseCases {
 
   final IUserRepository _repository;
 
-  Stream<List<Map<String, dynamic>>> getLeaderboardStream({int limit = 50}) =>
-      _repository.getLeaderboardStream(limit: limit);
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50}) =>
+      _repository.getLeaderboardStream(uid: uid, limit: limit);
 
   Future<void> registerQuizCompletion({
     required String uid,

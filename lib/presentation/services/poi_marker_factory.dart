@@ -161,7 +161,7 @@ class _PoiLabel extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: accentColor.withOpacity(0.28)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
