@@ -48,6 +48,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get creditRoleDev => 'Sviluppo & Architettura';
 
   @override
+  String get creditRoleGraphicsMarketing => 'Grafica e Marketing';
+
+  @override
   String get creditRoleTeacher => 'Docente Referente';
 
   @override
@@ -429,10 +432,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get socialSearchHint => 'Cerca utente...';
 
   @override
-  String get socialLeaderboardEmpty => 'Nessun utente in classifica al momento.';
+  String get socialLeaderboardEmpty => 'Aggiungi amici per vedere la classifica tra voi.';
 
   @override
-  String get socialLeaderboard => 'Classifica Globale';
+  String get socialLeaderboard => 'Classifica amici';
 
   @override
   String get socialNoUserFound => 'Nessun utente trovato.';
@@ -713,61 +716,61 @@ class AppLocalizationsIt extends AppLocalizations {
   String get poi_santa_cristina_name => 'Chiesa di Santa Cristina';
 
   @override
-  String get poi_santa_cristina_desc => 'Chiesa storica con cupola emisferica e campanile, inserita nel tessuto urbano residenziale di Cesena. Rappresenta l\'equilibrio tra architettura religiosa e sviluppo cittadino. Durante la Seconda Guerra Mondiale fu un probabile punto di riferimento visivo durante i bombardamenti, utile per l\'orientamento della popolazione. L\'area circostante venne parzialmente colpita o modificata nel dopoguerra, con spazi urbani ridefiniti.';
+  String get poi_santa_cristina_desc => 'La chiesa di Santa Cristina fu voluta da papa Pio VII Chiaramonti e progettata dall’architetto Giuseppe Valadier. I lavori iniziarono nel 1816 e si conclusero nel 1825; l’edificio è in stile neoclassico. Durante la Seconda guerra mondiale la cripta fu rafforzata e resa agibile come rifugio antiaereo, con una capienza fino a 200 persone.';
 
   @override
   String get poi_rocca_name => 'Rocca Malatestiana';
 
   @override
-  String get poi_rocca_desc => 'Fortezza medievale dominante sulla città, con mura merlate e torrioni; elemento difensivo e simbolico centrale di Cesena. Costruita dai Malatesta nel 1380, ospita la Biblioteca Malatestiana, patrimonio UNESCO dal 2005. Durante la Seconda Guerra Mondiale fu riutilizzata come rifugio naturale grazie alla sua struttura massiccia: il colle ospitò gallerie e rifugi antiaerei per la protezione della popolazione civile durante i bombardamenti.';
+  String get poi_rocca_desc => 'La costruzione della Rocca Nuova, detta Rocca Malatestiana, fu avviata nel 1380 per iniziativa di Galeotto Malatesta e proseguita da Malatesta Novello; fu conclusa nei tardi anni Settanta del Quattrocento. Nel 1502 Cesare Borgia fece venire a Cesena Leonardo da Vinci per rilevare le difese delle città conquistate. Dopo la perdita della funzione militare, la Rocca fu trasformata in carcere e rimase tale fino al 1969. I rifugi antiaerei pubblici del 1944 si trovavano alle pendici del colle, lungo viale Mazzoni, non all’interno della fortezza.';
 
   @override
   String get poi_san_rocco_name => 'Chiesa di San Rocco';
 
   @override
-  String get poi_san_rocco_desc => 'Chiesa situata in un quartiere popolare di Cesena, con edifici semplici e strade storicamente sterrate. Dedicata a San Rocco, patrono degli appestati, è da secoli un punto di riferimento spirituale per le classi lavoratrici. Durante la Seconda Guerra Mondiale il quartiere, abitato da famiglie operaie, fu direttamente esposto alle difficoltà dei bombardamenti e la chiesa rappresentò un possibile luogo di raccolta e transito verso i rifugi durante gli allarmi aerei.';
+  String get poi_san_rocco_desc => 'La parrocchia di San Rocco a Cesena risale al 1615. Nell’estate del 1944 la chiesa mise a disposizione i propri locali per dare riparo a chi fuggiva dai bombardamenti; un rifugio fu ricavato nel campanile. I bombardamenti del 1944 distrussero la chiesa insieme al borgo: oggi rimane soltanto il campanile ottocentesco.';
 
   @override
   String get poi_abbazia_monte_name => 'Abbazia di Santa Maria del Monte';
 
   @override
-  String get poi_abbazia_monte_desc => 'Complesso monastico su un colle dominante la città, circondato da campagna coltivata; forte simbolo religioso e territoriale di Cesena da oltre mille anni. La sua posizione elevata la rese strategicamente significativa durante la Seconda Guerra Mondiale: fu usata come punto di osservazione o riferimento visivo per le operazioni militari. L\'area collinare offrì rifugio e isolamento rispetto ai bombardamenti del centro urbano.';
+  String get poi_abbazia_monte_desc => 'L’abbazia benedettina di Santa Maria del Monte sorse agli inizi dell’XI secolo sul colle detto «il Monte», a sud-est di Cesena. Durante la Seconda guerra mondiale ospitò circa settecento sfollati, rifugiati negli scantinati e nella galleria. Tra il 16 e il 19 ottobre 1944 fu colpita ripetutamente e direttamente dai bombardamenti: la chiesa fu sventrata e una parte del monastero crollò. Non si registrarono vittime tra gli sfollati ospitati nell’abbazia.';
 
   @override
   String get poi_osservanza_name => 'Chiesa e Convento dell\'Osservanza';
 
   @override
-  String get poi_osservanza_desc => 'Complesso religioso francescano immerso nella campagna cesenate, storicamente separato dal centro urbano. La chiesa conserva pregevoli opere d\'arte del Quattrocento e Cinquecento. Durante la Seconda Guerra Mondiale l\'isolamento rispetto alla città lo rendeva meno esposto agli attacchi diretti, diventando un possibile luogo di rifugio e assistenza spirituale per sfollati e popolazione rurale in fuga dai bombardamenti.';
+  String get poi_osservanza_desc => 'La chiesa dell’Osservanza fu costruita tra il 1459 e il 1464 per volere di Malatesta Novello ed è legata ai frati Minori Osservanti. Durante la Seconda guerra mondiale vi furono ricavati due ricoveri antiaerei, nelle catacombe e presso il campanile, con una capienza complessiva di circa 200 persone. La chiesa fu colpita dai bombardamenti alleati del 16 e 19 ottobre 1944; durante quei bombardamenti morì padre Bosoni.';
 
   @override
   String get poi_palazzo_ridotto_name => 'Palazzo del Ridotto';
 
   @override
-  String get poi_palazzo_ridotto_desc => 'Edificio storico con torre civica, simbolo del centro cittadino e della vita pubblica di Cesena. Affaccia sulla Piazza del Popolo, cuore della città fin dal Medioevo, dominata anche dalla fontana del Masini. Durante la Seconda Guerra Mondiale ospitava una sirena antiaerea fondamentale per segnalare l\'arrivo dei bombardamenti, costituendo un nodo vitale nel sistema di allarme e coordinamento della popolazione civile.';
+  String get poi_palazzo_ridotto_desc => 'Il Palazzo del Ridotto si trova in piazza Almerici e fu edificato tra il 1466 e il 1472 come sede dell’autorità comunale dei Conservatori. Durante la Seconda guerra mondiale sulla sua torre fu installata una sirena di allarme, parte di un sistema esteso a tutta la città e affiancato da campane di chiese in caso di mancanza di corrente. Dopo l’attentato del 18 gennaio 1944 alla sede del fascio in corso Umberto I, gli uffici del Partito Fascista Repubblicano furono trasferiti nel palazzo, usato anche come luogo di detenzione e tortura.';
 
   @override
   String get poi_stazione_name => 'Stazione Ferroviaria di Cesena';
 
   @override
-  String get poi_stazione_desc => 'Importante nodo ferroviario per il trasporto merci e passeggeri tra l\'Ottocento e il Novecento, sulla linea adriatica Bologna–Rimini. Durante la Seconda Guerra Mondiale fu uno degli obiettivi strategici primari dei bombardamenti alleati, poiché interromperne i rifornimenti era essenziale per bloccare l\'avanzata tedesca. Subì gravi distruzioni, diventando uno dei punti più colpiti della città.';
+  String get poi_stazione_desc => 'La prima stazione ferroviaria di Cesena fu attivata nel 1861. Nel 1919 fu approvato il progetto di un fabbricato più ampio e la prima pietra della nuova stazione fu posata nel 1925. Accanto si trovava la fabbrica alimentare Arrigoni e, sul lato opposto, la raffineria Montecatini. Per la vicinanza tra questi impianti, la zona fu bersaglio dei bombardamenti alleati dopo l’occupazione tedesca. Il 29 giugno 1944 un bombardamento colpì lo scalo, distrusse carichi di munizioni e incendiò la raffineria; seguirono altri raid tra luglio e settembre.';
 
   @override
   String get poi_arrigoni_name => 'Stabilimento Arrigoni';
 
   @override
-  String get poi_arrigoni_desc => 'Grande industria conserviera fondata nel 1880, cuore dell\'economia locale e del lavoro operaio cesenate per oltre un secolo. Specializzata in conserve ittiche, fu tra le più importanti aziende della Romagna. Durante la Seconda Guerra Mondiale la struttura produttiva era strategicamente rilevante per la logistica alimentare, e fu teatro di scioperi e forti tensioni sociali, soprattutto nel biennio 1943–1944.';
+  String get poi_arrigoni_desc => 'Lo stabilimento Arrigoni di Cesena sorgeva accanto alla stazione ferroviaria e divenne lo stabilimento di punta del gruppo per confetture, pomodori pelati e minestroni essiccati. Diede lavoro nel tempo a migliaia di cesenati e divenne una fucina dell’antifascismo locale. L’operaio Werther Ricchi vi lavorava già prima del 25 luglio 1943 e, dopo l’8 settembre, fece arrivare marmellata e altri prodotti ai partigiani dell’8ª brigata Garibaldi. Fu arrestato il 23 marzo 1944 e torturato.';
 
   @override
   String get poi_fantaguzzi_name => 'Palazzo Fantaguzzi';
 
   @override
-  String get poi_fantaguzzi_desc => 'Palazzo storico nel cuore di Cesena, sede del Partito Nazionale Fascista locale durante il regime mussoliniano. Rappresenta uno dei simboli del ventennio fascista in città. Durante la Seconda Guerra Mondiale fu il centro del potere politico e amministrativo fascista a livello cittadino, probabile luogo di repressione, controllo della popolazione e organizzazione delle attività belliche sul territorio.';
+  String get poi_fantaguzzi_desc => 'Palazzo Fantaguzzi si trova in corso Gastone Sozzi, già corso Umberto I, ed è sede della Banca Popolare di Cesena dal 1922. Nei primi mesi della Repubblica Sociale Italiana una parte dell’edificio ospitò anche gli uffici del fascio cittadino. Il 18 gennaio 1944 un commando del GAP fece esplodere una bomba nell’ingresso della sede del fascio: non ci furono vittime, ma l’edificio subì gravi danni. Poche settimane dopo la sede del fascio fu trasferita nel Palazzo del Ridotto.';
 
   @override
   String get poi_rifugi_antiaerei_name => 'Rifugi Antiaerei della Rocca';
 
   @override
-  String get poi_rifugi_antiaerei_desc => 'Sistema di tunnel sotterranei scavati sotto e intorno alla Rocca Malatestiana per proteggere la popolazione civile dai bombardamenti aerei. Durante la Seconda Guerra Mondiale furono fondamentali per la sopravvivenza di centinaia di cesenati: i rifugi accolsero famiglie intere, diventando veri e propri spazi di vita temporanea sotterranea durante gli attacchi alleati tra il 1943 e il 1944.';
+  String get poi_rifugi_antiaerei_desc => 'Nel gennaio 1944 fu deciso di scavare una galleria nel colle della Rocca per creare un rifugio antiaereo pubblico. La galleria fu costruita ex novo nel 1944 dall’ingegnere capo del Comune, Mario Tellerini, e poteva accogliere 800 persone, di cui 290 sedute. Aveva due ingressi su viale Mazzoni protetti da un muro paraschegge; il camino di aerazione poteva servire anche da uscita di sicurezza.';
 
   @override
   String setupUsernameInvalid(int min, int max) {
@@ -828,256 +831,256 @@ class AppLocalizationsIt extends AppLocalizations {
   String get quiz_fallback_desc => 'Per un errore del server le domande non sono personalizzate e usano una difficoltà locale specifica.';
 
   @override
-  String get quiz_santa_cristina_q1 => 'Quale elemento architettonico caratterizza la chiesa?';
+  String get quiz_santa_cristina_q1 => 'Chi progettò la chiesa di Santa Cristina?';
 
   @override
-  String get quiz_santa_cristina_q1_o1 => 'Un campanile gotico';
+  String get quiz_santa_cristina_q1_o1 => 'L’architetto Giuseppe Valadier';
 
   @override
-  String get quiz_santa_cristina_q1_o2 => 'Una cupola emisferica';
+  String get quiz_santa_cristina_q1_o2 => 'Francesco Morandi detto il Terribilia';
 
   @override
-  String get quiz_santa_cristina_q1_o3 => 'Un rosone rinascimentale';
+  String get quiz_santa_cristina_q1_o3 => 'Leandro Marconi';
 
   @override
-  String get quiz_santa_cristina_q2 => 'Quale ruolo ebbe la chiesa durante la Seconda Guerra Mondiale?';
+  String get quiz_santa_cristina_q2 => 'Quante persone poteva ospitare la cripta-rifugio?';
 
   @override
-  String get quiz_santa_cristina_q2_o1 => 'Fu usata come ospedale da campo';
+  String get quiz_santa_cristina_q2_o1 => 'Fino a 200 persone';
 
   @override
-  String get quiz_santa_cristina_q2_o2 => 'Fu un riferimento visivo per orientarsi durante i bombardamenti';
+  String get quiz_santa_cristina_q2_o2 => 'Circa 700 persone';
 
   @override
-  String get quiz_santa_cristina_q2_o3 => 'Fu sede del comando militare tedesco';
+  String get quiz_santa_cristina_q2_o3 => 'Fino a 800 persone';
 
   @override
-  String get quiz_rocca_q1 => 'Chi ha fatto costruire la Rocca?';
+  String get quiz_rocca_q1 => 'In quale anno iniziò la costruzione della Rocca Nuova?';
 
   @override
-  String get quiz_rocca_q1_o1 => 'I Visconti';
+  String get quiz_rocca_q1_o1 => '1380';
 
   @override
-  String get quiz_rocca_q1_o2 => 'I Malatesta';
+  String get quiz_rocca_q1_o2 => '1464';
 
   @override
-  String get quiz_rocca_q1_o3 => 'Federico da Montefeltro';
+  String get quiz_rocca_q1_o3 => '1502';
 
   @override
-  String get quiz_rocca_q2 => 'In quale anno la Biblioteca Malatestiana è diventata patrimonio UNESCO?';
+  String get quiz_rocca_q2 => 'Chi fece venire Leonardo da Vinci a Cesena nel 1502?';
 
   @override
-  String get quiz_rocca_q2_o1 => '1995';
+  String get quiz_rocca_q2_o1 => 'Malatesta Novello';
 
   @override
-  String get quiz_rocca_q2_o2 => '2005';
+  String get quiz_rocca_q2_o2 => 'Cesare Borgia';
 
   @override
-  String get quiz_rocca_q2_o3 => '2015';
+  String get quiz_rocca_q2_o3 => 'Federico Barbarossa';
 
   @override
-  String get quiz_rocca_q3 => 'Come fu usata la Rocca durante la Seconda Guerra Mondiale?';
+  String get quiz_rocca_q3 => 'Fino a quale anno la Rocca fu utilizzata come carcere?';
 
   @override
-  String get quiz_rocca_q3_o1 => 'Come prigione per i partigiani';
+  String get quiz_rocca_q3_o1 => '1944';
 
   @override
-  String get quiz_rocca_q3_o2 => 'Come rifugio antiaereo per i civili';
+  String get quiz_rocca_q3_o2 => '1969';
 
   @override
-  String get quiz_rocca_q3_o3 => 'Come deposito di munizioni';
+  String get quiz_rocca_q3_o3 => '1974';
 
   @override
-  String get quiz_san_rocco_q1 => 'A quale santo è dedicata la chiesa?';
+  String get quiz_san_rocco_q1 => 'A quale anno risale la parrocchia di San Rocco?';
 
   @override
-  String get quiz_san_rocco_q1_o1 => 'San Francesco';
+  String get quiz_san_rocco_q1_o1 => '1615';
 
   @override
-  String get quiz_san_rocco_q1_o2 => 'San Rocco';
+  String get quiz_san_rocco_q1_o2 => '1816';
 
   @override
-  String get quiz_san_rocco_q1_o3 => 'Sant\'Antonio';
+  String get quiz_san_rocco_q1_o3 => '1944';
 
   @override
-  String get quiz_san_rocco_q2 => 'In quale tipo di quartiere sorge la chiesa?';
+  String get quiz_san_rocco_q2 => 'Quale parte della chiesa storica rimane oggi?';
 
   @override
-  String get quiz_san_rocco_q2_o1 => 'Quartiere nobiliare';
+  String get quiz_san_rocco_q2_o1 => 'Il campanile ottocentesco';
 
   @override
-  String get quiz_san_rocco_q2_o2 => 'Quartiere popolare operaio';
+  String get quiz_san_rocco_q2_o2 => 'La facciata principale';
 
   @override
-  String get quiz_san_rocco_q2_o3 => 'Quartiere universitario';
+  String get quiz_san_rocco_q2_o3 => 'La cripta';
 
   @override
-  String get quiz_abbazia_monte_q1 => 'Dove sorge l\'abbazia?';
+  String get quiz_abbazia_monte_q1 => 'In quale secolo sorse l’abbazia di Santa Maria del Monte?';
 
   @override
-  String get quiz_abbazia_monte_q1_o1 => 'In pianura, vicino al fiume';
+  String get quiz_abbazia_monte_q1_o1 => 'All’inizio dell’XI secolo';
 
   @override
-  String get quiz_abbazia_monte_q1_o2 => 'Su un colle dominante la città';
+  String get quiz_abbazia_monte_q1_o2 => 'Nel XV secolo';
 
   @override
-  String get quiz_abbazia_monte_q1_o3 => 'Nel centro storico';
+  String get quiz_abbazia_monte_q1_o3 => 'Nel XVIII secolo';
 
   @override
-  String get quiz_abbazia_monte_q2 => 'Quale vantaggio offrì l\'abbazia durante la guerra?';
+  String get quiz_abbazia_monte_q2 => 'Quanti sfollati circa furono ospitati nell’abbazia durante la guerra?';
 
   @override
-  String get quiz_abbazia_monte_q2_o1 => 'Ospitava un deposito di viveri militari';
+  String get quiz_abbazia_monte_q2_o1 => 'Circa 200';
 
   @override
-  String get quiz_abbazia_monte_q2_o2 => 'La posizione elevata la rendeva utile come punto di osservazione';
+  String get quiz_abbazia_monte_q2_o2 => 'Circa 500';
 
   @override
-  String get quiz_abbazia_monte_q2_o3 => 'Era sede del governo provvisorio';
+  String get quiz_abbazia_monte_q2_o3 => 'Circa 700';
 
   @override
-  String get quiz_osservanza_q1 => 'A quale ordine religioso appartiene il convento?';
+  String get quiz_osservanza_q1 => 'Tra quali anni fu costruita la chiesa dell’Osservanza?';
 
   @override
-  String get quiz_osservanza_q1_o1 => 'Domenicani';
+  String get quiz_osservanza_q1_o1 => '1459–1464';
 
   @override
-  String get quiz_osservanza_q1_o2 => 'Francescani';
+  String get quiz_osservanza_q1_o2 => '1472–1502';
 
   @override
-  String get quiz_osservanza_q1_o3 => 'Benedettini';
+  String get quiz_osservanza_q1_o3 => '1816–1825';
 
   @override
-  String get quiz_osservanza_q2 => 'Perché il convento era meno esposto ai bombardamenti?';
+  String get quiz_osservanza_q2 => 'Che cosa accadde alla chiesa nell’ottobre 1944?';
 
   @override
-  String get quiz_osservanza_q2_o1 => 'Era protetto da bunker sotterranei';
+  String get quiz_osservanza_q2_o1 => 'Fu colpita dai bombardamenti e morì padre Bosoni';
 
   @override
-  String get quiz_osservanza_q2_o2 => 'Era isolato rispetto al centro urbano';
+  String get quiz_osservanza_q2_o2 => 'Rimase illesa durante tutti i bombardamenti';
 
   @override
-  String get quiz_osservanza_q2_o3 => 'Era presidiato dall\'esercito alleato';
+  String get quiz_osservanza_q2_o3 => 'Fu trasformata in un ospedale alleato';
 
   @override
-  String get quiz_palazzo_ridotto_q1 => 'Come si chiama la fontana in Piazza del Popolo?';
+  String get quiz_palazzo_ridotto_q1 => 'Su quale piazza si affaccia il Palazzo del Ridotto?';
 
   @override
-  String get quiz_palazzo_ridotto_q1_o1 => 'Fontana di Nettuno';
+  String get quiz_palazzo_ridotto_q1_o1 => 'Piazza Almerici';
 
   @override
-  String get quiz_palazzo_ridotto_q1_o2 => 'Fontana del Masini';
+  String get quiz_palazzo_ridotto_q1_o2 => 'Piazza del Popolo';
 
   @override
-  String get quiz_palazzo_ridotto_q1_o3 => 'Fontana dei Delfini';
+  String get quiz_palazzo_ridotto_q1_o3 => 'Piazza del Duomo';
 
   @override
-  String get quiz_palazzo_ridotto_q2 => 'Quale dispositivo bellico era installato nel palazzo?';
+  String get quiz_palazzo_ridotto_q2 => 'Quale dispositivo di allarme fu installato sulla torre durante la guerra?';
 
   @override
-  String get quiz_palazzo_ridotto_q2_o1 => 'Una mitragliatrice antiaerea';
+  String get quiz_palazzo_ridotto_q2_o1 => 'Una sirena di allarme aereo';
 
   @override
-  String get quiz_palazzo_ridotto_q2_o2 => 'Una sirena antiaerea';
+  String get quiz_palazzo_ridotto_q2_o2 => 'Un radar di avvistamento';
 
   @override
-  String get quiz_palazzo_ridotto_q2_o3 => 'Un radar di avvistamento';
+  String get quiz_palazzo_ridotto_q2_o3 => 'Una radio militare';
 
   @override
-  String get quiz_stazione_q1 => 'Perché la stazione era un obiettivo dei bombardamenti alleati?';
+  String get quiz_stazione_q1 => 'In quale anno fu attivata la prima stazione ferroviaria di Cesena?';
 
   @override
-  String get quiz_stazione_q1_o1 => 'Ospitava il quartier generale tedesco';
+  String get quiz_stazione_q1_o1 => '1861';
 
   @override
-  String get quiz_stazione_q1_o2 => 'Era un nodo strategico per i rifornimenti militari';
+  String get quiz_stazione_q1_o2 => '1919';
 
   @override
-  String get quiz_stazione_q1_o3 => 'Era l\'unico ospedale della città';
+  String get quiz_stazione_q1_o3 => '1925';
 
   @override
-  String get quiz_stazione_q2 => 'Su quale linea ferroviaria si trova la stazione di Cesena?';
+  String get quiz_stazione_q2 => 'In quale data un bombardamento colpì lo scalo ferroviario di Cesena?';
 
   @override
-  String get quiz_stazione_q2_o1 => 'Bologna–Firenze';
+  String get quiz_stazione_q2_o1 => '29 giugno 1944';
 
   @override
-  String get quiz_stazione_q2_o2 => 'Bologna–Rimini (linea adriatica)';
+  String get quiz_stazione_q2_o2 => '25 luglio 1944';
 
   @override
-  String get quiz_stazione_q2_o3 => 'Rimini–Roma';
+  String get quiz_stazione_q2_o3 => '20 ottobre 1944';
 
   @override
-  String get quiz_arrigoni_q1 => 'In quale settore operava lo Stabilimento Arrigoni?';
+  String get quiz_arrigoni_q1 => 'In quali settori lo stabilimento Arrigoni di Cesena era di punta?';
 
   @override
-  String get quiz_arrigoni_q1_o1 => 'Industria tessile';
+  String get quiz_arrigoni_q1_o1 => 'Confetture, pomodori pelati e minestroni essiccati';
 
   @override
-  String get quiz_arrigoni_q1_o2 => 'Conserve ittiche e alimentari';
+  String get quiz_arrigoni_q1_o2 => 'Tessuti, filati e abbigliamento';
 
   @override
-  String get quiz_arrigoni_q1_o3 => 'Meccanica pesante';
+  String get quiz_arrigoni_q1_o3 => 'Meccanica, automobili e biciclette';
 
   @override
-  String get quiz_arrigoni_q2 => 'Cosa accadde nello stabilimento nel 1943–1944?';
+  String get quiz_arrigoni_q2 => 'Quale operaio antifascista lavorava allo stabilimento Arrigoni?';
 
   @override
-  String get quiz_arrigoni_q2_o1 => 'Fu convertito in ospedale militare';
+  String get quiz_arrigoni_q2_o1 => 'Werther Ricchi';
 
   @override
-  String get quiz_arrigoni_q2_o2 => 'Fu teatro di scioperi e tensioni sociali';
+  String get quiz_arrigoni_q2_o2 => 'Mario Tellerini';
 
   @override
-  String get quiz_arrigoni_q2_o3 => 'Fu utilizzato come prigione dai tedeschi';
+  String get quiz_arrigoni_q2_o3 => 'Padre Bosoni';
 
   @override
-  String get quiz_fantaguzzi_q1 => 'Quale organizzazione aveva sede nel Palazzo Fantaguzzi durante il regime?';
+  String get quiz_fantaguzzi_q1 => 'Da quale anno Palazzo Fantaguzzi è sede della Banca Popolare di Cesena?';
 
   @override
-  String get quiz_fantaguzzi_q1_o1 => 'Il Comune di Cesena';
+  String get quiz_fantaguzzi_q1_o1 => 'Dal 1922';
 
   @override
-  String get quiz_fantaguzzi_q1_o2 => 'Il Partito Nazionale Fascista';
+  String get quiz_fantaguzzi_q1_o2 => 'Dal 1944';
 
   @override
-  String get quiz_fantaguzzi_q1_o3 => 'La Croce Rossa';
+  String get quiz_fantaguzzi_q1_o3 => 'Dal 1970';
 
   @override
-  String get quiz_fantaguzzi_q2 => 'Quale ruolo ebbe il palazzo durante la guerra?';
+  String get quiz_fantaguzzi_q2 => 'In quale periodo una parte del palazzo ospitò gli uffici del fascio cittadino?';
 
   @override
-  String get quiz_fantaguzzi_q2_o1 => 'Centro di coordinamento della resistenza partigiana';
+  String get quiz_fantaguzzi_q2_o1 => 'Per tutto il Ventennio';
 
   @override
-  String get quiz_fantaguzzi_q2_o2 => 'Centro del potere politico e amministrativo fascista';
+  String get quiz_fantaguzzi_q2_o2 => 'Nei primi mesi della Repubblica Sociale Italiana';
 
   @override
-  String get quiz_fantaguzzi_q2_o3 => 'Sede del tribunale militare alleato';
+  String get quiz_fantaguzzi_q2_o3 => 'Dopo la liberazione del 1944';
 
   @override
-  String get quiz_rifugi_antiaerei_q1 => 'Dove erano scavati i rifugi antiaerei?';
+  String get quiz_rifugi_antiaerei_q1 => 'Quando fu deciso di scavare la galleria antiaerea nel colle della Rocca?';
 
   @override
-  String get quiz_rifugi_antiaerei_q1_o1 => 'Sotto il Palazzo del Ridotto';
+  String get quiz_rifugi_antiaerei_q1_o1 => 'Nel gennaio 1944';
 
   @override
-  String get quiz_rifugi_antiaerei_q1_o2 => 'Sotto e intorno alla Rocca Malatestiana';
+  String get quiz_rifugi_antiaerei_q1_o2 => 'Nel giugno 1941';
 
   @override
-  String get quiz_rifugi_antiaerei_q1_o3 => 'Sotto la stazione ferroviaria';
+  String get quiz_rifugi_antiaerei_q1_o3 => 'Nell’ottobre 1944';
 
   @override
-  String get quiz_rifugi_antiaerei_q2 => 'In quali anni furono principalmente utilizzati i rifugi?';
+  String get quiz_rifugi_antiaerei_q2 => 'Quante persone poteva accogliere il rifugio della Rocca?';
 
   @override
-  String get quiz_rifugi_antiaerei_q2_o1 => '1940–1941';
+  String get quiz_rifugi_antiaerei_q2_o1 => '200 persone';
 
   @override
-  String get quiz_rifugi_antiaerei_q2_o2 => '1943–1944';
+  String get quiz_rifugi_antiaerei_q2_o2 => '500 persone';
 
   @override
-  String get quiz_rifugi_antiaerei_q2_o3 => '1945–1946';
+  String get quiz_rifugi_antiaerei_q2_o3 => '800 persone, 290 delle quali sedute';
 
   @override
   String tourCompletionXpGained(int xp) {
@@ -1142,7 +1145,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get onboardingSlide3Title => 'Scala\nla vetta';
 
   @override
-  String get onboardingSlide3Desc => 'Confrontati con gli altri esploratori sulla classifica aggiornata in tempo reale.';
+  String get onboardingSlide3Desc => 'Confronta i tuoi progressi con quelli dei tuoi amici.';
 
   @override
   String get onboardingSlide4Tag => '04 — ACHIEVEMENT';
@@ -1217,4 +1220,31 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get publicStatsPrivateBody => 'Diventa amico per vedere statistiche dettagliate, traguardi sbloccati e molto altro.';
+
+  @override
+  String get sectionMapLicenses => 'Licenze mappe';
+
+  @override
+  String get mapLicenseOsmTitle => 'OpenStreetMap';
+
+  @override
+  String get mapLicenseOsmSubtitle => '© Contributori OpenStreetMap — Licenza ODbL';
+
+  @override
+  String get mapLicenseCartoTitle => 'CARTO';
+
+  @override
+  String get mapLicenseCartoSubtitle => '© CARTO — Basato su dati OpenStreetMap';
+
+  @override
+  String get mapLicenseStadiaTitle => 'Stadia Maps / Stamen Design';
+
+  @override
+  String get mapLicenseStadiaSubtitle => '© Stadia Maps, © Stamen Design — Licenza CC BY 3.0';
+
+  @override
+  String get mapLicenseEsriTitle => 'Esri (Vista Satellite)';
+
+  @override
+  String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS';
 }

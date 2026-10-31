@@ -13,6 +13,7 @@
   "sectionTeam": "The Team",
   "sectionThanks": "Thanks",
   "creditRoleDev": "Development & Architecture",
+  "creditRoleGraphicsMarketing": "Graphics & Marketing",
   "creditRoleTeacher": "Supervising Teacher",
   "creditRoleClass": "Support & Ideation",
   "creditSchoolSubtitle": "Visit the school website",
@@ -522,5 +523,15 @@
   "connectionErrorBody": "We can't reach the server right now. Check your connection and try again. Some features may be limited while offline.",
   "achievementUnlockedSnack": "You unlocked a new achievement! Tap to claim it.",
   "publicStatsPrivateTitle": "Private statistics",
-  "publicStatsPrivateBody": "Become friends to see detailed stats, unlocked achievements and more."
+  "publicStatsPrivateBody": "Become friends to see detailed stats, unlocked achievements and more.",
+
+  "sectionMapLicenses": "Map licences",
+  "mapLicenseOsmTitle": "OpenStreetMap",
+  "mapLicenseOsmSubtitle": "© OpenStreetMap contributors — ODbL licence",
+  "mapLicenseCartoTitle": "CARTO",
+  "mapLicenseCartoSubtitle": "© CARTO — Based on OpenStreetMap data",
+  "mapLicenseStadiaTitle": "Stadia Maps / Stamen Design",
+  "mapLicenseStadiaSubtitle": "© Stadia Maps, © Stamen Design — CC BY 3.0 licence",
+  "mapLicenseEsriTitle": "Esri (Satellite view)",
+  "mapLicenseEsriSubtitle": "Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community"
 }

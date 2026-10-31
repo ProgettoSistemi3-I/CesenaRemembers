@@ -13,6 +13,7 @@
   "sectionTeam": "Il Team",
   "sectionThanks": "Ringraziamenti",
   "creditRoleDev": "Sviluppo & Architettura",
+  "creditRoleGraphicsMarketing": "Grafica e Marketing",
   "creditRoleTeacher": "Docente Referente",
   "creditRoleClass": "Supporto e Ideazione",
   "creditSchoolSubtitle": "Visita il sito web dell'istituto",
@@ -522,5 +523,15 @@
   "connectionErrorBody": "Al momento non riusciamo a raggiungere il server. Controlla la connessione e riprova. Alcune funzioni potrebbero essere limitate offline.",
   "achievementUnlockedSnack": "Hai sbloccato un nuovo obiettivo! Tocca per riscattarlo.",
   "publicStatsPrivateTitle": "Statistiche private",
-  "publicStatsPrivateBody": "Diventa amico per vedere statistiche dettagliate, traguardi sbloccati e molto altro."
+  "publicStatsPrivateBody": "Diventa amico per vedere statistiche dettagliate, traguardi sbloccati e molto altro.",
+
+  "sectionMapLicenses": "Licenze mappe",
+  "mapLicenseOsmTitle": "OpenStreetMap",
+  "mapLicenseOsmSubtitle": "© Contributori OpenStreetMap — Licenza ODbL",
+  "mapLicenseCartoTitle": "CARTO",
+  "mapLicenseCartoSubtitle": "© CARTO — Basato su dati OpenStreetMap",
+  "mapLicenseStadiaTitle": "Stadia Maps / Stamen Design",
+  "mapLicenseStadiaSubtitle": "© Stadia Maps, © Stamen Design — Licenza CC BY 3.0",
+  "mapLicenseEsriTitle": "Esri (Vista Satellite)",
+  "mapLicenseEsriSubtitle": "Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS"
 }

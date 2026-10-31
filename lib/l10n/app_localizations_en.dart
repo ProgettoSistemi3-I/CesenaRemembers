@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditRoleDev => 'Development & Architecture';
 
   @override
+  String get creditRoleGraphicsMarketing => 'Graphics & Marketing';
+
+  @override
   String get creditRoleTeacher => 'Supervising Teacher';
 
   @override
@@ -429,10 +432,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialSearchHint => 'Search user...';
 
   @override
-  String get socialLeaderboardEmpty => 'No users in the leaderboard right now.';
+  String get socialLeaderboardEmpty => 'Add friends to see your leaderboard.';
 
   @override
-  String get socialLeaderboard => 'Global Leaderboard';
+  String get socialLeaderboard => 'Friends leaderboard';
 
   @override
   String get socialNoUserFound => 'No user found.';
@@ -713,61 +716,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_santa_cristina_name => 'Church of Santa Cristina';
 
   @override
-  String get poi_santa_cristina_desc => 'Historic church with a hemispherical dome and bell tower, set within Cesena\'s residential urban fabric. It represents the balance between religious architecture and urban development. During World War II, it likely served as a visual landmark during bombings, useful for population orientation. The surrounding area was partially affected or modified in the post-war period, with redefined urban spaces.';
+  String get poi_santa_cristina_desc => 'The church of Santa Cristina was commissioned by Pope Pius VII Chiaramonti and designed by architect Giuseppe Valadier. Construction began in 1816 and ended in 1825; the building is Neoclassical. During the Second World War, the crypt was reinforced and made usable as an air-raid shelter, with capacity for up to 200 people.';
 
   @override
   String get poi_rocca_name => 'Malatestiana Fortress';
 
   @override
-  String get poi_rocca_desc => 'A medieval fortress dominating the city, featuring crenellated walls and towers; a central defensive and symbolic element of Cesena. Built by the Malatesta in 1380, it houses the Malatestiana Library, a UNESCO World Heritage site since 2005. During World War II, it was repurposed as a natural shelter thanks to its massive structure: the hill hosted tunnels and air-raid shelters to protect the civilian population during bombings.';
+  String get poi_rocca_desc => 'Construction of the Rocca Nuova, also known as the Malatestiana Fortress, began in 1380 on the initiative of Galeotto Malatesta and continued under Malatesta Novello; it was completed in the late 1470s. In 1502 Cesare Borgia brought Leonardo da Vinci to Cesena to survey the defences of the conquered cities. After losing its military role, the fortress became a prison and remained one until 1969. The public air-raid shelters built in 1944 were at the foot of the hill along Viale Mazzoni, not inside the fortress.';
 
   @override
   String get poi_san_rocco_name => 'Church of San Rocco';
 
   @override
-  String get poi_san_rocco_desc => 'A church located in a working-class neighborhood of Cesena, surrounded by simple buildings and historically unpaved roads. Dedicated to Saint Roch, the patron saint of plague victims, it has been a spiritual reference point for the working classes for centuries. During WWII, the neighborhood, inhabited by working families, was directly exposed to the hardships of the bombings, and the church served as a possible gathering point and transit area towards shelters during air raids.';
+  String get poi_san_rocco_desc => 'The parish of San Rocco in Cesena dates back to 1615. In the summer of 1944, the church made its indoor rooms available to people fleeing the bombings, and a shelter was set up in the bell tower. The church was destroyed by the 1944 bombings together with the neighbourhood; only its nineteenth-century bell tower remains today.';
 
   @override
   String get poi_abbazia_monte_name => 'Abbey of Santa Maria del Monte';
 
   @override
-  String get poi_abbazia_monte_desc => 'A monastic complex on a hill overlooking the city, surrounded by cultivated countryside; a strong religious and territorial symbol of Cesena for over a thousand years. Its elevated position made it strategically significant during World War II: it was used as an observation point or visual reference for military operations. The hilly area offered shelter and isolation from the urban center\'s bombings.';
+  String get poi_abbazia_monte_desc => 'The Benedictine abbey of Santa Maria del Monte was founded at the beginning of the 11th century on the hill known as “il Monte”, south-east of Cesena. During the Second World War it sheltered about seven hundred displaced people in its cellars and tunnel. Between 16 and 19 October 1944 it was hit repeatedly and directly by bombing: the church was gutted and part of the monastery collapsed. None of the displaced people sheltering in the abbey were killed.';
 
   @override
   String get poi_osservanza_name => 'Church and Convent of the Osservanza';
 
   @override
-  String get poi_osservanza_desc => 'A Franciscan religious complex nestled in the Cesena countryside, historically separated from the urban center. The church preserves valuable artworks from the 15th and 16th centuries. During World War II, its isolation from the city made it less exposed to direct attacks, becoming a possible place of refuge and spiritual assistance for evacuees and the rural population fleeing the bombings.';
+  String get poi_osservanza_desc => 'The church of the Osservanza was built between 1459 and 1464 at the behest of Malatesta Novello and is linked to the Order of Friars Minor of the Observance. During the Second World War, two air-raid shelters were set up there, in the catacombs and near the bell tower, with a combined capacity of about 200 people. The church was hit by Allied bombing on 16 and 19 October 1944; Father Bosoni died during the raids.';
 
   @override
   String get poi_palazzo_ridotto_name => 'Palazzo del Ridotto';
 
   @override
-  String get poi_palazzo_ridotto_desc => 'A historic building with a civic tower, a symbol of the city center and public life in Cesena. It overlooks Piazza del Popolo, the heart of the city since the Middle Ages, also dominated by the Masini fountain. During World War II, it housed an air-raid siren essential for signaling incoming bombings, acting as a vital node in the alarm and coordination system for the civilian population.';
+  String get poi_palazzo_ridotto_desc => 'Palazzo del Ridotto stands in Piazza Almerici and was built between 1466 and 1472 as the seat of the municipal authority known as the Conservatori. During the Second World War, an alarm siren was installed on its tower as part of a city-wide warning system, backed up by church bells in the event of a power cut. After the 18 January 1944 attack on the Fascist headquarters in Corso Umberto I, the offices of the Republican Fascist Party moved to the palace, which was also used to detain and torture prisoners.';
 
   @override
   String get poi_stazione_name => 'Cesena Railway Station';
 
   @override
-  String get poi_stazione_desc => 'An important railway hub for freight and passenger transport between the 19th and 20th centuries, on the Bologna–Rimini Adriatic line. During World War II, it was one of the primary strategic targets of Allied bombings, as disrupting its supplies was essential to halting the German advance. It suffered severe destruction, becoming one of the most heavily bombed areas in the city.';
+  String get poi_stazione_desc => 'Cesena’s first railway station opened in 1861. In 1919 a plan for a larger station building was approved, and the foundation stone of the new station was laid in 1925. The Arrigoni food factory stood next to it, while the Montecatini refinery stood on the opposite side. Because these facilities were close together, the area became a target of Allied bombing after the German occupation. On 29 June 1944 an air raid hit the railway yard, destroyed ammunition loads and set the refinery on fire; further raids followed between July and September.';
 
   @override
   String get poi_arrigoni_name => 'Arrigoni Factory';
 
   @override
-  String get poi_arrigoni_desc => 'A large canning industry founded in 1880, the heart of the local economy and working-class labor in Cesena for over a century. Specializing in canned fish, it was among the most important companies in Romagna. During World War II, the production facility was strategically relevant for food logistics and was the site of strikes and strong social tensions, especially in the 1943–1944 biennium.';
+  String get poi_arrigoni_desc => 'The Arrigoni factory in Cesena stood next to the railway station and became the group’s leading plant for jams, peeled tomatoes and dried minestrone. Over time it employed thousands of people from Cesena and became a centre of local anti-Fascism. Worker Werther Ricchi was employed there before 25 July 1943 and, after 8 September, sent jam and other Arrigoni products to the partisans of the 8th Garibaldi Brigade. He was arrested on 23 March 1944 and tortured.';
 
   @override
   String get poi_fantaguzzi_name => 'Palazzo Fantaguzzi';
 
   @override
-  String get poi_fantaguzzi_desc => 'A historic building in the heart of Cesena, the local headquarters of the National Fascist Party during Mussolini\'s regime. It represents one of the symbols of the Fascist era in the city. During World War II, it was the center of fascist political and administrative power at the city level, likely a place of repression, population control, and the organization of wartime activities in the territory.';
+  String get poi_fantaguzzi_desc => 'Palazzo Fantaguzzi stands in Corso Gastone Sozzi, formerly Corso Umberto I, and has housed the Banca Popolare di Cesena since 1922. During the first months of the Italian Social Republic, part of the building also housed the local Fascist offices. On 18 January 1944 a GAP commando detonated a bomb at the entrance to the Fascist headquarters: there were no casualties, but the building was badly damaged. A few weeks later the Fascist headquarters moved to Palazzo del Ridotto.';
 
   @override
   String get poi_rifugi_antiaerei_name => 'Air-Raid Shelters of the Fortress';
 
   @override
-  String get poi_rifugi_antiaerei_desc => 'A system of underground tunnels excavated beneath and around the Malatestiana Fortress to protect the civilian population from aerial bombings. During World War II, they were fundamental for the survival of hundreds of citizens: the shelters accommodated entire families, becoming true spaces of temporary underground life during the Allied attacks between 1943 and 1944.';
+  String get poi_rifugi_antiaerei_desc => 'In January 1944, the decision was made to excavate a tunnel in the Rocca hill to create a public air-raid shelter. The tunnel was newly built in 1944 by the city’s chief engineer, Mario Tellerini, and could accommodate 800 people, 290 of them seated. It had two entrances on Viale Mazzoni protected by a blast wall; its ventilation shaft could also serve as an emergency exit.';
 
   @override
   String setupUsernameInvalid(int min, int max) {
@@ -828,256 +831,256 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quiz_fallback_desc => 'Due to a server error, questions are not personalized and use a specific local difficulty.';
 
   @override
-  String get quiz_santa_cristina_q1 => 'Which architectural element characterizes the church?';
+  String get quiz_santa_cristina_q1 => 'Who designed the church of Santa Cristina?';
 
   @override
-  String get quiz_santa_cristina_q1_o1 => 'A Gothic bell tower';
+  String get quiz_santa_cristina_q1_o1 => 'Architect Giuseppe Valadier';
 
   @override
-  String get quiz_santa_cristina_q1_o2 => 'A hemispherical dome';
+  String get quiz_santa_cristina_q1_o2 => 'Francesco Morandi, known as il Terribilia';
 
   @override
-  String get quiz_santa_cristina_q1_o3 => 'A Renaissance rose window';
+  String get quiz_santa_cristina_q1_o3 => 'Leandro Marconi';
 
   @override
-  String get quiz_santa_cristina_q2 => 'What role did the church play during World War II?';
+  String get quiz_santa_cristina_q2 => 'How many people could the crypt shelter?';
 
   @override
-  String get quiz_santa_cristina_q2_o1 => 'It was used as a field hospital';
+  String get quiz_santa_cristina_q2_o1 => 'Up to 200 people';
 
   @override
-  String get quiz_santa_cristina_q2_o2 => 'It was a visual landmark for orientation during bombings';
+  String get quiz_santa_cristina_q2_o2 => 'About 700 people';
 
   @override
-  String get quiz_santa_cristina_q2_o3 => 'It was the headquarters of the German military command';
+  String get quiz_santa_cristina_q2_o3 => 'Up to 800 people';
 
   @override
-  String get quiz_rocca_q1 => 'Who had the Fortress built?';
+  String get quiz_rocca_q1 => 'In what year did construction of the Rocca Nuova begin?';
 
   @override
-  String get quiz_rocca_q1_o1 => 'The Visconti';
+  String get quiz_rocca_q1_o1 => '1380';
 
   @override
-  String get quiz_rocca_q1_o2 => 'The Malatesta';
+  String get quiz_rocca_q1_o2 => '1464';
 
   @override
-  String get quiz_rocca_q1_o3 => 'Federico da Montefeltro';
+  String get quiz_rocca_q1_o3 => '1502';
 
   @override
-  String get quiz_rocca_q2 => 'In what year did the Malatestiana Library become a UNESCO World Heritage site?';
+  String get quiz_rocca_q2 => 'Who brought Leonardo da Vinci to Cesena in 1502?';
 
   @override
-  String get quiz_rocca_q2_o1 => '1995';
+  String get quiz_rocca_q2_o1 => 'Malatesta Novello';
 
   @override
-  String get quiz_rocca_q2_o2 => '2005';
+  String get quiz_rocca_q2_o2 => 'Cesare Borgia';
 
   @override
-  String get quiz_rocca_q2_o3 => '2015';
+  String get quiz_rocca_q2_o3 => 'Frederick Barbarossa';
 
   @override
-  String get quiz_rocca_q3 => 'How was the Fortress used during World War II?';
+  String get quiz_rocca_q3 => 'Until what year was the fortress used as a prison?';
 
   @override
-  String get quiz_rocca_q3_o1 => 'As a prison for partisans';
+  String get quiz_rocca_q3_o1 => '1944';
 
   @override
-  String get quiz_rocca_q3_o2 => 'As an air-raid shelter for civilians';
+  String get quiz_rocca_q3_o2 => '1969';
 
   @override
-  String get quiz_rocca_q3_o3 => 'As an ammunition depot';
+  String get quiz_rocca_q3_o3 => '1974';
 
   @override
-  String get quiz_san_rocco_q1 => 'Which saint is the church dedicated to?';
+  String get quiz_san_rocco_q1 => 'What year does the parish of San Rocco date back to?';
 
   @override
-  String get quiz_san_rocco_q1_o1 => 'Saint Francis';
+  String get quiz_san_rocco_q1_o1 => '1615';
 
   @override
-  String get quiz_san_rocco_q1_o2 => 'Saint Roch';
+  String get quiz_san_rocco_q1_o2 => '1816';
 
   @override
-  String get quiz_san_rocco_q1_o3 => 'Saint Anthony';
+  String get quiz_san_rocco_q1_o3 => '1944';
 
   @override
-  String get quiz_san_rocco_q2 => 'In what kind of neighborhood is the church located?';
+  String get quiz_san_rocco_q2 => 'Which part of the historic church remains today?';
 
   @override
-  String get quiz_san_rocco_q2_o1 => 'Noble neighborhood';
+  String get quiz_san_rocco_q2_o1 => 'The nineteenth-century bell tower';
 
   @override
-  String get quiz_san_rocco_q2_o2 => 'Working-class neighborhood';
+  String get quiz_san_rocco_q2_o2 => 'The main façade';
 
   @override
-  String get quiz_san_rocco_q2_o3 => 'University neighborhood';
+  String get quiz_san_rocco_q2_o3 => 'The crypt';
 
   @override
-  String get quiz_abbazia_monte_q1 => 'Where is the abbey located?';
+  String get quiz_abbazia_monte_q1 => 'In which century was the Abbey of Santa Maria del Monte founded?';
 
   @override
-  String get quiz_abbazia_monte_q1_o1 => 'On the plain, near the river';
+  String get quiz_abbazia_monte_q1_o1 => 'At the beginning of the 11th century';
 
   @override
-  String get quiz_abbazia_monte_q1_o2 => 'On a hill overlooking the city';
+  String get quiz_abbazia_monte_q1_o2 => 'In the 15th century';
 
   @override
-  String get quiz_abbazia_monte_q1_o3 => 'In the historical center';
+  String get quiz_abbazia_monte_q1_o3 => 'In the 18th century';
 
   @override
-  String get quiz_abbazia_monte_q2 => 'What advantage did the abbey offer during the war?';
+  String get quiz_abbazia_monte_q2 => 'About how many displaced people did the abbey shelter during the war?';
 
   @override
-  String get quiz_abbazia_monte_q2_o1 => 'It housed a military food depot';
+  String get quiz_abbazia_monte_q2_o1 => 'About 200';
 
   @override
-  String get quiz_abbazia_monte_q2_o2 => 'Its elevated position made it useful as an observation point';
+  String get quiz_abbazia_monte_q2_o2 => 'About 500';
 
   @override
-  String get quiz_abbazia_monte_q2_o3 => 'It was the seat of the provisional government';
+  String get quiz_abbazia_monte_q2_o3 => 'About 700';
 
   @override
-  String get quiz_osservanza_q1 => 'To which religious order does the convent belong?';
+  String get quiz_osservanza_q1 => 'Between which years was the church of the Osservanza built?';
 
   @override
-  String get quiz_osservanza_q1_o1 => 'Dominicans';
+  String get quiz_osservanza_q1_o1 => '1459–1464';
 
   @override
-  String get quiz_osservanza_q1_o2 => 'Franciscans';
+  String get quiz_osservanza_q1_o2 => '1472–1502';
 
   @override
-  String get quiz_osservanza_q1_o3 => 'Benedictines';
+  String get quiz_osservanza_q1_o3 => '1816–1825';
 
   @override
-  String get quiz_osservanza_q2 => 'Why was the convent less exposed to bombings?';
+  String get quiz_osservanza_q2 => 'What happened to the church in October 1944?';
 
   @override
-  String get quiz_osservanza_q2_o1 => 'It was protected by underground bunkers';
+  String get quiz_osservanza_q2_o1 => 'It was hit by bombing and Father Bosoni was killed';
 
   @override
-  String get quiz_osservanza_q2_o2 => 'It was isolated from the urban center';
+  String get quiz_osservanza_q2_o2 => 'It remained unharmed throughout the air raids';
 
   @override
-  String get quiz_osservanza_q2_o3 => 'It was garrisoned by the Allied army';
+  String get quiz_osservanza_q2_o3 => 'It was turned into an Allied hospital';
 
   @override
-  String get quiz_palazzo_ridotto_q1 => 'What is the name of the fountain in Piazza del Popolo?';
+  String get quiz_palazzo_ridotto_q1 => 'Which square does Palazzo del Ridotto face?';
 
   @override
-  String get quiz_palazzo_ridotto_q1_o1 => 'Fountain of Neptune';
+  String get quiz_palazzo_ridotto_q1_o1 => 'Piazza Almerici';
 
   @override
-  String get quiz_palazzo_ridotto_q1_o2 => 'Fountain of Masini';
+  String get quiz_palazzo_ridotto_q1_o2 => 'Piazza del Popolo';
 
   @override
-  String get quiz_palazzo_ridotto_q1_o3 => 'Fountain of the Dolphins';
+  String get quiz_palazzo_ridotto_q1_o3 => 'Piazza del Duomo';
 
   @override
-  String get quiz_palazzo_ridotto_q2 => 'What military device was installed in the palace?';
+  String get quiz_palazzo_ridotto_q2 => 'Which warning device was installed on the tower during the war?';
 
   @override
-  String get quiz_palazzo_ridotto_q2_o1 => 'An anti-aircraft machine gun';
+  String get quiz_palazzo_ridotto_q2_o1 => 'An air-raid siren';
 
   @override
-  String get quiz_palazzo_ridotto_q2_o2 => 'An air-raid siren';
+  String get quiz_palazzo_ridotto_q2_o2 => 'A spotting radar';
 
   @override
-  String get quiz_palazzo_ridotto_q2_o3 => 'A spotting radar';
+  String get quiz_palazzo_ridotto_q2_o3 => 'A military radio';
 
   @override
-  String get quiz_stazione_q1 => 'Why was the station a target of Allied bombings?';
+  String get quiz_stazione_q1 => 'In what year did Cesena’s first railway station open?';
 
   @override
-  String get quiz_stazione_q1_o1 => 'It housed the German headquarters';
+  String get quiz_stazione_q1_o1 => '1861';
 
   @override
-  String get quiz_stazione_q1_o2 => 'It was a strategic node for military supplies';
+  String get quiz_stazione_q1_o2 => '1919';
 
   @override
-  String get quiz_stazione_q1_o3 => 'It was the only hospital in the city';
+  String get quiz_stazione_q1_o3 => '1925';
 
   @override
-  String get quiz_stazione_q2 => 'On which railway line is the Cesena station located?';
+  String get quiz_stazione_q2 => 'On what date did an air raid hit Cesena’s railway yard?';
 
   @override
-  String get quiz_stazione_q2_o1 => 'Bologna–Florence';
+  String get quiz_stazione_q2_o1 => '29 June 1944';
 
   @override
-  String get quiz_stazione_q2_o2 => 'Bologna–Rimini (Adriatic line)';
+  String get quiz_stazione_q2_o2 => '25 July 1944';
 
   @override
-  String get quiz_stazione_q2_o3 => 'Rimini–Rome';
+  String get quiz_stazione_q2_o3 => '20 October 1944';
 
   @override
-  String get quiz_arrigoni_q1 => 'In which sector did the Arrigoni Factory operate?';
+  String get quiz_arrigoni_q1 => 'In which sectors was the Cesena Arrigoni plant the group’s leading factory?';
 
   @override
-  String get quiz_arrigoni_q1_o1 => 'Textile industry';
+  String get quiz_arrigoni_q1_o1 => 'Jams, peeled tomatoes and dried minestrone';
 
   @override
-  String get quiz_arrigoni_q1_o2 => 'Canned fish and food';
+  String get quiz_arrigoni_q1_o2 => 'Textiles, yarn and clothing';
 
   @override
-  String get quiz_arrigoni_q1_o3 => 'Heavy mechanics';
+  String get quiz_arrigoni_q1_o3 => 'Engineering, cars and bicycles';
 
   @override
-  String get quiz_arrigoni_q2 => 'What happened in the factory in 1943–1944?';
+  String get quiz_arrigoni_q2 => 'Which anti-Fascist worker was employed at the Arrigoni factory?';
 
   @override
-  String get quiz_arrigoni_q2_o1 => 'It was converted into a military hospital';
+  String get quiz_arrigoni_q2_o1 => 'Werther Ricchi';
 
   @override
-  String get quiz_arrigoni_q2_o2 => 'It was the scene of strikes and social tensions';
+  String get quiz_arrigoni_q2_o2 => 'Mario Tellerini';
 
   @override
-  String get quiz_arrigoni_q2_o3 => 'It was used as a prison by the Germans';
+  String get quiz_arrigoni_q2_o3 => 'Father Bosoni';
 
   @override
-  String get quiz_fantaguzzi_q1 => 'Which organization was headquartered in Palazzo Fantaguzzi during the regime?';
+  String get quiz_fantaguzzi_q1 => 'Since what year has Palazzo Fantaguzzi housed the Banca Popolare di Cesena?';
 
   @override
-  String get quiz_fantaguzzi_q1_o1 => 'The Municipality of Cesena';
+  String get quiz_fantaguzzi_q1_o1 => 'Since 1922';
 
   @override
-  String get quiz_fantaguzzi_q1_o2 => 'The National Fascist Party';
+  String get quiz_fantaguzzi_q1_o2 => 'Since 1944';
 
   @override
-  String get quiz_fantaguzzi_q1_o3 => 'The Red Cross';
+  String get quiz_fantaguzzi_q1_o3 => 'Since 1970';
 
   @override
-  String get quiz_fantaguzzi_q2 => 'What role did the palace play during the war?';
+  String get quiz_fantaguzzi_q2 => 'During which period did part of the palace house the local Fascist offices?';
 
   @override
-  String get quiz_fantaguzzi_q2_o1 => 'Coordination center for partisan resistance';
+  String get quiz_fantaguzzi_q2_o1 => 'Throughout the twenty-year Fascist period';
 
   @override
-  String get quiz_fantaguzzi_q2_o2 => 'Center of fascist political and administrative power';
+  String get quiz_fantaguzzi_q2_o2 => 'During the first months of the Italian Social Republic';
 
   @override
-  String get quiz_fantaguzzi_q2_o3 => 'Headquarters of the Allied military tribunal';
+  String get quiz_fantaguzzi_q2_o3 => 'After the city’s liberation in 1944';
 
   @override
-  String get quiz_rifugi_antiaerei_q1 => 'Where were the air-raid shelters excavated?';
+  String get quiz_rifugi_antiaerei_q1 => 'When was the decision made to excavate the air-raid tunnel in the Rocca hill?';
 
   @override
-  String get quiz_rifugi_antiaerei_q1_o1 => 'Under the Palazzo del Ridotto';
+  String get quiz_rifugi_antiaerei_q1_o1 => 'January 1944';
 
   @override
-  String get quiz_rifugi_antiaerei_q1_o2 => 'Under and around the Malatestiana Fortress';
+  String get quiz_rifugi_antiaerei_q1_o2 => 'June 1941';
 
   @override
-  String get quiz_rifugi_antiaerei_q1_o3 => 'Under the railway station';
+  String get quiz_rifugi_antiaerei_q1_o3 => 'October 1944';
 
   @override
-  String get quiz_rifugi_antiaerei_q2 => 'In which years were the shelters mainly used?';
+  String get quiz_rifugi_antiaerei_q2 => 'How many people could the Rocca shelter accommodate?';
 
   @override
-  String get quiz_rifugi_antiaerei_q2_o1 => '1940–1941';
+  String get quiz_rifugi_antiaerei_q2_o1 => '200 people';
 
   @override
-  String get quiz_rifugi_antiaerei_q2_o2 => '1943–1944';
+  String get quiz_rifugi_antiaerei_q2_o2 => '500 people';
 
   @override
-  String get quiz_rifugi_antiaerei_q2_o3 => '1945–1946';
+  String get quiz_rifugi_antiaerei_q2_o3 => '800 people, 290 of them seated';
 
   @override
   String tourCompletionXpGained(int xp) {
@@ -1142,7 +1145,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingSlide3Title => 'Climb\nthe top';
 
   @override
-  String get onboardingSlide3Desc => 'Compete with other explorers on the real-time leaderboard.';
+  String get onboardingSlide3Desc => 'Compare your progress with your friends.';
 
   @override
   String get onboardingSlide4Tag => '04 — ACHIEVEMENTS';
@@ -1217,4 +1220,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get publicStatsPrivateBody => 'Become friends to see detailed stats, unlocked achievements and more.';
+
+  @override
+  String get sectionMapLicenses => 'Map licences';
+
+  @override
+  String get mapLicenseOsmTitle => 'OpenStreetMap';
+
+  @override
+  String get mapLicenseOsmSubtitle => '© OpenStreetMap contributors — ODbL licence';
+
+  @override
+  String get mapLicenseCartoTitle => 'CARTO';
+
+  @override
+  String get mapLicenseCartoSubtitle => '© CARTO — Based on OpenStreetMap data';
+
+  @override
+  String get mapLicenseStadiaTitle => 'Stadia Maps / Stamen Design';
+
+  @override
+  String get mapLicenseStadiaSubtitle => '© Stadia Maps, © Stamen Design — CC BY 3.0 licence';
+
+  @override
+  String get mapLicenseEsriTitle => 'Esri (Satellite view)';
+
+  @override
+  String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community';
 }

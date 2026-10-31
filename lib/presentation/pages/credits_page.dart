@@ -98,6 +98,18 @@ class CreditsPage extends StatelessWidget {
               ),
               const _ThinDivider(),
               _CreditRow(
+                icon: Icons.palette_outlined,
+                title: 'Michele Servadei',
+                subtitle:
+                    AppLocalizations.of(context)!.creditRoleGraphicsMarketing,
+                accent: AppPalette.olive,
+                onTap: () => launchUrl(
+                  Uri.parse('https://github.com/MicheleServadei'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              const _ThinDivider(),
+              _CreditRow(
                 icon: Icons.groups_outlined,
                 title: 'Classe 3I',
                 subtitle: AppLocalizations.of(context)!.creditRoleClass,
@@ -148,6 +160,58 @@ class CreditsPage extends StatelessWidget {
                 accent: AppPalette.tan,
                 onTap: () => launchUrl(
                   Uri.parse('https://italien.diplo.de/it-it'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+
+          // SEZIONE: LICENZE MAPPE
+          _SectionLabel(AppLocalizations.of(context)!.sectionMapLicenses),
+          const SizedBox(height: 16),
+          _CreditsCard(
+            children: [
+              _CreditRow(
+                icon: Icons.map_outlined,
+                title: AppLocalizations.of(context)!.mapLicenseOsmTitle,
+                subtitle: AppLocalizations.of(context)!.mapLicenseOsmSubtitle,
+                accent: AppPalette.moss,
+                onTap: () => launchUrl(
+                  Uri.parse('https://www.openstreetmap.org/copyright'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              const _ThinDivider(),
+              _CreditRow(
+                icon: Icons.layers_outlined,
+                title: AppLocalizations.of(context)!.mapLicenseCartoTitle,
+                subtitle: AppLocalizations.of(context)!.mapLicenseCartoSubtitle,
+                accent: AppPalette.moss,
+                onTap: () => launchUrl(
+                  Uri.parse('https://carto.com/attributions'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              const _ThinDivider(),
+              _CreditRow(
+                icon: Icons.terrain_outlined,
+                title: AppLocalizations.of(context)!.mapLicenseStadiaTitle,
+                subtitle: AppLocalizations.of(context)!.mapLicenseStadiaSubtitle,
+                accent: AppPalette.moss,
+                onTap: () => launchUrl(
+                  Uri.parse('https://stadiamaps.com/'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              const _ThinDivider(),
+              _CreditRow(
+                icon: Icons.satellite_alt_outlined,
+                title: AppLocalizations.of(context)!.mapLicenseEsriTitle,
+                subtitle: AppLocalizations.of(context)!.mapLicenseEsriSubtitle,
+                accent: AppPalette.moss,
+                onTap: () => launchUrl(
+                  Uri.parse('https://www.esri.com/en-us/legal/terms/full-master-agreement'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),

@@ -173,6 +173,12 @@ abstract class AppLocalizations {
   /// **'Development & Architecture'**
   String get creditRoleDev;
 
+  /// No description provided for @creditRoleGraphicsMarketing.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphics & Marketing'**
+  String get creditRoleGraphicsMarketing;
+
   /// No description provided for @creditRoleTeacher.
   ///
   /// In en, this message translates to:
@@ -902,13 +908,13 @@ abstract class AppLocalizations {
   /// No description provided for @socialLeaderboardEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No users in the leaderboard right now.'**
+  /// **'Add friends to see your leaderboard.'**
   String get socialLeaderboardEmpty;
 
   /// No description provided for @socialLeaderboard.
   ///
   /// In en, this message translates to:
-  /// **'Global Leaderboard'**
+  /// **'Friends leaderboard'**
   String get socialLeaderboard;
 
   /// No description provided for @socialNoUserFound.
@@ -1466,7 +1472,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_santa_cristina_desc.
   ///
   /// In en, this message translates to:
-  /// **'Historic church with a hemispherical dome and bell tower, set within Cesena\'s residential urban fabric. It represents the balance between religious architecture and urban development. During World War II, it likely served as a visual landmark during bombings, useful for population orientation. The surrounding area was partially affected or modified in the post-war period, with redefined urban spaces.'**
+  /// **'The church of Santa Cristina was commissioned by Pope Pius VII Chiaramonti and designed by architect Giuseppe Valadier. Construction began in 1816 and ended in 1825; the building is Neoclassical. During the Second World War, the crypt was reinforced and made usable as an air-raid shelter, with capacity for up to 200 people.'**
   String get poi_santa_cristina_desc;
 
   /// No description provided for @poi_rocca_name.
@@ -1478,7 +1484,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_rocca_desc.
   ///
   /// In en, this message translates to:
-  /// **'A medieval fortress dominating the city, featuring crenellated walls and towers; a central defensive and symbolic element of Cesena. Built by the Malatesta in 1380, it houses the Malatestiana Library, a UNESCO World Heritage site since 2005. During World War II, it was repurposed as a natural shelter thanks to its massive structure: the hill hosted tunnels and air-raid shelters to protect the civilian population during bombings.'**
+  /// **'Construction of the Rocca Nuova, also known as the Malatestiana Fortress, began in 1380 on the initiative of Galeotto Malatesta and continued under Malatesta Novello; it was completed in the late 1470s. In 1502 Cesare Borgia brought Leonardo da Vinci to Cesena to survey the defences of the conquered cities. After losing its military role, the fortress became a prison and remained one until 1969. The public air-raid shelters built in 1944 were at the foot of the hill along Viale Mazzoni, not inside the fortress.'**
   String get poi_rocca_desc;
 
   /// No description provided for @poi_san_rocco_name.
@@ -1490,7 +1496,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_san_rocco_desc.
   ///
   /// In en, this message translates to:
-  /// **'A church located in a working-class neighborhood of Cesena, surrounded by simple buildings and historically unpaved roads. Dedicated to Saint Roch, the patron saint of plague victims, it has been a spiritual reference point for the working classes for centuries. During WWII, the neighborhood, inhabited by working families, was directly exposed to the hardships of the bombings, and the church served as a possible gathering point and transit area towards shelters during air raids.'**
+  /// **'The parish of San Rocco in Cesena dates back to 1615. In the summer of 1944, the church made its indoor rooms available to people fleeing the bombings, and a shelter was set up in the bell tower. The church was destroyed by the 1944 bombings together with the neighbourhood; only its nineteenth-century bell tower remains today.'**
   String get poi_san_rocco_desc;
 
   /// No description provided for @poi_abbazia_monte_name.
@@ -1502,7 +1508,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_abbazia_monte_desc.
   ///
   /// In en, this message translates to:
-  /// **'A monastic complex on a hill overlooking the city, surrounded by cultivated countryside; a strong religious and territorial symbol of Cesena for over a thousand years. Its elevated position made it strategically significant during World War II: it was used as an observation point or visual reference for military operations. The hilly area offered shelter and isolation from the urban center\'s bombings.'**
+  /// **'The Benedictine abbey of Santa Maria del Monte was founded at the beginning of the 11th century on the hill known as “il Monte”, south-east of Cesena. During the Second World War it sheltered about seven hundred displaced people in its cellars and tunnel. Between 16 and 19 October 1944 it was hit repeatedly and directly by bombing: the church was gutted and part of the monastery collapsed. None of the displaced people sheltering in the abbey were killed.'**
   String get poi_abbazia_monte_desc;
 
   /// No description provided for @poi_osservanza_name.
@@ -1514,7 +1520,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_osservanza_desc.
   ///
   /// In en, this message translates to:
-  /// **'A Franciscan religious complex nestled in the Cesena countryside, historically separated from the urban center. The church preserves valuable artworks from the 15th and 16th centuries. During World War II, its isolation from the city made it less exposed to direct attacks, becoming a possible place of refuge and spiritual assistance for evacuees and the rural population fleeing the bombings.'**
+  /// **'The church of the Osservanza was built between 1459 and 1464 at the behest of Malatesta Novello and is linked to the Order of Friars Minor of the Observance. During the Second World War, two air-raid shelters were set up there, in the catacombs and near the bell tower, with a combined capacity of about 200 people. The church was hit by Allied bombing on 16 and 19 October 1944; Father Bosoni died during the raids.'**
   String get poi_osservanza_desc;
 
   /// No description provided for @poi_palazzo_ridotto_name.
@@ -1526,7 +1532,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_palazzo_ridotto_desc.
   ///
   /// In en, this message translates to:
-  /// **'A historic building with a civic tower, a symbol of the city center and public life in Cesena. It overlooks Piazza del Popolo, the heart of the city since the Middle Ages, also dominated by the Masini fountain. During World War II, it housed an air-raid siren essential for signaling incoming bombings, acting as a vital node in the alarm and coordination system for the civilian population.'**
+  /// **'Palazzo del Ridotto stands in Piazza Almerici and was built between 1466 and 1472 as the seat of the municipal authority known as the Conservatori. During the Second World War, an alarm siren was installed on its tower as part of a city-wide warning system, backed up by church bells in the event of a power cut. After the 18 January 1944 attack on the Fascist headquarters in Corso Umberto I, the offices of the Republican Fascist Party moved to the palace, which was also used to detain and torture prisoners.'**
   String get poi_palazzo_ridotto_desc;
 
   /// No description provided for @poi_stazione_name.
@@ -1538,7 +1544,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_stazione_desc.
   ///
   /// In en, this message translates to:
-  /// **'An important railway hub for freight and passenger transport between the 19th and 20th centuries, on the Bologna–Rimini Adriatic line. During World War II, it was one of the primary strategic targets of Allied bombings, as disrupting its supplies was essential to halting the German advance. It suffered severe destruction, becoming one of the most heavily bombed areas in the city.'**
+  /// **'Cesena’s first railway station opened in 1861. In 1919 a plan for a larger station building was approved, and the foundation stone of the new station was laid in 1925. The Arrigoni food factory stood next to it, while the Montecatini refinery stood on the opposite side. Because these facilities were close together, the area became a target of Allied bombing after the German occupation. On 29 June 1944 an air raid hit the railway yard, destroyed ammunition loads and set the refinery on fire; further raids followed between July and September.'**
   String get poi_stazione_desc;
 
   /// No description provided for @poi_arrigoni_name.
@@ -1550,7 +1556,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_arrigoni_desc.
   ///
   /// In en, this message translates to:
-  /// **'A large canning industry founded in 1880, the heart of the local economy and working-class labor in Cesena for over a century. Specializing in canned fish, it was among the most important companies in Romagna. During World War II, the production facility was strategically relevant for food logistics and was the site of strikes and strong social tensions, especially in the 1943–1944 biennium.'**
+  /// **'The Arrigoni factory in Cesena stood next to the railway station and became the group’s leading plant for jams, peeled tomatoes and dried minestrone. Over time it employed thousands of people from Cesena and became a centre of local anti-Fascism. Worker Werther Ricchi was employed there before 25 July 1943 and, after 8 September, sent jam and other Arrigoni products to the partisans of the 8th Garibaldi Brigade. He was arrested on 23 March 1944 and tortured.'**
   String get poi_arrigoni_desc;
 
   /// No description provided for @poi_fantaguzzi_name.
@@ -1562,7 +1568,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_fantaguzzi_desc.
   ///
   /// In en, this message translates to:
-  /// **'A historic building in the heart of Cesena, the local headquarters of the National Fascist Party during Mussolini\'s regime. It represents one of the symbols of the Fascist era in the city. During World War II, it was the center of fascist political and administrative power at the city level, likely a place of repression, population control, and the organization of wartime activities in the territory.'**
+  /// **'Palazzo Fantaguzzi stands in Corso Gastone Sozzi, formerly Corso Umberto I, and has housed the Banca Popolare di Cesena since 1922. During the first months of the Italian Social Republic, part of the building also housed the local Fascist offices. On 18 January 1944 a GAP commando detonated a bomb at the entrance to the Fascist headquarters: there were no casualties, but the building was badly damaged. A few weeks later the Fascist headquarters moved to Palazzo del Ridotto.'**
   String get poi_fantaguzzi_desc;
 
   /// No description provided for @poi_rifugi_antiaerei_name.
@@ -1574,7 +1580,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_rifugi_antiaerei_desc.
   ///
   /// In en, this message translates to:
-  /// **'A system of underground tunnels excavated beneath and around the Malatestiana Fortress to protect the civilian population from aerial bombings. During World War II, they were fundamental for the survival of hundreds of citizens: the shelters accommodated entire families, becoming true spaces of temporary underground life during the Allied attacks between 1943 and 1944.'**
+  /// **'In January 1944, the decision was made to excavate a tunnel in the Rocca hill to create a public air-raid shelter. The tunnel was newly built in 1944 by the city’s chief engineer, Mario Tellerini, and could accommodate 800 people, 290 of them seated. It had two entrances on Viale Mazzoni protected by a blast wall; its ventilation shaft could also serve as an emergency exit.'**
   String get poi_rifugi_antiaerei_desc;
 
   /// No description provided for @setupUsernameInvalid.
@@ -1688,505 +1694,505 @@ abstract class AppLocalizations {
   /// No description provided for @quiz_santa_cristina_q1.
   ///
   /// In en, this message translates to:
-  /// **'Which architectural element characterizes the church?'**
+  /// **'Who designed the church of Santa Cristina?'**
   String get quiz_santa_cristina_q1;
 
   /// No description provided for @quiz_santa_cristina_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'A Gothic bell tower'**
+  /// **'Architect Giuseppe Valadier'**
   String get quiz_santa_cristina_q1_o1;
 
   /// No description provided for @quiz_santa_cristina_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'A hemispherical dome'**
+  /// **'Francesco Morandi, known as il Terribilia'**
   String get quiz_santa_cristina_q1_o2;
 
   /// No description provided for @quiz_santa_cristina_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'A Renaissance rose window'**
+  /// **'Leandro Marconi'**
   String get quiz_santa_cristina_q1_o3;
 
   /// No description provided for @quiz_santa_cristina_q2.
   ///
   /// In en, this message translates to:
-  /// **'What role did the church play during World War II?'**
+  /// **'How many people could the crypt shelter?'**
   String get quiz_santa_cristina_q2;
 
   /// No description provided for @quiz_santa_cristina_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'It was used as a field hospital'**
+  /// **'Up to 200 people'**
   String get quiz_santa_cristina_q2_o1;
 
   /// No description provided for @quiz_santa_cristina_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'It was a visual landmark for orientation during bombings'**
+  /// **'About 700 people'**
   String get quiz_santa_cristina_q2_o2;
 
   /// No description provided for @quiz_santa_cristina_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'It was the headquarters of the German military command'**
+  /// **'Up to 800 people'**
   String get quiz_santa_cristina_q2_o3;
 
   /// No description provided for @quiz_rocca_q1.
   ///
   /// In en, this message translates to:
-  /// **'Who had the Fortress built?'**
+  /// **'In what year did construction of the Rocca Nuova begin?'**
   String get quiz_rocca_q1;
 
   /// No description provided for @quiz_rocca_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'The Visconti'**
+  /// **'1380'**
   String get quiz_rocca_q1_o1;
 
   /// No description provided for @quiz_rocca_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'The Malatesta'**
+  /// **'1464'**
   String get quiz_rocca_q1_o2;
 
   /// No description provided for @quiz_rocca_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'Federico da Montefeltro'**
+  /// **'1502'**
   String get quiz_rocca_q1_o3;
 
   /// No description provided for @quiz_rocca_q2.
   ///
   /// In en, this message translates to:
-  /// **'In what year did the Malatestiana Library become a UNESCO World Heritage site?'**
+  /// **'Who brought Leonardo da Vinci to Cesena in 1502?'**
   String get quiz_rocca_q2;
 
   /// No description provided for @quiz_rocca_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'1995'**
+  /// **'Malatesta Novello'**
   String get quiz_rocca_q2_o1;
 
   /// No description provided for @quiz_rocca_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'2005'**
+  /// **'Cesare Borgia'**
   String get quiz_rocca_q2_o2;
 
   /// No description provided for @quiz_rocca_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'2015'**
+  /// **'Frederick Barbarossa'**
   String get quiz_rocca_q2_o3;
 
   /// No description provided for @quiz_rocca_q3.
   ///
   /// In en, this message translates to:
-  /// **'How was the Fortress used during World War II?'**
+  /// **'Until what year was the fortress used as a prison?'**
   String get quiz_rocca_q3;
 
   /// No description provided for @quiz_rocca_q3_o1.
   ///
   /// In en, this message translates to:
-  /// **'As a prison for partisans'**
+  /// **'1944'**
   String get quiz_rocca_q3_o1;
 
   /// No description provided for @quiz_rocca_q3_o2.
   ///
   /// In en, this message translates to:
-  /// **'As an air-raid shelter for civilians'**
+  /// **'1969'**
   String get quiz_rocca_q3_o2;
 
   /// No description provided for @quiz_rocca_q3_o3.
   ///
   /// In en, this message translates to:
-  /// **'As an ammunition depot'**
+  /// **'1974'**
   String get quiz_rocca_q3_o3;
 
   /// No description provided for @quiz_san_rocco_q1.
   ///
   /// In en, this message translates to:
-  /// **'Which saint is the church dedicated to?'**
+  /// **'What year does the parish of San Rocco date back to?'**
   String get quiz_san_rocco_q1;
 
   /// No description provided for @quiz_san_rocco_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'Saint Francis'**
+  /// **'1615'**
   String get quiz_san_rocco_q1_o1;
 
   /// No description provided for @quiz_san_rocco_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'Saint Roch'**
+  /// **'1816'**
   String get quiz_san_rocco_q1_o2;
 
   /// No description provided for @quiz_san_rocco_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'Saint Anthony'**
+  /// **'1944'**
   String get quiz_san_rocco_q1_o3;
 
   /// No description provided for @quiz_san_rocco_q2.
   ///
   /// In en, this message translates to:
-  /// **'In what kind of neighborhood is the church located?'**
+  /// **'Which part of the historic church remains today?'**
   String get quiz_san_rocco_q2;
 
   /// No description provided for @quiz_san_rocco_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'Noble neighborhood'**
+  /// **'The nineteenth-century bell tower'**
   String get quiz_san_rocco_q2_o1;
 
   /// No description provided for @quiz_san_rocco_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'Working-class neighborhood'**
+  /// **'The main façade'**
   String get quiz_san_rocco_q2_o2;
 
   /// No description provided for @quiz_san_rocco_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'University neighborhood'**
+  /// **'The crypt'**
   String get quiz_san_rocco_q2_o3;
 
   /// No description provided for @quiz_abbazia_monte_q1.
   ///
   /// In en, this message translates to:
-  /// **'Where is the abbey located?'**
+  /// **'In which century was the Abbey of Santa Maria del Monte founded?'**
   String get quiz_abbazia_monte_q1;
 
   /// No description provided for @quiz_abbazia_monte_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'On the plain, near the river'**
+  /// **'At the beginning of the 11th century'**
   String get quiz_abbazia_monte_q1_o1;
 
   /// No description provided for @quiz_abbazia_monte_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'On a hill overlooking the city'**
+  /// **'In the 15th century'**
   String get quiz_abbazia_monte_q1_o2;
 
   /// No description provided for @quiz_abbazia_monte_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'In the historical center'**
+  /// **'In the 18th century'**
   String get quiz_abbazia_monte_q1_o3;
 
   /// No description provided for @quiz_abbazia_monte_q2.
   ///
   /// In en, this message translates to:
-  /// **'What advantage did the abbey offer during the war?'**
+  /// **'About how many displaced people did the abbey shelter during the war?'**
   String get quiz_abbazia_monte_q2;
 
   /// No description provided for @quiz_abbazia_monte_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'It housed a military food depot'**
+  /// **'About 200'**
   String get quiz_abbazia_monte_q2_o1;
 
   /// No description provided for @quiz_abbazia_monte_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'Its elevated position made it useful as an observation point'**
+  /// **'About 500'**
   String get quiz_abbazia_monte_q2_o2;
 
   /// No description provided for @quiz_abbazia_monte_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'It was the seat of the provisional government'**
+  /// **'About 700'**
   String get quiz_abbazia_monte_q2_o3;
 
   /// No description provided for @quiz_osservanza_q1.
   ///
   /// In en, this message translates to:
-  /// **'To which religious order does the convent belong?'**
+  /// **'Between which years was the church of the Osservanza built?'**
   String get quiz_osservanza_q1;
 
   /// No description provided for @quiz_osservanza_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'Dominicans'**
+  /// **'1459–1464'**
   String get quiz_osservanza_q1_o1;
 
   /// No description provided for @quiz_osservanza_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'Franciscans'**
+  /// **'1472–1502'**
   String get quiz_osservanza_q1_o2;
 
   /// No description provided for @quiz_osservanza_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'Benedictines'**
+  /// **'1816–1825'**
   String get quiz_osservanza_q1_o3;
 
   /// No description provided for @quiz_osservanza_q2.
   ///
   /// In en, this message translates to:
-  /// **'Why was the convent less exposed to bombings?'**
+  /// **'What happened to the church in October 1944?'**
   String get quiz_osservanza_q2;
 
   /// No description provided for @quiz_osservanza_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'It was protected by underground bunkers'**
+  /// **'It was hit by bombing and Father Bosoni was killed'**
   String get quiz_osservanza_q2_o1;
 
   /// No description provided for @quiz_osservanza_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'It was isolated from the urban center'**
+  /// **'It remained unharmed throughout the air raids'**
   String get quiz_osservanza_q2_o2;
 
   /// No description provided for @quiz_osservanza_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'It was garrisoned by the Allied army'**
+  /// **'It was turned into an Allied hospital'**
   String get quiz_osservanza_q2_o3;
 
   /// No description provided for @quiz_palazzo_ridotto_q1.
   ///
   /// In en, this message translates to:
-  /// **'What is the name of the fountain in Piazza del Popolo?'**
+  /// **'Which square does Palazzo del Ridotto face?'**
   String get quiz_palazzo_ridotto_q1;
 
   /// No description provided for @quiz_palazzo_ridotto_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'Fountain of Neptune'**
+  /// **'Piazza Almerici'**
   String get quiz_palazzo_ridotto_q1_o1;
 
   /// No description provided for @quiz_palazzo_ridotto_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'Fountain of Masini'**
+  /// **'Piazza del Popolo'**
   String get quiz_palazzo_ridotto_q1_o2;
 
   /// No description provided for @quiz_palazzo_ridotto_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'Fountain of the Dolphins'**
+  /// **'Piazza del Duomo'**
   String get quiz_palazzo_ridotto_q1_o3;
 
   /// No description provided for @quiz_palazzo_ridotto_q2.
   ///
   /// In en, this message translates to:
-  /// **'What military device was installed in the palace?'**
+  /// **'Which warning device was installed on the tower during the war?'**
   String get quiz_palazzo_ridotto_q2;
 
   /// No description provided for @quiz_palazzo_ridotto_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'An anti-aircraft machine gun'**
+  /// **'An air-raid siren'**
   String get quiz_palazzo_ridotto_q2_o1;
 
   /// No description provided for @quiz_palazzo_ridotto_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'An air-raid siren'**
+  /// **'A spotting radar'**
   String get quiz_palazzo_ridotto_q2_o2;
 
   /// No description provided for @quiz_palazzo_ridotto_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'A spotting radar'**
+  /// **'A military radio'**
   String get quiz_palazzo_ridotto_q2_o3;
 
   /// No description provided for @quiz_stazione_q1.
   ///
   /// In en, this message translates to:
-  /// **'Why was the station a target of Allied bombings?'**
+  /// **'In what year did Cesena’s first railway station open?'**
   String get quiz_stazione_q1;
 
   /// No description provided for @quiz_stazione_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'It housed the German headquarters'**
+  /// **'1861'**
   String get quiz_stazione_q1_o1;
 
   /// No description provided for @quiz_stazione_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'It was a strategic node for military supplies'**
+  /// **'1919'**
   String get quiz_stazione_q1_o2;
 
   /// No description provided for @quiz_stazione_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'It was the only hospital in the city'**
+  /// **'1925'**
   String get quiz_stazione_q1_o3;
 
   /// No description provided for @quiz_stazione_q2.
   ///
   /// In en, this message translates to:
-  /// **'On which railway line is the Cesena station located?'**
+  /// **'On what date did an air raid hit Cesena’s railway yard?'**
   String get quiz_stazione_q2;
 
   /// No description provided for @quiz_stazione_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'Bologna–Florence'**
+  /// **'29 June 1944'**
   String get quiz_stazione_q2_o1;
 
   /// No description provided for @quiz_stazione_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'Bologna–Rimini (Adriatic line)'**
+  /// **'25 July 1944'**
   String get quiz_stazione_q2_o2;
 
   /// No description provided for @quiz_stazione_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'Rimini–Rome'**
+  /// **'20 October 1944'**
   String get quiz_stazione_q2_o3;
 
   /// No description provided for @quiz_arrigoni_q1.
   ///
   /// In en, this message translates to:
-  /// **'In which sector did the Arrigoni Factory operate?'**
+  /// **'In which sectors was the Cesena Arrigoni plant the group’s leading factory?'**
   String get quiz_arrigoni_q1;
 
   /// No description provided for @quiz_arrigoni_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'Textile industry'**
+  /// **'Jams, peeled tomatoes and dried minestrone'**
   String get quiz_arrigoni_q1_o1;
 
   /// No description provided for @quiz_arrigoni_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'Canned fish and food'**
+  /// **'Textiles, yarn and clothing'**
   String get quiz_arrigoni_q1_o2;
 
   /// No description provided for @quiz_arrigoni_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'Heavy mechanics'**
+  /// **'Engineering, cars and bicycles'**
   String get quiz_arrigoni_q1_o3;
 
   /// No description provided for @quiz_arrigoni_q2.
   ///
   /// In en, this message translates to:
-  /// **'What happened in the factory in 1943–1944?'**
+  /// **'Which anti-Fascist worker was employed at the Arrigoni factory?'**
   String get quiz_arrigoni_q2;
 
   /// No description provided for @quiz_arrigoni_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'It was converted into a military hospital'**
+  /// **'Werther Ricchi'**
   String get quiz_arrigoni_q2_o1;
 
   /// No description provided for @quiz_arrigoni_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'It was the scene of strikes and social tensions'**
+  /// **'Mario Tellerini'**
   String get quiz_arrigoni_q2_o2;
 
   /// No description provided for @quiz_arrigoni_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'It was used as a prison by the Germans'**
+  /// **'Father Bosoni'**
   String get quiz_arrigoni_q2_o3;
 
   /// No description provided for @quiz_fantaguzzi_q1.
   ///
   /// In en, this message translates to:
-  /// **'Which organization was headquartered in Palazzo Fantaguzzi during the regime?'**
+  /// **'Since what year has Palazzo Fantaguzzi housed the Banca Popolare di Cesena?'**
   String get quiz_fantaguzzi_q1;
 
   /// No description provided for @quiz_fantaguzzi_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'The Municipality of Cesena'**
+  /// **'Since 1922'**
   String get quiz_fantaguzzi_q1_o1;
 
   /// No description provided for @quiz_fantaguzzi_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'The National Fascist Party'**
+  /// **'Since 1944'**
   String get quiz_fantaguzzi_q1_o2;
 
   /// No description provided for @quiz_fantaguzzi_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'The Red Cross'**
+  /// **'Since 1970'**
   String get quiz_fantaguzzi_q1_o3;
 
   /// No description provided for @quiz_fantaguzzi_q2.
   ///
   /// In en, this message translates to:
-  /// **'What role did the palace play during the war?'**
+  /// **'During which period did part of the palace house the local Fascist offices?'**
   String get quiz_fantaguzzi_q2;
 
   /// No description provided for @quiz_fantaguzzi_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'Coordination center for partisan resistance'**
+  /// **'Throughout the twenty-year Fascist period'**
   String get quiz_fantaguzzi_q2_o1;
 
   /// No description provided for @quiz_fantaguzzi_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'Center of fascist political and administrative power'**
+  /// **'During the first months of the Italian Social Republic'**
   String get quiz_fantaguzzi_q2_o2;
 
   /// No description provided for @quiz_fantaguzzi_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'Headquarters of the Allied military tribunal'**
+  /// **'After the city’s liberation in 1944'**
   String get quiz_fantaguzzi_q2_o3;
 
   /// No description provided for @quiz_rifugi_antiaerei_q1.
   ///
   /// In en, this message translates to:
-  /// **'Where were the air-raid shelters excavated?'**
+  /// **'When was the decision made to excavate the air-raid tunnel in the Rocca hill?'**
   String get quiz_rifugi_antiaerei_q1;
 
   /// No description provided for @quiz_rifugi_antiaerei_q1_o1.
   ///
   /// In en, this message translates to:
-  /// **'Under the Palazzo del Ridotto'**
+  /// **'January 1944'**
   String get quiz_rifugi_antiaerei_q1_o1;
 
   /// No description provided for @quiz_rifugi_antiaerei_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'Under and around the Malatestiana Fortress'**
+  /// **'June 1941'**
   String get quiz_rifugi_antiaerei_q1_o2;
 
   /// No description provided for @quiz_rifugi_antiaerei_q1_o3.
   ///
   /// In en, this message translates to:
-  /// **'Under the railway station'**
+  /// **'October 1944'**
   String get quiz_rifugi_antiaerei_q1_o3;
 
   /// No description provided for @quiz_rifugi_antiaerei_q2.
   ///
   /// In en, this message translates to:
-  /// **'In which years were the shelters mainly used?'**
+  /// **'How many people could the Rocca shelter accommodate?'**
   String get quiz_rifugi_antiaerei_q2;
 
   /// No description provided for @quiz_rifugi_antiaerei_q2_o1.
   ///
   /// In en, this message translates to:
-  /// **'1940–1941'**
+  /// **'200 people'**
   String get quiz_rifugi_antiaerei_q2_o1;
 
   /// No description provided for @quiz_rifugi_antiaerei_q2_o2.
   ///
   /// In en, this message translates to:
-  /// **'1943–1944'**
+  /// **'500 people'**
   String get quiz_rifugi_antiaerei_q2_o2;
 
   /// No description provided for @quiz_rifugi_antiaerei_q2_o3.
   ///
   /// In en, this message translates to:
-  /// **'1945–1946'**
+  /// **'800 people, 290 of them seated'**
   String get quiz_rifugi_antiaerei_q2_o3;
 
   /// XP gained badge shown in the tour completion animation
@@ -2312,7 +2318,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingSlide3Desc.
   ///
   /// In en, this message translates to:
-  /// **'Compete with other explorers on the real-time leaderboard.'**
+  /// **'Compare your progress with your friends.'**
   String get onboardingSlide3Desc;
 
   /// No description provided for @onboardingSlide4Tag.
@@ -2446,6 +2452,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Become friends to see detailed stats, unlocked achievements and more.'**
   String get publicStatsPrivateBody;
+
+  /// No description provided for @sectionMapLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Map licences'**
+  String get sectionMapLicenses;
+
+  /// No description provided for @mapLicenseOsmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap'**
+  String get mapLicenseOsmTitle;
+
+  /// No description provided for @mapLicenseOsmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'© OpenStreetMap contributors — ODbL licence'**
+  String get mapLicenseOsmSubtitle;
+
+  /// No description provided for @mapLicenseCartoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CARTO'**
+  String get mapLicenseCartoTitle;
+
+  /// No description provided for @mapLicenseCartoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'© CARTO — Based on OpenStreetMap data'**
+  String get mapLicenseCartoSubtitle;
+
+  /// No description provided for @mapLicenseStadiaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stadia Maps / Stamen Design'**
+  String get mapLicenseStadiaTitle;
+
+  /// No description provided for @mapLicenseStadiaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'© Stadia Maps, © Stamen Design — CC BY 3.0 licence'**
+  String get mapLicenseStadiaSubtitle;
+
+  /// No description provided for @mapLicenseEsriTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Esri (Satellite view)'**
+  String get mapLicenseEsriTitle;
+
+  /// No description provided for @mapLicenseEsriSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community'**
+  String get mapLicenseEsriSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

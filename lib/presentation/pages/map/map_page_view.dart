@@ -379,24 +379,6 @@ class _MapCanvasState extends State<_MapCanvas> {
             positionStream: _positionStream,
           ),
         MarkerLayer(markers: widget.markers),
-        RichAttributionWidget(
-          alignment: AttributionAlignment.bottomRight,
-          attributions: widget.selectedMapStyle == MapStyle.satellite
-              ? const [
-                  TextSourceAttribution(
-                    'Tiles © Esri, Maxar, Earthstar Geographics, and the GIS User Community',
-                  ),
-                ]
-              : [
-                  const TextSourceAttribution('© OpenStreetMap contributors'),
-                  if (widget.standardMapUrl.contains('cartocdn.com'))
-                    const TextSourceAttribution('© CARTO'),
-                  if (widget.standardMapUrl.contains('stadia')) ...[
-                    const TextSourceAttribution('© Stadia Maps'),
-                    const TextSourceAttribution('© Stamen Design'),
-                  ],
-                ],
-        ),
       ],
     );
   }
