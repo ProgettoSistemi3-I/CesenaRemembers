@@ -14,6 +14,8 @@ class UserCleanupDataSource {
       _firestore.collection('public_profiles');
   CollectionReference<Map<String, dynamic>> get _friendStats =>
       _firestore.collection('friend_stats');
+  CollectionReference<Map<String, dynamic>> get _leaderboard =>
+      _firestore.collection('leaderboard');
 
   Future<void> deleteUserData({required String uid}) async {
     final userRef = _users.doc(uid);
@@ -95,6 +97,7 @@ class UserCleanupDataSource {
     finalBatch.delete(userRef);
     finalBatch.delete(_publicProfiles.doc(uid));
     finalBatch.delete(_friendStats.doc(uid));
+    finalBatch.delete(_leaderboard.doc(uid));
     if (normalizedUsername != null && normalizedUsername.isNotEmpty) {
       final usernameDoc = await _usernames.doc(normalizedUsername).get();
       if (usernameDoc.exists) {

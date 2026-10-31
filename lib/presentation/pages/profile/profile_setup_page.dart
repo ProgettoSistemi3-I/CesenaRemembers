@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/logging/app_logger.dart';
 import '../../../domain/validation/profile_validation.dart';
 import '../../../domain/usecases/user_profile_use_cases.dart';
 import '../../../injection_container.dart';
@@ -119,7 +120,13 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       if (mounted) {
         setState(() => _isSaving = false);
       }
-    } catch (e) {
+    } catch (e, st) {
+      AppLogger.error(
+        'Initial profile completion failed',
+        error: e,
+        stackTrace: st,
+        name: 'ProfileSetupPage',
+      );
       final message = e.toString();
       final isNetwork = e is FirebaseException &&
           (e.code == 'unavailable' || e.code == 'network-request-failed');
@@ -128,8 +135,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           _error = AppLocalizations.of(context)!.errorOffline;
         } else if (message.contains('USERNAME_NOT_AVAILABLE')) {
           _error = AppLocalizations.of(context)!.setupUsernameTaken;
-        } else if (message.contains('USERNAME_INDEX_PERMISSION_DENIED')) {
-          _error = AppLocalizations.of(context)!.setupGenericError;
         } else if (message.contains('INVALID_DISPLAY_NAME')) {
           _error = AppLocalizations.of(context)!.profileNameTooShort(
             ProfileValidation.minDisplayNameLength,

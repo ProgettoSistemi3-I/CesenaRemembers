@@ -137,6 +137,9 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       throw const _BannedFromFirestoreException();
     }
 
+    // Se il documento non può essere creato/letto, non proseguire mostrando
+    // il form: il completamento del profilo richiede questo documento oppure
+    // usa il percorso atomico di create previsto dalle Firestore Rules.
     try {
       await _profileUseCases.ensureUserDocument(
         uid: widget.appUser.id,
@@ -144,11 +147,12 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       );
     } catch (e, st) {
       AppLogger.error(
-        'ensureUserDocument skipped',
+        'ensureUserDocument failed',
         error: e,
         stackTrace: st,
         name: 'AuthGate',
       );
+      rethrow;
     }
 
     unawaited(sl<ThemeController>().refreshFromProfile().catchError((_) {}));

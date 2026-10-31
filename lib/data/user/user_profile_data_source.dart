@@ -19,6 +19,8 @@ class UserProfileDataSource {
       _firestore.collection('public_profiles');
   CollectionReference<Map<String, dynamic>> get _friendStats =>
       _firestore.collection('friend_stats');
+  CollectionReference<Map<String, dynamic>> get _leaderboard =>
+      _firestore.collection('leaderboard');
 
   /// La proiezione pubblica contiene soltanto i dati minimi per trovare un profilo.
   /// XP, progressi, achievement e lista amici sono conservati in friend_stats.
@@ -140,78 +142,83 @@ class UserProfileDataSource {
     final usernameRef = _usernames.doc(normalizedUsername);
     final publicProfileRef = _publicProfiles.doc(uid);
     final friendStatsRef = _friendStats.doc(uid);
+    final leaderboardRef = _leaderboard.doc(uid);
+    var leaderboardXp = 0;
 
-    try {
-      await _firestore.runTransaction((transaction) async {
-        // 1. Lettura indice username
+    await _firestore.runTransaction((transaction) async {
+      // 1. Lettura indice username
 
-        final existingUsername = await transaction.get(usernameRef);
+      final existingUsername = await transaction.get(usernameRef);
 
-        if (existingUsername.exists) {
-          final ownerUid = existingUsername.data()?['uid'];
+      if (existingUsername.exists) {
+        final ownerUid = existingUsername.data()?['uid'];
 
-          if (ownerUid != uid) {
-            throw Exception('USERNAME_NOT_AVAILABLE');
-          }
+        if (ownerUid != uid) {
+          throw Exception('USERNAME_NOT_AVAILABLE');
         }
-
-        // 2. Lettura profilo utente
-
-        final existingUser = await transaction.get(userRef);
-        final existingData = existingUser.data() ?? <String, dynamic>{};
-
-        final alreadyCompleted = existingData['profileCompleted'] == true;
-
-        if (alreadyCompleted) {
-          return;
-        }
-
-        // 3. Preparazione indice username
-        if (!existingUsername.exists) {
-
-          transaction.set(usernameRef, {
-            'uid': uid,
-            'username': normalizedUsername,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-        }
-
-        // 4. Preparazione profilo privato
-        final completedPayload = _buildCompletedProfilePayload(
-          existingData: existingData,
-          email: email,
-          username: username,
-          normalizedUsername: normalizedUsername,
-          displayName: displayName,
-          avatarId: avatarId,
-          includeCreatedAt: !existingUser.exists,
-        );
-
-        transaction.set(userRef, completedPayload, SetOptions(merge: true));
-
-        // 5. Preparazione profilo pubblico
-        final publicPayload = _publicProfilePayload({
-          ...existingData,
-          ...completedPayload,
-        });
-
-        transaction.set(publicProfileRef, publicPayload);
-
-        // Le statistiche sono separate e accessibili solo al proprietario e
-        // agli amici reciproci secondo firestore.rules.
-        transaction.set(
-          friendStatsRef,
-          _friendStatsPayload({...existingData, ...completedPayload}),
-        );
-      });
-    } on FirebaseException catch (e) {
-      if (e.code == 'permission-denied') {
-        throw Exception('USERNAME_INDEX_PERMISSION_DENIED');
       }
 
-      rethrow;
+      // 2. Lettura profilo utente
+
+      final existingUser = await transaction.get(userRef);
+      final existingData = existingUser.data() ?? <String, dynamic>{};
+      leaderboardXp = (existingData['xp'] as num?)?.toInt() ?? 0;
+
+      final alreadyCompleted = existingData['profileCompleted'] == true;
+
+      if (alreadyCompleted) {
+        return;
+      }
+
+      // 3. Preparazione indice username
+      if (!existingUsername.exists) {
+
+        transaction.set(usernameRef, {
+          'uid': uid,
+          'username': normalizedUsername,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // 4. Preparazione profilo privato
+      final completedPayload = _buildCompletedProfilePayload(
+        existingData: existingData,
+        email: email,
+        username: username,
+        normalizedUsername: normalizedUsername,
+        displayName: displayName,
+        avatarId: avatarId,
+        includeCreatedAt: !existingUser.exists,
+      );
+
+      transaction.set(userRef, completedPayload, SetOptions(merge: true));
+
+      // 5. Preparazione profilo pubblico
+      final publicPayload = _publicProfilePayload({
+        ...existingData,
+        ...completedPayload,
+      });
+
+      transaction.set(publicProfileRef, publicPayload);
+
+      // Le statistiche sono separate e accessibili solo al proprietario e
+      // agli amici reciproci secondo firestore.rules.
+      transaction.set(
+        friendStatsRef,
+        _friendStatsPayload({...existingData, ...completedPayload}),
+      );
+    });
+
+    // La proiezione della classifica viene scritta dopo il completamento del
+    // profilo: un eventuale problema della classifica non deve bloccare
+    // l'onboarding né annullare la creazione del profilo.
+    try {
+      await leaderboardRef.set({
+        'uid': uid,
+        'xp': leaderboardXp,
+      });
     } catch (_) {
-      rethrow;
+      // Il backfill amministrativo può ricreare questa proiezione in seguito.
     }
   }
 

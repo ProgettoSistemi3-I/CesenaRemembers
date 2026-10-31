@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../core/logging/app_logger.dart';
 import '../../domain/services/achievement_service.dart';
 
 class UserProgressDataSource {
@@ -16,105 +17,35 @@ class UserProgressDataSource {
       _firestore.collection('public_profiles');
   CollectionReference<Map<String, dynamic>> get _friendStats =>
       _firestore.collection('friend_stats');
+  CollectionReference<Map<String, dynamic>> get _leaderboard =>
+      _firestore.collection('leaderboard');
 
-  /// Classifica privata: ascolta solo il documento dell'utente e i documenti
-  /// friend_stats dei suoi amici. Non esegue query globali sulle statistiche.
+  /// Classifica globale: legge soltanto UID e XP dalla proiezione pubblica
+  /// dedicata, poi arricchisce ogni riga con i campi identificativi pubblici.
+  /// Le statistiche dettagliate restano in friend_stats e non vengono lette qui.
   Stream<List<Map<String, dynamic>>> getLeaderboardStream({
     required String uid,
     int limit = 50,
   }) {
-    late final StreamController<List<Map<String, dynamic>>> controller;
-    final subscriptions = <String, StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>>{};
-    final entries = <String, Map<String, dynamic>>{};
-    StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? userSubscription;
-    var cancelled = false;
-
-    void emit() {
-      if (cancelled || controller.isClosed) return;
-      final sorted = entries.values.toList()
-        ..sort((a, b) => ((b['xp'] as num?)?.toInt() ?? 0)
-            .compareTo((a['xp'] as num?)?.toInt() ?? 0));
-      controller.add(sorted.take(limit).toList(growable: false));
-    }
-
-    Future<void> attach(String friendUid) async {
-      subscriptions[friendUid] = _friendStats.doc(friendUid).snapshots().listen(
-        (statsSnapshot) async {
-          if (!statsSnapshot.exists || statsSnapshot.data() == null) {
-            entries.remove(friendUid);
-            emit();
-            return;
-          }
-          try {
-            final publicSnapshot = await _publicProfiles.doc(friendUid).get();
+    return _firestore
+        .collection('leaderboard')
+        .orderBy('xp', descending: true)
+        .limit(limit.clamp(1, 50))
+        .snapshots()
+        .asyncMap((snapshot) async {
+          final rows = await Future.wait(snapshot.docs.map((doc) async {
+            final publicSnapshot = await _publicProfiles.doc(doc.id).get();
             if (!publicSnapshot.exists || publicSnapshot.data() == null) {
-              entries.remove(friendUid);
-            } else {
-              entries[friendUid] = {
-                ...publicSnapshot.data()!,
-                ...statsSnapshot.data()!,
-                'uid': friendUid,
-              };
+              return null;
             }
-            emit();
-          } catch (error, stackTrace) {
-            if (!controller.isClosed) controller.addError(error, stackTrace);
-          }
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          // Una relazione non più valida (ad esempio dopo un ban o una
-          // rimozione) esclude soltanto quell'utente dalla classifica.
-          entries.remove(friendUid);
-          emit();
-        },
-      );
-    }
-
-    void syncFriends(List<String> friendUids) {
-      final desired = <String>{uid, ...friendUids.where((id) => id.isNotEmpty && id != uid)};
-      for (final existingUid in subscriptions.keys.toList()) {
-        if (!desired.contains(existingUid)) {
-          subscriptions.remove(existingUid)?.cancel();
-          entries.remove(existingUid);
-        }
-      }
-      for (final friendUid in desired) {
-        if (!subscriptions.containsKey(friendUid)) {
-          attach(friendUid);
-        }
-      }
-      emit();
-    }
-
-    controller = StreamController<List<Map<String, dynamic>>>(
-      onListen: () {
-        userSubscription = _users.doc(uid).snapshots().listen(
-          (userSnapshot) {
-            if (!userSnapshot.exists) {
-              syncFriends(const []);
-              return;
-            }
-            final friendUids = List<String>.from(
-              userSnapshot.data()?['friends'] ?? const [],
-            );
-            syncFriends(friendUids);
-          },
-          onError: (Object error, StackTrace stackTrace) {
-            if (!controller.isClosed) controller.addError(error, stackTrace);
-          },
-        );
-      },
-      onCancel: () async {
-        cancelled = true;
-        await userSubscription?.cancel();
-        for (final subscription in subscriptions.values) {
-          await subscription.cancel();
-        }
-        subscriptions.clear();
-        entries.clear();
-      },
-    );
-    return controller.stream;
+            return <String, dynamic>{
+              ...publicSnapshot.data()!,
+              'uid': doc.id,
+              'xp': (doc.data()['xp'] as num?)?.toInt() ?? 0,
+            };
+          }));
+          return rows.whereType<Map<String, dynamic>>().toList(growable: false);
+        });
   }
 
   /// [isTourComplete] deve essere true solo sull'ultima tappa del tour,
@@ -135,6 +66,7 @@ class UserProgressDataSource {
     final userRef = _users.doc(uid);
     final publicRef = _publicProfiles.doc(uid);
     final statsRef = _friendStats.doc(uid);
+    final leaderboardRef = _leaderboard.doc(uid);
 
     await _firestore.runTransaction((transaction) async {
       final snapshot = await transaction.get(userRef);
@@ -245,6 +177,7 @@ class UserProgressDataSource {
         'profileCompleted': data['profileCompleted'] == true,
         'onboardingCompleted': data['onboardingCompleted'] == true,
       });
+      transaction.set(leaderboardRef, {'uid': uid, 'xp': nextXp});
       transaction.set(statsRef, {
         'xp': nextXp,
         'visitedPoiIds': visitedPoiIds,

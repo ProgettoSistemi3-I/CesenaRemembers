@@ -242,6 +242,7 @@ def main() -> int:
     existing_public = list(db.collection("public_profiles").stream())
     existing_usernames = list(db.collection("usernames").stream())
     existing_friend_stats = list(db.collection("friend_stats").stream())
+    existing_leaderboard = list(db.collection("leaderboard").stream())
     existing_inbox_docs = []
     for doc in db.collection_group("inbox").stream():
         parts = doc.reference.path.split("/")
@@ -253,6 +254,7 @@ def main() -> int:
         operations.append(("set", db.collection("users").document(uid), private))
         operations.append(("set", db.collection("public_profiles").document(uid), public))
         operations.append(("set", db.collection("friend_stats").document(uid), stats))
+        operations.append(("set", db.collection("leaderboard").document(uid), {"uid": uid, "xp": int(private.get("xp", 0) or 0)}))
     for uid, minimal in incomplete.items():
         operations.append(("set", db.collection("users").document(uid), minimal))
 
@@ -261,6 +263,9 @@ def main() -> int:
         if doc.id not in all_valid_uids:
             operations.append(("delete", doc.reference, None))
     for doc in existing_friend_stats:
+        if doc.id not in all_valid_uids:
+            operations.append(("delete", doc.reference, None))
+    for doc in existing_leaderboard:
         if doc.id not in all_valid_uids:
             operations.append(("delete", doc.reference, None))
 
@@ -299,9 +304,15 @@ def main() -> int:
             "senderUid": sender, "recipientUid": recipient, "createdAt": created_at,
         }))
 
+    existing_friend_stats_ids = {doc.id for doc in existing_friend_stats}
+    missing_friend_stats = [uid for uid in migrated if uid not in existing_friend_stats_ids]
+
     print(f"Utenti letti: {len(source_users)}; account bannati esclusi dalle proiezioni: {len(banned_uids)}; profili completati: {len(migrated)}; profili incompleti ripuliti: {len(incomplete)}")
-    print(f"Documenti friend_stats da sincronizzare: {len(migrated)}")
+    print(f"Documenti friend_stats da sincronizzare: {len(migrated)}; mancanti prima della migrazione: {len(missing_friend_stats)}")
     print(f"Amicizie reciproche mantenute: {sum(len(p[0]['friends']) for p in migrated.values()) // 2}; richieste valide: {len(valid_requests)}")
+    print("Riepilogo amici reciproci per username:")
+    for uid, (private, _, _) in sorted(migrated.items(), key=lambda item: item[1][0]['usernameNormalized']):
+        print(f"  @{private['usernameNormalized']}: {len(private['friends'])} amici")
     print(f"Operazioni previste: {len(operations)}; modalità: {'APPLY' if args.apply else 'DRY-RUN (nessuna scrittura)'}")
 
     if args.apply:
@@ -313,7 +324,7 @@ def main() -> int:
                 else:
                     batch.delete(ref)
             batch.commit()
-        print("Migrazione completata: public_profiles ora contiene solo dati identificativi e friend_stats contiene i dati riservati. Ora distribuisci firestore.rules.")
+        print("Migrazione completata: public_profiles contiene i dati identificativi, friend_stats le statistiche riservate e leaderboard soltanto UID/XP per la classifica globale. Ora distribuisci firestore.rules.")
     else:
         print("Nessuna scrittura eseguita. Fai un backup e ripeti con --apply per applicare la migrazione.")
     return 0

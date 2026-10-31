@@ -88,11 +88,6 @@ service cloud.firestore {
         publicData.onboardingCompleted == privateData.get('onboardingCompleted', false);
     }
 
-    function initialPublicMirrorMatches(privateData, publicData) {
-      return validPublicProfileShape(publicData) &&
-        publicProfileFieldsMatch(privateData, publicData);
-    }
-
     function publicMirrorMatches(uid) {
       let privateData =
         getAfter(/databases/$(database)/documents/users/$(uid)).data;
@@ -247,32 +242,41 @@ service cloud.firestore {
            newData.get('bestTourTimeSeconds', 0) < 1800));
     }
 
-    // Le statistiche iniziali sono vuote e vengono create nello stesso commit del profilo.
-    function friendStatsInitialProgressIsEmpty(data) {
-      return data.xp == 0 && data.visitedPoiIds == [] &&
-        data.unlockedAchievements == [] && data.maxQuizScore == 0 &&
-        data.totalQuizCompleted == 0 && data.totalToursCompleted == 0 &&
-        data.totalCorrectAnswers == 0 && data.bestTourTimeSeconds == 0 &&
-        data.maxSingleTourXp == 0 && data.friends == [];
-    }
-
     function validPublicProfileCreate(uid) {
       let p = request.resource.data;
-      let userPath = /databases/$(database)/documents/users/$(uid);
-      let oldUser = get(userPath).data;
-      let userAfter = getAfter(userPath).data;
+      let userAfter =
+        getAfter(/databases/$(database)/documents/users/$(uid)).data;
       return userAfter.get('profileCompleted', false) == true &&
         validPublicProfileShape(p) &&
-        ((oldUser.get('profileCompleted', false) != true &&
-          p.get('profileCompleted', false) == true) ||
-         (oldUser.get('profileCompleted', false) == true &&
-          publicProfileFieldsMatch(userAfter, p)));
+        publicProfileFieldsMatch(userAfter, p);
     }
 
-    // Primo completamento del profilo: tutti i valori di progressione devono partire
-    // da zero/vuoti e i documenti username e public_profiles devono esistere dopo il commit.
-    function validInitialProfileCompletion(uid) {
-      let d = request.resource.data;
+    // La classifica globale espone esclusivamente UID e XP. I dettagli delle
+    // statistiche restano in friend_stats, leggibili solo da proprietario/amici.
+    function validLeaderboardProjection(uid, data) {
+      let userAfter = getAfter(/databases/$(database)/documents/users/$(uid)).data;
+      return data.keys().hasOnly(['uid', 'xp']) &&
+        data.get('uid', '') == uid &&
+        data.get('xp', -1) is int && data.xp >= 0 &&
+        userAfter.get('profileCompleted', false) == true &&
+        data.xp == userAfter.get('xp', 0);
+    }
+
+    function leaderboardMirrorMatches(uid) {
+      let leaderboardData =
+        getAfter(/databases/$(database)/documents/leaderboard/$(uid)).data;
+      let userAfter =
+        getAfter(/databases/$(database)/documents/users/$(uid)).data;
+      return leaderboardData.get('uid', '') == uid &&
+        leaderboardData.get('xp', -1) == userAfter.get('xp', 0);
+    }
+
+    // Convalida il documento utente completato. Le proiezioni collegate vengono
+    // validate dalle rispettive regole (public_profiles, friend_stats, usernames)
+    // nello stesso commit: qui si controlla solo che esistano dopo il commit.
+    // Questo riduce le letture get/getAfter e lascia un margine ampio rispetto
+    // ai limiti 10-per-operazione / 20-per-batch.
+    function validInitialProfileData(uid, d) {
       let usernamePath =
         /databases/$(database)/documents/usernames/$(d.usernameNormalized);
       let publicPath =
@@ -280,22 +284,11 @@ service cloud.firestore {
       let statsPath =
         /databases/$(database)/documents/friend_stats/$(uid);
 
-      return resource.data.get('profileCompleted', false) != true &&
-        d.profileCompleted == true &&
-        d.keys().hasOnly([
-          'email', 'displayName', 'displayNameNormalized', 'username',
-          'usernameNormalized', 'avatarId', 'profileCompleted',
-          'profileCompletedAt', 'onboardingCompleted', 'xp',
-          'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
-          'pendingAchievements', 'maxQuizScore', 'totalQuizCompleted',
-          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
-          'maxSingleTourXp', 'friends', 'sentFriendRequests',
-          'receivedFriendRequests', 'fcmTokens', 'preferences',
-          'createdAt', 'updatedAt'
-        ]) &&
+      return d.get('profileCompleted', false) == true &&
         d.email is string &&
         d.email.size() <= 254 &&
-        d.createdAt is timestamp &&
+        request.auth.token.email == d.email &&
+        (!('createdAt' in d) || d.createdAt is timestamp) &&
         d.displayName is string &&
         d.displayName.size() >= 2 &&
         d.displayName.size() <= 30 &&
@@ -306,6 +299,7 @@ service cloud.firestore {
         d.avatarId.size() > 0 &&
         d.avatarId.size() <= 40 &&
         d.onboardingCompleted is bool &&
+        d.profileCompletedAt is timestamp &&
         d.xp == 0 &&
         d.leaderboardScore == 0 &&
         d.maxQuizScore == 0 &&
@@ -320,16 +314,51 @@ service cloud.firestore {
         d.friends == [] &&
         d.sentFriendRequests == [] &&
         d.receivedFriendRequests == [] &&
-        d.fcmTokens == [] &&
+        d.fcmTokens is list && d.fcmTokens.size() <= 20 &&
         validPreferences(d.preferences) &&
+        d.updatedAt is timestamp &&
         existsAfter(usernamePath) &&
-        getAfter(usernamePath).data.uid == uid &&
         existsAfter(publicPath) &&
-        initialPublicMirrorMatches(d, getAfter(publicPath).data) &&
-        existsAfter(statsPath) &&
-        validFriendStatsShape(getAfter(statsPath).data) &&
-        friendStatsInitialProgressIsEmpty(getAfter(statsPath).data) &&
-        friendStatsFieldsMatch(d, getAfter(statsPath).data);
+        existsAfter(statsPath);
+    }
+
+    // Primo completamento su un documento users/{uid} già inizializzato.
+    // Si controllano solo le chiavi modificate: eventuali campi legacy già
+    // presenti ma non toccati non devono bloccare l'onboarding.
+    function validInitialProfileCompletion(uid) {
+      let d = request.resource.data;
+      let changed = d.diff(resource.data).affectedKeys();
+      return resource.data.get('profileCompleted', false) != true &&
+        d.get('profileCompleted', false) == true &&
+        changed.hasOnly([
+          'email', 'createdAt', 'displayName', 'displayNameNormalized',
+          'username', 'usernameNormalized', 'avatarId', 'profileCompleted',
+          'profileCompletedAt', 'onboardingCompleted', 'xp',
+          'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
+          'pendingAchievements', 'maxQuizScore', 'totalQuizCompleted',
+          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
+          'maxSingleTourXp', 'friends', 'sentFriendRequests',
+          'receivedFriendRequests', 'fcmTokens', 'preferences', 'updatedAt'
+        ]) &&
+        validInitialProfileData(uid, d);
+    }
+
+    // Supporta anche il completamento atomico se il documento users/{uid}
+    // non è stato creato in precedenza da ensureUserDocument.
+    function validInitialProfileCreate(uid) {
+      let d = request.resource.data;
+      return d.createdAt is timestamp &&
+        d.keys().hasOnly([
+          'email', 'createdAt', 'displayName', 'displayNameNormalized',
+          'username', 'usernameNormalized', 'avatarId', 'profileCompleted',
+          'profileCompletedAt', 'onboardingCompleted', 'xp',
+          'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
+          'pendingAchievements', 'maxQuizScore', 'totalQuizCompleted',
+          'totalToursCompleted', 'totalCorrectAnswers', 'bestTourTimeSeconds',
+          'maxSingleTourXp', 'friends', 'sentFriendRequests',
+          'receivedFriendRequests', 'fcmTokens', 'preferences', 'updatedAt'
+        ]) &&
+        validInitialProfileData(uid, d);
     }
 
     function validOwnerProgressUpdate() {
@@ -379,7 +408,8 @@ service cloud.firestore {
               next.get('bestTourTimeSeconds', 0) <= old.get('bestTourTimeSeconds', 0)))
           : next.get('bestTourTimeSeconds', 0) == old.get('bestTourTimeSeconds', 0)) &&
         publicMirrorMatches(request.auth.uid) &&
-        friendStatsMirrorMatches(request.auth.uid);
+        friendStatsMirrorMatches(request.auth.uid) &&
+        leaderboardMirrorMatches(request.auth.uid);
     }
 
     function validAchievementClaim() {
@@ -716,14 +746,16 @@ service cloud.firestore {
       allow get: if isOwner(userId) && isNotBanned();
       allow list: if false;
 
-      allow create: if isOwner(userId) &&
-        isNotBanned() &&
-        request.resource.data.keys().hasOnly(['email', 'createdAt', 'updatedAt']) &&
-        request.resource.data.email is string &&
-        request.resource.data.email.size() <= 254 &&
-        request.auth.token.email == request.resource.data.email &&
-        request.resource.data.createdAt is timestamp &&
-        request.resource.data.updatedAt is timestamp;
+      allow create: if isOwner(userId) && isNotBanned() && (
+        (
+          request.resource.data.keys().hasOnly(['email', 'createdAt', 'updatedAt']) &&
+          request.resource.data.email is string &&
+          request.resource.data.email.size() <= 254 &&
+          request.auth.token.email == request.resource.data.email &&
+          request.resource.data.createdAt is timestamp &&
+          request.resource.data.updatedAt is timestamp
+        ) || validInitialProfileCreate(userId)
+      );
 
       // I percorsi che modificano il documento altrui sono valutati solo quando
       // l'utente autenticato non è il proprietario. Questo evita di valutare
@@ -779,6 +811,15 @@ service cloud.firestore {
           friendStatsMirrorMatches(userId)) ||
         (!isOwner(userId) && validCrossFriendStatsUpdate(userId))
       );
+      allow delete: if isOwner(userId);
+    }
+
+    match /leaderboard/{userId} {
+      allow get: if isSignedIn() && isNotBanned();
+      allow list: if isSignedIn() && isNotBanned() &&
+        request.query.limit != null && request.query.limit <= 50;
+      allow create, update: if isOwner(userId) && isNotBanned() &&
+        validLeaderboardProjection(userId, request.resource.data);
       allow delete: if isOwner(userId);
     }
 
