@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from facts_loader import KNOWN_POI_IDS, load_all, parse_facts_file  # noqa: E402
+from config import load_settings  # noqa: E402
 from models import LlmQuestion  # noqa: E402
 from prompts import difficulty_level  # noqa: E402
 from validation import (  # noqa: E402
@@ -77,6 +78,29 @@ def test_only_verified_section_is_loaded():
 """
     poi = parse_facts_file("x", content)
     assert [f.id for f in poi.facts] == ["AAA-01"]
+
+
+def test_key_app_description_details_are_available_to_quiz_generation():
+    # These fact IDs correspond to historical details published in the POI descriptions.
+    expected = {
+        "santa_cristina": ("SCR-09", "SCR-10"),
+        "arrigoni": ("ARR-13", "ARR-14", "ARR-15"),
+        "abbazia_monte": ("ABM-16", "ABM-17", "ABM-18"),
+        "stazione": ("STA-07", "STA-12"),
+    }
+    for poi_id, fact_ids in expected.items():
+        available = FACTS[poi_id].by_id()
+        for fact_id in fact_ids:
+            assert fact_id in available, f"{poi_id}: missing {fact_id}"
+            assert available[fact_id].text_it
+            assert available[fact_id].text_en
+
+
+def test_default_facts_per_prompt_includes_every_current_poi_fact(monkeypatch):
+    monkeypatch.delenv("FACTS_PER_PROMPT", raising=False)
+    settings = load_settings()
+    largest_sheet = max(len(poi.facts) for poi in FACTS.values())
+    assert settings.facts_per_prompt >= largest_sheet
 
 
 def test_xp_mapping_matches_previous_thresholds():
