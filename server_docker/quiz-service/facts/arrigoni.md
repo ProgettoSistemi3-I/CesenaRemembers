@@ -104,6 +104,21 @@
 - Fonti: [S9]
 - Passaggio di riferimento: [S9] "Negli anni '30 sotto la sua guida lo stabilimento diventò la fabbrica alimentare più importante della zona, arrivando a contare circa 5000 addetti".
 
+### ARR-14
+- Affermazione (IT): Numerosi operai dell'Arrigoni contrastarono il fascismo con scioperi, azioni di sabotaggio e propaganda libertaria.
+- Affermazione (EN): Many Arrigoni workers opposed Fascism through strikes, acts of sabotage and libertarian propaganda.
+- Stato: verificato
+- Fonti: [S9]
+- Passaggio di riferimento: [S9] "furono numerosi coloro che combatterono il fascismo con scioperi, azioni di sabotaggio e propaganda libertaria".
+
+### ARR-15
+- Affermazione (IT): Molti operai antifascisti dell'Arrigoni furono perseguitati, mandati al confino o uccisi in seguito all'arresto.
+- Affermazione (EN): Many anti-Fascist workers at Arrigoni were persecuted, sent into internal exile or killed following arrest.
+- Stato: verificato
+- Fonti: [S9]
+- Passaggio di riferimento: [S9] "molti operai furono perseguitati, mandati al confino o uccisi in seguito all'arresto".
+
+
 ## Informazioni parzialmente verificate o non verificate
 
 - RISOLTO — Il rapporto tra il CIA e lo stabilimento Arrigoni è ora documentato anche dalla fonte [S9], che attesta l'acquisizione del CIA da parte di Giorgio Sanguinetti nel 1927.
@@ -112,7 +127,7 @@
 - PARZIALE — Data di morte di Werther Ricchi: 4 aprile 1944 secondo la scheda [S3]; 4 maggio 1944 secondo Mambelli, citato nella stessa scheda. Non usare la data.
 - CONTRADDETTO — ARB: "grande industria conserviera fondata nel 1880". Nessuna fonte lo conferma. Le fonti indicano: azienda nata a Isola d'Istria nel 1855 da Gaspare Arrigoni ([S8]) oppure società "Prodotti alimentari G. Arrigoni & C." fondata da Giorgio Sanguinetti nel 1919 ([S4]); lo stabilimento di Cesena arrivò dopo la Prima guerra mondiale (1929 secondo [S4]; il titolo del volume citato da [S8] indica il periodo 1920-1982).
 - NON VERIFICATO — ARB: "specializzata in conserve ittiche". Il pesce in scatola fu la specialità iniziale del gruppo ([S4]); a Cesena le fonti citano confetture, pomodori pelati e minestroni essiccati.
-- PARZIALE — Le fonti documentano scioperi, sabotaggi e propaganda libertaria degli operai antifascisti [S9], ma non precisano che tali attività si concentrassero esclusivamente nel biennio 1943–1944; evitare una datazione così ristretta.
+- PARZIALE — La fonte [S9] documenta scioperi, sabotaggi e propaganda libertaria, ma non data queste attività esclusivamente al biennio 1943–1944. Non restringere a quel periodo fatti che la fonte non data in modo così preciso.
 - NON VERIFICATO — "Strategicamente rilevante per la logistica alimentare" (ARB). Nessuna fonte.
 
 ## Discrepanze tra fonti
