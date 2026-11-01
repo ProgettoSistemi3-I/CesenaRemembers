@@ -132,7 +132,9 @@ Usa token pubblici con restrizioni di dominio/app appropriate. Non inserire chia
 
 ## Classifica globale e statistiche riservate
 
-La classifica è globale: la raccolta `leaderboard` contiene esclusivamente `uid` e `xp`, ed è interrogabile dagli utenti autenticati con un limite massimo di 50 risultati. L'app arricchisce ogni riga con `displayName`, `username` e `avatarId` letti da `public_profiles`. Le statistiche dettagliate (`visitedPoiIds`, achievement, risultati quiz, tempi e lista amici) restano in `friend_stats` e sono leggibili soltanto dal proprietario e dagli amici reciproci.
+La classifica è globale: `leaderboard` contiene esclusivamente `uid` e `xp` ed è interrogabile dagli utenti autenticati con un limite massimo di 50 risultati. La lista mostra la Top 50; l'utente corrente è mostrato anche in una riga fissata in alto e, se è fuori dalla Top 50, il rango effettivo viene calcolato leggendo la classifica a pagine da 50. La proiezione `public_profiles` contiene identità e riepilogo pubblico della hero card (`xp`, `friendsCount`, `totalToursCompleted`): `friendsCount` è soltanto un numero, non espone gli UID o i nomi degli amici. Le statistiche dettagliate (`visitedPoiIds`, achievement, risultati quiz, risposte, tempi e lista amici) restano in `friend_stats` e sono leggibili soltanto dal proprietario e dagli amici reciproci.
+
+Dopo l'aggiornamento dello schema pubblico, esegui nuovamente `scripts/migrate_public_profiles.py` prima di distribuire le nuove Firestore Rules, così anche gli account già esistenti ricevono i tre aggregati pubblici.
 
 Per popolare la nuova proiezione sui profili già migrati, configura `GOOGLE_APPLICATION_CREDENTIALS` con un service account protetto fuori dal repository ed esegui prima la simulazione:
 
