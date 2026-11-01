@@ -1715,11 +1715,6 @@ abstract class AppLocalizations {
   /// **'Due to a server error, questions are not personalized and use a specific local difficulty.'**
   String get quiz_fallback_desc;
 
-  /// Question and options for the third generic fallback quiz item.
-  String get quiz_fallback_q3;
-  String get quiz_fallback_q3_o1;
-  String get quiz_fallback_q3_o2;
-  String get quiz_fallback_q3_o3;
 
   /// Third local fallback question and its options for santa cristina.
   String get quiz_santa_cristina_q3;
