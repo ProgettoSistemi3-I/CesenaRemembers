@@ -131,10 +131,20 @@ class SettingsController extends ChangeNotifier {
       }
     } catch (e) {
       // 3) Rollback
+      // Ripristina lo stato precedente senza cancellare l'errore che deve
+      // essere mostrato nello snackbar.
+      try {
+        final profile = await _profileUseCases.getUserProfile(_currentUid);
+        notifiche = profile.notificheEnabled;
+        modalitaNotte = profile.darkModeEnabled;
+        posizione = profile.gpsEnabled;
+        _themeController.toggleTheme(modalitaNotte);
+        LocationPreferenceStore.setGpsEnabled(posizione);
+      } catch (_) {
+        // Mantieni lo stato ottimistico se anche il recupero remoto fallisce.
+      }
       errorMessage = 'errorConnectionSettings';
-      await loadUserPreferences();
-      _themeController.toggleTheme(modalitaNotte);
-      LocationPreferenceStore.setGpsEnabled(posizione);
+      _safeNotifyListeners();
     }
   }
 
