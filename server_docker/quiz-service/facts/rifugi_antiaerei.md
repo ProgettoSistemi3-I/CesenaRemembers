@@ -1,7 +1,7 @@
 # Rifugi antiaerei della Rocca
 
 - POI id: rifugi_antiaerei
-- Ultimo aggiornamento della scheda: 2026-10-23
+- Ultimo aggiornamento della scheda: 2026-11-01
 - Nota d'uso: il server invia al modello SOLO la sezione "Fatti verificati".
 
 ## Fonti consultate
@@ -144,6 +144,13 @@
 - Fonti: [S6]; data della liberazione anche in [S4]
 - Passaggio di riferimento: [S6] "la liberazione della città, avvenuta il 20 ottobre"; "l'Amministrazione comunale riapre i cancelli del rifugio"; [S4] "Il 20 ottobre del '44, con l'ingresso degli Alleati in città".
 
+
+### RIF-19
+- Affermazione (IT): Il camino di ventilazione del rifugio di viale Mazzoni terminava nel soprastante Parco della Rimembranza.
+- Affermazione (EN): The ventilation shaft of the Viale Mazzoni shelter ended in the Parco della Rimembranza above it.
+- Stato: verificato
+- Fonti: [S1], [S4]
+- Passaggio di riferimento: [S4] specifica che il camino di ventilazione, usato anche come uscita di sicurezza, "termina nel soprastante parco della Rimembranza".
 ## Informazioni parzialmente verificate o non verificate
 
 - PARZIALE — Dopo la liberazione gli Alleati usarono il rifugio come deposito di pezzi di ricambio; a guerra finita fu smantellato e abbandonato. Una sola fonte divulgativa ([S8]).
