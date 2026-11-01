@@ -10,8 +10,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http_cache_file_store/http_cache_file_store.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../domain/entities/poi.dart';
@@ -77,8 +75,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   late TourSessionController _tourController;
   StreamSubscription<ServiceStatus>? _serviceStatusSub;
   StreamSubscription<void>? _tourUpdatesSub;
-  CacheStore? _tileCacheStore;
-  CachedTileProvider? _tileProvider;
+  // Cache LRU in memoria, limitata a 8 MB e governata dagli header HTTP.
+  final CachedTileProvider _tileProvider = CachedTileProvider(
+    store: MemCacheStore(maxSize: 8 * 1024 * 1024, maxEntrySize: 512 * 1024),
+    cachePolicy: CachePolicy.request,
+    hitCacheOnNetworkFailure: false,
+  );
 
   AlignOnUpdate _alignPositionOnUpdate = AlignOnUpdate.never;
   double _currentRotation = 0.0;
@@ -141,7 +143,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initTileCaching();
     _tourController = TourSessionController(availableStops: const []);
     _bindTourUpdates();
     LocationPreferenceStore.gpsEnabled.addListener(_onGpsPreferenceChanged);
@@ -204,24 +205,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _initTileCaching() async {
-    final cacheDir = await getApplicationSupportDirectory();
-    final cachePath = '${cacheDir.path}/map_tiles_cache';
-    final cacheStore = FileCacheStore(cachePath);
-    final provider = CachedTileProvider(
-      store: cacheStore,
-      maxStale: const Duration(days: 120),
-      hitCacheOnNetworkFailure: true,
-    );
-    if (!mounted) return;
-    setState(() {
-      _tileCacheStore = cacheStore;
-      _tileProvider = provider;
-    });
-  }
-
-  CachedTileProvider? get _cachedTileProvider => _tileProvider;
-
+  CachedTileProvider get _cachedTileProvider => _tileProvider;
   @override
   Widget build(BuildContext context) => _buildPage();
 }
