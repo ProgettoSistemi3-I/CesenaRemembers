@@ -99,6 +99,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         final available = await _profileUseCases.isUsernameAvailable(
           normalizedUsername,
         );
+        if (!mounted) return;
         if (!available) {
           setState(() {
             _error = AppLocalizations.of(context)!.setupUsernameTaken;
@@ -127,6 +128,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         stackTrace: st,
         name: 'ProfileSetupPage',
       );
+      if (!mounted) return;
       final message = e.toString();
       final isNetwork = e is FirebaseException &&
           (e.code == 'unavailable' || e.code == 'network-request-failed');
