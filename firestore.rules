@@ -102,34 +102,6 @@ service cloud.firestore {
       return publicProfileFieldsMatch(privateData, publicData);
     }
 
-    function validCrossPublicProfileFriendsCountUpdate(uid) {
-      let targetPath = /databases/$(database)/documents/users/$(uid);
-      let callerPath = /databases/$(database)/documents/users/$(request.auth.uid);
-      let targetBefore = get(targetPath).data;
-      let targetAfter = getAfter(targetPath).data;
-      let callerBefore = get(callerPath).data;
-      let callerAfter = getAfter(callerPath).data;
-      let oldFriends = targetBefore.get('friends', []);
-      let newFriends = targetAfter.get('friends', []);
-      let addedReciprocalFriend =
-        listAddsOnly(oldFriends, newFriends, request.auth.uid) &&
-        !callerBefore.get('friends', []).hasAny([uid]) &&
-        callerAfter.get('friends', []).hasAny([uid]);
-      let removedReciprocalFriend =
-        listRemovesOnly(oldFriends, newFriends, request.auth.uid) &&
-        callerBefore.get('friends', []).hasAny([uid]) &&
-        !callerAfter.get('friends', []).hasAny([uid]);
-
-      return isNotBanned() &&
-        uid != request.auth.uid &&
-        !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendsCount']) &&
-        validPublicProfileShape(request.resource.data) &&
-        publicProfileFieldsMatch(targetAfter, request.resource.data) &&
-        request.resource.data.friendsCount == newFriends.size() &&
-        (addedReciprocalFriend || removedReciprocalFriend);
-    }
-
     function validFriendStatsShape(data) {
       return data.keys().hasOnly([
           'xp', 'visitedPoiIds', 'unlockedAchievements', 'maxQuizScore',
@@ -237,6 +209,34 @@ service cloud.firestore {
       return oldList.hasAny([item]) &&
         !newList.hasAny([item]) &&
         listRemovesOne(oldList, newList);
+    }
+
+    function validCrossPublicProfileFriendsCountUpdate(uid) {
+      let targetPath = /databases/$(database)/documents/users/$(uid);
+      let callerPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      let targetBefore = get(targetPath).data;
+      let targetAfter = getAfter(targetPath).data;
+      let callerBefore = get(callerPath).data;
+      let callerAfter = getAfter(callerPath).data;
+      let oldFriends = targetBefore.get('friends', []);
+      let newFriends = targetAfter.get('friends', []);
+      let addedReciprocalFriend =
+        listAddsOnly(oldFriends, newFriends, request.auth.uid) &&
+        !callerBefore.get('friends', []).hasAny([uid]) &&
+        callerAfter.get('friends', []).hasAny([uid]);
+      let removedReciprocalFriend =
+        listRemovesOnly(oldFriends, newFriends, request.auth.uid) &&
+        callerBefore.get('friends', []).hasAny([uid]) &&
+        !callerAfter.get('friends', []).hasAny([uid]);
+
+      return isNotBanned() &&
+        uid != request.auth.uid &&
+        !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendsCount']) &&
+        validPublicProfileShape(request.resource.data) &&
+        publicProfileFieldsMatch(targetAfter, request.resource.data) &&
+        request.resource.data.friendsCount == newFriends.size() &&
+        (addedReciprocalFriend || removedReciprocalFriend);
     }
 
     function validAchievementIdsAdded(oldData, newData, oldList, newList) {
