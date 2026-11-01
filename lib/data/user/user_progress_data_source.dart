@@ -62,9 +62,7 @@ class UserProgressDataSource {
   /// Rango globale reale: pagine da massimo 50, compatibili con Firestore Rules.
   /// Legge solo UID e XP, non i profili o le statistiche degli altri utenti.
   Future<int?> getLeaderboardRank({required String uid}) async {
-    final baseQuery = _leaderboard
-        .orderBy('xp', descending: true)
-        .orderBy(FieldPath.documentId);
+    final baseQuery = _leaderboard.orderBy('xp', descending: true);
     var query = baseQuery.limit(50);
     var rank = 0;
     while (true) {
