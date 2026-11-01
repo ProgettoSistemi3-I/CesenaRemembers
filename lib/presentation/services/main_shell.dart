@@ -6,7 +6,6 @@ import 'shell_navigation_store.dart';
 import '../pages/social/social_page.dart';
 import 'push_notification_service.dart';
 import '../../l10n/app_localizations.dart';
-import 'package:geolocator/geolocator.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
