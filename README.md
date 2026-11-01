@@ -75,7 +75,7 @@ Repository privato / uso interno progetto.
 
 ### Migrazione obbligatoria prima delle nuove Rules
 
-La nuova app separa i dati in tre raccolte: `users/{uid}` contiene dati privati e stato applicativo; `public_profiles/{uid}` contiene soltanto nome visualizzato, username e avatar per la ricerca; `friend_stats/{uid}` contiene XP, progressi, achievement e lista amici, leggibili dal proprietario e dagli amici reciproci. La query globale delle statistiche è disabilitata. I profili già presenti devono essere migrati prima di distribuire le nuove Rules. Prima di distribuire `firestore.rules`, esegui la migrazione una volta con una credenziale Admin SDK conservata fuori da questa cartella:
+La nuova app separa i dati in tre raccolte: `users/{uid}` contiene dati privati e stato applicativo; `public_profiles/{uid}` contiene nome visualizzato, username, avatar e i soli riepiloghi pubblici della hero card (`xp`, `friendsCount`, `totalToursCompleted`); `friend_stats/{uid}` contiene la lista amici e le statistiche dettagliate, leggibili dal proprietario e dagli amici reciproci. `friendsCount` è un conteggio e non espone la lista degli UID. La query globale delle statistiche dettagliate è disabilitata. I profili già presenti devono essere migrati prima di distribuire le nuove Rules. Prima di distribuire `firestore.rules`, esegui la migrazione una volta con una credenziale Admin SDK conservata fuori da questa cartella:
 
 ```bash
 python -m pip install firebase-admin
