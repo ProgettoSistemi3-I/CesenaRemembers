@@ -21,10 +21,12 @@ service cloud.firestore {
 
     function validPreferences(prefs) {
       return prefs is map &&
-        prefs.keys().hasOnly(['notifiche', 'modalitaNotte', 'posizioneGps']) &&
+        prefs.keys().hasOnly(['notifiche', 'modalitaNotte', 'posizioneGps', 'languageCode']) &&
         (!('notifiche' in prefs) || prefs.notifiche is bool) &&
         (!('modalitaNotte' in prefs) || prefs.modalitaNotte is bool) &&
-        (!('posizioneGps' in prefs) || prefs.posizioneGps is bool);
+        (!('posizioneGps' in prefs) || prefs.posizioneGps is bool) &&
+        (!('languageCode' in prefs) ||
+          (prefs.languageCode is string && prefs.languageCode in ['it', 'en']));
     }
 
     function validVisitedPoiIds(ids) {
