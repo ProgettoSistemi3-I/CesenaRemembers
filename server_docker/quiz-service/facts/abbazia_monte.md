@@ -1,13 +1,13 @@
 # Abbazia di Santa Maria del Monte
 
 - POI id: abbazia_monte
-- Ultimo aggiornamento della scheda: 2026-10-23
+- Ultimo aggiornamento della scheda: 2026-11-01
 - Nota d'uso: il server invia al modello SOLO la sezione "Fatti verificati".
 
 ## Fonti consultate
 
 - [S1] B. Alai, "I corali ritrovati dell'abbazia benedettina di Santa Maria del Monte di Cesena", TECA, vol. XIII, n. 8 n.s., dicembre 2023 (Università di Bologna). URL: https://teca.unibo.it/article/download/17837/17719/78030 — consultata il 2026-10-23.
-- [S2] "Cesena città" — Patrimonio Culturale Emilia-Romagna, Memoria del Novecento / La Linea Gotica, aggiornato il 17-12-2024. URL: https://patrimonioculturale.regione.emilia-romagna.it/memoria-novecento/linea-gotica/cesena-citta — consultata il 2026-10-23.
+- [S2] "Cesena città" — Patrimonio Culturale Emilia-Romagna, Memoria del Novecento / La Linea Gotica, aggiornato il 17-12-2024. URL: https://patrimonioculturale.regione.emilia-romagna.it/memoria-novecento/linea-gotica/cesena-citta — ricontrollata il 2026-11-01.
 - [S3] D. Bartoletti, S. Bianchi, A. Pazzaglini, "Un memowalk a Cesena sulle tracce dei rifugi antiaerei", Clionet, vol. 1, 2017-10-16. URL: https://rivista.clionet.it/vol1/bartoletti-bianchi-pazzaglini-un-memowalk-a-cesena-sulle-tracce-dei-rifugi-antiaerei/ — consultata il 2026-10-23.
 - [S4] "Cesena: il centro storico" — itinerario Touring Club Italiano su Emilia-Romagna Turismo. URL: https://emiliaromagnaturismo.it/it/tci-itinerari/cesena-il-centro-storico — consultata il 2026-10-23.
 - [S5] Scheda OA "scena biblica" (bozzetto di Giuseppe Milani), catalogo PatER, Regione Emilia-Romagna, compilazione R. Ariuli 1999. URL: https://bbcc.regione.emilia-romagna.it/samira/api/print/card/59005 — consultata il 2026-10-23.
@@ -109,6 +109,35 @@
 - Stato: verificato
 - Fonti: [S2]
 - Passaggio di riferimento: [S2] "in questo caso non si registrarono vittime tra gli oltre settecento sfollati."
+
+
+### ABM-14
+- Affermazione (IT): Durante la Seconda guerra mondiale i frati benedettini realizzarono nei sotterranei dell'abbazia una galleria accessibile tramite un pozzo e ampliata con grotte ricavate nel tufo.
+- Affermazione (EN): During the Second World War, the Benedictine monks built an underground gallery in the abbey, accessible through a well and enlarged with chambers carved into the tuff.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] "nei sotterranei del complesso una galleria accessibile tramite un pozzo, ampliata con grotte ricavate nel tufo".
+
+### ABM-15
+- Affermazione (IT): Nei sotterranei dell'abbazia furono custoditi molti libri della Biblioteca Malatestiana.
+- Affermazione (EN): Many books from the Malatestiana Library were kept in the abbey's underground spaces.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] "i sotterranei dell'Abbazia custodirono anche molti libri della Biblioteca Malatestiana".
+
+### ABM-16
+- Affermazione (IT): Nel 1943 il monaco don Odo Contestabile salvò due famiglie ebree accompagnandole al confine con la Svizzera.
+- Affermazione (EN): In 1943, the monk Odo Contestabile saved two Jewish families by escorting them to the Swiss border.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] "nel 1943 salvò due famiglie di ebrei accompagnandole al confine con la Svizzera".
+
+### ABM-17
+- Affermazione (IT): Dal 2019 don Odo Contestabile è riconosciuto Giusto tra le Nazioni.
+- Affermazione (EN): Since 2019, Odo Contestabile has been recognised as Righteous Among the Nations.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] "Don Contestabile è stato riconosciuto dal 2019 come Giusto tra le nazioni".
 
 ## Informazioni parzialmente verificate o non verificate
 
