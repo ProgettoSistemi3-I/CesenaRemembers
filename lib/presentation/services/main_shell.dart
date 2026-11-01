@@ -38,13 +38,9 @@ class _MainShellState extends State<MainShell> {
   void _initializeNotifications() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await PushNotificationService.initializeAndSaveToken();
-      try {
-        var perm = await Geolocator.checkPermission();
-        if (perm == LocationPermission.denied) {
-          perm = await Geolocator.requestPermission();
-        }
-      } catch (_) {}
-      ShellNavigationStore.locationPermissionChanged.value++;
+      // La posizione viene richiesta solo quando l'utente avvia un tour
+      // o usa il comando "centra su di me".
+
     });
   }
 
