@@ -44,7 +44,7 @@ class HistoricPlacesSeed {
       type: 'church',
       period: '19th Century',
       description:
-          'poi_santa_cristina_description',
+          'poi_santa_cristina_desc',
       icon: Icons.church_outlined,
       iconBackground: Color(0xFFE1BEE7),
       questions: [
@@ -58,12 +58,20 @@ class HistoricPlacesSeed {
           correctIndex: 0,
         ),
         QuizQuestion(
-          question:
-              'quiz_santa_cristina_q2',
+          question: 'quiz_santa_cristina_q2',
           options: [
             'quiz_santa_cristina_q2_o1',
             'quiz_santa_cristina_q2_o2',
             'quiz_santa_cristina_q2_o3',
+          ],
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_santa_cristina_q3',
+          options: [
+            'quiz_santa_cristina_q3_o1',
+            'quiz_santa_cristina_q3_o2',
+            'quiz_santa_cristina_q3_o3',
           ],
           correctIndex: 0,
         ),
@@ -80,30 +88,36 @@ class HistoricPlacesSeed {
       type: 'monument',
       period: '14th Century',
       description:
-          'poi_rocca_description',
+          'poi_rocca_desc',
       icon: Icons.castle_outlined,
       iconBackground: Color(0xFFC8E6C9),
       questions: [
         QuizQuestion(
           question: 'quiz_rocca_q1',
-          options: ['quiz_rocca_q1_o1', 'quiz_rocca_q1_o2', 'quiz_rocca_q1_o3'],
+          options: [
+            'quiz_rocca_q1_o1',
+            'quiz_rocca_q1_o2',
+            'quiz_rocca_q1_o3',
+          ],
           correctIndex: 0,
         ),
         QuizQuestion(
-          question:
-              'quiz_rocca_q2',
-          options: ['quiz_rocca_q2_o1', 'quiz_rocca_q2_o2', 'quiz_rocca_q2_o3'],
-          correctIndex: 1,
+          question: 'quiz_rocca_q2',
+          options: [
+            'quiz_rocca_q2_o1',
+            'quiz_rocca_q2_o2',
+            'quiz_rocca_q2_o3',
+          ],
+          correctIndex: 0,
         ),
         QuizQuestion(
-          question:
-              'quiz_rocca_q3',
+          question: 'quiz_rocca_q3',
           options: [
             'quiz_rocca_q3_o1',
             'quiz_rocca_q3_o2',
             'quiz_rocca_q3_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
         ),
       ],
     ),
@@ -118,13 +132,17 @@ class HistoricPlacesSeed {
       type: 'church',
       period: '17th Century',
       description:
-          'poi_san_rocco_description',
+          'poi_san_rocco_desc',
       icon: Icons.church_outlined,
       iconBackground: Color(0xFFFFCCBC),
       questions: [
         QuizQuestion(
           question: 'quiz_san_rocco_q1',
-          options: ['quiz_san_rocco_q1_o1', 'quiz_san_rocco_q1_o2', 'quiz_san_rocco_q1_o3'],
+          options: [
+            'quiz_san_rocco_q1_o1',
+            'quiz_san_rocco_q1_o2',
+            'quiz_san_rocco_q1_o3',
+          ],
           correctIndex: 0,
         ),
         QuizQuestion(
@@ -133,6 +151,15 @@ class HistoricPlacesSeed {
             'quiz_san_rocco_q2_o1',
             'quiz_san_rocco_q2_o2',
             'quiz_san_rocco_q2_o3',
+          ],
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_san_rocco_q3',
+          options: [
+            'quiz_san_rocco_q3_o1',
+            'quiz_san_rocco_q3_o2',
+            'quiz_san_rocco_q3_o3',
           ],
           correctIndex: 0,
         ),
@@ -149,7 +176,7 @@ class HistoricPlacesSeed {
       type: 'monument',
       period: '11th Century',
       description:
-          'poi_abbazia_monte_description',
+          'poi_abbazia_monte_desc',
       icon: Icons.terrain,
       iconBackground: Color(0xFFD7CCC8),
       questions: [
@@ -169,7 +196,16 @@ class HistoricPlacesSeed {
             'quiz_abbazia_monte_q2_o2',
             'quiz_abbazia_monte_q2_o3',
           ],
-          correctIndex: 2,
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_abbazia_monte_q3',
+          options: [
+            'quiz_abbazia_monte_q3_o1',
+            'quiz_abbazia_monte_q3_o2',
+            'quiz_abbazia_monte_q3_o3',
+          ],
+          correctIndex: 0,
         ),
       ],
     ),
@@ -184,13 +220,17 @@ class HistoricPlacesSeed {
       type: 'church',
       period: '15th Century',
       description:
-          'poi_osservanza_description',
+          'poi_osservanza_desc',
       icon: Icons.fort,
       iconBackground: Color(0xFFC5CAE9),
       questions: [
         QuizQuestion(
           question: 'quiz_osservanza_q1',
-          options: ['quiz_osservanza_q1_o1', 'quiz_osservanza_q1_o2', 'quiz_osservanza_q1_o3'],
+          options: [
+            'quiz_osservanza_q1_o1',
+            'quiz_osservanza_q1_o2',
+            'quiz_osservanza_q1_o3',
+          ],
           correctIndex: 0,
         ),
         QuizQuestion(
@@ -199,6 +239,15 @@ class HistoricPlacesSeed {
             'quiz_osservanza_q2_o1',
             'quiz_osservanza_q2_o2',
             'quiz_osservanza_q2_o3',
+          ],
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_osservanza_q3',
+          options: [
+            'quiz_osservanza_q3_o1',
+            'quiz_osservanza_q3_o2',
+            'quiz_osservanza_q3_o3',
           ],
           correctIndex: 0,
         ),
@@ -215,7 +264,7 @@ class HistoricPlacesSeed {
       type: 'square',
       period: '15th Century',
       description:
-          'poi_palazzo_ridotto_description',
+          'poi_palazzo_ridotto_desc',
       icon: Icons.account_balance_outlined,
       iconBackground: Color(0xFFBBDEFB),
       questions: [
@@ -237,6 +286,15 @@ class HistoricPlacesSeed {
           ],
           correctIndex: 0,
         ),
+        QuizQuestion(
+          question: 'quiz_palazzo_ridotto_q3',
+          options: [
+            'quiz_palazzo_ridotto_q3_o1',
+            'quiz_palazzo_ridotto_q3_o2',
+            'quiz_palazzo_ridotto_q3_o3',
+          ],
+          correctIndex: 0,
+        ),
       ],
     ),
 
@@ -250,13 +308,12 @@ class HistoricPlacesSeed {
       type: 'monument',
       period: '19th Century',
       description:
-          'poi_stazione_description',
+          'poi_stazione_desc',
       icon: Icons.train_outlined,
       iconBackground: Color(0xFFFFECB3),
       questions: [
         QuizQuestion(
-          question:
-              'quiz_stazione_q1',
+          question: 'quiz_stazione_q1',
           options: [
             'quiz_stazione_q1_o1',
             'quiz_stazione_q1_o2',
@@ -265,12 +322,20 @@ class HistoricPlacesSeed {
           correctIndex: 0,
         ),
         QuizQuestion(
-          question:
-              'quiz_stazione_q2',
+          question: 'quiz_stazione_q2',
           options: [
             'quiz_stazione_q2_o1',
             'quiz_stazione_q2_o2',
             'quiz_stazione_q2_o3',
+          ],
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_stazione_q3',
+          options: [
+            'quiz_stazione_q3_o1',
+            'quiz_stazione_q3_o2',
+            'quiz_stazione_q3_o3',
           ],
           correctIndex: 0,
         ),
@@ -287,7 +352,7 @@ class HistoricPlacesSeed {
       type: 'monument',
       period: '20th Century',
       description:
-          'poi_arrigoni_description',
+          'poi_arrigoni_desc',
       icon: Icons.factory_outlined,
       iconBackground: Color(0xFFB2EBF2),
       questions: [
@@ -309,6 +374,15 @@ class HistoricPlacesSeed {
           ],
           correctIndex: 0,
         ),
+        QuizQuestion(
+          question: 'quiz_arrigoni_q3',
+          options: [
+            'quiz_arrigoni_q3_o1',
+            'quiz_arrigoni_q3_o2',
+            'quiz_arrigoni_q3_o3',
+          ],
+          correctIndex: 0,
+        ),
       ],
     ),
 
@@ -322,13 +396,12 @@ class HistoricPlacesSeed {
       type: 'monument',
       period: '20th Century',
       description:
-          'poi_fantaguzzi_description',
+          'poi_fantaguzzi_desc',
       icon: Icons.domain_outlined,
       iconBackground: Color(0xFFFFCDD2),
       questions: [
         QuizQuestion(
-          question:
-              'quiz_fantaguzzi_q1',
+          question: 'quiz_fantaguzzi_q1',
           options: [
             'quiz_fantaguzzi_q1_o1',
             'quiz_fantaguzzi_q1_o2',
@@ -343,7 +416,16 @@ class HistoricPlacesSeed {
             'quiz_fantaguzzi_q2_o2',
             'quiz_fantaguzzi_q2_o3',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_fantaguzzi_q3',
+          options: [
+            'quiz_fantaguzzi_q3_o1',
+            'quiz_fantaguzzi_q3_o2',
+            'quiz_fantaguzzi_q3_o3',
+          ],
+          correctIndex: 0,
         ),
       ],
     ),
@@ -358,7 +440,7 @@ class HistoricPlacesSeed {
       type: 'monument',
       period: '20th Century',
       description:
-          'poi_rifugi_antiaerei_description',
+          'poi_rifugi_antiaerei_desc',
       icon: Icons.safety_divider_outlined,
       iconBackground: Color(0xFFCFD8DC),
       questions: [
@@ -373,8 +455,21 @@ class HistoricPlacesSeed {
         ),
         QuizQuestion(
           question: 'quiz_rifugi_antiaerei_q2',
-          options: ['quiz_rifugi_antiaerei_q2_o1', 'quiz_rifugi_antiaerei_q2_o2', 'quiz_rifugi_antiaerei_q2_o3'],
-          correctIndex: 2,
+          options: [
+            'quiz_rifugi_antiaerei_q2_o1',
+            'quiz_rifugi_antiaerei_q2_o2',
+            'quiz_rifugi_antiaerei_q2_o3',
+          ],
+          correctIndex: 0,
+        ),
+        QuizQuestion(
+          question: 'quiz_rifugi_antiaerei_q3',
+          options: [
+            'quiz_rifugi_antiaerei_q3_o1',
+            'quiz_rifugi_antiaerei_q3_o2',
+            'quiz_rifugi_antiaerei_q3_o3',
+          ],
+          correctIndex: 0,
         ),
       ],
     ),
