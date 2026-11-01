@@ -770,7 +770,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_arrigoni_name => 'Arrigoni Factory';
 
   @override
-  String get poi_arrigoni_desc => 'The Arrigoni factory stood next to Cesena railway station. It became one of the area’s leading food factories, specialising in jams, peeled tomatoes and dried minestrone, and over time employed thousands of local women and men. The factory was also an important centre of local anti-Fascism. One of its workers was Werther Ricchi, who was already active in opposition to the regime before 25 July 1943; after 8 September he got jam and other products to the partisans of the 8th Garibaldi Brigade. He was arrested on 23 March 1944 and tortured. As the front moved through the area, the workforce helped save a large part of the factory’s machinery.';
+  String get poi_arrigoni_desc => 'The Arrigoni factory stood next to Cesena railway station. In 1927, Giorgio Sanguinetti, who managed the Arrigoni company in Trieste, acquired the former Consorzio Industrie Agrarie (CIA) and expanded its facilities. By the 1930s it had become the area’s leading food factory, employing about 5,000 people. The Cesena plant was known for jams, peeled tomatoes and dried minestrone. It was also a centre of local anti-Fascism: many workers opposed the regime through strikes, acts of sabotage and libertarian propaganda, and faced persecution. One of them was Werther Ricchi, who sent jam and other products to the partisans of the 8th Garibaldi Brigade after 8 September 1943. He was arrested on 23 March 1944 and tortured. As the front moved through the area, the workforce helped save a large part of the factory’s machinery.';
 
   @override
   String get poi_fantaguzzi_name => 'Palazzo Fantaguzzi';
