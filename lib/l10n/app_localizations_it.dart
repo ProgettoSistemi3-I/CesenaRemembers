@@ -728,13 +728,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get poi_santa_cristina_name => 'Chiesa di Santa Cristina';
 
   @override
-  String get poi_santa_cristina_desc => 'Voluta dal papa cesenate Pio VII Chiaramonti e progettata dall’architetto Giuseppe Valadier, la chiesa fu costruita tra il 1816 e il 1825 in stile neoclassico. La pianta circolare e la cupola a cassettoni richiamano l’aspetto di un piccolo Pantheon. Durante la Seconda guerra mondiale la cripta fu rinforzata e resa agibile come rifugio antiaereo per un massimo di 200 persone. Don Leo Bagnoli la ricordò come un ambiente solido e asciutto: qui i civili cercavano riparo durante gli allarmi e i bombardamenti che colpirono Cesena nel 1944.';
+  String get poi_santa_cristina_desc => 'Voluta dal papa cesenate Pio VII Chiaramonti e progettata dall’architetto Giuseppe Valadier, la chiesa fu costruita tra il 1816 e il 1825 in stile neoclassico. La pianta circolare, ispirata al Pantheon, è una delle caratteristiche più riconoscibili dell’edificio. Durante la Seconda guerra mondiale la cripta fu rinforzata e resa agibile come rifugio antiaereo per un massimo di 200 persone. Don Leo Bagnoli la ricordò come un ambiente solido e asciutto: qui i civili cercavano riparo durante gli allarmi e i bombardamenti che colpirono Cesena nel 1944.';
 
   @override
   String get poi_rocca_name => 'Rocca Malatestiana';
 
   @override
-  String get poi_rocca_desc => 'La Rocca Nuova, detta Rocca Malatestiana, fu avviata nel 1380 da Galeotto Malatesta e proseguita da Malatesta Novello sul colle Garampo. Persa la funzione militare, divenne un carcere e mantenne questa destinazione fino al 1969. Durante l’occupazione nazifascista fu anche luogo di detenzione di antifascisti: nel 1944 la Resistenza organizzò due incursioni per liberare prigionieri politici. L’area dello Sferisterio, davanti all’ingresso della fortezza, fu inoltre teatro della fucilazione di otto antifascisti il 4 settembre 1944. Il rifugio pubblico da 800 posti, spesso associato alla Rocca, era invece una galleria distinta scavata nel colle lungo viale Mazzoni, non un ambiente interno alla fortezza.';
+  String get poi_rocca_desc => 'La Rocca Nuova, detta Rocca Malatestiana, fu avviata nel 1380 da Galeotto Malatesta e proseguita da Malatesta Novello sul colle Garampo. Persa la funzione militare, divenne un carcere e mantenne questa destinazione fino al 1969. Durante l’occupazione nazifascista fu anche luogo di detenzione di antifascisti: nel 1944 la Resistenza organizzò due incursioni per liberare prigionieri politici. L’area dello Sferisterio, davanti all’ingresso della fortezza, fu teatro della fucilazione di otto antifascisti il 4 settembre 1944. Durante gli anni Quaranta anche i sotterranei della Rocca furono adibiti a rifugio. Il grande rifugio pubblico da 800 posti, spesso associato alla fortezza, era invece una galleria distinta scavata nel colle lungo viale Mazzoni.';
 
   @override
   String get poi_san_rocco_name => 'Chiesa di San Rocco';
@@ -746,7 +746,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get poi_abbazia_monte_name => 'Abbazia di Santa Maria del Monte';
 
   @override
-  String get poi_abbazia_monte_desc => 'L’abbazia benedettina di Santa Maria del Monte sorse agli inizi dell’XI secolo sul colle del Monte, a sud-est di Cesena. Durante la Seconda guerra mondiale i monaci adattarono scantinati e gallerie sotterranee per offrire riparo a circa 700 sfollati in fuga dai bombardamenti e dai rastrellamenti. Nei sotterranei furono custoditi anche numerosi libri della Biblioteca Malatestiana. Don Odo Contestabile contribuì a proteggere famiglie ebree e nel 1943 accompagnò due famiglie verso il confine svizzero; nel 2019 è stato riconosciuto Giusto tra le Nazioni. Tra il 16 e il 19 ottobre 1944 l’abbazia fu colpita ripetutamente: la chiesa venne sventrata e una parte del monastero crollò. Non si registrarono vittime tra gli sfollati ospitati nel complesso.';
+  String get poi_abbazia_monte_desc => 'L’abbazia benedettina di Santa Maria del Monte sorse agli inizi dell’XI secolo sul colle del Monte, a sud-est di Cesena. Durante la Seconda guerra mondiale i monaci realizzarono nei sotterranei una galleria accessibile tramite un pozzo e ampliata con grotte scavate nel tufo: qui trovarono riparo circa 700 sfollati in fuga dai bombardamenti e dai rastrellamenti. Nei sotterranei furono custoditi anche molti libri della Biblioteca Malatestiana, mentre i manoscritti più preziosi erano stati trasferiti nel modenese sin dall’inizio del conflitto. Don Odo Contestabile contribuì a proteggere famiglie ebree e nel 1943 accompagnò due famiglie verso il confine svizzero; dal 2019 è riconosciuto Giusto tra le Nazioni. Tra il 16 e il 19 ottobre 1944 l’abbazia fu colpita ripetutamente: la chiesa venne sventrata e una parte del monastero crollò. Non si registrarono vittime tra gli sfollati ospitati nel complesso.';
 
   @override
   String get poi_osservanza_name => 'Chiesa e Convento dell\'Osservanza';
@@ -770,7 +770,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get poi_arrigoni_name => 'Stabilimento Arrigoni';
 
   @override
-  String get poi_arrigoni_desc => 'Lo stabilimento Arrigoni sorgeva accanto alla stazione ferroviaria. Nel 1927 Giorgio Sanguinetti, alla guida della società Arrigoni di Trieste, acquistò il precedente Consorzio Industrie Agrarie e ne ampliò gli impianti. Negli anni Trenta la fabbrica divenne una delle principali realtà alimentari della zona e diede lavoro a migliaia di persone; a Cesena si distinse per la produzione di confetture, pomodori pelati e minestroni essiccati. La fabbrica fu anche un importante centro dell’antifascismo locale: tra i suoi operai ci fu Werther Ricchi, che dopo l’8 settembre 1943 fece arrivare prodotti alimentari ai partigiani dell’8ª Brigata Garibaldi. Ricchi fu arrestato nel marzo 1944 e torturato. Durante il passaggio del fronte, le maestranze riuscirono inoltre a mettere in salvo numerosi macchinari, smontando e nascondendo i componenti più importanti.';
+  String get poi_arrigoni_desc => 'Lo stabilimento Arrigoni sorgeva accanto alla stazione ferroviaria. A Cesena divenne una delle realtà alimentari più importanti del territorio, specializzandosi in confetture, pomodori pelati e minestroni essiccati, e diede lavoro nel tempo a migliaia di donne e uomini. La fabbrica fu anche un importante centro dell’antifascismo locale. Tra i suoi operai ci fu Werther Ricchi, già attivo nell’opposizione al regime prima del 25 luglio 1943; dopo l’8 settembre fece arrivare marmellata e altri prodotti ai partigiani dell’8ª Brigata Garibaldi. Fu arrestato il 23 marzo 1944 e torturato. Durante il passaggio del fronte, le maestranze contribuirono a salvare buona parte dei macchinari dello stabilimento.';
 
   @override
   String get poi_fantaguzzi_name => 'Palazzo Fantaguzzi';
@@ -1288,16 +1288,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get quiz_san_rocco_q3_o3 => 'La navata centrale';
 
   @override
-  String get quiz_abbazia_monte_q3 => 'Che cosa accadde agli sfollati ospitati nell’abbazia durante i bombardamenti dell’ottobre 1944?';
+  String get quiz_abbazia_monte_q3 => 'In che modo don Odo Contestabile aiutò due famiglie ebree nel 1943?';
 
   @override
-  String get quiz_abbazia_monte_q3_o1 => 'Non si registrarono vittime tra loro';
+  String get quiz_abbazia_monte_q3_o1 => 'Le accompagnò verso il confine con la Svizzera';
 
   @override
-  String get quiz_abbazia_monte_q3_o2 => 'Furono tutti trasferiti alla stazione';
+  String get quiz_abbazia_monte_q3_o2 => 'Le nascose nella galleria antiaerea della Rocca';
 
   @override
-  String get quiz_abbazia_monte_q3_o3 => 'L’abbazia non venne colpita';
+  String get quiz_abbazia_monte_q3_o3 => 'Le trasferì alla stazione ferroviaria';
 
   @override
   String get quiz_osservanza_q3 => 'Quale episodio è legato ai bombardamenti dell’ottobre 1944 sull’Osservanza?';
