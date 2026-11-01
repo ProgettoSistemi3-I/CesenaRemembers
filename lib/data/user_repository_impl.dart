@@ -70,11 +70,13 @@ class UserRepositoryImpl implements IUserRepository {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    String? languageCode,
   }) => _profile.updatePreferences(
     uid: uid,
     notifiche: notifiche,
     darkMode: darkMode,
     gps: gps,
+    languageCode: languageCode,
   );
 
   @override
