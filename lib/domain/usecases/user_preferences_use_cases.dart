@@ -10,10 +10,12 @@ class UserPreferencesUseCases {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    String? languageCode,
   }) => _repository.updatePreferences(
     uid: uid,
     notifiche: notifiche,
     darkMode: darkMode,
     gps: gps,
+    languageCode: languageCode,
   );
 }
