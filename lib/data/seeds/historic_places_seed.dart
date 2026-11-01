@@ -116,7 +116,7 @@ class HistoricPlacesSeed {
       latitude: 44.14022,
       longitude: 12.24072,
       type: 'church',
-      period: '16th Century',
+      period: '17th Century',
       description:
           'poi_san_rocco_description',
       icon: Icons.church_outlined,
@@ -213,7 +213,7 @@ class HistoricPlacesSeed {
       latitude: 44.13819,
       longitude: 12.24361,
       type: 'square',
-      period: 'Medioevo',
+      period: '15th Century',
       description:
           'poi_palazzo_ridotto_description',
       icon: Icons.account_balance_outlined,
