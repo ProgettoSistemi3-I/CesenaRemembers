@@ -308,6 +308,28 @@ class _MapCanvasState extends State<_MapCanvas> {
 
   static const _defaultCesenaCenter = LatLng(44.1384, 12.2471);
 
+  List<SourceAttribution> _mapAttributions() {
+    if (widget.selectedMapStyle == MapStyle.satellite) {
+      return [
+        TextSourceAttribution(
+          'Sources: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+          onTap: () => launchUrl(Uri.parse('https://www.esri.com/en-us/legal/terms/web-site-service')),
+        ),
+      ];
+    }
+    if (widget.currentMapUrl.startsWith('https://tiles.stadiamaps.com/')) {
+      return [
+        TextSourceAttribution('© Stadia Maps', onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/'))),
+        TextSourceAttribution('© OpenMapTiles', onTap: () => launchUrl(Uri.parse('https://openmaptiles.org/'))),
+        TextSourceAttribution('© OpenStreetMap contributors', onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'))),
+      ];
+    }
+    return [
+      TextSourceAttribution('© OpenStreetMap contributors', onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'))),
+      TextSourceAttribution('© CARTO', onTap: () => launchUrl(Uri.parse('https://carto.com/attributions/'))),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return FlutterMap(
@@ -379,6 +401,11 @@ class _MapCanvasState extends State<_MapCanvas> {
             positionStream: _positionStream,
           ),
         MarkerLayer(markers: widget.markers),
+        RichAttributionWidget(
+          alignment: AttributionAlignment.bottomLeft,
+          showFlutterMapAttribution: false,
+          attributions: _mapAttributions(),
+        ),
       ],
     );
   }
