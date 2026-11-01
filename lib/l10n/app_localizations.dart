@@ -1721,6 +1721,60 @@ abstract class AppLocalizations {
   String get quiz_fallback_q3_o2;
   String get quiz_fallback_q3_o3;
 
+  /// Third local fallback question and its options for santa cristina.
+  String get quiz_santa_cristina_q3;
+  String get quiz_santa_cristina_q3_o1;
+  String get quiz_santa_cristina_q3_o2;
+  String get quiz_santa_cristina_q3_o3;
+
+  /// Third local fallback question and its options for san rocco.
+  String get quiz_san_rocco_q3;
+  String get quiz_san_rocco_q3_o1;
+  String get quiz_san_rocco_q3_o2;
+  String get quiz_san_rocco_q3_o3;
+
+  /// Third local fallback question and its options for abbazia monte.
+  String get quiz_abbazia_monte_q3;
+  String get quiz_abbazia_monte_q3_o1;
+  String get quiz_abbazia_monte_q3_o2;
+  String get quiz_abbazia_monte_q3_o3;
+
+  /// Third local fallback question and its options for osservanza.
+  String get quiz_osservanza_q3;
+  String get quiz_osservanza_q3_o1;
+  String get quiz_osservanza_q3_o2;
+  String get quiz_osservanza_q3_o3;
+
+  /// Third local fallback question and its options for palazzo ridotto.
+  String get quiz_palazzo_ridotto_q3;
+  String get quiz_palazzo_ridotto_q3_o1;
+  String get quiz_palazzo_ridotto_q3_o2;
+  String get quiz_palazzo_ridotto_q3_o3;
+
+  /// Third local fallback question and its options for stazione.
+  String get quiz_stazione_q3;
+  String get quiz_stazione_q3_o1;
+  String get quiz_stazione_q3_o2;
+  String get quiz_stazione_q3_o3;
+
+  /// Third local fallback question and its options for arrigoni.
+  String get quiz_arrigoni_q3;
+  String get quiz_arrigoni_q3_o1;
+  String get quiz_arrigoni_q3_o2;
+  String get quiz_arrigoni_q3_o3;
+
+  /// Third local fallback question and its options for fantaguzzi.
+  String get quiz_fantaguzzi_q3;
+  String get quiz_fantaguzzi_q3_o1;
+  String get quiz_fantaguzzi_q3_o2;
+  String get quiz_fantaguzzi_q3_o3;
+
+  /// Third local fallback question and its options for rifugi antiaerei.
+  String get quiz_rifugi_antiaerei_q3;
+  String get quiz_rifugi_antiaerei_q3_o1;
+  String get quiz_rifugi_antiaerei_q3_o2;
+  String get quiz_rifugi_antiaerei_q3_o3;
+
   /// No description provided for @quiz_santa_cristina_q1.
   ///
   /// In en, this message translates to:
