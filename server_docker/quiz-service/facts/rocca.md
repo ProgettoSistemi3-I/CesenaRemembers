@@ -125,6 +125,14 @@
 - Fonti: [S1], [S3], [S2]
 - Passaggio di riferimento: [S1] "nel 2003 riaprono camminamenti, spalti e il torrione Maschio" (sintesi della cronologia); [S2] "hanno consentito nei primi anni Duemila l'apertura al pubblico anche del maschio".
 
+
+### ROC-16
+- Affermazione (IT): Negli anni Quaranta i sotterranei della Rocca Malatestiana furono adibiti a rifugio.
+- Affermazione (EN): During the 1940s, the underground spaces of the Malatestiana Fortress were used as a shelter.
+- Stato: verificato
+- Fonti: [S4]
+- Passaggio di riferimento: [S4] "La Rocca Malatestiana, i cui sotterranei erano stati convertiti a rifugio negli anni Quaranta".
+
 ## Informazioni parzialmente verificate o non verificate
 
 Queste informazioni NON vengono inviate al modello.
@@ -134,7 +142,7 @@ Queste informazioni NON vengono inviate al modello.
 - PARZIALE — Nel Torrione Maschio è ospitata una raccolta di armi ([S7], portale turistico; non riscontrato altrove).
 - PARZIALE — Pianta pentagonale con due grandi torri collegate da mura e bastioni ([S7]).
 - NON VERIFICATO — Qualsiasi uso della Rocca come quartier generale tedesco o alleato, posto di comando della 1ª Divisione paracadutisti tedesca, sede di unità italiane dopo la liberazione, ospedale da campo o deposito alleato: nessuna fonte trovata. (Affermazioni comparse nei vecchi quiz.)
-- NON VERIFICATO — Bombardamento alleato contro la Rocca il 12 marzo 1944 con B-24 Liberator; cannone Flak da 88 mm nella Rocca; trasformazione in rifugio nel 1942; "150", "200" o "800 civili" ospitati nella Rocca come struttura: nessuna fonte trovata. Il dato documentato è un rifugio scavato nel colle nel 1944 con capienza di 800 persone (vedi scheda rifugi_antiaerei).
+- NON VERIFICATO — Bombardamento alleato contro la Rocca il 12 marzo 1944 con B-24 Liberator; cannone Flak da 88 mm nella Rocca; trasformazione in rifugio già nel 1942; capienze di 150 o 200 persone attribuite ai sotterranei della fortezza. La fonte regionale [S4] conferma l'uso dei sotterranei della Rocca come rifugio negli anni Quaranta, ma non indica una capienza. La galleria pubblica da 800 posti era invece una struttura distinta scavata nel colle lungo viale Mazzoni (vedi ROC-12 e scheda rifugi_antiaerei).
 
 ## Discrepanze tra fonti
 
