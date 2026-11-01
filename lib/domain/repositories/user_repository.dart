@@ -37,6 +37,7 @@ abstract class IUserRepository {
     int? tourTotalQuestions,
   });
   Future<void> unlockPendingAchievement(String uid, String achievementId);
+  Future<void> ensureFriendAchievements({required String uid});
   Future<void> deleteUserData({required String uid});
   Future<List<UserProfile>> searchUsers(String query);
   Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50});
