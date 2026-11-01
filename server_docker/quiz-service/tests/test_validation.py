@@ -83,10 +83,12 @@ def test_only_verified_section_is_loaded():
 def test_key_app_description_details_are_available_to_quiz_generation():
     # These fact IDs correspond to historical details published in the POI descriptions.
     expected = {
-        "santa_cristina": ("SCR-09", "SCR-10"),
+        "santa_cristina": ("SCR-09", "SCR-10", "SCR-11"),
+        "rocca": ("ROC-17",),
         "arrigoni": ("ARR-13", "ARR-14", "ARR-15"),
-        "abbazia_monte": ("ABM-16", "ABM-17", "ABM-18"),
+        "abbazia_monte": ("ABM-16", "ABM-17", "ABM-18", "ABM-19"),
         "stazione": ("STA-07", "STA-12"),
+        "rifugi_antiaerei": ("RIF-19",),
     }
     for poi_id, fact_ids in expected.items():
         available = FACTS[poi_id].by_id()
