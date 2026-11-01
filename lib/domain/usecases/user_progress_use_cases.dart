@@ -8,6 +8,9 @@ class UserProgressUseCases {
   Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50}) =>
       _repository.getLeaderboardStream(uid: uid, limit: limit);
 
+  Future<int?> getLeaderboardRank({required String uid}) =>
+      _repository.getLeaderboardRank(uid: uid);
+
   Future<void> registerQuizCompletion({
     required String uid,
     required String poiId,
