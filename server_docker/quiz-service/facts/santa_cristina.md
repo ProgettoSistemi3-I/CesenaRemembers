@@ -86,6 +86,13 @@
 - Passaggio di riferimento: [S1] "una cupola decorata da cassettoni e con un occhio centrale".
 
 
+
+### SCR-11
+- Affermazione (IT): Tra il 13 maggio e l'11 dicembre 1944 Cesena subì 76 bombardamenti aerei.
+- Affermazione (EN): Between 13 May and 11 December 1944, Cesena suffered 76 air raids.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] indica che tra il 13 maggio 1944, data del primo bombardamento sulla città, e l'11 dicembre 1944 furono effettuati 76 attacchi aerei su Cesena.
 ## Informazioni parzialmente verificate o non verificate
 
 - PARZIALE — Facciata preceduta da un portico con colonne d'ordine dorico ([S5]).
