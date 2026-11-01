@@ -1,0 +1,25 @@
+name: Export updated source ZIP
+
+on:
+  push:
+    branches:
+      - fix/nov-2026-audit
+
+permissions:
+  contents: read
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create source archive
+        run: |
+          zip -qr CesenaRemembers-updated.zip . \
+            -x '.git/*' '.dart_tool/*' 'build/*' 'android/build/*' 'android/.gradle/*' 'ios/Pods/*' 'ios/build/*' 'macos/Pods/*' 'windows/flutter/ephemeral/*'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CesenaRemembers-updated
+          path: CesenaRemembers-updated.zip
+          if-no-files-found: error
+          retention-days: 7
