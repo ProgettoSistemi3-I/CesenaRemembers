@@ -7,6 +7,7 @@ class UserProfile {
   final bool profileCompleted;
   final bool onboardingCompleted;
   final int xp;
+  final int friendsCount;
   final List<String> visitedPoiIds;
   final List<String> unlockedAchievements;
   final List<String> pendingAchievements;
@@ -33,6 +34,7 @@ class UserProfile {
     this.profileCompleted = false,
     this.onboardingCompleted = false,
     this.xp = 0,
+    this.friendsCount = 0,
     this.visitedPoiIds = const [],
     this.unlockedAchievements = const [],
     this.pendingAchievements = const [],
@@ -66,6 +68,7 @@ class UserProfile {
     bool? profileCompleted,
     bool? onboardingCompleted,
     int? xp,
+    int? friendsCount,
     List<String>? visitedPoiIds,
     List<String>? unlockedAchievements,
     List<String>? pendingAchievements,
@@ -92,6 +95,7 @@ class UserProfile {
       profileCompleted: profileCompleted ?? this.profileCompleted,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       xp: xp ?? this.xp,
+      friendsCount: friendsCount ?? this.friendsCount,
       visitedPoiIds: visitedPoiIds ?? this.visitedPoiIds,
       unlockedAchievements: unlockedAchievements ?? this.unlockedAchievements,
       pendingAchievements: pendingAchievements ?? this.pendingAchievements,
