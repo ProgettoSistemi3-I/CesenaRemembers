@@ -5,6 +5,7 @@ import '../../domain/usecases/get_poi_quiz_usecases.dart';
 
 class PoiQuizController extends ChangeNotifier {
   final GetPoiQuizUseCase _getQuizUseCase;
+  bool _isDisposed = false;
 
   PoiQuizController({required GetPoiQuizUseCase getQuizUseCase})
     : _getQuizUseCase = getQuizUseCase;
@@ -43,6 +44,7 @@ class PoiQuizController extends ChangeNotifier {
     required String languageCode,
     required String poiDescription,
   }) async {
+    if (_isDisposed) return;
     _isLoading = true;
     _error = null;
     _fallbackNotice = null;
@@ -57,6 +59,7 @@ class PoiQuizController extends ChangeNotifier {
         languageCode: languageCode,
         poiDescription: poiDescription,
       );
+      if (_isDisposed) return;
       _questions = result.questions;
       _usesPersonalizedQuestions = result.usesPersonalizedQuestions;
       _fallbackNotice = result.fallbackNotice;
@@ -67,14 +70,23 @@ class PoiQuizController extends ChangeNotifier {
       _quizDone = _questions.isEmpty;
       _lastQuestionAnswered = false;
     } catch (_) {
-      _error = 'errorCommunication';
+      if (!_isDisposed) _error = 'errorCommunication';
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!_isDisposed) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
   void selectAnswer(int index) {
+    if (_isDisposed) return;
     final question = currentQuestion;
     if (question == null || _selectedAnswer != null) {
       return;
@@ -93,6 +105,7 @@ class PoiQuizController extends ChangeNotifier {
   }
 
   void nextQuestion() {
+    if (_isDisposed) return;
     if (_quizDone || !hasMoreQuestions) {
       return;
     }
@@ -103,6 +116,7 @@ class PoiQuizController extends ChangeNotifier {
   }
 
   void completeQuiz() {
+    if (_isDisposed) return;
     if (_quizDone) return;
     if (_questions.isEmpty) {
       _quizDone = true;
