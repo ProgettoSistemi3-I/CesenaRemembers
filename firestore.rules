@@ -58,7 +58,7 @@ service cloud.firestore {
       return data.keys().hasOnly([
           'displayName', 'displayNameNormalized', 'username',
           'usernameNormalized', 'avatarId', 'profileCompleted',
-          'onboardingCompleted'
+          'onboardingCompleted', 'xp', 'friendsCount', 'totalToursCompleted'
         ]) &&
         data.get('displayName', null) is string &&
         data.displayName.size() >= 2 &&
@@ -75,7 +75,10 @@ service cloud.firestore {
         data.avatarId.size() > 0 &&
         data.avatarId.size() <= 40 &&
         data.get('profileCompleted', false) == true &&
-        data.get('onboardingCompleted', false) is bool;
+        data.get('onboardingCompleted', false) is bool &&
+        data.get('xp', 0) is int && data.xp >= 0 && data.xp <= 1000000000 &&
+        data.get('friendsCount', 0) is int && data.friendsCount >= 0 && data.friendsCount <= 500 &&
+        data.get('totalToursCompleted', 0) is int && data.totalToursCompleted >= 0;
     }
 
     function publicProfileFieldsMatch(privateData, publicData) {
@@ -85,7 +88,10 @@ service cloud.firestore {
         publicData.usernameNormalized == privateData.usernameNormalized &&
         publicData.avatarId == privateData.avatarId &&
         publicData.profileCompleted == privateData.profileCompleted &&
-        publicData.onboardingCompleted == privateData.get('onboardingCompleted', false);
+        publicData.onboardingCompleted == privateData.get('onboardingCompleted', false) &&
+        publicData.get('xp', 0) == privateData.get('xp', 0) &&
+        publicData.get('friendsCount', 0) == privateData.get('friends', []).size() &&
+        publicData.get('totalToursCompleted', 0) == privateData.get('totalToursCompleted', 0);
     }
 
     function publicMirrorMatches(uid) {
@@ -94,6 +100,34 @@ service cloud.firestore {
       let publicData =
         getAfter(/databases/$(database)/documents/public_profiles/$(uid)).data;
       return publicProfileFieldsMatch(privateData, publicData);
+    }
+
+    function validCrossPublicProfileFriendsCountUpdate(uid) {
+      let targetPath = /databases/$(database)/documents/users/$(uid);
+      let callerPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      let targetBefore = get(targetPath).data;
+      let targetAfter = getAfter(targetPath).data;
+      let callerBefore = get(callerPath).data;
+      let callerAfter = getAfter(callerPath).data;
+      let oldFriends = targetBefore.get('friends', []);
+      let newFriends = targetAfter.get('friends', []);
+      let addedReciprocalFriend =
+        listAddsOnly(oldFriends, newFriends, request.auth.uid) &&
+        !callerBefore.get('friends', []).hasAny([uid]) &&
+        callerAfter.get('friends', []).hasAny([uid]);
+      let removedReciprocalFriend =
+        listRemovesOnly(oldFriends, newFriends, request.auth.uid) &&
+        callerBefore.get('friends', []).hasAny([uid]) &&
+        !callerAfter.get('friends', []).hasAny([uid]);
+
+      return isNotBanned() &&
+        uid != request.auth.uid &&
+        !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendsCount']) &&
+        validPublicProfileShape(request.resource.data) &&
+        publicProfileFieldsMatch(targetAfter, request.resource.data) &&
+        request.resource.data.friendsCount == newFriends.size() &&
+        (addedReciprocalFriend || removedReciprocalFriend);
     }
 
     function validFriendStatsShape(data) {
@@ -792,10 +826,12 @@ service cloud.firestore {
         isNotBanned() &&
         validPublicProfileCreate(userId);
 
-      allow update: if isOwner(userId) &&
-        isNotBanned() &&
-        validPublicProfileShape(request.resource.data) &&
-        publicMirrorMatches(userId);
+      allow update: if (
+          isOwner(userId) &&
+          isNotBanned() &&
+          validPublicProfileShape(request.resource.data) &&
+          publicMirrorMatches(userId)
+        ) || validCrossPublicProfileFriendsCountUpdate(userId);
 
       allow delete: if isOwner(userId);
     }
