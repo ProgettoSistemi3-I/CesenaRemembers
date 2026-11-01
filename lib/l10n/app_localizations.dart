@@ -1715,6 +1715,12 @@ abstract class AppLocalizations {
   /// **'Due to a server error, questions are not personalized and use a specific local difficulty.'**
   String get quiz_fallback_desc;
 
+  /// Question and options for the third generic fallback quiz item.
+  String get quiz_fallback_q3;
+  String get quiz_fallback_q3_o1;
+  String get quiz_fallback_q3_o2;
+  String get quiz_fallback_q3_o3;
+
   /// No description provided for @quiz_santa_cristina_q1.
   ///
   /// In en, this message translates to:
@@ -2530,30 +2536,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community'**
   String get mapLicenseEsriSubtitle;
-
-  /// No description provided for @quiz_fallback_q3.
-  ///
-  /// In en, this message translates to:
-  /// **'In which city are the historical places on this route located?'**
-  String get quiz_fallback_q3;
-
-  /// No description provided for @quiz_fallback_q3_o1.
-  ///
-  /// In en, this message translates to:
-  /// **'Cesena'**
-  String get quiz_fallback_q3_o1;
-
-  /// No description provided for @quiz_fallback_q3_o2.
-  ///
-  /// In en, this message translates to:
-  /// **'Forlì'**
-  String get quiz_fallback_q3_o2;
-
-  /// No description provided for @quiz_fallback_q3_o3.
-  ///
-  /// In en, this message translates to:
-  /// **'Ravenna'**
-  String get quiz_fallback_q3_o3;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
