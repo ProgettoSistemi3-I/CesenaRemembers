@@ -312,8 +312,8 @@ class _MapCanvasState extends State<_MapCanvas> {
     if (widget.selectedMapStyle == MapStyle.satellite) {
       return [
         TextSourceAttribution(
-          'Sources: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
-          onTap: () => launchUrl(Uri.parse('https://www.esri.com/en-us/legal/terms/web-site-service')),
+          'Sources: Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community',
+          onTap: () => launchUrl(Uri.parse('https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040')),
         ),
       ];
     }
