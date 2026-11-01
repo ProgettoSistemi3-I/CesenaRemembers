@@ -107,6 +107,10 @@ class UserRepositoryImpl implements IUserRepository {
       _progress.unlockPendingAchievement(uid, achievementId);
 
   @override
+  Future<void> ensureFriendAchievements({required String uid}) =>
+      _progress.ensureFriendAchievements(uid: uid);
+
+  @override
   Future<void> deleteUserData({required String uid}) =>
       _cleanup.deleteUserData(uid: uid);
 
