@@ -70,11 +70,13 @@ class UserRepositoryImpl implements IUserRepository {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    String? languageCode,
   }) => _profile.updatePreferences(
     uid: uid,
     notifiche: notifiche,
     darkMode: darkMode,
     gps: gps,
+    languageCode: languageCode,
   );
 
   @override
@@ -105,6 +107,10 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<void> unlockPendingAchievement(String uid, String achievementId) =>
       _progress.unlockPendingAchievement(uid, achievementId);
+
+  @override
+  Future<void> ensureFriendAchievements({required String uid}) =>
+      _progress.ensureFriendAchievements(uid: uid);
 
   @override
   Future<void> deleteUserData({required String uid}) =>

@@ -1259,4 +1259,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community';
+
+  @override
+  String get quiz_fallback_q3 => 'In which city are the historical places on this route located?';
+
+  @override
+  String get quiz_fallback_q3_o1 => 'Cesena';
+
+  @override
+  String get quiz_fallback_q3_o2 => 'Forlì';
+
+  @override
+  String get quiz_fallback_q3_o3 => 'Ravenna';
 }

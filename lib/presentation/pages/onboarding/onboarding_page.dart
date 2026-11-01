@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../theme/app_palette.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../l10n/l10n_extensions.dart';
 import '../../../injection_container.dart';
 import '../../../domain/usecases/user_profile_use_cases.dart';
 
@@ -598,7 +599,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.moss,
                 isDark: isDark,
-                label: 'Rocca',
+                label: AppLocalizations.of(context)!.getPoiName('rocca'),
                 pulse: 0,
               ),
             ),
@@ -608,7 +609,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.tan,
                 isDark: isDark,
-                label: 'Cattedrale',
+                label: AppLocalizations.of(context)!.getPoiName('san_rocco'),
                 pulse: 0,
               ),
             ),
@@ -618,7 +619,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.olive,
                 isDark: isDark,
-                label: 'Piazza',
+                label: AppLocalizations.of(context)!.getPoiName('palazzo_ridotto'),
                 pulse: pt,
                 isActive: true,
               ),
@@ -629,7 +630,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.moss,
                 isDark: isDark,
-                label: 'Teatro',
+                label: AppLocalizations.of(context)!.getPoiName('stazione'),
                 pulse: 0,
               ),
             ),
@@ -714,7 +715,7 @@ class _TourMockup extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Tour Storico',
+                                AppLocalizations.of(context)!.tourPlanTitle,
                                 style: TextStyle(
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w700,
@@ -724,7 +725,7 @@ class _TourMockup extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Tappa 3 di 5 • 12 min',
+                                AppLocalizations.of(context)!.quizQuestion(3, 10),
                                 style: TextStyle(
                                   fontSize: 8,
                                   color: isDark
@@ -744,8 +745,8 @@ class _TourMockup extends StatelessWidget {
                             color: AppPalette.olive,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'Vai',
+                          child: Text(
+                            AppLocalizations.of(context)!.onboardingStart,
                             style: TextStyle(
                               fontSize: 9,
                               color: Colors.white,
@@ -945,7 +946,7 @@ class _QuizMockup extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Question
                 Text(
-                  'In quale anno fu costruita\nla Rocca Malatestiana?',
+                  AppLocalizations.of(context)!.quiz_rocca_q2,
                   style: TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w700,
@@ -1092,7 +1093,7 @@ class _LeaderboardMockup extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Classifica',
+                  AppLocalizations.of(context)!.socialLeaderboard,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -1292,9 +1293,9 @@ class _AchievementsMockup extends StatelessWidget {
   final bool isDark;
 
   static const _achievements = [
-    (Icons.explore_rounded, AppPalette.olive, true, 'Primo passo'),
-    (Icons.quiz_rounded, AppPalette.tan, true, 'Prima risposta'),
-    (Icons.route_rounded, AppPalette.moss, true, 'Primo tour'),
+    (Icons.explore_rounded, AppPalette.olive, true, 'first_visit'),
+    (Icons.quiz_rounded, AppPalette.tan, true, 'first_quiz'),
+    (Icons.route_rounded, AppPalette.moss, true, 'first_tour'),
     (Icons.military_tech_rounded, AppPalette.tan, false, '???'),
     (Icons.emoji_events_rounded, AppPalette.olive, false, '???'),
     (Icons.people_rounded, AppPalette.moss, false, '???'),
@@ -1315,7 +1316,7 @@ class _AchievementsMockup extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Achievement',
+                  AppLocalizations.of(context)!.sectionAchievements,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -1333,7 +1334,7 @@ class _AchievementsMockup extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '3 / 9',
+                    '3 / 10',
                     style: TextStyle(
                       fontSize: 8,
                       fontWeight: FontWeight.w700,
@@ -1365,7 +1366,7 @@ class _AchievementsMockup extends StatelessWidget {
                       icon: a.$1,
                       color: a.$2,
                       unlocked: a.$3,
-                      label: a.$4,
+                      label: AppLocalizations.of(context)!.achievementTitle(a.$4),
                       isDark: isDark,
                       pulse: i < 3 ? pulseCtrl.value : 0,
                     );

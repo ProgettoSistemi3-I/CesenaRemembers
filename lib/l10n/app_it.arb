@@ -528,7 +528,6 @@
   "achievementUnlockedSnack": "Hai sbloccato un nuovo obiettivo! Tocca per riscattarlo.",
   "publicStatsPrivateTitle": "Statistiche private",
   "publicStatsPrivateBody": "Diventa amico per vedere statistiche dettagliate, traguardi sbloccati e molto altro.",
-
   "sectionMapLicenses": "Licenze mappe",
   "mapLicenseOsmTitle": "OpenStreetMap",
   "mapLicenseOsmSubtitle": "© Contributori OpenStreetMap — Licenza ODbL",
@@ -537,5 +536,9 @@
   "mapLicenseStadiaTitle": "Stadia Maps / Stamen Design",
   "mapLicenseStadiaSubtitle": "© Stadia Maps, © Stamen Design — Licenza CC BY 3.0",
   "mapLicenseEsriTitle": "Esri (Vista Satellite)",
-  "mapLicenseEsriSubtitle": "Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS"
+  "mapLicenseEsriSubtitle": "Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS",
+  "quiz_fallback_q3": "In quale città si trovano i luoghi storici di questo percorso?",
+  "quiz_fallback_q3_o1": "Cesena",
+  "quiz_fallback_q3_o2": "Forlì",
+  "quiz_fallback_q3_o3": "Ravenna"
 }

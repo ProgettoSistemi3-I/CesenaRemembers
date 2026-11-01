@@ -130,7 +130,18 @@ class QuizRepositoryImpl implements IQuizRepository {
   List<QuizQuestion> _fallbackQuestions(String poiId) {
     for (final place in HistoricPlacesSeed.items) {
       if (place.id == poiId) {
-        return place.questions;
+        return [
+          ...place.questions,
+          const QuizQuestion(
+            question: 'quiz_fallback_q3',
+            options: [
+              'quiz_fallback_q3_o1',
+              'quiz_fallback_q3_o2',
+              'quiz_fallback_q3_o3',
+            ],
+            correctIndex: 0,
+          ),
+        ];
       }
     }
 

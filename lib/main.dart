@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,18 +49,17 @@ class AppBootstrap {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      FirebaseMessaging.onBackgroundMessage(
+        firebaseMessagingBackgroundHandler,
+      );
 
       await di.init();
       try {
         await di.sl<ThemeController>().initTheme();
       } catch (_) {}
 
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-        ),
-      );
+      // La luminosità viene applicata dal widget radice in base al tema attivo.
+
       return const AppBootstrapResult.success();
     } catch (e) {
       return AppBootstrapResult.failure(e.toString());
@@ -131,6 +131,12 @@ class CesenaRemembersApp extends StatelessWidget {
     return ListenableBuilder(
       listenable: Listenable.merge([themeCtrl, localeNotifier]),
       builder: (context, _) {
+        final isDark = themeCtrl.themeMode == ThemeMode.dark;
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+        ));
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: PushNotificationService.navigatorKey,

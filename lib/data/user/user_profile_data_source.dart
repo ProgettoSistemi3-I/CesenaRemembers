@@ -337,6 +337,7 @@ class UserProfileDataSource {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    String? languageCode,
   }) async {
     final Map<String, dynamic> updates = {
       'updatedAt': FieldValue.serverTimestamp(),
@@ -344,6 +345,10 @@ class UserProfileDataSource {
     if (notifiche != null) updates['preferences.notifiche'] = notifiche;
     if (darkMode != null) updates['preferences.modalitaNotte'] = darkMode;
     if (gps != null) updates['preferences.posizioneGps'] = gps;
+    if (languageCode != null &&
+        (languageCode == 'it' || languageCode == 'en')) {
+      updates['preferences.languageCode'] = languageCode;
+    }
 
     await _users.doc(uid).update(updates);
   }

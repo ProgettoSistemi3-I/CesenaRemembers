@@ -127,6 +127,14 @@ extension AppLocalizationsExtensions on AppLocalizations {
         return quiz_fallback_name;
       case 'quiz_fallback_desc':
         return quiz_fallback_desc;
+      case 'quiz_fallback_q3':
+        return quiz_fallback_q3;
+      case 'quiz_fallback_q3_o1':
+        return quiz_fallback_q3_o1;
+      case 'quiz_fallback_q3_o2':
+        return quiz_fallback_q3_o2;
+      case 'quiz_fallback_q3_o3':
+        return quiz_fallback_q3_o3;
       case 'quiz_santa_cristina_q1':
         return quiz_santa_cristina_q1;
       case 'quiz_santa_cristina_q1_o1':

@@ -222,8 +222,10 @@ class TourSessionController {
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_status == TourStatus.running) {
-        _elapsedSeconds++;
+      if (_status == TourStatus.running || _status == TourStatus.arrived) {
+        // Il tempo totale misura l'intera esperienza, comprese le soste;
+        // il tempo della singola tappa continua a fermarsi all'arrivo.
+        if (_status == TourStatus.running) _elapsedSeconds++;
         _totalElapsedSeconds++;
         _emit();
       }
