@@ -328,7 +328,7 @@ def main() -> int:
                 else:
                     batch.delete(ref)
             batch.commit()
-        print("Migrazione completata: public_profiles contiene i dati identificativi, friend_stats le statistiche riservate e leaderboard soltanto UID/XP per la classifica globale. Ora distribuisci firestore.rules.")
+        print("Migrazione completata: public_profiles contiene identità e aggregati della hero card, friend_stats contiene lista amici e statistiche riservate, leaderboard soltanto UID/XP per la classifica globale. Ora distribuisci firestore.rules.")
     else:
         print("Nessuna scrittura eseguita. Fai un backup e ripeti con --apply per applicare la migrazione.")
     return 0
