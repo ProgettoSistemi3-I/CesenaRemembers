@@ -49,8 +49,8 @@ service cloud.firestore {
         ]);
     }
 
-    // public_profiles contiene solo i campi identificativi ricercabili.
-    // Le statistiche sono in friend_stats e sono leggibili dal proprietario e dagli amici
+    // public_profiles contiene identità e soli aggregati pubblici della hero card.
+    // Lista amici e statistiche dettagliate sono in friend_stats, leggibili dal proprietario e dagli amici
     // reciproci. Firestore Security Rules non supporta cicli: qui non ci sono iterazioni;
     // le liste dinamiche sono limitate a 100/200/500 elementi, sempre sotto 1.000.
     // I controlli usano insiemi/list methods su liste già limitate, mai scansioni illimitate.
