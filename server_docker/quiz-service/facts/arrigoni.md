@@ -1,7 +1,7 @@
 # Stabilimento Arrigoni
 
 - POI id: arrigoni
-- Ultimo aggiornamento della scheda: 2026-10-23
+- Ultimo aggiornamento della scheda: 2026-11-01
 - Nota d'uso: il server invia al modello SOLO la sezione "Fatti verificati".
 
 ## Fonti consultate
@@ -14,6 +14,8 @@
 - [S6] Pannelli della mostra "Viaggi nella storia" — Scuola "Via Pascoli" con l'Istituto storico della Resistenza di Forlì-Cesena, 2019. URL: https://viagginellastoria.900-er.it/download/sites/default/images/articles/media/9/pannelli-50x70.pdf — consultata il 2026-10-23.
 - [S7] Guida alla città del Novecento (Cesena), pagina autore "marino". URL: https://www.guidaallacittadelnovecento.it/it/author/marino/ — consultata il 2026-10-23.
 - [S8] "Arrigoni (azienda)" — Wikipedia in italiano (bibliografia: La fabbrica recuperata: vicende urbanistiche, di lavoro e di lotta nella vecchia Arrigoni di Cesena: 1920-1982, Cesena 1982). URL: https://it.wikipedia.org/wiki/Arrigoni_(azienda) — consultata il 2026-10-23. (Solo pista.)
+
+- [S9] "L’Arrigoni" — Resistenza mAPPe, portale degli Istituti Storici dell’Emilia-Romagna. URL: https://resistenzamappe.it/cesena/cs_antifascismo/cs_arrigoni — consultata il 2026-11-01.
 
 ## Fatti verificati
 
@@ -87,15 +89,30 @@
 - Fonti: [S2], [S1]
 - Passaggio di riferimento: [S2] "il bombardamento della stazione, posta strategicamente nei pressi della fabbrica alimentare Arrigoni"; "nuovamente presi di mira nei raid successivi del 25 luglio, 8 agosto, 2 e 9 settembre".
 
+
+### ARR-12
+- Affermazione (IT): Nel 1927 Giorgio Sanguinetti, che dirigeva la società Arrigoni di Trieste, acquistò il Consorzio Industrie Agrarie (CIA) di Cesena e ne ampliò gli impianti.
+- Affermazione (EN): In 1927, Giorgio Sanguinetti, who managed the Arrigoni company in Trieste, acquired the Consorzio Industrie Agrarie (CIA) in Cesena and expanded its facilities.
+- Stato: verificato
+- Fonti: [S9]
+- Passaggio di riferimento: [S9] "Nel 1927 Giorgio Sanguinetti, che dirigeva la società 'Arrigoni' di Trieste, acquistò il Consorzio Industrie Agrarie (CIA) [...] e ne ampliò gli impianti".
+
+### ARR-13
+- Affermazione (IT): Negli anni Trenta, sotto la guida di Sanguinetti, lo stabilimento divenne la fabbrica alimentare più importante della zona e arrivò a contare circa 5.000 addetti.
+- Affermazione (EN): In the 1930s, under Sanguinetti's management, the factory became the area's leading food plant and employed about 5,000 people.
+- Stato: verificato
+- Fonti: [S9]
+- Passaggio di riferimento: [S9] "Negli anni '30 sotto la sua guida lo stabilimento diventò la fabbrica alimentare più importante della zona, arrivando a contare circa 5000 addetti".
+
 ## Informazioni parzialmente verificate o non verificate
 
-- PARZIALE — Prima di diventare Arrigoni, l'area accanto alla stazione ospitava il Consorzio Industrie Agrarie (CIA) ([S7]: "vi era infatti il CIA (Consorzio Industrie Agrarie), divenuto poi Arrigoni"). Fonte unica, ente curatore non identificato con certezza.
+- RISOLTO — Il rapporto tra il CIA e lo stabilimento Arrigoni è ora documentato anche dalla fonte [S9], che attesta l'acquisizione del CIA da parte di Giorgio Sanguinetti nel 1927.
 - PARZIALE — Nel luglio 1944 un grosso carico di marmellata e conserve uscì dall'Arrigoni beffando la gendarmeria tedesca e fu destinato alla Resistenza ([S5], articolo giornalistico divulgativo; il protagonista è indicato come Werther Ferrini, persona diversa da Werther Ricchi).
 - PARZIALE — La famiglia Sanguinetti, di origine ebraica, che guidava l'azienda, subì persecuzioni; Bruno Sanguinetti fu attivo nella Resistenza nelle file del PCI ([S8] soltanto).
 - PARZIALE — Data di morte di Werther Ricchi: 4 aprile 1944 secondo la scheda [S3]; 4 maggio 1944 secondo Mambelli, citato nella stessa scheda. Non usare la data.
 - CONTRADDETTO — ARB: "grande industria conserviera fondata nel 1880". Nessuna fonte lo conferma. Le fonti indicano: azienda nata a Isola d'Istria nel 1855 da Gaspare Arrigoni ([S8]) oppure società "Prodotti alimentari G. Arrigoni & C." fondata da Giorgio Sanguinetti nel 1919 ([S4]); lo stabilimento di Cesena arrivò dopo la Prima guerra mondiale (1929 secondo [S4]; il titolo del volume citato da [S8] indica il periodo 1920-1982).
 - NON VERIFICATO — ARB: "specializzata in conserve ittiche". Il pesce in scatola fu la specialità iniziale del gruppo ([S4]); a Cesena le fonti citano confetture, pomodori pelati e minestroni essiccati.
-- NON VERIFICATO — ARB e quiz seed: "teatro di scioperi e forti tensioni sociali, soprattutto nel biennio 1943–1944". Nessuna fonte specifica trovata; le fonti documentano l'antifascismo in fabbrica e l'aiuto ai partigiani.
+- PARZIALE — Le fonti documentano scioperi, sabotaggi e propaganda libertaria degli operai antifascisti [S9], ma non precisano che tali attività si concentrassero esclusivamente nel biennio 1943–1944; evitare una datazione così ristretta.
 - NON VERIFICATO — "Strategicamente rilevante per la logistica alimentare" (ARB). Nessuna fonte.
 
 ## Discrepanze tra fonti
