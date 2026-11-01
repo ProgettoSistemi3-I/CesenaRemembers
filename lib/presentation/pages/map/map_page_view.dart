@@ -7,6 +7,14 @@ extension _MapPageView on _MapPageState {
       MapStyle.satellite => _MapPageState._urlSatellite,
       MapStyle.standard => data.standardMapUrl,
     };
+    const mapTypeButtonHeight = 56.0;
+    const mapControlsGap = 12.0;
+    const attributionBottomInset = 8.0;
+    const tourCardBottom = 82.0 + 12.0 * 2;
+    final mapTypeBottom = data.isTourActive ? tourCardBottom : 20.0;
+    final attributionVerticalOffset =
+        mapTypeBottom + mapTypeButtonHeight + mapControlsGap -
+        attributionBottomInset;
 
     if (_isLoading) {
       return Scaffold(
@@ -41,6 +49,7 @@ extension _MapPageView on _MapPageState {
                 setState(() => _alignPositionOnUpdate = AlignOnUpdate.never),
             canUseLocation: data.canUseLocation,
             currentMapUrl: currentMapUrl,
+            attributionVerticalOffset: attributionVerticalOffset,
             standardMapUrl: data.standardMapUrl,
             selectedMapStyle: _selectedMapStyle,
             cachedTileProvider: _cachedTileProvider,
@@ -91,7 +100,7 @@ extension _MapPageView on _MapPageState {
             ),
           Positioned(
             left: 20,
-            bottom: data.isTourActive ? cardBottom + 64 : 88,
+            bottom: data.isTourActive ? cardBottom : 20,
             child: MapTypeButton(
               isOpen: _isMapMenuOpen,
               selectedMapStyle: _selectedMapStyle,
@@ -265,6 +274,7 @@ class _MapCanvas extends StatefulWidget {
     required this.onDisableFollowUser,
     required this.canUseLocation,
     required this.currentMapUrl,
+    required this.attributionVerticalOffset,
     required this.standardMapUrl,
     required this.selectedMapStyle,
     required this.cachedTileProvider,
@@ -285,6 +295,7 @@ class _MapCanvas extends StatefulWidget {
   final VoidCallback onDisableFollowUser;
   final bool canUseLocation;
   final String currentMapUrl;
+  final double attributionVerticalOffset;
   final String standardMapUrl;
   final MapStyle selectedMapStyle;
   final CachedTileProvider? cachedTileProvider;
@@ -400,11 +411,15 @@ class _MapCanvasState extends State<_MapCanvas> {
             positionStream: _positionStream,
           ),
         MarkerLayer(markers: widget.markers),
-        RichAttributionWidget(
-          alignment: AttributionAlignment.bottomLeft,
-          showFlutterMapAttribution: false,
-          attributions: _mapAttributions(),
-        ),
+        if (!widget.isMapMenuOpen)
+          Transform.translate(
+            offset: Offset(0, -widget.attributionVerticalOffset),
+            child: RichAttributionWidget(
+              alignment: AttributionAlignment.bottomLeft,
+              showFlutterMapAttribution: false,
+              attributions: _mapAttributions(),
+            ),
+          ),
       ],
     );
   }
