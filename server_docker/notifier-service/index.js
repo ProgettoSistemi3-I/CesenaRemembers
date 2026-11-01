@@ -31,8 +31,8 @@ db.collectionGroup('inbox').onSnapshot(async (snapshot) => {
 
     if (change.type === 'added') {
       await sendToUser(recipientUid, {
-        title: 'Nuova richiesta di amicizia',
-        body: 'Hai ricevuto una richiesta di amicizia su Cesena Remembers.',
+        title: { it: 'Nuova richiesta di amicizia', en: 'New friend request' },
+        body: { it: 'Hai ricevuto una richiesta di amicizia su Cesena Remembers.', en: 'You received a friend request on Cesena Remembers.' },
         type: 'friend_request',
       });
     } else if (change.type === 'removed') {
@@ -46,8 +46,8 @@ db.collectionGroup('inbox').onSnapshot(async (snapshot) => {
           !(sender.sentFriendRequests || []).includes(recipientUid);
         if (accepted) {
           await sendToUser(senderUid, {
-            title: 'Nuova amicizia',
-            body: 'La tua richiesta di amicizia è stata accettata.',
+            title: { it: 'Nuova amicizia', en: 'New friend' },
+            body: { it: 'La tua richiesta di amicizia è stata accettata.', en: 'Your friend request was accepted.' },
             type: 'friend_accepted',
           });
         }
@@ -69,9 +69,14 @@ async function sendToUser(userId, payload) {
     const tokens = Array.isArray(data.fcmTokens) ? data.fcmTokens.filter(Boolean) : [];
     if (tokens.length === 0) return;
 
+    const language = data.preferences?.languageCode === 'en' ? 'en' : 'it';
     const response = await admin.messaging().sendEachForMulticast({
-      notification: { title: payload.title, body: payload.body },
-      data: { type: payload.type },
+      data: {
+        type: payload.type,
+        recipientUid: userId,
+        title: payload.title[language],
+        body: payload.body[language],
+      },
       tokens,
     });
 
