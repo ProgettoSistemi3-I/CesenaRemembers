@@ -843,6 +843,18 @@ class AppLocalizationsIt extends AppLocalizations {
   String get quiz_fallback_desc => 'Per un errore del server le domande non sono personalizzate e usano una difficoltà locale specifica.';
 
   @override
+  String get quiz_fallback_q3 => 'In quale città si trovano i luoghi storici di questo percorso?';
+
+  @override
+  String get quiz_fallback_q3_o1 => 'Cesena';
+
+  @override
+  String get quiz_fallback_q3_o2 => 'Forlì';
+
+  @override
+  String get quiz_fallback_q3_o3 => 'Ravenna';
+
+  @override
   String get quiz_santa_cristina_q1 => 'Chi progettò la chiesa di Santa Cristina?';
 
   @override
