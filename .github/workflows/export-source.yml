@@ -15,8 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create source archive
         run: |
-          zip -qr CesenaRemembers-updated.zip . \
-            -x 'CesenaRemembers-updated.zip' \
+        run: git archive --format=zip --output=CesenaRemembers-updated.zip HEAD
             -x '.git/*' '.dart_tool/*' 'build/*' 'android/build/*' 'android/.gradle/*' 'ios/Pods/*' 'ios/build/*' 'macos/Pods/*' 'windows/flutter/ephemeral/*'
       - uses: actions/upload-artifact@v4
         with:
