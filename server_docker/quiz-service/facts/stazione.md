@@ -1,7 +1,7 @@
 # Stazione ferroviaria di Cesena
 
 - POI id: stazione
-- Ultimo aggiornamento della scheda: 2026-10-23
+- Ultimo aggiornamento della scheda: 2026-11-01
 - Nota d'uso: il server invia al modello SOLO la sezione "Fatti verificati".
 
 ## Fonti consultate
@@ -92,6 +92,14 @@
 - Stato: verificato
 - Fonti: [S1], [S2], [S7]
 - Passaggio di riferimento: [S2] "Il 20 ottobre del '44, con l'ingresso degli Alleati in città"; [S7] "la liberazione della città, avvenuta il 20 ottobre".
+
+### STA-12
+- Affermazione (IT): Il primo bombardamento massiccio su Cesena si verificò il 13 maggio 1944.
+- Affermazione (EN): The first heavy air raid on Cesena took place on 13 May 1944.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] "Il primo massiccio bombardamento su Cesena si registrò il 13 maggio 1944".
+
 
 ## Informazioni parzialmente verificate o non verificate
 
