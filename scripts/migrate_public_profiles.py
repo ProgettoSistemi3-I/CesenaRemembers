@@ -124,6 +124,10 @@ def build_public_profile(private: dict[str, Any]) -> dict[str, Any]:
             "displayName", "displayNameNormalized", "username", "usernameNormalized",
             "avatarId", "profileCompleted", "onboardingCompleted",
         )
+    } | {
+        "xp": as_int(private.get("xp")),
+        "friendsCount": len(private.get("friends", [])),
+        "totalToursCompleted": as_int(private.get("totalToursCompleted")),
     }
 
 
