@@ -843,6 +843,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quiz_fallback_desc => 'Due to a server error, questions are not personalized and use a specific local difficulty.';
 
   @override
+  String get quiz_fallback_q3 => 'In which city are the historical places on this route located?';
+
+  @override
+  String get quiz_fallback_q3_o1 => 'Cesena';
+
+  @override
+  String get quiz_fallback_q3_o2 => 'Forlì';
+
+  @override
+  String get quiz_fallback_q3_o3 => 'Ravenna';
+
+  @override
   String get quiz_santa_cristina_q1 => 'Who designed the church of Santa Cristina?';
 
   @override
