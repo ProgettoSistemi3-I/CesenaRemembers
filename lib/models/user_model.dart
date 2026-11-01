@@ -10,6 +10,7 @@ class UserModel extends UserProfile {
     super.profileCompleted,
     super.onboardingCompleted,
     super.xp,
+    super.friendsCount,
     super.visitedPoiIds,
     super.unlockedAchievements,
     super.pendingAchievements,
@@ -29,6 +30,7 @@ class UserModel extends UserProfile {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json, String documentId) {
+    final friends = List<String>.from(json['friends'] ?? []);
     return UserModel(
       uid: documentId,
       email: json['email'] ?? '',
@@ -38,6 +40,7 @@ class UserModel extends UserProfile {
       profileCompleted: json['profileCompleted'] ?? false,
       onboardingCompleted: json['onboardingCompleted'] ?? false,
       xp: json['xp'] ?? 0,
+      friendsCount: (json['friendsCount'] as num?)?.toInt() ?? friends.length,
       visitedPoiIds: List<String>.from(json['visitedPoiIds'] ?? []),
       unlockedAchievements: List<String>.from(
         json['unlockedAchievements'] ?? [],
@@ -57,7 +60,7 @@ class UserModel extends UserProfile {
       totalCorrectAnswers: json['totalCorrectAnswers'] ?? 0,
       bestTourTimeSeconds: json['bestTourTimeSeconds'] ?? 0,
       maxSingleTourXp: json['maxSingleTourXp'] ?? 0,
-      friends: List<String>.from(json['friends'] ?? []),
+      friends: friends,
       sentFriendRequests: List<String>.from(json['sentFriendRequests'] ?? []),
       receivedFriendRequests: List<String>.from(
         json['receivedFriendRequests'] ?? [],
