@@ -117,7 +117,7 @@ def build_private_profile(data: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def build_public_profile(private: dict[str, Any]) -> dict[str, Any]:
-    """Only fields needed to discover and identify an account are public."""
+    """Public identity and limited hero-card aggregates; no friend list or detailed stats."""
     return {
         key: private[key]
         for key in (
