@@ -1271,4 +1271,111 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS';
+  @override
+  String get quiz_santa_cristina_q3 => 'Come descrisse don Leo Bagnoli la cripta-rifugio?';
+
+  @override
+  String get quiz_santa_cristina_q3_o1 => 'Come un ambiente solido e asciutto';
+
+  @override
+  String get quiz_santa_cristina_q3_o2 => 'Come un ambiente instabile e umido';
+
+  @override
+  String get quiz_santa_cristina_q3_o3 => 'Come un locale privo di accessi';
+
+  @override
+  String get quiz_san_rocco_q3 => 'Quale elemento della chiesa originaria è rimasto dopo la distruzione del 1944?';
+
+  @override
+  String get quiz_san_rocco_q3_o1 => 'Il campanile ottocentesco';
+
+  @override
+  String get quiz_san_rocco_q3_o2 => 'La facciata principale';
+
+  @override
+  String get quiz_san_rocco_q3_o3 => 'La navata centrale';
+
+  @override
+  String get quiz_abbazia_monte_q3 => 'Che cosa accadde agli sfollati ospitati nell’abbazia durante i bombardamenti dell’ottobre 1944?';
+
+  @override
+  String get quiz_abbazia_monte_q3_o1 => 'Non si registrarono vittime tra loro';
+
+  @override
+  String get quiz_abbazia_monte_q3_o2 => 'Furono tutti trasferiti alla stazione';
+
+  @override
+  String get quiz_abbazia_monte_q3_o3 => 'L’abbazia non venne colpita';
+
+  @override
+  String get quiz_osservanza_q3 => 'Quale episodio è legato ai bombardamenti dell’ottobre 1944 sull’Osservanza?';
+
+  @override
+  String get quiz_osservanza_q3_o1 => 'La morte di padre Bosoni';
+
+  @override
+  String get quiz_osservanza_q3_o2 => 'Il trasferimento degli uffici fascisti';
+
+  @override
+  String get quiz_osservanza_q3_o3 => 'La distruzione della stazione ferroviaria';
+
+  @override
+  String get quiz_palazzo_ridotto_q3 => 'Perché gli uffici del Partito Fascista Repubblicano furono trasferiti al Ridotto?';
+
+  @override
+  String get quiz_palazzo_ridotto_q3_o1 => 'Dopo l’attentato alla sede di Palazzo Fantaguzzi';
+
+  @override
+  String get quiz_palazzo_ridotto_q3_o2 => 'Dopo il bombardamento dell’abbazia';
+
+  @override
+  String get quiz_palazzo_ridotto_q3_o3 => 'Perché la stazione venne chiusa';
+
+  @override
+  String get quiz_stazione_q3 => 'Che cosa accadde nell’attacco aereo del 29 giugno 1944 nell’area ferroviaria?';
+
+  @override
+  String get quiz_stazione_q3_o1 => 'Furono distrutti carichi di munizioni e incendiata la Montecatini';
+
+  @override
+  String get quiz_stazione_q3_o2 => 'Fu distrutto il campanile di San Rocco';
+
+  @override
+  String get quiz_stazione_q3_o3 => 'Fu colpita direttamente l’abbazia del Monte';
+
+  @override
+  String get quiz_arrigoni_q3 => 'Che cosa fecero gli operai Arrigoni durante il passaggio del fronte?';
+
+  @override
+  String get quiz_arrigoni_q3_o1 => 'Misero in salvo numerosi macchinari';
+
+  @override
+  String get quiz_arrigoni_q3_o2 => 'Trasferirono la stazione ferroviaria';
+
+  @override
+  String get quiz_arrigoni_q3_o3 => 'Costruirono un rifugio nel campanile di San Rocco';
+
+  @override
+  String get quiz_fantaguzzi_q3 => 'Dove fu trasferita la sede del fascio cittadino dopo l’attentato?';
+
+  @override
+  String get quiz_fantaguzzi_q3_o1 => 'Al Palazzo del Ridotto';
+
+  @override
+  String get quiz_fantaguzzi_q3_o2 => 'Alla Rocca Malatestiana';
+
+  @override
+  String get quiz_fantaguzzi_q3_o3 => 'Alla stazione ferroviaria';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3 => 'Come erano protetti i due ingressi del rifugio su viale Mazzoni?';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3_o1 => 'Con strutture paraschegge';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3_o2 => 'Con campane d’allarme';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3_o3 => 'Con porte di legno riempite d’acqua';
 }
