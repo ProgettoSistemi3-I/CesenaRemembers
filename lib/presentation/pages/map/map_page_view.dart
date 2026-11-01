@@ -413,7 +413,13 @@ class _MapCanvasState extends State<_MapCanvas> {
         MarkerLayer(markers: widget.markers),
         if (!widget.isMapMenuOpen)
           Transform.translate(
-            offset: Offset(0, -widget.attributionVerticalOffset),
+            offset: Offset(
+              0,
+              -(
+                widget.attributionVerticalOffset +
+                MediaQuery.of(context).padding.bottom
+              ),
+            ),
             child: RichAttributionWidget(
               alignment: AttributionAlignment.bottomLeft,
               showFlutterMapAttribution: false,
