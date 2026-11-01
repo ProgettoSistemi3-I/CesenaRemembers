@@ -1093,7 +1093,7 @@ class _LeaderboardMockup extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Classifica',
+                  AppLocalizations.of(context)!.socialLeaderboard,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -1293,9 +1293,9 @@ class _AchievementsMockup extends StatelessWidget {
   final bool isDark;
 
   static const _achievements = [
-    (Icons.explore_rounded, AppPalette.olive, true, 'Primo passo'),
-    (Icons.quiz_rounded, AppPalette.tan, true, 'Prima risposta'),
-    (Icons.route_rounded, AppPalette.moss, true, 'Primo tour'),
+    (Icons.explore_rounded, AppPalette.olive, true, 'first_visit'),
+    (Icons.quiz_rounded, AppPalette.tan, true, 'first_quiz'),
+    (Icons.route_rounded, AppPalette.moss, true, 'first_tour'),
     (Icons.military_tech_rounded, AppPalette.tan, false, '???'),
     (Icons.emoji_events_rounded, AppPalette.olive, false, '???'),
     (Icons.people_rounded, AppPalette.moss, false, '???'),
@@ -1316,7 +1316,7 @@ class _AchievementsMockup extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Achievement',
+                  AppLocalizations.of(context)!.sectionAchievements,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -1366,7 +1366,7 @@ class _AchievementsMockup extends StatelessWidget {
                       icon: a.$1,
                       color: a.$2,
                       unlocked: a.$3,
-                      label: a.$4,
+                      label: AppLocalizations.of(context)!.achievementTitle(a.$4),
                       isDark: isDark,
                       pulse: i < 3 ? pulseCtrl.value : 0,
                     );
