@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../theme/app_palette.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../l10n/l10n_extensions.dart';
 import '../../../injection_container.dart';
 import '../../../domain/usecases/user_profile_use_cases.dart';
 
@@ -945,7 +946,7 @@ class _QuizMockup extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Question
                 Text(
-                  AppLocalizations.of(context)!.getQuizString('quiz_rocca_q2'),
+                  AppLocalizations.of(context)!.quiz_rocca_q2,
                   style: TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w700,
