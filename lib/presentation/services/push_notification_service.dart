@@ -1,12 +1,27 @@
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
 import 'shell_navigation_store.dart';
 import 'notification_service.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  final activeUid = FirebaseAuth.instance.currentUser?.uid;
+  if (activeUid == null || message.data['recipientUid'] != activeUid) return;
+  final title = message.data['title'] as String? ?? 'Cesena Remembers';
+  final body = message.data['body'] as String? ?? '';
+  if (body.isEmpty) return;
+  final service = NotificationService();
+  await service.init();
+  await service.showLocalNotification(title, body);
+}
 
 class PushNotificationService {
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -109,12 +124,10 @@ class PushNotificationService {
     // la mostriamo qui. In background se ne occupa FCM, evitando il doppio invio
     // che si verificava ascoltando anche gli aggiornamenti Firestore in AuthGate.
     _foregroundSubscription ??= FirebaseMessaging.onMessage.listen((message) {
-      final notification = message.notification;
-      if (notification == null) return;
-      unawaited(_showForegroundNotification(
-        notification.title ?? 'Cesena Remembers',
-        notification.body ?? '',
-      ));
+      final title = message.data['title'] as String? ?? 'Cesena Remembers';
+      final body = message.data['body'] as String? ?? '';
+      if (body.isEmpty) return;
+      unawaited(_showForegroundNotification(title, body));
     });
     _openedSubscription ??= FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNotificationClick(message.data);
