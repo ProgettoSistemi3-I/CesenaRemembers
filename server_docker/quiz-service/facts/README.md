@@ -1,7 +1,7 @@
 # Archivio storico locale (schede dei POI)
 
 Una scheda per POI, con nome file = ID usato dall'app Flutter (`rocca.md`, `stazione.md`...).
-Il server carica le schede all'avvio e le tiene in memoria. Durante la generazione non fa ricerche online. Per ogni richiesta invia al modello un sottoinsieme casuale dei fatti verificati, fino al limite configurato da `FACTS_PER_PROMPT` (predefinito: 18). Con l'archivio attuale, il limite predefinito consente di inviare l'intera scheda di ogni POI.
+Il server carica le schede all'avvio e le tiene in memoria. Durante la generazione non fa ricerche online. Per ogni richiesta invia al modello un sottoinsieme casuale dei fatti verificati, fino al limite configurato da `FACTS_PER_PROMPT` (predefinito: 20). Con l'archivio attuale, il limite predefinito consente di inviare l'intera scheda di ogni POI (la scheda più ampia contiene 19 fatti verificati).
 
 ## Cosa legge il server
 
