@@ -728,13 +728,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_santa_cristina_name => 'Church of Santa Cristina';
 
   @override
-  String get poi_santa_cristina_desc => 'Commissioned by Pope Pius VII Chiaramonti, who was born in Cesena, and designed by architect Giuseppe Valadier, the church was built between 1816 and 1825 in the Neoclassical style. Its circular plan and coffered dome give it the appearance of a small Pantheon. During the Second World War, the crypt was reinforced and made safe for use as an air-raid shelter with room for up to 200 people. Father Leo Bagnoli remembered it as a solid, dry space where civilians sought refuge during air-raid warnings and the bombings that struck Cesena in 1944.';
+  String get poi_santa_cristina_desc => 'Commissioned by Pope Pius VII Chiaramonti, who was born in Cesena, and designed by architect Giuseppe Valadier, the church was built between 1816 and 1825 in the Neoclassical style. Its circular plan, inspired by the Pantheon, is one of the building’s most distinctive features. During the Second World War, the crypt was reinforced and made safe for use as an air-raid shelter with room for up to 200 people. Father Leo Bagnoli remembered it as a solid, dry space where civilians sought refuge during air-raid warnings and the bombings that struck Cesena in 1944.';
 
   @override
   String get poi_rocca_name => 'Malatestiana Fortress';
 
   @override
-  String get poi_rocca_desc => 'Construction of the Rocca Nuova, or Malatestiana Fortress, began in 1380 under Galeotto Malatesta and continued under Malatesta Novello on Garampo hill. After losing its military function, the fortress became a prison and remained one until 1969. During the Nazi-Fascist occupation it also held anti-Fascist prisoners. In 1944 the local Resistance carried out two raids to free political prisoners. The nearby Sferisterio, in front of the fortress entrance, was also the site where eight anti-Fascists were executed on 4 September 1944. The public shelter for 800 people often associated with the Rocca was a separate tunnel excavated into the hill along Viale Mazzoni, not a room inside the fortress.';
+  String get poi_rocca_desc => 'Construction of the Rocca Nuova, or Malatestiana Fortress, began in 1380 under Galeotto Malatesta and continued under Malatesta Novello on Garampo hill. After losing its military function, the fortress became a prison and remained one until 1969. During the Nazi-Fascist occupation it also held anti-Fascist prisoners. In 1944 the local Resistance carried out two raids to free political prisoners. The nearby Sferisterio, in front of the fortress entrance, was the site where eight anti-Fascists were executed on 4 September 1944. During the 1940s, the fortress’s underground spaces were also used as a shelter. The separate public shelter for 800 people often associated with the Rocca was a tunnel excavated into the hill along Viale Mazzoni.';
 
   @override
   String get poi_san_rocco_name => 'Church of San Rocco';
@@ -746,7 +746,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_abbazia_monte_name => 'Abbey of Santa Maria del Monte';
 
   @override
-  String get poi_abbazia_monte_desc => 'The Benedictine Abbey of Santa Maria del Monte was founded at the beginning of the 11th century on the hill known as il Monte, south-east of Cesena. During the Second World War, the monks adapted cellars and underground galleries to shelter about 700 displaced people fleeing air raids and roundups. Many books from the Malatestiana Library were also kept in the underground spaces. The monk Odo Contestabile helped protect Jewish families and, in 1943, escorted two families towards the Swiss border; he was recognised as Righteous Among the Nations in 2019. Between 16 and 19 October 1944, repeated bombing struck the abbey: the church was gutted and part of the monastery collapsed. None of the displaced people sheltering in the complex were killed.';
+  String get poi_abbazia_monte_desc => 'The Benedictine Abbey of Santa Maria del Monte was founded at the beginning of the 11th century on the hill known as il Monte, south-east of Cesena. During the Second World War, the monks built an underground gallery accessible through a well and enlarged with chambers carved into the tuff. It sheltered about 700 displaced people fleeing air raids and roundups. Many books from the Malatestiana Library were also kept underground, while its most valuable manuscripts had been moved to the Modena area at the beginning of the conflict. The monk Odo Contestabile helped protect Jewish families and, in 1943, escorted two families towards the Swiss border; he was recognised as Righteous Among the Nations in 2019. Between 16 and 19 October 1944, repeated bombing struck the abbey: the church was gutted and part of the monastery collapsed. None of the displaced people sheltering in the complex were killed.';
 
   @override
   String get poi_osservanza_name => 'Church and Convent of the Osservanza';
@@ -770,7 +770,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_arrigoni_name => 'Arrigoni Factory';
 
   @override
-  String get poi_arrigoni_desc => 'The Arrigoni factory stood next to Cesena railway station. In 1927, Giorgio Sanguinetti, who managed the Arrigoni company in Trieste, acquired the earlier Consorzio Industrie Agrarie and expanded its facilities. By the 1930s it had become one of the area’s leading food factories and employed thousands of people; its Cesena plant was known for jams, peeled tomatoes and dried minestrone. The factory was also an important centre of local anti-Fascism. One of its workers, Werther Ricchi, sent Arrigoni food products to the partisans of the 8th Garibaldi Brigade after 8 September 1943. He was arrested in March 1944 and tortured. As the front moved through the area, workers also saved a large part of the factory’s machinery by dismantling and hiding its most important components.';
+  String get poi_arrigoni_desc => 'The Arrigoni factory stood next to Cesena railway station. It became one of the area’s leading food factories, specialising in jams, peeled tomatoes and dried minestrone, and over time employed thousands of local women and men. The factory was also an important centre of local anti-Fascism. One of its workers was Werther Ricchi, who was already active in opposition to the regime before 25 July 1943; after 8 September he got jam and other products to the partisans of the 8th Garibaldi Brigade. He was arrested on 23 March 1944 and tortured. As the front moved through the area, the workforce helped save a large part of the factory’s machinery.';
 
   @override
   String get poi_fantaguzzi_name => 'Palazzo Fantaguzzi';
@@ -1288,16 +1288,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quiz_san_rocco_q3_o3 => 'The central nave';
 
   @override
-  String get quiz_abbazia_monte_q3 => 'What happened to the displaced people sheltering in the abbey during the October 1944 bombings?';
+  String get quiz_abbazia_monte_q3 => 'How did the monk Odo Contestabile help two Jewish families in 1943?';
 
   @override
-  String get quiz_abbazia_monte_q3_o1 => 'None of them were killed';
+  String get quiz_abbazia_monte_q3_o1 => 'He escorted them towards the Swiss border';
 
   @override
-  String get quiz_abbazia_monte_q3_o2 => 'They were all moved to the railway station';
+  String get quiz_abbazia_monte_q3_o2 => 'He hid them in the Rocca air-raid tunnel';
 
   @override
-  String get quiz_abbazia_monte_q3_o3 => 'The abbey was not hit';
+  String get quiz_abbazia_monte_q3_o3 => 'He moved them to the railway station';
 
   @override
   String get quiz_osservanza_q3 => 'Which event is associated with the October 1944 bombing of the Osservanza?';
