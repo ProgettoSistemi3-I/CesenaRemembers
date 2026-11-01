@@ -837,10 +837,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get sectionSupport => 'Collaboratori e Supporto';
 
   @override
-  String get quiz_fallback_name => 'Difficoltà standard (seed locale)';
+  String get quiz_fallback_name => 'Quiz di riserva';
 
   @override
-  String get quiz_fallback_desc => 'Per un errore del server le domande non sono personalizzate e usano una difficoltà locale specifica.';
+  String get quiz_fallback_desc => 'Il quiz online non è al momento disponibile. Ecco tre domande di riserva dedicate a questo luogo.';
 
 
 
