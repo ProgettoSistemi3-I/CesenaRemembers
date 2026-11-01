@@ -147,6 +147,13 @@
 - Passaggio di riferimento: [S2] "i manoscritti più preziosi fossero stati portati nel modenese sin dall'inizio del conflitto".
 
 
+
+### ABM-19
+- Affermazione (IT): Gli sfollati ospitati nei sotterranei dell'abbazia cercavano di scampare sia ai bombardamenti alleati sia ai rastrellamenti di tedeschi e fascisti.
+- Affermazione (EN): The displaced people sheltering in the abbey's underground spaces were seeking refuge from both Allied bombing and roundups by German and Fascist forces.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] riferisce che circa settecento persone vi furono ospitate per scampare "ai bombardamenti degli alleati, oppure ai rastrellamenti di tedeschi e fascisti".
 ## Informazioni parzialmente verificate o non verificate
 
 - PARZIALE — Il terremoto del 1768 distrusse la cupola, poi ricostruita da Pietro Carlo Borboni ([S8] soltanto).
