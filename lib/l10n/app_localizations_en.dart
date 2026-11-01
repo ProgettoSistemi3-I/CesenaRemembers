@@ -1271,4 +1271,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community';
+  @override
+  String get quiz_santa_cristina_q3 => 'How did Father Leo Bagnoli describe the shelter in the crypt?';
+
+  @override
+  String get quiz_santa_cristina_q3_o1 => 'As a solid and dry space';
+
+  @override
+  String get quiz_santa_cristina_q3_o2 => 'As an unstable and damp space';
+
+  @override
+  String get quiz_santa_cristina_q3_o3 => 'As a room with no access';
+
+  @override
+  String get quiz_san_rocco_q3 => 'Which part of the original church survived its destruction in 1944?';
+
+  @override
+  String get quiz_san_rocco_q3_o1 => 'The nineteenth-century bell tower';
+
+  @override
+  String get quiz_san_rocco_q3_o2 => 'The main façade';
+
+  @override
+  String get quiz_san_rocco_q3_o3 => 'The central nave';
+
+  @override
+  String get quiz_abbazia_monte_q3 => 'What happened to the displaced people sheltering in the abbey during the October 1944 bombings?';
+
+  @override
+  String get quiz_abbazia_monte_q3_o1 => 'None of them were killed';
+
+  @override
+  String get quiz_abbazia_monte_q3_o2 => 'They were all moved to the railway station';
+
+  @override
+  String get quiz_abbazia_monte_q3_o3 => 'The abbey was not hit';
+
+  @override
+  String get quiz_osservanza_q3 => 'Which event is associated with the October 1944 bombing of the Osservanza?';
+
+  @override
+  String get quiz_osservanza_q3_o1 => 'The death of Father Bosoni';
+
+  @override
+  String get quiz_osservanza_q3_o2 => 'The transfer of the Fascist offices';
+
+  @override
+  String get quiz_osservanza_q3_o3 => 'The destruction of the railway station';
+
+  @override
+  String get quiz_palazzo_ridotto_q3 => 'Why were the local offices of the Republican Fascist Party moved to the Ridotto?';
+
+  @override
+  String get quiz_palazzo_ridotto_q3_o1 => 'After the attack on the headquarters at Palazzo Fantaguzzi';
+
+  @override
+  String get quiz_palazzo_ridotto_q3_o2 => 'After the bombing of the abbey';
+
+  @override
+  String get quiz_palazzo_ridotto_q3_o3 => 'Because the railway station was closed';
+
+  @override
+  String get quiz_stazione_q3 => 'What happened during the air raid on the railway area on 29 June 1944?';
+
+  @override
+  String get quiz_stazione_q3_o1 => 'Ammunition loads were destroyed and Montecatini was set on fire';
+
+  @override
+  String get quiz_stazione_q3_o2 => 'The bell tower of San Rocco was destroyed';
+
+  @override
+  String get quiz_stazione_q3_o3 => 'The Abbey of Santa Maria del Monte was hit directly';
+
+  @override
+  String get quiz_arrigoni_q3 => 'What did Arrigoni workers do as the front moved through the area?';
+
+  @override
+  String get quiz_arrigoni_q3_o1 => 'They saved a large amount of the factory’s machinery';
+
+  @override
+  String get quiz_arrigoni_q3_o2 => 'They moved the railway station';
+
+  @override
+  String get quiz_arrigoni_q3_o3 => 'They built a shelter in San Rocco’s bell tower';
+
+  @override
+  String get quiz_fantaguzzi_q3 => 'Where were the local Fascist headquarters moved after the attack?';
+
+  @override
+  String get quiz_fantaguzzi_q3_o1 => 'To Palazzo del Ridotto';
+
+  @override
+  String get quiz_fantaguzzi_q3_o2 => 'To the Malatestiana Fortress';
+
+  @override
+  String get quiz_fantaguzzi_q3_o3 => 'To the railway station';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3 => 'How were the two shelter entrances on Viale Mazzoni protected?';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3_o1 => 'With blast-protection structures';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3_o2 => 'With warning bells';
+
+  @override
+  String get quiz_rifugi_antiaerei_q3_o3 => 'With wooden doors filled with water';
 }
