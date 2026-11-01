@@ -117,6 +117,10 @@ Future<void> init() async {
   }
 
   if (!sl.isRegistered<SettingsUiController>()) {
-    sl.registerLazySingleton(() => SettingsUiController(sl()));
+    sl.registerLazySingleton(() => SettingsUiController(
+      sl(),
+      preferencesUseCases: sl(),
+      profileUseCases: sl(),
+    ));
   }
 }
