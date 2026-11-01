@@ -23,6 +23,7 @@ abstract class IUserRepository {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    String? languageCode,
   });
   Future<void> registerQuizCompletion({
     required String uid,
