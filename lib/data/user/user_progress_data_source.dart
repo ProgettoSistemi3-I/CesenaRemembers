@@ -20,9 +20,9 @@ class UserProgressDataSource {
   CollectionReference<Map<String, dynamic>> get _leaderboard =>
       _firestore.collection('leaderboard');
 
-  /// Classifica globale: legge soltanto UID e XP dalla proiezione pubblica
-  /// dedicata, poi arricchisce ogni riga con i campi identificativi pubblici.
-  /// Le statistiche dettagliate restano in friend_stats e non vengono lette qui.
+  /// Classifica globale: legge UID/XP e arricchisce la Top 50 con il profilo.
+  /// La proiezione pubblica espone solo gli aggregati della hero card;
+  /// le statistiche dettagliate restano in friend_stats.
   Stream<List<Map<String, dynamic>>> getLeaderboardStream({
     required String uid,
     int limit = 50,
@@ -30,6 +30,7 @@ class UserProgressDataSource {
     return _firestore
         .collection('leaderboard')
         .orderBy('xp', descending: true)
+        .orderBy(FieldPath.documentId)
         .limit(limit.clamp(1, 50))
         .snapshots()
         .asyncMap((snapshot) async {
@@ -56,6 +57,25 @@ class UserProgressDataSource {
           }));
           return rows.whereType<Map<String, dynamic>>().toList(growable: false);
         });
+  }
+
+  /// Rango globale reale: pagine da massimo 50, compatibili con Firestore Rules.
+  /// Legge solo UID e XP, non i profili o le statistiche degli altri utenti.
+  Future<int?> getLeaderboardRank({required String uid}) async {
+    final baseQuery = _leaderboard
+        .orderBy('xp', descending: true)
+        .orderBy(FieldPath.documentId);
+    var query = baseQuery.limit(50);
+    var rank = 0;
+    while (true) {
+      final page = await query.get();
+      for (final doc in page.docs) {
+        rank++;
+        if (doc.id == uid) return rank;
+      }
+      if (page.docs.length < 50) return null;
+      query = baseQuery.startAfterDocument(page.docs.last).limit(50);
+    }
   }
 
   /// [isTourComplete] deve essere true solo sull'ultima tappa del tour,
@@ -184,6 +204,9 @@ class UserProgressDataSource {
         'username': data['username'] ?? currentPublic['username'] ?? '',
         'usernameNormalized': data['usernameNormalized'] ?? currentPublic['usernameNormalized'] ?? '',
         'avatarId': data['avatarId'] ?? currentPublic['avatarId'] ?? 'soldato',
+        'xp': nextXp,
+        'friendsCount': List<String>.from(data['friends'] ?? const []).length,
+        'totalToursCompleted': nextToursCompleted,
         'profileCompleted': data['profileCompleted'] == true,
         'onboardingCompleted': data['onboardingCompleted'] == true,
       });
