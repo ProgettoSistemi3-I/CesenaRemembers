@@ -279,7 +279,7 @@ class _SocialPageState extends State<SocialPage> {
                 SizedBox(
                   width: 44,
                   child: Text(
-                    entry.rank > 50 ? '50+' : '#${entry.rank}',
+                    entry.rank > 0 ? '#${entry.rank}' : '…',
                     style: TextStyle(
                       color: isCurrentUser
                           ? AppPalette.olive
