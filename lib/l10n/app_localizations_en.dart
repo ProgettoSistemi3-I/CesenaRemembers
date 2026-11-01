@@ -734,7 +734,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_rocca_name => 'Malatestiana Fortress';
 
   @override
-  String get poi_rocca_desc => 'Construction of the Rocca Nuova, or Malatestiana Fortress, began in 1380 under Galeotto Malatesta and continued under Malatesta Novello on Garampo hill. After losing its military function, the fortress became a prison and remained one until 1969. During the Nazi-Fascist occupation it also held anti-Fascist prisoners. In 1944 the local Resistance carried out two raids to free political prisoners. The nearby Sferisterio, in front of the fortress entrance, was the site where eight anti-Fascists were executed on 4 September 1944. During the 1940s, the fortress’s underground spaces were also used as a shelter. The separate public shelter for 800 people often associated with the Rocca was a tunnel excavated into the hill along Viale Mazzoni.';
+  String get poi_rocca_desc => 'Construction of the Rocca Nuova, or Malatestiana Fortress, began in 1380 under Galeotto Malatesta and continued under Malatesta Novello on Garampo hill. After losing its military function, the fortress became a prison and remained one until 1969. During the Nazi-Fascist occupation it continued to house the city\'s district prison; in 1944 the Resistance carried out two raids to free political prisoners. The nearby Sferisterio, in front of the fortress entrance, was the site where eight anti-Fascists were executed on 4 September 1944. During the 1940s, the fortress’s underground spaces were also used as a shelter. The separate public shelter for 800 people often associated with the Rocca was a tunnel excavated into the hill along Viale Mazzoni.';
 
   @override
   String get poi_san_rocco_name => 'Church of San Rocco';
