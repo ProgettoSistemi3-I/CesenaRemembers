@@ -37,4 +37,7 @@ class UserProgressUseCases {
 
   Future<void> unlockPendingAchievement(String uid, String achievementId) =>
       _repository.unlockPendingAchievement(uid, achievementId);
+
+  Future<void> ensureFriendAchievements({required String uid}) =>
+      _repository.ensureFriendAchievements(uid: uid);
 }
