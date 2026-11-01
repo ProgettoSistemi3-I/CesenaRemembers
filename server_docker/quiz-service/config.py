@@ -117,7 +117,7 @@ def load_settings() -> Settings:
         min_call_budget_s=_env_float("MIN_CALL_BUDGET_S", 2.5),
         max_llm_calls=max(1, min(3, _env_int("MAX_LLM_CALLS", 2))),
         options_per_question=options,
-        facts_per_prompt=max(3, _env_int("FACTS_PER_PROMPT", 10)),
+        facts_per_prompt=max(3, _env_int("FACTS_PER_PROMPT", 18)),
         facts_dir=Path(_env("FACTS_DIR", str(Path(__file__).parent / "facts"))),
         log_level=_env("LOG_LEVEL", "INFO").upper(),
     )
