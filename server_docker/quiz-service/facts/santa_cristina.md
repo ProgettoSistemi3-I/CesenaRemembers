@@ -1,7 +1,7 @@
 # Chiesa di Santa Cristina
 
 - POI id: santa_cristina
-- Ultimo aggiornamento della scheda: 2026-10-23
+- Ultimo aggiornamento della scheda: 2026-11-01
 - Nota d'uso: il server invia al modello SOLO la sezione "Fatti verificati".
 
 ## Fonti consultate
@@ -71,9 +71,23 @@
 - Fonti: [S1] (citazione da L. Bagnoli, Gli anni difficili del passaggio del fronte a Cesena)
 - Passaggio di riferimento: [S1] "una cripta solida e magnifica, nonché asciutta".
 
+### SCR-09
+- Affermazione (IT): La chiesa di Santa Cristina ha una pianta circolare che le conferisce l'aspetto di un piccolo Pantheon.
+- Affermazione (EN): The church of Santa Cristina has a circular plan that gives it the appearance of a small Pantheon.
+- Stato: verificato
+- Fonti: [S1], [S2]
+- Passaggio di riferimento: [S1] "la sua pianta circolare [...] le conferisce le sembianze di un piccolo Pantheon"; [S2] "progettato da Giuseppe Valadier sul modello circolare del Pantheon".
+
+### SCR-10
+- Affermazione (IT): La cupola della chiesa di Santa Cristina è decorata con cassettoni e presenta un'apertura centrale.
+- Affermazione (EN): The dome of the church of Santa Cristina is decorated with coffers and has a central opening.
+- Stato: verificato
+- Fonti: [S1]
+- Passaggio di riferimento: [S1] "una cupola decorata da cassettoni e con un occhio centrale".
+
+
 ## Informazioni parzialmente verificate o non verificate
 
-- PARZIALE — Interno a pianta circolare coperto da una cupola a cassettoni, a somiglianza del Pantheon di Roma ([S5]; [S6] basato su recensioni). Nessuna fonte istituzionale letta lo conferma.
 - PARZIALE — Facciata preceduta da un portico con colonne d'ordine dorico ([S5]).
 - PARZIALE — Origine medievale della chiesa, risistemazione del 1740 (Francesco Zondini) e ricostruzione voluta da Pio VII su richiesta della sorella Ottavia ([S5]).
 - PARZIALE — Nel 1814 Pio VII sostò a Cesena di ritorno dalla prigionia di Fontainebleau e si impegnò a finanziare la nuova chiesa ([S6]).
