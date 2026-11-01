@@ -13,6 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Resolve Flutter dependencies
+        run: flutter pub get
+      - name: Generate localizations
+        run: flutter gen-l10n
+      - name: Analyze Flutter project
+        run: flutter analyze --no-pub
+      - name: Validate notifier JavaScript
+        run: node --check server_docker/notifier-service/index.js
       - name: Create source archive
         run: git archive --format=zip --output=CesenaRemembers-updated.zip HEAD
       - uses: actions/upload-artifact@v4
