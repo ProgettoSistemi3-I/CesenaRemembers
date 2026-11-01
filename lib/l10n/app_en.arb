@@ -363,8 +363,8 @@
       }
     }
   },
-  "quiz_fallback_name": "Standard difficulty (local seed)",
-  "quiz_fallback_desc": "Due to a server error, questions are not personalized and use a specific local difficulty.",
+  "quiz_fallback_name": "Backup quiz",
+  "quiz_fallback_desc": "The online quiz is temporarily unavailable. Here are three backup questions about this place.",
   "quiz_santa_cristina_q1": "Which part of the church was adapted as an air-raid shelter?",
   "quiz_santa_cristina_q1_o1": "The crypt",
   "quiz_santa_cristina_q1_o2": "The bell tower",
