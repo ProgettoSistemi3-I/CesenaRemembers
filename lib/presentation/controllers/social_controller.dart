@@ -64,6 +64,7 @@ class SocialController extends ChangeNotifier {
   int _rankRequestToken = 0;
   Timer? _searchDebounce;
   bool _isDisposed = false;
+  int? _lastObservedFriendCount;
 
   List<LeaderboardEntry> leaderboard = [];
   bool isLeaderboardLoading = true;
@@ -135,6 +136,7 @@ class SocialController extends ChangeNotifier {
     _profileSub?.cancel();
     _profileSub = null;
     _currentUserProfile = null;
+    _lastObservedFriendCount = null;
     _currentUserRank = null;
     _rankedUserId = null;
     _rankedUserXp = null;
@@ -154,6 +156,20 @@ class SocialController extends ChangeNotifier {
     _profileSub?.cancel();
     _profileSub = _profileUseCases.getUserProfileStream(uid).listen((profile) {
       _currentUserProfile = profile;
+      if (profile != null) {
+        final friendCount = profile.friends.length;
+        if (_lastObservedFriendCount == null ||
+            friendCount > _lastObservedFriendCount!) {
+          unawaited(
+            _progressUseCases.ensureFriendAchievements(uid: uid).catchError(
+              (Object error, StackTrace stackTrace) {
+                // Il prossimo aggiornamento profilo riproverà il controllo.
+              },
+            ),
+          );
+        }
+        _lastObservedFriendCount = friendCount;
+      }
       if (profile != null && !leaderboard.any((entry) => entry.uid == profile.uid)) {
         unawaited(_refreshCurrentUserRank(profile.uid, profile.xp));
       }
