@@ -1,7 +1,7 @@
 # Rocca Malatestiana
 
 - POI id: rocca
-- Ultimo aggiornamento della scheda: 2026-10-23
+- Ultimo aggiornamento della scheda: 2026-11-01
 - Compilazione: ricerca documentale online, fonti aperte e lette una per una (vedi "Fonti consultate")
 - Nota d'uso: il server invia al modello SOLO la sezione "Fatti verificati". Le altre sezioni servono alla revisione umana.
 
@@ -133,6 +133,13 @@
 - Fonti: [S4]
 - Passaggio di riferimento: [S4] "La Rocca Malatestiana, i cui sotterranei erano stati convertiti a rifugio negli anni Quaranta".
 
+
+### ROC-17
+- Affermazione (IT): Durante l'occupazione nazifascista la Rocca continuò a ospitare il carcere mandamentale cittadino.
+- Affermazione (EN): During the Nazi-Fascist occupation, the Fortress continued to house the city's district prison.
+- Stato: verificato
+- Fonti: [S4]
+- Passaggio di riferimento: [S4] descrive la Rocca come "casa mandamentale anche durante il periodo di occupazione nazifascista della città".
 ## Informazioni parzialmente verificate o non verificate
 
 Queste informazioni NON vengono inviate al modello.
