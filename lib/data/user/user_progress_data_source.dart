@@ -76,6 +76,37 @@ class UserProgressDataSource {
     }
   }
 
+  /// Ricalcola in modo idempotente gli achievement legati al numero di amici.
+  /// Viene chiamato sul documento del proprietario quando il suo stream profilo
+  /// rileva una variazione della lista amici (e anche alla prima snapshot, per
+  /// recuperare eventuali badge maturati mentre l'app era chiusa).
+  Future<void> ensureFriendAchievements({required String uid}) async {
+    final userRef = _users.doc(uid);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(userRef);
+      if (!snapshot.exists) return;
+
+      final data = snapshot.data() ?? <String, dynamic>{};
+      final friends = List<String>.from(data['friends'] ?? const []);
+      final unlocked = List<String>.from(
+        data['unlockedAchievements'] ?? const [],
+      );
+      final pending = List<String>.from(
+        data['pendingAchievements'] ?? const [],
+      );
+      final awards = AchievementService.evaluateOnFriendAdded(
+        alreadyUnlocked: [...unlocked, ...pending],
+        friendCount: friends.length,
+      );
+      if (awards.isEmpty) return;
+
+      transaction.update(userRef, {
+        'pendingAchievements': FieldValue.arrayUnion(awards),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+
   /// [isTourComplete] deve essere true solo sull'ultima tappa del tour,
   /// quando si vuole registrare il tempo totale e valutare gli achievement
   /// legati al completamento del tour intero.
