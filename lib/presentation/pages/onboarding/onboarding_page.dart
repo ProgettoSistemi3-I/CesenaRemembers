@@ -598,7 +598,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.moss,
                 isDark: isDark,
-                label: 'Rocca',
+                label: AppLocalizations.of(context)!.getPoiName('rocca'),
                 pulse: 0,
               ),
             ),
@@ -608,7 +608,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.tan,
                 isDark: isDark,
-                label: 'Cattedrale',
+                label: AppLocalizations.of(context)!.getPoiName('san_rocco'),
                 pulse: 0,
               ),
             ),
@@ -618,7 +618,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.olive,
                 isDark: isDark,
-                label: 'Piazza',
+                label: AppLocalizations.of(context)!.getPoiName('palazzo_ridotto'),
                 pulse: pt,
                 isActive: true,
               ),
@@ -629,7 +629,7 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.moss,
                 isDark: isDark,
-                label: 'Teatro',
+                label: AppLocalizations.of(context)!.getPoiName('stazione'),
                 pulse: 0,
               ),
             ),
@@ -714,7 +714,7 @@ class _TourMockup extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Tour Storico',
+                                AppLocalizations.of(context)!.tourPlanTitle,
                                 style: TextStyle(
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w700,
@@ -724,7 +724,7 @@ class _TourMockup extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Tappa 3 di 5 • 12 min',
+                                AppLocalizations.of(context)!.quizQuestion(3, 10),
                                 style: TextStyle(
                                   fontSize: 8,
                                   color: isDark
@@ -744,8 +744,8 @@ class _TourMockup extends StatelessWidget {
                             color: AppPalette.olive,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'Vai',
+                          child: Text(
+                            AppLocalizations.of(context)!.onboardingStart,
                             style: TextStyle(
                               fontSize: 9,
                               color: Colors.white,
@@ -945,7 +945,7 @@ class _QuizMockup extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Question
                 Text(
-                  'In quale anno fu costruita\nla Rocca Malatestiana?',
+                  AppLocalizations.of(context)!.getQuizString('quiz_rocca_q2'),
                   style: TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w700,
@@ -1333,7 +1333,7 @@ class _AchievementsMockup extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '3 / 9',
+                    '3 / 10',
                     style: TextStyle(
                       fontSize: 8,
                       fontWeight: FontWeight.w700,
