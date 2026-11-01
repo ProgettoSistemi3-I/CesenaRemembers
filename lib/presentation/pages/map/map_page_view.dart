@@ -91,7 +91,7 @@ extension _MapPageView on _MapPageState {
             ),
           Positioned(
             left: 20,
-            bottom: data.isTourActive ? cardBottom : 20,
+            bottom: data.isTourActive ? cardBottom + 64 : 88,
             child: MapTypeButton(
               isOpen: _isMapMenuOpen,
               selectedMapStyle: _selectedMapStyle,
@@ -367,7 +367,6 @@ class _MapCanvasState extends State<_MapCanvas> {
       ),
       children: [
         TileLayer(
-          key: ValueKey<MapStyle>(widget.selectedMapStyle),
           urlTemplate: widget.currentMapUrl,
           subdomains: const ['a', 'b', 'c', 'd'],
           userAgentPackageName: 'it.cesenaremembers.app',
