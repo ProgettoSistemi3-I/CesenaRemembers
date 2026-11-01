@@ -1495,7 +1495,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_santa_cristina_desc.
   ///
-  /// In en, this message translates to:
+  /// **'Commissioned by Pope Pius VII Chiaramonti, who was born in Cesena, and designed by architect Giuseppe Valadier, the church was built between 1816 and 1825 in the Neoclassical style. Its circular plan, inspired by the Pantheon, is one of the building’s most distinctive features. During the Second World War, the crypt was reinforced and made safe for use as an air-raid shelter with room for up to 200 people. Father Leo Bagnoli remembered it as a solid, dry space where civilians sought refuge during air-raid warnings and the bombings that struck Cesena in 1944.'**
   /// **'The church of Santa Cristina was commissioned by Pope Pius VII Chiaramonti and designed by architect Giuseppe Valadier. Construction began in 1816 and ended in 1825; the building is Neoclassical. During the Second World War, the crypt was reinforced and made usable as an air-raid shelter, with capacity for up to 200 people.'**
   String get poi_santa_cristina_desc;
 
@@ -1507,7 +1507,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_rocca_desc.
   ///
-  /// In en, this message translates to:
+  /// **'Construction of the Rocca Nuova, or Malatestiana Fortress, began in 1380 under Galeotto Malatesta and continued under Malatesta Novello on Garampo hill. After losing its military function, the fortress became a prison and remained one until 1969. During the Nazi-Fascist occupation it also held anti-Fascist prisoners. In 1944 the local Resistance carried out two raids to free political prisoners. The nearby Sferisterio, in front of the fortress entrance, was the site where eight anti-Fascists were executed on 4 September 1944. During the 1940s, the fortress’s underground spaces were also used as a shelter. The separate public shelter for 800 people often associated with the Rocca was a tunnel excavated into the hill along Viale Mazzoni.'**
   /// **'Construction of the Rocca Nuova, also known as the Malatestiana Fortress, began in 1380 on the initiative of Galeotto Malatesta and continued under Malatesta Novello; it was completed in the late 1470s. In 1502 Cesare Borgia brought Leonardo da Vinci to Cesena to survey the defences of the conquered cities. After losing its military role, the fortress became a prison and remained one until 1969. The public air-raid shelters built in 1944 were at the foot of the hill along Viale Mazzoni, not inside the fortress.'**
   String get poi_rocca_desc;
 
@@ -1519,7 +1519,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_san_rocco_desc.
   ///
-  /// In en, this message translates to:
+  /// **'The parish of San Rocco in Cesena dates back to 1615. In the summer of 1944, Allied bombing aimed at disrupting the German retreat by attacking the Ponte Vecchio also struck the San Rocco district. The church opened its rooms to civilians seeking shelter, and its bell tower was adapted as an air-raid refuge. A makeshift blast shield was built by filling a wardrobe with sand and placing it in front of the door. The tower also carried a siren and a bell, which could warn residents when the electricity failed. The church was destroyed in 1944; the only surviving part of the original building is its nineteenth-century bell tower. The parish was later rebuilt across the River Savio, in the Campino area.'**
   /// **'The parish of San Rocco in Cesena dates back to 1615. In the summer of 1944, the church made its indoor rooms available to people fleeing the bombings, and a shelter was set up in the bell tower. The church was destroyed by the 1944 bombings together with the neighbourhood; only its nineteenth-century bell tower remains today.'**
   String get poi_san_rocco_desc;
 
@@ -1531,7 +1531,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_abbazia_monte_desc.
   ///
-  /// In en, this message translates to:
+  /// **'The Benedictine Abbey of Santa Maria del Monte was founded at the beginning of the 11th century on the hill known as il Monte, south-east of Cesena. During the Second World War, the monks built an underground gallery accessible through a well and enlarged with chambers carved into the tuff. It sheltered about 700 displaced people fleeing air raids and roundups. Many books from the Malatestiana Library were also kept underground, while its most valuable manuscripts had been moved to the Modena area at the beginning of the conflict. The monk Odo Contestabile helped protect Jewish families and, in 1943, escorted two families towards the Swiss border; he was recognised as Righteous Among the Nations in 2019. Between 16 and 19 October 1944, repeated bombing struck the abbey: the church was gutted and part of the monastery collapsed. None of the displaced people sheltering in the complex were killed.'**
   /// **'The Benedictine abbey of Santa Maria del Monte was founded at the beginning of the 11th century on the hill known as “il Monte”, south-east of Cesena. During the Second World War it sheltered about seven hundred displaced people in its cellars and tunnel. Between 16 and 19 October 1944 it was hit repeatedly and directly by bombing: the church was gutted and part of the monastery collapsed. None of the displaced people sheltering in the abbey were killed.'**
   String get poi_abbazia_monte_desc;
 
@@ -1543,7 +1543,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_osservanza_desc.
   ///
-  /// In en, this message translates to:
+  /// **'The church of the Osservanza was built between 1459 and 1464 at the behest of Malatesta Novello and was associated with the Order of Friars Minor of the Observance. Its design was entrusted to master builder Maso della Val Lugano. During the Second World War, the complex also served as a place of civilian protection: two air-raid shelters were set up, one in the catacombs and one near the bell tower, with a combined capacity of about 200 people. The church did not escape the fighting around the Gothic Line: it was hit by Allied raids on 16 and 19 October 1944. Father Bosoni died during those raids and is remembered by a plaque in the catacombs.'**
   /// **'The church of the Osservanza was built between 1459 and 1464 at the behest of Malatesta Novello and is linked to the Order of Friars Minor of the Observance. During the Second World War, two air-raid shelters were set up there, in the catacombs and near the bell tower, with a combined capacity of about 200 people. The church was hit by Allied bombing on 16 and 19 October 1944; Father Bosoni died during the raids.'**
   String get poi_osservanza_desc;
 
@@ -1555,7 +1555,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_palazzo_ridotto_desc.
   ///
-  /// In en, this message translates to:
+  /// **'Palazzo del Ridotto faces Piazza Almerici and stands on an earlier medieval structure. Sources differ on its first building phase: Resistenza mAPPe describes a building from 1401–1403, enlarged between 1466 and 1472, while the regional catalogue dates the construction of the Conservatori palace to 1466–1472 on an earlier structure. Its name is linked to the meeting place of Cesena’s nobility in the 18th century. During the Second World War, an air-raid siren was installed on its tower as part of the city-wide warning system; church bells also provided a backup when the electricity failed. After the partisan attack of 18 January 1944 on the Fascist headquarters at Palazzo Fantaguzzi, the local offices of the Republican Fascist Party moved here. The palace was also used to detain and torture prisoners. A plaque placed in 1995 on the side facing Piazza Almerici commemorates the Jews of Cesena murdered in the Holocaust.'**
   /// **'Palazzo del Ridotto stands in Piazza Almerici and was built between 1466 and 1472 as the seat of the municipal authority known as the Conservatori. During the Second World War, an alarm siren was installed on its tower as part of a city-wide warning system, backed up by church bells in the event of a power cut. After the 18 January 1944 attack on the Fascist headquarters in Corso Umberto I, the offices of the Republican Fascist Party moved to the palace, which was also used to detain and torture prisoners.'**
   String get poi_palazzo_ridotto_desc;
 
@@ -1567,7 +1567,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_stazione_desc.
   ///
-  /// In en, this message translates to:
+  /// **'Cesena’s first railway station opened in 1861. A plan for a larger station building was approved in 1919, and its foundation stone was laid in 1925. The Arrigoni food factory stood beside the railway yard, while the Montecatini refinery, which processed sulphur from the Perticara and Formignano mines, stood on the opposite side. This concentration of transport and industrial facilities made the area a strategic target. The first heavy air raid on the city took place on 13 May 1944; on 29 June a raid hit the railway yard, destroyed ammunition loads and set the refinery on fire. Further attacks followed in July, August and early September. During the Resistance, the station and railway lines were also targeted by partisan actions intended to disrupt supplies to the occupying army.'**
   /// **'Cesena’s first railway station opened in 1861. In 1919 a plan for a larger station building was approved, and the foundation stone of the new station was laid in 1925. The Arrigoni food factory stood next to it, while the Montecatini refinery stood on the opposite side. Because these facilities were close together, the area became a target of Allied bombing after the German occupation. On 29 June 1944 an air raid hit the railway yard, destroyed ammunition loads and set the refinery on fire; further raids followed between July and September.'**
   String get poi_stazione_desc;
 
@@ -1579,7 +1579,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_arrigoni_desc.
   ///
-  /// In en, this message translates to:
+  /// **'The Arrigoni factory stood next to Cesena railway station. In 1927, Giorgio Sanguinetti, who managed the Arrigoni company in Trieste, acquired the former Consorzio Industrie Agrarie (CIA) and expanded its facilities. By the 1930s it had become the area’s leading food factory, employing about 5,000 people. The Cesena plant was known for jams, peeled tomatoes and dried minestrone. It was also a centre of local anti-Fascism: many workers opposed the regime through strikes, acts of sabotage and libertarian propaganda, and faced persecution. One of them was Werther Ricchi, who sent jam and other products to the partisans of the 8th Garibaldi Brigade after 8 September 1943. He was arrested on 23 March 1944 and tortured. As the front moved through the area, the workforce helped save a large part of the factory’s machinery.'**
   /// **'The Arrigoni factory in Cesena stood next to the railway station and became the group’s leading plant for jams, peeled tomatoes and dried minestrone. Over time it employed thousands of people from Cesena and became a centre of local anti-Fascism. Worker Werther Ricchi was employed there before 25 July 1943 and, after 8 September, sent jam and other Arrigoni products to the partisans of the 8th Garibaldi Brigade. He was arrested on 23 March 1944 and tortured.'**
   String get poi_arrigoni_desc;
 
@@ -1591,7 +1591,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_fantaguzzi_desc.
   ///
-  /// In en, this message translates to:
+  /// **'Palazzo Fantaguzzi stands on today’s Corso Gastone Sozzi, formerly Corso Umberto I, and has housed the Banca Popolare di Cesena since 1922. During the first months of the Italian Social Republic, part of the building also housed the local Fascist offices; the sources do not show that it served as the Fascist headquarters throughout the entire dictatorship. Because of the symbolic importance of that presence, the Cesena GAP planned an attack. On 18 January 1944, four partisans set off a bomb at the entrance. There were no casualties, but the building was seriously damaged. A few weeks later, the local Fascist headquarters moved to Palazzo del Ridotto. The distinction matters: the sources place the later detention and torture of prisoners at the Ridotto, not at Palazzo Fantaguzzi.'**
   /// **'Palazzo Fantaguzzi stands in Corso Gastone Sozzi, formerly Corso Umberto I, and has housed the Banca Popolare di Cesena since 1922. During the first months of the Italian Social Republic, part of the building also housed the local Fascist offices. On 18 January 1944 a GAP commando detonated a bomb at the entrance to the Fascist headquarters: there were no casualties, but the building was badly damaged. A few weeks later the Fascist headquarters moved to Palazzo del Ridotto.'**
   String get poi_fantaguzzi_desc;
 
@@ -1603,7 +1603,7 @@ abstract class AppLocalizations {
 
   /// No description provided for @poi_rifugi_antiaerei_desc.
   ///
-  /// In en, this message translates to:
+  /// **'The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered but never built: the first major air raid on Cesena, on 13 May 1944, began a long period of bombing. The gallery was separate from the Malatestiana Fortress itself.'**
   /// **'In January 1944, the decision was made to excavate a tunnel in the Rocca hill to create a public air-raid shelter. The tunnel was newly built in 1944 by the city’s chief engineer, Mario Tellerini, and could accommodate 800 people, 290 of them seated. It had two entrances on Viale Mazzoni protected by a blast wall; its ventilation shaft could also serve as an emergency exit.'**
   String get poi_rifugi_antiaerei_desc;
 
