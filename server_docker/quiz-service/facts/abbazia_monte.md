@@ -139,6 +139,14 @@
 - Fonti: [S2]
 - Passaggio di riferimento: [S2] "Don Contestabile è stato riconosciuto dal 2019 come Giusto tra le nazioni".
 
+### ABM-18
+- Affermazione (IT): I manoscritti più preziosi della Biblioteca Malatestiana erano stati trasferiti nel Modenese sin dall'inizio della Seconda guerra mondiale.
+- Affermazione (EN): The most valuable manuscripts from the Malatestiana Library had been moved to the Modena area from the beginning of the Second World War.
+- Stato: verificato
+- Fonti: [S2]
+- Passaggio di riferimento: [S2] "i manoscritti più preziosi fossero stati portati nel modenese sin dall'inizio del conflitto".
+
+
 ## Informazioni parzialmente verificate o non verificate
 
 - PARZIALE — Il terremoto del 1768 distrusse la cupola, poi ricostruita da Pietro Carlo Borboni ([S8] soltanto).
