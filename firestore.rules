@@ -395,6 +395,29 @@ service cloud.firestore {
         validInitialProfileData(uid, d);
     }
 
+    function validOwnerFriendAchievementUpdate() {
+      let old = resource.data;
+      let next = request.resource.data;
+      let oldPending = old.get('pendingAchievements', []);
+      let newPending = next.get('pendingAchievements', []);
+      let added = newPending.toSet().difference(oldPending.toSet());
+      let friendCount = old.get('friends', []).size();
+
+      return next.diff(old).affectedKeys().hasOnly([
+          'pendingAchievements', 'updatedAt'
+        ]) &&
+        next.get('updatedAt', null) == request.time &&
+        validAchievementList(newPending) &&
+        newPending.hasAll(oldPending) &&
+        added.hasOnly(['friend_1', 'friend_5']) &&
+        (!added.hasAny(['friend_1']) ||
+          (friendCount >= 1 &&
+           !old.get('unlockedAchievements', []).hasAny(['friend_1']))) &&
+        (!added.hasAny(['friend_5']) ||
+          (friendCount >= 5 &&
+           !old.get('unlockedAchievements', []).hasAny(['friend_5'])));
+    }
+
     function validOwnerProgressUpdate() {
       let old = resource.data;
       let next = request.resource.data;
@@ -760,6 +783,7 @@ service cloud.firestore {
           validOnboardingUpdate(uid) ||
           validFcmTokenUpdate() ||
           validOwnerProgressUpdate() ||
+          validOwnerFriendAchievementUpdate() ||
           validAchievementClaim() ||
           validSentRequestAdd(uid) ||
           validSentRequestRemoval(uid) ||
