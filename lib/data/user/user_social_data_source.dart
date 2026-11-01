@@ -117,6 +117,12 @@ class UserSocialDataSource {
       tx.update(_friendStats.doc(requesterUid), {
         'friends': FieldValue.arrayUnion([currentUid]),
       });
+      tx.update(_publicProfiles.doc(currentUid), {
+        'friendsCount': FieldValue.increment(1),
+      });
+      tx.update(_publicProfiles.doc(requesterUid), {
+        'friendsCount': FieldValue.increment(1),
+      });
       tx.delete(requestRef);
     });
   }
@@ -155,6 +161,12 @@ class UserSocialDataSource {
     });
     batch.update(_friendStats.doc(friendUid), {
       'friends': FieldValue.arrayRemove([currentUid]),
+    });
+    batch.update(_publicProfiles.doc(currentUid), {
+      'friendsCount': FieldValue.increment(-1),
+    });
+    batch.update(_publicProfiles.doc(friendUid), {
+      'friendsCount': FieldValue.increment(-1),
     });
     await batch.commit();
   }

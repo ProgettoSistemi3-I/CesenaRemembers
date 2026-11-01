@@ -117,13 +117,17 @@ def build_private_profile(data: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def build_public_profile(private: dict[str, Any]) -> dict[str, Any]:
-    """Only fields needed to discover and identify an account are public."""
+    """Public identity and limited hero-card aggregates; no friend list or detailed stats."""
     return {
         key: private[key]
         for key in (
             "displayName", "displayNameNormalized", "username", "usernameNormalized",
             "avatarId", "profileCompleted", "onboardingCompleted",
         )
+    } | {
+        "xp": as_int(private.get("xp")),
+        "friendsCount": len(private.get("friends", [])),
+        "totalToursCompleted": as_int(private.get("totalToursCompleted")),
     }
 
 
@@ -324,7 +328,7 @@ def main() -> int:
                 else:
                     batch.delete(ref)
             batch.commit()
-        print("Migrazione completata: public_profiles contiene i dati identificativi, friend_stats le statistiche riservate e leaderboard soltanto UID/XP per la classifica globale. Ora distribuisci firestore.rules.")
+        print("Migrazione completata: public_profiles contiene identità e aggregati della hero card, friend_stats contiene lista amici e statistiche riservate, leaderboard soltanto UID/XP per la classifica globale. Ora distribuisci firestore.rules.")
     else:
         print("Nessuna scrittura eseguita. Fai un backup e ripeti con --apply per applicare la migrazione.")
     return 0

@@ -22,8 +22,8 @@ class UserProfileDataSource {
   CollectionReference<Map<String, dynamic>> get _leaderboard =>
       _firestore.collection('leaderboard');
 
-  /// La proiezione pubblica contiene soltanto i dati minimi per trovare un profilo.
-  /// XP, progressi, achievement e lista amici sono conservati in friend_stats.
+  /// La proiezione pubblica contiene identità e aggregati della hero card.
+  /// Elenchi, progressi e statistiche dettagliate restano in friend_stats.
   Map<String, dynamic> _publicProfilePayload(Map<String, dynamic> data) => {
     'displayName': data['displayName'] ?? 'Utente',
     'displayNameNormalized':
@@ -32,6 +32,9 @@ class UserProfileDataSource {
     'username': data['username'] ?? '',
     'usernameNormalized': data['usernameNormalized'] ?? '',
     'avatarId': data['avatarId'] ?? 'soldato',
+    'xp': (data['xp'] as num?)?.toInt() ?? 0,
+    'friendsCount': List<String>.from(data['friends'] ?? const []).length,
+    'totalToursCompleted': (data['totalToursCompleted'] as num?)?.toInt() ?? 0,
     'profileCompleted': data['profileCompleted'] == true,
     'onboardingCompleted': data['onboardingCompleted'] == true,
   };

@@ -60,7 +60,8 @@
       <h2>2. Dati trattati</h2>
       <ul>
         <li><strong>Account:</strong> identificativo Firebase, indirizzo email, nome visualizzato, username e avatar. L'email è conservata nel documento privato dell'account; nome visualizzato, username e avatar costituiscono il profilo minimo ricercabile dagli utenti autenticati.</li>
-        <li><strong>Classifica globale (Leaderboard):</strong> nome visualizzato, username, avatar e totale punti esperienza (XP) sono esposti nella classifica globale (Top 50) e visibili a tutti gli utenti registrati all'applicazione.</li>
+        <li><strong>Profilo e riepilogo pubblico:</strong> nome visualizzato, username, avatar, punti esperienza (XP), numero di amici (solo conteggio) e numero di tour completati sono visibili agli utenti registrati e autenticati che consultano un profilo.</li>
+        <li><strong>Classifica globale (Leaderboard):</strong> i primi 50 account per XP sono mostrati a tutti gli utenti autenticati con nome visualizzato, username, avatar e XP. Ogni utente può vedere anche la propria posizione effettiva, compresa quella fuori dalla Top 50.</li>
         <li><strong>Relazioni social:</strong> richieste di amicizia inviate e ricevute e lista amici.</li>
         <li><strong>Progressi e statistiche:</strong> luoghi visitati, XP, risultati e numero di quiz, risposte corrette, tour completati, tempi e achievement.</li>
         <li><strong>Preferenze:</strong> impostazioni dell'app, tra cui notifiche, tema e preferenza relativa al GPS.</li>
@@ -85,8 +86,9 @@
 
     <section id="visibilita">
       <h2>5. Visibilità del profilo e delle statistiche</h2>
-      <p>L'applicazione include una <strong>Classifica globale</strong> accessibile a tutti gli utenti registrati e autenticati: i primi 50 account ordinati per esperienza (XP) compaiono pubblicamente con nome visualizzato, username, avatar e totale XP. Ciascun utente autenticato può inoltre visualizzare la propria posizione o il proprio punteggio all'interno della classifica.</p>
-      <p>Gli utenti autenticati possono inoltre cercare il profilo pubblico minimo di altri account (nome visualizzato, username e avatar) per inviare richieste di amicizia. Al contrario, le statistiche dettagliate e i progressi di approfondimento (dettaglio dei POI visitati, risultati e risposte dei singoli quiz, tempi di percorrenza, achievement e lista amici) <strong>non sono pubblici</strong> e sono archiviati nella raccolta protetta <code>friend_stats</code>: possono essere letti esclusivamente dal titolare dell'account e dagli amici reciproci. Le regole di sicurezza Firestore impediscono accessi non autorizzati direttamente a livello di database.</p>
+      <p>L'applicazione include una <strong>Classifica globale</strong> accessibile a tutti gli utenti autenticati: i primi 50 account ordinati per esperienza (XP) compaiono con nome visualizzato, username, avatar e XP. La propria riga è mostrata separatamente in alto e, anche quando si è fuori dalla Top 50, viene indicata la posizione effettiva.</p>
+      <p>Ogni profilo consultabile dagli utenti autenticati mostra inoltre una hero card con XP, numero di amici e numero di tour completati. Il numero di amici è un dato aggregato: non rende pubblici gli UID o i nomi delle persone nell'elenco. L'identità pubblica minima (nome visualizzato, username e avatar) è utilizzata anche per la ricerca di altri account e l'invio di richieste di amicizia.</p>
+      <p>Le statistiche dettagliate e i progressi di approfondimento (dettaglio dei POI visitati, risultati e risposte dei singoli quiz, tempi di percorrenza, achievement e lista amici) <strong>non sono pubblici</strong> e sono archiviati nella raccolta protetta <code>friend_stats</code>: possono essere letti esclusivamente dal titolare dell'account e dagli amici reciproci. Le regole di sicurezza Firestore impediscono accessi non autorizzati direttamente a livello di database.</p>
       <p>Le richieste di amicizia e gli altri dati privati dell'account (inclusa l'email) non sono mai consultabili dagli altri utenti.</p>
     </section>
 

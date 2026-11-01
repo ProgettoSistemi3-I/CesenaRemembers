@@ -75,7 +75,7 @@ Repository privato / uso interno progetto.
 
 ### Migrazione obbligatoria prima delle nuove Rules
 
-La nuova app separa i dati in tre raccolte: `users/{uid}` contiene dati privati e stato applicativo; `public_profiles/{uid}` contiene soltanto nome visualizzato, username e avatar per la ricerca; `friend_stats/{uid}` contiene XP, progressi, achievement e lista amici, leggibili dal proprietario e dagli amici reciproci. La query globale delle statistiche è disabilitata. I profili già presenti devono essere migrati prima di distribuire le nuove Rules. Prima di distribuire `firestore.rules`, esegui la migrazione una volta con una credenziale Admin SDK conservata fuori da questa cartella:
+La nuova app separa i dati in tre raccolte: `users/{uid}` contiene dati privati e stato applicativo; `public_profiles/{uid}` contiene nome visualizzato, username, avatar e i soli riepiloghi pubblici della hero card (`xp`, `friendsCount`, `totalToursCompleted`); `friend_stats/{uid}` contiene la lista amici e le statistiche dettagliate, leggibili dal proprietario e dagli amici reciproci. `friendsCount` è un conteggio e non espone la lista degli UID. La query globale delle statistiche dettagliate è disabilitata. I profili già presenti devono essere migrati prima di distribuire le nuove Rules. Prima di distribuire `firestore.rules`, esegui la migrazione una volta con una credenziale Admin SDK conservata fuori da questa cartella:
 
 ```bash
 python -m pip install firebase-admin
@@ -132,7 +132,9 @@ Usa token pubblici con restrizioni di dominio/app appropriate. Non inserire chia
 
 ## Classifica globale e statistiche riservate
 
-La classifica è globale: la raccolta `leaderboard` contiene esclusivamente `uid` e `xp`, ed è interrogabile dagli utenti autenticati con un limite massimo di 50 risultati. L'app arricchisce ogni riga con `displayName`, `username` e `avatarId` letti da `public_profiles`. Le statistiche dettagliate (`visitedPoiIds`, achievement, risultati quiz, tempi e lista amici) restano in `friend_stats` e sono leggibili soltanto dal proprietario e dagli amici reciproci.
+La classifica è globale: `leaderboard` contiene esclusivamente `uid` e `xp` ed è interrogabile dagli utenti autenticati con un limite massimo di 50 risultati. La lista mostra la Top 50; l'utente corrente è mostrato anche in una riga fissata in alto e, se è fuori dalla Top 50, il rango effettivo viene calcolato leggendo la classifica a pagine da 50. La proiezione `public_profiles` contiene identità e riepilogo pubblico della hero card (`xp`, `friendsCount`, `totalToursCompleted`): `friendsCount` è soltanto un numero, non espone gli UID o i nomi degli amici. Le statistiche dettagliate (`visitedPoiIds`, achievement, risultati quiz, risposte, tempi e lista amici) restano in `friend_stats` e sono leggibili soltanto dal proprietario e dagli amici reciproci.
+
+Dopo l'aggiornamento dello schema pubblico, esegui nuovamente `scripts/migrate_public_profiles.py` prima di distribuire le nuove Firestore Rules, così anche gli account già esistenti ricevono i tre aggregati pubblici.
 
 Per popolare la nuova proiezione sui profili già migrati, configura `GOOGLE_APPLICATION_CREDENTIALS` con un service account protetto fuori dal repository ed esegui prima la simulazione:
 
@@ -173,6 +175,7 @@ python scripts/ban_user.py --cleanup-banned --apply
 
 L'app visualizza direttamente sulla mappa l'attribuzione interattiva obbligatoria (`RichAttributionWidget`) richiesta dai rispettivi fornitori di tile:
 - **OpenStreetMap & CARTO:** dati © OpenStreetMap contributors (ODbL) e tile stile Voyager © CARTO. Richiedono attribuzione visibile sulla mappa con link ai termini.
-- **Stadia Maps:** il piano gratuito di Stadia Maps è concesso esclusivamente per **uso non commerciale e valutazione**. Trattandosi di un'applicazione didattico-culturale senza scopo di lucro, l'utilizzo rientra nelle condizioni consentite. In caso di ridistribuzione commerciale o ad alto traffico, è obbligatorio sottoscrivere un piano a pagamento Stadia Maps.
-- **Esri World Imagery:** l'endpoint diretto dei tile satellite (`server.arcgisonline.com`) senza chiave API è consentito da Esri per test e finalità non commerciali. Per utilizzi in produzione o distribuzioni commerciali su larga scala, è richiesta una chiave API / account ArcGIS Developer conforme all'Esri Master Agreement, oppure il passaggio a un provider di immagini aeree open-data.
+- **Stadia Maps:** l'app usa lo stile Alidade Smooth Dark e mostra i crediti di Stadia Maps, OpenMapTiles e OpenStreetMap. L'idoneità del piano gratuito dipende dalle condizioni del piano e dal carattere effettivo dell'utilizzo: verificare i termini Stadia prima della distribuzione e non presumere che l'assenza di profitto sia da sola sufficiente.
+- **Esri World Imagery:** l'app mostra l'attribuzione prevista per il basemap World Imagery. L'accessibilità pubblica dell'endpoint non costituisce, da sola, una licenza: chi distribuisce l'app deve verificare i termini del servizio e i diritti dei fornitori delle immagini.
+- **Cache delle tile:** usa una cache LRU volatile da 8 MB, con limite di 512 KB per elemento e modalità HTTP `request`; non forza una conservazione oltre le direttive di freschezza inviate dal provider e non usa tile scadute in caso di errore di rete.
 - L'attribuzione a schermo interattiva è integrata in `FlutterMap` tramite `RichAttributionWidget`, linkando le rispettive licenze e note legali ufficiali.

@@ -138,6 +138,11 @@ def ban_user(
             p_batch.update(peer_stats, {
                 "friends": firestore.ArrayRemove([uid]),
             })
+            peer_public = db.collection("public_profiles").document(friend_uid)
+            if peer_public.get().exists:
+                p_batch.update(peer_public, {
+                    "friendsCount": firestore.Increment(-1),
+                })
             p_batch.commit()
         except Exception as e:
             print(f"Avviso rimozione amico {friend_uid}: {e}", file=sys.stderr)

@@ -736,8 +736,8 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     const SizedBox(height: 28),
                   ],
 
-                  // Le statistiche sono mostrate soltanto al proprietario e agli amici.
-                  if (isFriend || myUid == profile.uid) Container(
+                  // Hero card pubblica: solo conteggi aggregati, senza dati di dettaglio.
+                  Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
 
                     decoration: BoxDecoration(
@@ -755,11 +755,11 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                           child: _buildMiniStat(
                             AppLocalizations.of(context)!.publicStatFriends,
 
-                            profile.friends.length.toString(),
+                            profile.friendsCount.toString(),
 
                             theme,
 
-                            onTap: isFriend
+                            onTap: isFriend || myUid == profile.uid
                                 ? () => _showFriendsList(profile.friends, theme)
                                 : () {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -815,9 +815,9 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
                         Expanded(
                           child: _buildMiniStat(
-                            AppLocalizations.of(context)!.publicStatLevel,
+                            AppLocalizations.of(context)!.tourLabel,
 
-                            profile.level.toString(),
+                            profile.totalToursCompleted.toString(),
 
                             theme,
                           ),

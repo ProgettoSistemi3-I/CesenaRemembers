@@ -91,7 +91,7 @@ extension _MapPageView on _MapPageState {
             ),
           Positioned(
             left: 20,
-            bottom: data.isTourActive ? cardBottom : 20,
+            bottom: data.isTourActive ? cardBottom + 64 : 88,
             child: MapTypeButton(
               isOpen: _isMapMenuOpen,
               selectedMapStyle: _selectedMapStyle,
@@ -308,6 +308,28 @@ class _MapCanvasState extends State<_MapCanvas> {
 
   static const _defaultCesenaCenter = LatLng(44.1384, 12.2471);
 
+  List<SourceAttribution> _mapAttributions() {
+    if (widget.selectedMapStyle == MapStyle.satellite) {
+      return [
+        TextSourceAttribution(
+          'Sources: Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community',
+          onTap: () => launchUrl(Uri.parse('https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040')),
+        ),
+      ];
+    }
+    if (widget.currentMapUrl.startsWith('https://tiles.stadiamaps.com/')) {
+      return [
+        TextSourceAttribution('© Stadia Maps', onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/'))),
+        TextSourceAttribution('© OpenMapTiles', onTap: () => launchUrl(Uri.parse('https://openmaptiles.org/'))),
+        TextSourceAttribution('© OpenStreetMap contributors', onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'))),
+      ];
+    }
+    return [
+      TextSourceAttribution('© OpenStreetMap contributors', onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'))),
+      TextSourceAttribution('© CARTO', onTap: () => launchUrl(Uri.parse('https://carto.com/attributions/'))),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return FlutterMap(
@@ -345,7 +367,6 @@ class _MapCanvasState extends State<_MapCanvas> {
       ),
       children: [
         TileLayer(
-          key: ValueKey<MapStyle>(widget.selectedMapStyle),
           urlTemplate: widget.currentMapUrl,
           subdomains: const ['a', 'b', 'c', 'd'],
           userAgentPackageName: 'it.cesenaremembers.app',
@@ -379,6 +400,11 @@ class _MapCanvasState extends State<_MapCanvas> {
             positionStream: _positionStream,
           ),
         MarkerLayer(markers: widget.markers),
+        RichAttributionWidget(
+          alignment: AttributionAlignment.bottomLeft,
+          showFlutterMapAttribution: false,
+          attributions: _mapAttributions(),
+        ),
       ],
     );
   }

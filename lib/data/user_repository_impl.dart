@@ -119,6 +119,10 @@ class UserRepositoryImpl implements IUserRepository {
       _progress.getLeaderboardStream(uid: uid, limit: limit);
 
   @override
+  Future<int?> getLeaderboardRank({required String uid}) =>
+      _progress.getLeaderboardRank(uid: uid);
+
+  @override
   Future<void> sendFriendRequest(String currentUid, String targetUid) =>
       _social.sendFriendRequest(currentUid, targetUid);
 

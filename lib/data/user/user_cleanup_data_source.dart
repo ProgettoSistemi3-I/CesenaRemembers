@@ -56,6 +56,12 @@ class UserCleanupDataSource {
       batch.update(_friendStats.doc(friendUid), {
         'friends': FieldValue.arrayRemove([uid]),
       });
+      batch.update(_publicProfiles.doc(uid), {
+        'friendsCount': FieldValue.increment(-1),
+      });
+      batch.update(_publicProfiles.doc(friendUid), {
+        'friendsCount': FieldValue.increment(-1),
+      });
       await batch.commit();
     }
 

@@ -58,6 +58,10 @@ class SocialController extends ChangeNotifier {
   StreamSubscription<User?>? _authSub;
   String? _leaderboardUid;
   UserProfile? _currentUserProfile;
+  int? _currentUserRank;
+  String? _rankedUserId;
+  int? _rankedUserXp;
+  int _rankRequestToken = 0;
   Timer? _searchDebounce;
   bool _isDisposed = false;
 
@@ -90,11 +94,33 @@ class SocialController extends ChangeNotifier {
           username: p.username,
           avatarId: p.avatarId,
           xp: p.xp,
-          rank: 51,
+          rank: _currentUserRank ?? 0,
         );
       }
       return null;
     }
+  }
+
+  Future<void> _refreshCurrentUserRank(
+    String uid,
+    int xp, {
+    bool force = false,
+  }) async {
+    if (!force && _rankedUserId == uid && _rankedUserXp == xp && _currentUserRank != null) {
+      return;
+    }
+    final token = ++_rankRequestToken;
+    _rankedUserId = uid;
+    _rankedUserXp = xp;
+    try {
+      final rank = await _progressUseCases.getLeaderboardRank(uid: uid);
+      if (_isDisposed || token != _rankRequestToken || currentUserId != uid) return;
+      _currentUserRank = rank ?? 0;
+    } catch (_) {
+      if (_isDisposed || token != _rankRequestToken || currentUserId != uid) return;
+      _currentUserRank = 0;
+    }
+    _safeNotifyListeners();
   }
 
   void _safeNotifyListeners() {
@@ -109,6 +135,10 @@ class SocialController extends ChangeNotifier {
     _profileSub?.cancel();
     _profileSub = null;
     _currentUserProfile = null;
+    _currentUserRank = null;
+    _rankedUserId = null;
+    _rankedUserXp = null;
+    _rankRequestToken++;
     _leaderboardUid = uid;
     leaderboard = [];
     errorMessage = null;
@@ -124,6 +154,9 @@ class SocialController extends ChangeNotifier {
     _profileSub?.cancel();
     _profileSub = _profileUseCases.getUserProfileStream(uid).listen((profile) {
       _currentUserProfile = profile;
+      if (profile != null && !leaderboard.any((entry) => entry.uid == profile.uid)) {
+        unawaited(_refreshCurrentUserRank(profile.uid, profile.xp));
+      }
       _safeNotifyListeners();
     });
   }
@@ -148,9 +181,16 @@ class SocialController extends ChangeNotifier {
                 })
                 .toList(growable: false);
             isLeaderboardLoading = false;
-
-            // Ora ci pensa il getter dinamico `currentUserEntry` in alto.
-
+            final myIndex = leaderboard.indexWhere((entry) => entry.uid == currentUserId);
+            if (myIndex >= 0) {
+              _currentUserRank = myIndex + 1;
+            } else if (_currentUserProfile != null) {
+              unawaited(_refreshCurrentUserRank(
+                _currentUserProfile!.uid,
+                _currentUserProfile!.xp,
+                force: true,
+              ));
+            }
             _safeNotifyListeners();
           },
           onError: (error) {
