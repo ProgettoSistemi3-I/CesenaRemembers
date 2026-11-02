@@ -218,7 +218,6 @@ class UserProgressDataSource {
         'totalToursCompleted': nextToursCompleted,
         'totalCorrectAnswers': nextCorrectAnswers,
         'bestTourTimeSeconds': nextBestTourTime,
-        'unlockedAchievements': alreadyUnlocked,
         'pendingAchievements': nextPending,
         'lastProgressAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
