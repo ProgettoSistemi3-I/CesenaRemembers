@@ -199,6 +199,7 @@ class UserProgressDataSource {
             ? (tourTotalQuestions ?? totalQuestions)
             : totalQuestions,
         tourElapsedSeconds: tourElapsedSeconds,
+        bestTourTimeSeconds: nextBestTourTime,
         isTourComplete: isTourComplete,
       );
       
