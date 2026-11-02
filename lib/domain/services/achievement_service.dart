@@ -74,7 +74,7 @@ class AchievementService {
     required int totalXp,
     required int correctAnswers,
     required int totalQuestions,
-    required int tourElapsedSeconds,
+    required int bestTourTimeSeconds,
     required bool isTourComplete,
   }) {
     final newUnlocks = <String>[];
@@ -100,9 +100,9 @@ class AchievementService {
 
     // Le regole Firestore richiedono almeno 5 minuti per i badge di velocità.
     // Il completamento del tour resta invece valido anche sotto questa soglia.
-    if (isTourComplete && tourElapsedSeconds >= 300) {
-      maybeUnlock('tour_under_1h', tourElapsedSeconds < 3600);
-      maybeUnlock('tour_under_30m', tourElapsedSeconds < 1800);
+    if (isTourComplete && bestTourTimeSeconds >= 300) {
+      maybeUnlock('tour_under_1h', bestTourTimeSeconds < 3600);
+      maybeUnlock('tour_under_30m', bestTourTimeSeconds < 1800);
     }
 
     return newUnlocks;
