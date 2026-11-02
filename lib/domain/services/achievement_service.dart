@@ -98,11 +98,10 @@ class AchievementService {
 
     maybeUnlock('xp_500', totalXp >= 500);
 
-    if (isTourComplete && tourElapsedSeconds > 0) {
+    // Non attribuire i badge di velocità per tempi inferiori a 5 minuti:
+    // le Firestore Rules mantengono questa soglia anti-abuso.
+    if (isTourComplete && tourElapsedSeconds >= 300) {
       maybeUnlock('tour_under_1h', tourElapsedSeconds < 3600);
-    }
-
-    if (isTourComplete && tourElapsedSeconds > 0) {
       maybeUnlock('tour_under_30m', tourElapsedSeconds < 1800);
     }
 
