@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+
+import '../../core/logging/app_logger.dart';
 import '../pages/map/map_page.dart';
 import '../pages/profile/profile_page.dart';
 import '../pages/settings/settings_page.dart';
@@ -6,6 +9,7 @@ import 'shell_navigation_store.dart';
 import '../pages/social/social_page.dart';
 import 'push_notification_service.dart';
 import 'location_preference_store.dart';
+import 'location_permission_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class MainShell extends StatefulWidget {
@@ -19,6 +23,9 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  bool _startupReady = false;
+  final LocationPermissionService _locationPermissionService =
+      const LocationPermissionService();
 
   final List<Widget> _pages = const [
     MapPage(),
@@ -37,7 +44,11 @@ class _MainShellState extends State<MainShell> {
     ShellNavigationStore.tabIndex.value = 0;
     _currentIndex = 0;
     ShellNavigationStore.tabIndex.addListener(_onTabIndexChanged);
-    _initializeNotifications();
+    // Attendi il primo frame prima di aprire un dialogo Android.
+    // La richiesta GPS deve inoltre precedere quella delle notifiche FCM.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeStartup();
+    });
   }
 
   @override
@@ -48,12 +59,39 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
-  void _initializeNotifications() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  Future<void> _initializeStartup() async {
+    // Esegui la richiesta GPS una sola volta, con l'Activity già visibile.
+    // Non aprire il dialogo se l'utente ha disattivato la posizione nell'app.
+    if (widget.gpsEnabled) {
+      try {
+        var permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Startup location permission request failed',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'MainShell',
+        );
+      }
+    }
+
+    // Serializza la richiesta FCM dopo quella GPS: Android non deve gestire
+    // due richieste di autorizzazione runtime contemporaneamente.
+    try {
       await PushNotificationService.initializeAndSaveToken();
-      // MapPage verifica all'avvio il permesso Android e lo richiede
-      // quando la preferenza GPS salvata nel profilo è attiva.
-    });
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Startup notification initialization failed',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MainShell',
+      );
+    }
+
+    if (mounted) setState(() => _startupReady = true);
   }
 
   @override
@@ -74,6 +112,12 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_startupReady) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
