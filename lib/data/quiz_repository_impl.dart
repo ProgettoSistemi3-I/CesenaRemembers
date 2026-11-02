@@ -130,8 +130,14 @@ class QuizRepositoryImpl implements IQuizRepository {
   List<QuizQuestion> _fallbackQuestions(String poiId) {
     for (final place in HistoricPlacesSeed.items) {
       if (place.id == poiId) {
+        // Rocca ha già tre domande seed; gli altri POI ne hanno due.
+        // Non aggiungere una quarta domanda: XP e regole Firestore prevedono
+        // un massimo di tre risposte per completamento.
+        if (place.questions.length >= 3) {
+          return place.questions.take(3).toList(growable: false);
+        }
         return [
-          ...place.questions,
+          ...place.questions.take(2),
           const QuizQuestion(
             question: 'quiz_fallback_q3',
             options: [
