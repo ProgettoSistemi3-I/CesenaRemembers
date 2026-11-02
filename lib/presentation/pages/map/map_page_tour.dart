@@ -248,7 +248,16 @@ extension _MapPageTourActions on _MapPageState {
         icon: Icons.bolt_rounded,
         duration: const Duration(seconds: 4),
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Salvataggio quiz fallito: poi=$poiId, xp=\${score.totalXp}, '
+        'risposte=\${result.score}/\${result.totalQuestions}, '
+        'tourElapsed=\${_tourController.totalElapsedSeconds}s, '
+        'tourCompleto=$isLastStop',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPageTour',
+      );
       if (!mounted) return;
       showGlassSnackBar(
         context,
