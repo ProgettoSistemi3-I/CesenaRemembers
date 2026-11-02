@@ -198,7 +198,10 @@ class UserProgressDataSource {
         totalQuestions: isTourComplete
             ? (tourTotalQuestions ?? totalQuestions)
             : totalQuestions,
-        tourElapsedSeconds: tourElapsedSeconds,
+        // Le regole Firestore valutano i badge sul miglior tempo persistito.
+        // Passiamo lo stesso valore, così un tour precedente sotto i 5 minuti
+        // non può creare una divergenza tra achievement e transazione.
+        bestTourTimeSeconds: nextBestTourTime,
         isTourComplete: isTourComplete,
       );
       
