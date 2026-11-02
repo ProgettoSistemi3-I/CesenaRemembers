@@ -22,6 +22,8 @@ jobs:
         run: flutter gen-l10n
       - name: Analyze Flutter project
         run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
+      - name: Run Flutter tests
+        run: flutter test --no-pub
       - name: Validate notifier JavaScript
         run: node --check server_docker/notifier-service/index.js
       - name: Create source archive
