@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,15 @@ import 'presentation/theme/app_palette.dart';
 import 'presentation/theme/theme_controller.dart';
 import 'presentation/pages/splash_screen.dart';
 import 'presentation/services/push_notification_service.dart';
+
+const bool _useFirestoreEmulator = bool.fromEnvironment(
+  'USE_FIRESTORE_EMULATOR',
+  defaultValue: false,
+);
+const String _firestoreEmulatorHost = String.fromEnvironment(
+  'FIRESTORE_EMULATOR_HOST',
+  defaultValue: '10.0.2.2',
+);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +59,18 @@ class AppBootstrap {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+
+      // Le dart-define configurano l'emulatore solo nelle build DEBUG.
+      // La configurazione avviene prima di registrare/istanziare i repository.
+      if (kDebugMode && _useFirestoreEmulator) {
+        final host = _firestoreEmulatorHost.trim();
+        if (host.isEmpty) {
+          throw StateError('FIRESTORE_EMULATOR_HOST non può essere vuoto.');
+        }
+        FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+        debugPrint('[Firebase] Firestore Emulator attivo su $host:8080');
+      }
+
       FirebaseMessaging.onBackgroundMessage(
         firebaseMessagingBackgroundHandler,
       );
