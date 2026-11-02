@@ -112,7 +112,9 @@ class TourSessionController {
 
     _startPositionTracking();
     _checkCurrentStopArrival();
-    if (_status == TourStatus.running) _startTimer();
+    if (_status == TourStatus.running || _status == TourStatus.arrived) {
+      _startTimer();
+    }
     return true;
   }
 
@@ -123,7 +125,9 @@ class TourSessionController {
       _elapsedSeconds = 0;
       _emit();
       _checkCurrentStopArrival();
-      if (_status == TourStatus.running) _startTimer();
+      if (_status == TourStatus.running || _status == TourStatus.arrived) {
+        _startTimer();
+      }
       return true;
     }
 
@@ -214,7 +218,8 @@ class TourSessionController {
 
   void _triggerArrival() {
     if (_status == TourStatus.arrived) return;
-    _timer?.cancel();
+    // Il timer globale continua durante il quiz; _elapsedSeconds si ferma
+    // automaticamente perché _startTimer lo incrementa solo in running.
     _status = TourStatus.arrived;
     _emit();
   }
