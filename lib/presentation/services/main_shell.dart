@@ -9,7 +9,6 @@ import 'shell_navigation_store.dart';
 import '../pages/social/social_page.dart';
 import 'push_notification_service.dart';
 import 'location_preference_store.dart';
-import 'location_permission_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class MainShell extends StatefulWidget {
@@ -24,8 +23,6 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   bool _startupReady = false;
-  final LocationPermissionService _locationPermissionService =
-      const LocationPermissionService();
 
   final List<Widget> _pages = const [
     MapPage(),
