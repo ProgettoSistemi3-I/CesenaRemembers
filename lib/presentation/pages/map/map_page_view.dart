@@ -16,7 +16,7 @@ extension _MapPageView on _MapPageState {
         mapTypeBottom + mapTypeButtonHeight + mapControlsGap -
         attributionBottomInset;
 
-    if (_isLoading) {
+    if (_isLoading || _isCheckingLocation) {
       return Scaffold(
         backgroundColor: data.theme.scaffoldBackgroundColor,
         body: const Center(
