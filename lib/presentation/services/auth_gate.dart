@@ -277,7 +277,7 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
             if (!profile.onboardingCompleted) {
               return OnboardingPage(uid: widget.appUser.id);
             }
-            return const MainShell();
+            return MainShell(gpsEnabled: profile.gpsEnabled);
           },
         );
       },
