@@ -75,6 +75,7 @@ class AchievementService {
     required int correctAnswers,
     required int totalQuestions,
     required int tourElapsedSeconds,
+    int? bestTourTimeSeconds,
     required bool isTourComplete,
   }) {
     final newUnlocks = <String>[];
@@ -98,11 +99,13 @@ class AchievementService {
 
     maybeUnlock('xp_500', totalXp >= 500);
 
-    // Non attribuire i badge di velocità per tempi inferiori a 5 minuti:
-    // le Firestore Rules mantengono questa soglia anti-abuso.
-    if (isTourComplete && tourElapsedSeconds >= 300) {
-      maybeUnlock('tour_under_1h', tourElapsedSeconds < 3600);
-      maybeUnlock('tour_under_30m', tourElapsedSeconds < 1800);
+    // Le Firestore Rules verificano il tempo migliore persistito. Usiamo lo
+    // stesso valore anche qui, evitando divergenze quando un record precedente
+    // è già inferiore a 5 minuti.
+    final validatedTourTime = bestTourTimeSeconds ?? tourElapsedSeconds;
+    if (isTourComplete && validatedTourTime >= 300) {
+      maybeUnlock('tour_under_1h', validatedTourTime < 3600);
+      maybeUnlock('tour_under_30m', validatedTourTime < 1800);
     }
 
     return newUnlocks;
