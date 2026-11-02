@@ -433,8 +433,6 @@ service cloud.firestore {
         next.get('xp', 0) >= old.get('xp', 0) &&
         next.get('xp', 0) <= old.get('xp', 0) + 80 &&
         next.get('lastProgressAt', null) == request.time &&
-        (!('lastProgressAt' in old) ||
-          request.time >= old.lastProgressAt + duration.value(5, 's')) &&
         next.get('leaderboardScore', 0) == next.get('xp', 0) &&
         next.get('totalQuizCompleted', 0) >= old.get('totalQuizCompleted', 0) &&
         next.get('totalQuizCompleted', 0) <= old.get('totalQuizCompleted', 0) + 1 &&
@@ -445,11 +443,11 @@ service cloud.firestore {
         next.get('totalToursCompleted', 0) >= old.get('totalToursCompleted', 0) &&
         next.get('totalToursCompleted', 0) <= old.get('totalToursCompleted', 0) + 1 &&
         (next.get('totalToursCompleted', 0) == old.get('totalToursCompleted', 0) ||
-          (next.get('visitedPoiIds', []).hasAll([
+          next.get('visitedPoiIds', []).hasAll([
             'santa_cristina', 'rocca', 'san_rocco', 'abbazia_monte',
             'osservanza', 'palazzo_ridotto', 'stazione', 'arrigoni',
             'fantaguzzi', 'rifugi_antiaerei'
-          ]) && next.get('bestTourTimeSeconds', 0) >= 300)) &&
+          ])) &&
         next.get('maxSingleTourXp', 0) >= old.get('maxSingleTourXp', 0) &&
         next.get('maxSingleTourXp', 0) <= next.get('xp', 0) &&
         next.get('visitedPoiIds', []) is list &&
