@@ -258,10 +258,15 @@ extension _MapPageTourActions on _MapPageState {
         name: 'MapPageTour',
       );
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      final debugDetails = kDebugMode
+          ? '\n${error.runtimeType}: $error'
+          : '';
       showGlassSnackBar(
         context,
-        message: AppLocalizations.of(context)!.errorSaveScore,
+        message: '${l10n.errorSaveScore}$debugDetails',
         type: GlassSnackType.error,
+        duration: const Duration(seconds: 8),
       );
     } finally {
       _isSavingQuizResult = false;
