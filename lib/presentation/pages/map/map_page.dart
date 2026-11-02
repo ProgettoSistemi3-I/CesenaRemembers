@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import '../../../core/logging/app_logger.dart';
-
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../core/logging/app_logger.dart';
 import '../../../domain/entities/poi.dart';
 import '../../../config/app_runtime_config.dart';
 import '../../../domain/entities/tour_stop.dart';
