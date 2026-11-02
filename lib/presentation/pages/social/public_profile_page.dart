@@ -45,6 +45,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
   UserProfile? _myProfile;
 
   bool _isLoading = true;
+  bool _isFriendActionInProgress = false;
 
   String? _loadError;
 
@@ -94,16 +95,22 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
   }
 
   void _onFriendAction(String action) async {
+    if (_isFriendActionInProgress) return;
+
     final myUid = _socialCtrl.currentUserId;
     final target = _targetProfile;
     final me = _myProfile;
     if (target == null || me == null || myUid.isEmpty) return;
+
+    _isFriendActionInProgress = true;
 
     final previousTargetFriends = List<String>.from(target.friends);
     final previousMyFriends = List<String>.from(me.friends);
     final previousSent = List<String>.from(me.sentFriendRequests);
     final previousReceived = List<String>.from(me.receivedFriendRequests);
 
+    // Aggiornamento ottimistico: il pulsante cambia immediatamente senza
+    // sostituire l'intera pagina con il loader.
     setState(() {
       switch (action) {
         case 'send':
@@ -131,10 +138,21 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
     final success = await _socialCtrl.handleFriendAction(action, widget.uid);
     if (!mounted) return;
+
     if (success) {
-      // Dopo accept/remove ricarica dal server la proiezione corretta: le
-      // statistiche vengono restituite solo quando l'amicizia è reciproca.
+      // Invio e annullamento modificano soltanto lo stato delle richieste:
+      // il profilo già in memoria contiene la nuova situazione, quindi non
+      // serve ricaricarlo da Firestore (e mostrare il loader a tutta pagina).
+      if (action == 'send' || action == 'cancel') {
+        _isFriendActionInProgress = false;
+        return;
+      }
+
+      // Accept/remove aggiornano anche statistiche e amicizie reciproche:
+      // in questi casi manteniamo il refresh dal server.
       await _loadProfile();
+      if (!mounted) return;
+      _isFriendActionInProgress = false;
       return;
     }
 
@@ -151,6 +169,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       me.receivedFriendRequests
         ..clear()
         ..addAll(previousReceived);
+      _isFriendActionInProgress = false;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
