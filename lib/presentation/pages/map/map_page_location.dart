@@ -13,8 +13,12 @@ extension _MapPageLocationLogic on _MapPageState {
   }
 
   Future<void> _initLocationLogic() async {
-    await _verifyLocationState(requestPerms: false);
-    if (kIsWeb) return;
+    // La preferenza salvata è stata caricata da AuthGate prima di creare
+    // MapPage. Se è attiva, riallinea subito il permesso Android: dopo una
+    // reinstallazione il sistema azzera i permessi, ma Firebase conserva la
+    // scelta dell'utente.
+    await _verifyLocationState(requestPerms: _isGpsPreferenceEnabled);
+    if (!mounted || kIsWeb) return;
     _serviceStatusSub = Geolocator.getServiceStatusStream().listen((status) {
       if (!mounted) return;
       setState(() {
@@ -28,43 +32,59 @@ extension _MapPageLocationLogic on _MapPageState {
   }
 
   Future<void> _verifyLocationState({required bool requestPerms}) async {
-    if (kIsWeb) {
+    if (mounted) setState(() => _isCheckingLocation = true);
+
+    try {
+      if (kIsWeb) {
+        var perm = await Geolocator.checkPermission();
+        if (perm == LocationPermission.denied && requestPerms) {
+          perm = await Geolocator.requestPermission();
+        }
+        final hasPerm =
+            perm == LocationPermission.whileInUse ||
+            perm == LocationPermission.always;
+        if (mounted) {
+          setState(() {
+            _isGpsEnabled = true;
+            _hasPermissions = hasPerm;
+            _isCheckingLocation = false;
+          });
+        }
+        return;
+      }
+
+      final gps = await Geolocator.isLocationServiceEnabled();
       var perm = await Geolocator.checkPermission();
+
       if (perm == LocationPermission.denied && requestPerms) {
         perm = await Geolocator.requestPermission();
       }
+
       final hasPerm =
           perm == LocationPermission.whileInUse ||
           perm == LocationPermission.always;
+
       if (mounted) {
         setState(() {
-          _isGpsEnabled = true;
+          _isGpsEnabled = gps;
           _hasPermissions = hasPerm;
           _isCheckingLocation = false;
         });
       }
-      return;
-    }
-
-    if (mounted) setState(() => _isCheckingLocation = true);
-
-    final gps = await Geolocator.isLocationServiceEnabled();
-    var perm = await Geolocator.checkPermission();
-
-    if (perm == LocationPermission.denied && requestPerms) {
-      perm = await Geolocator.requestPermission();
-    }
-
-    final hasPerm =
-        perm == LocationPermission.whileInUse ||
-        perm == LocationPermission.always;
-
-    if (mounted) {
-      setState(() {
-        _isGpsEnabled = gps;
-        _hasPermissions = hasPerm;
-        _isCheckingLocation = false;
-      });
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to verify location permission state',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPage',
+      );
+      if (mounted) {
+        setState(() {
+          _isGpsEnabled = false;
+          _hasPermissions = false;
+          _isCheckingLocation = false;
+        });
+      }
     }
   }
 
