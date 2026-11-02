@@ -18,7 +18,7 @@ const bool _useFirestoreEmulator = bool.fromEnvironment(
 );
 const String _firestoreEmulatorHost = String.fromEnvironment(
   'FIRESTORE_EMULATOR_HOST',
-  defaultValue: '10.0.2.2',
+  defaultValue: '127.0.0.1',
 );
 
 Future<void> main() async {
@@ -64,16 +64,25 @@ class AppBootstrap {
       // La configurazione avviene prima di registrare/istanziare i repository.
       if (kDebugMode && _useFirestoreEmulator) {
         final host = _firestoreEmulatorHost.trim();
+
         if (host.isEmpty) {
           throw StateError('FIRESTORE_EMULATOR_HOST non può essere vuoto.');
         }
-        FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-        debugPrint('[Firebase] Firestore Emulator attivo su $host:8080');
+
+        FirebaseFirestore.instance.useFirestoreEmulator(
+          host,
+          8080,
+          sslEnabled: false,
+          automaticHostMapping: false,
+        );
+
+        debugPrint(
+          '[Firebase] Firestore Emulator attivo su $host:8080 '
+          '(automaticHostMapping: false)',
+        );
       }
 
-      FirebaseMessaging.onBackgroundMessage(
-        firebaseMessagingBackgroundHandler,
-      );
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
       await di.init();
       try {
@@ -154,11 +163,15 @@ class CesenaRemembersApp extends StatelessWidget {
       listenable: Listenable.merge([themeCtrl, localeNotifier]),
       builder: (context, _) {
         final isDark = themeCtrl.themeMode == ThemeMode.dark;
-        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        ));
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: isDark
+                ? Brightness.light
+                : Brightness.dark,
+            statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+          ),
+        );
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: PushNotificationService.navigatorKey,
