@@ -20,7 +20,7 @@ void main() {
       totalXp: 500,
       correctAnswers: 30,
       totalQuestions: 30,
-      tourElapsedSeconds: elapsedSeconds,
+      bestTourTimeSeconds: elapsedSeconds,
       isTourComplete: true,
     );
   }
