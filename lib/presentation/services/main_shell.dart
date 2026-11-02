@@ -51,9 +51,8 @@ class _MainShellState extends State<MainShell> {
   void _initializeNotifications() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await PushNotificationService.initializeAndSaveToken();
-      // La posizione viene richiesta solo quando l'utente avvia un tour
-      // o usa il comando "centra su di me".
-
+      // MapPage verifica all'avvio il permesso Android e lo richiede
+      // quando la preferenza GPS salvata nel profilo è attiva.
     });
   }
 
