@@ -13,11 +13,10 @@ extension _MapPageLocationLogic on _MapPageState {
   }
 
   Future<void> _initLocationLogic() async {
-    // La preferenza salvata è stata caricata da AuthGate prima di creare
-    // MapPage. Se è attiva, riallinea subito il permesso Android: dopo una
-    // reinstallazione il sistema azzera i permessi, ma Firebase conserva la
-    // scelta dell'utente.
-    await _verifyLocationState(requestPerms: _isGpsPreferenceEnabled);
+    // MainShell ha già richiesto il permesso GPS dopo il primo frame e
+    // prima di inizializzare FCM. Qui leggiamo soltanto lo stato definitivo,
+    // evitando una seconda richiesta concorrente dal ciclo di vita della mappa.
+    await _verifyLocationState(requestPerms: false);
     if (!mounted || kIsWeb) return;
     _serviceStatusSub = Geolocator.getServiceStatusStream().listen((status) {
       if (!mounted) return;
