@@ -5,10 +5,13 @@ import '../pages/settings/settings_page.dart';
 import 'shell_navigation_store.dart';
 import '../pages/social/social_page.dart';
 import 'push_notification_service.dart';
+import 'location_preference_store.dart';
 import '../../l10n/app_localizations.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  const MainShell({super.key, required this.gpsEnabled});
+
+  final bool gpsEnabled;
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -27,11 +30,22 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
+    // La preferenza arriva dal profilo già caricato da AuthGate: inizializzala
+    // prima che IndexedStack crei MapPage e avvii il controllo dei permessi.
+    LocationPreferenceStore.setGpsEnabled(widget.gpsEnabled);
     // Evita che il tab statico di una sessione precedente sopravviva al logout.
     ShellNavigationStore.tabIndex.value = 0;
     _currentIndex = 0;
     ShellNavigationStore.tabIndex.addListener(_onTabIndexChanged);
     _initializeNotifications();
+  }
+
+  @override
+  void didUpdateWidget(covariant MainShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.gpsEnabled != widget.gpsEnabled) {
+      LocationPreferenceStore.setGpsEnabled(widget.gpsEnabled);
+    }
   }
 
   void _initializeNotifications() {
