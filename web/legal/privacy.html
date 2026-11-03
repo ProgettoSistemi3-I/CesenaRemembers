@@ -3,142 +3,258 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Informativa sul trattamento dei dati personali di Cesena Remembers." />
+  <meta name="description" content="Bozza di informativa sul trattamento dei dati personali di Cesena Remembers." />
   <link rel="canonical" href="https://cesenaremembers.com/legal/privacy.html" />
   <title>Informativa privacy – Cesena Remembers</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.7; color: #1a1a1a; background: #fff; padding: 2rem 1rem 4rem; }
-    .container { max-width: 760px; margin: 0 auto; }
+    .container { max-width: 800px; margin: 0 auto; }
     header { border-bottom: 1px solid #e5e5e5; padding-bottom: 1.5rem; margin-bottom: 2rem; }
-    header .badge { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #185FA5; background: #E6F1FB; padding: 4px 10px; border-radius: 4px; margin-bottom: .75rem; }
+    .badge { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #185FA5; background: #E6F1FB; padding: 4px 10px; border-radius: 4px; margin-bottom: .75rem; }
     h1 { font-size: 28px; font-weight: 650; color: #111; margin-bottom: .4rem; }
     .meta { font-size: 14px; color: #666; }
     nav.toc { background: #f8f8f8; border: 1px solid #e5e5e5; border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
     nav.toc p { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #555; margin-bottom: .75rem; }
     nav.toc ol { padding-left: 1.25rem; } nav.toc li { font-size: 14px; margin-bottom: 4px; }
     section { margin-bottom: 2.25rem; } h2 { font-size: 20px; font-weight: 650; color: #111; margin-bottom: .75rem; padding-top: .25rem; }
-    p { margin-bottom: 1rem; } ul { padding-left: 1.4rem; margin-bottom: 1rem; } li { margin-bottom: 4px; }
+    h3 { font-size: 17px; margin: 1.1rem 0 .5rem; }
+    p { margin-bottom: 1rem; } ul, ol { padding-left: 1.4rem; margin-bottom: 1rem; } li { margin-bottom: 5px; }
     a { color: #185FA5; } .notice { border-left: 4px solid #b7791f; padding: .8rem 1rem; background: #fff8e8; margin: 1rem 0; }
+    .draft { border-left: 4px solid #b42318; padding: 1rem; background: #fff0ef; margin: 1rem 0 1.5rem; }
+    .draft strong { color: #9f1c13; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.25rem; font-size: 14px; }
+    th, td { text-align: left; vertical-align: top; border: 1px solid #ddd; padding: .65rem; }
+    th { background: #f4f4f4; }
+    code { overflow-wrap: anywhere; }
     footer { border-top: 1px solid #e5e5e5; padding-top: 1.5rem; font-size: 13px; color: #888; text-align: center; }
-    @media (prefers-color-scheme: dark) { body { background: #121212; color: #e0e0e0; } header, footer { border-color: #333; } h1, h2 { color: #f0f0f0; } .meta { color: #999; } .badge { background: #0c3a60; color: #85B7EB; } nav.toc { background: #1e1e1e; border-color: #333; } nav.toc p { color: #aaa; } a { color: #85B7EB; } .notice { background: #302713; } }
+    @media (prefers-color-scheme: dark) {
+      body { background: #121212; color: #e0e0e0; } header, footer { border-color: #333; }
+      h1, h2, h3 { color: #f0f0f0; } .meta { color: #999; } nav.toc { background: #1e1e1e; border-color: #333; }
+      nav.toc p { color: #aaa; } a { color: #85B7EB; } .notice { background: #302713; }
+      .draft { background: #351b1a; } .draft strong { color: #ffaaa3; } th { background: #292929; } th, td { border-color: #444; }
+    }
   </style>
 </head>
 <body>
   <main class="container">
     <header>
-      <div class="badge">Informativa</div>
+      <div class="badge">Bozza informativa</div>
       <h1>Informativa sulla privacy</h1>
-      <p class="meta">Cesena Remembers · Ultimo aggiornamento: 31 ottobre 2026</p>
+      <p class="meta">Cesena Remembers · Versione di lavoro del 3 novembre 2026</p>
     </header>
+
+    <div class="draft" role="alert">
+      <strong>ATTENZIONE — DOCUMENTO NON ANCORA PRONTO PER LA PUBBLICAZIONE DEFINITIVA.</strong>
+      Questa versione descrive in modo esteso i trattamenti attualmente conosciuti, ma non sostituisce l'informativa definitiva. Prima di renderla operativa devono essere identificati il titolare o i contitolari, verificati i ruoli contrattuali dei fornitori, scelte e documentate le basi giuridiche, completati i criteri di conservazione e verificati i flussi effettivi dell'app. I campi indicati come “DA COMPLETARE” non devono rimanere nella versione definitiva.
+    </div>
 
     <nav class="toc" aria-label="Indice">
       <p>Indice</p>
       <ol>
-        <li><a href="#titolare">Titolare del trattamento</a></li>
-        <li><a href="#dati">Dati trattati</a></li>
-        <li><a href="#finalita">Finalità e basi giuridiche</a></li>
-        <li><a href="#posizione">Posizione e mappe</a></li>
-        <li><a href="#visibilita">Visibilità del profilo e delle statistiche</a></li>
-        <li><a href="#fornitori">Fornitori e destinatari</a></li>
-        <li><a href="#sito">Sito web, cookie e risorse esterne</a></li>
+        <li><a href="#titolare">Titolare e contatti</a></li>
+        <li><a href="#ambito">Ambito e servizi</a></li>
+        <li><a href="#dati">Categorie di dati</a></li>
+        <li><a href="#finalita">Finalità, basi giuridiche e conferimento</a></li>
+        <li><a href="#gps">Posizione e mappe</a></li>
+        <li><a href="#visibilita">Profili, classifica e funzionalità social</a></li>
+        <li><a href="#quiz">Quiz e servizi di intelligenza artificiale</a></li>
+        <li><a href="#destinatari">Destinatari e responsabili</a></li>
+        <li><a href="#trasferimenti">Trasferimenti fuori dallo SEE</a></li>
+        <li><a href="#cookie">Sito, cookie e risorse esterne</a></li>
         <li><a href="#conservazione">Conservazione e cancellazione</a></li>
-        <li><a href="#diritti">Diritti dell'interessato</a></li>
-        <li><a href="#minori">Utenti minorenni</a></li>
-        <li><a href="#sicurezza">Sicurezza e aggiornamenti</a></li>
-        <li><a href="#contatti">Contatti</a></li>
+        <li><a href="#diritti">Diritti degli interessati</a></li>
+        <li><a href="#minori">Minori</a></li>
+        <li><a href="#sicurezza">Sicurezza e violazioni</a></li>
+        <li><a href="#automatizzati">Decisioni automatizzate</a></li>
+        <li><a href="#aggiornamenti">Aggiornamenti</a></li>
       </ol>
     </nav>
 
     <section id="titolare">
-      <h2>1. Titolare del trattamento</h2>
-      <p>Cesena Remembers è un progetto digitale dedicato alla storia della città di Cesena, con mappa, percorsi guidati, quiz, progressi e funzionalità social. Il sito ufficiale del progetto è <a href="https://cesenaremembers.com">cesenaremembers.com</a>.</p>
-      <div class="notice"><strong>Informazione da completare prima della pubblicazione:</strong> il titolare del trattamento è <strong>[INSERIRE NOME E COGNOME O DENOMINAZIONE DELL'ENTE/ORGANIZZAZIONE CHE DETERMINA FINALITÀ E MEZZI DEL TRATTAMENTO]</strong>, con sede/indirizzo <strong>[INSERIRE INDIRIZZO]</strong>. L'indirizzo email del progetto è un recapito di contatto, ma da solo non identifica giuridicamente il titolare.</div>
+      <h2>1. Titolare del trattamento e contatti</h2>
+      <p>Cesena Remembers è un progetto digitale dedicato alla storia di Cesena, che offre contenuti culturali, mappa, percorsi guidati, quiz, registrazione dei progressi e funzionalità social. Il sito ufficiale è <a href="https://cesenaremembers.com">cesenaremembers.com</a>.</p>
+      <div class="notice">
+        <strong>DA COMPLETARE PRIMA DELLA PUBBLICAZIONE:</strong> indicare l'identità completa del soggetto o dei soggetti che determinano effettivamente finalità e mezzi dei trattamenti, nonché un recapito valido per esercitare i diritti. L'eventuale contitolarità tra gli autori deve essere verificata in base alle decisioni effettive e accompagnata dall'accordo previsto dall'art. 26 GDPR. Non inserire automaticamente il titolare dell'account Google Play o la scuola se non svolgono realmente tale ruolo.
+        <p><strong>Titolare/i:</strong> [NOME E COGNOME / DENOMINAZIONE E RUOLO DA VERIFICARE]</p>
+        <p><strong>Recapito:</strong> [RECAPITO POSTALE O ALTRO RECAPITO COMPLETO DA CONFERMARE]</p>
+        <p><strong>Email privacy:</strong> <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a> (da confermare come canale effettivamente presidiato).</p>
+      </div>
+      <p>Se sono individuati due o più contitolari, l'informativa definitiva dovrà descrivere in modo comprensibile l'essenza dell'accordo di contitolarità, indicando almeno il punto di contatto per gli interessati e la ripartizione essenziale delle responsabilità. L'interessato può esercitare i propri diritti nei confronti di ciascun contitolare secondo l'art. 26, par. 3, GDPR.</p>
+    </section>
+
+    <section id="ambito">
+      <h2>2. Ambito e servizi</h2>
+      <p>Questa informativa riguarda l'applicazione mobile Cesena Remembers e il sito web <a href="https://cesenaremembers.com">cesenaremembers.com</a>, comprese le pagine legali e le funzionalità collegate. Alcuni servizi di terzi (autenticazione, database, mappe, notifiche, hosting e generazione dei quiz) ricevono i dati necessari quando l'utente utilizza le relative funzioni.</p>
+      <p>La scuola può presentare o utilizzare informalmente il progetto in contesti didattici. Tale circostanza non comporta, da sola, che la scuola determini le finalità e i mezzi dei trattamenti effettuati nell'app. Eventuali trattamenti autonomi svolti dalla scuola nell'ambito delle proprie attività devono essere disciplinati dalla scuola con una propria informativa e una propria valutazione dei ruoli.</p>
     </section>
 
     <section id="dati">
-      <h2>2. Dati trattati</h2>
+      <h2>3. Categorie di dati trattati</h2>
+      <p>I dati effettivamente trattati dipendono dalle funzioni utilizzate e dai permessi concessi.</p>
+      <h3>3.1 Dati dell'account e autenticazione</h3>
       <ul>
-        <li><strong>Account:</strong> identificativo Firebase, indirizzo email, nome visualizzato, username e avatar. L'email è conservata nel documento privato dell'account; nome visualizzato, username e avatar costituiscono il profilo minimo ricercabile dagli utenti autenticati.</li>
-        <li><strong>Profilo e riepilogo pubblico:</strong> nome visualizzato, username, avatar, punti esperienza (XP), numero di amici (solo conteggio) e numero di tour completati sono visibili agli utenti registrati e autenticati che consultano un profilo.</li>
-        <li><strong>Classifica globale (Leaderboard):</strong> i primi 50 account per XP sono mostrati a tutti gli utenti autenticati con nome visualizzato, username, avatar e XP. Ogni utente può vedere anche la propria posizione effettiva, compresa quella fuori dalla Top 50.</li>
-        <li><strong>Relazioni social:</strong> richieste di amicizia inviate e ricevute e lista amici.</li>
-        <li><strong>Progressi e statistiche:</strong> luoghi visitati, XP, risultati e numero di quiz, risposte corrette, tour completati, tempi e achievement.</li>
-        <li><strong>Preferenze:</strong> impostazioni dell'app, tra cui notifiche, tema e preferenza relativa al GPS.</li>
-        <li><strong>Notifiche:</strong> token del dispositivo per Firebase Cloud Messaging, usato per inviare le notifiche richieste dall'utente.</li>
-        <li><strong>Posizione:</strong> coordinate del dispositivo quando il permesso è concesso e la funzione mappa/tour utilizza la posizione, per mostrare la posizione sulla mappa, calcolare distanze e rilevare l'arrivo a una tappa.</li>
-        <li><strong>Richieste quiz:</strong> identificativo, nome e descrizione del luogo, XP corrente e lingua selezionata sono inviati al backend quiz. Il client non inserisce in tale richiesta l'identificativo Firebase dell'account.</li>
-        <li><strong>Dati tecnici:</strong> gli operatori dei servizi di rete e hosting possono trattare indirizzo IP, orario delle richieste, informazioni tecniche del dispositivo/rete e log necessari all'erogazione e alla sicurezza.</li>
+        <li>identificativo tecnico Firebase (UID);</li>
+        <li>indirizzo email associato all'autenticazione, conservato nell'area riservata dell'account;</li>
+        <li>nome visualizzato, username e avatar scelto nell'app;</li>
+        <li>informazioni tecniche relative all'autenticazione e allo stato dell'account.</li>
       </ul>
+      <h3>3.2 Profilo, gioco e progressi</h3>
+      <ul>
+        <li>punti esperienza (XP), tour completati e conteggio degli amici;</li>
+        <li>luoghi/POI visitati, progressi dei percorsi, risultati e risposte ai quiz;</li>
+        <li>tempi e statistiche di gioco, achievement e dati necessari a calcolare la classifica;</li>
+        <li>preferenze dell'app, come tema, lingua e impostazioni delle notifiche.</li>
+      </ul>
+      <h3>3.3 Funzionalità social</h3>
+      <ul>
+        <li>username e dati minimi del profilo utilizzati per trovare altri account;</li>
+        <li>richieste di amicizia inviate o ricevute, stato delle richieste e relazioni di amicizia;</li>
+        <li>elenco degli amici e statistiche condivise con gli amici secondo le regole descritte nella sezione 6.</li>
+      </ul>
+      <h3>3.4 Posizione e dati del dispositivo</h3>
+      <ul>
+        <li>coordinate GPS, se l'utente concede il permesso e utilizza le funzioni che richiedono la posizione;</li>
+        <li>informazioni tecniche del dispositivo, sistema operativo, versione dell'app e dati diagnostici;</li>
+        <li>token e identificativi tecnici necessari per le notifiche push;</li>
+        <li>indirizzo IP, data e ora delle richieste e log tecnici che possono essere generati dai servizi di rete, hosting e fornitori.</li>
+      </ul>
+      <h3>3.5 Dati trasmessi al backend quiz</h3>
+      <p>Per generare un quiz, l'app può inviare al backend del progetto l'identificativo del luogo, il nome e la descrizione del luogo, il punteggio XP corrente e la lingua selezionata. In base alla struttura attualmente descritta del client, la richiesta quiz non include direttamente l'UID Firebase dell'account; il backend e i sistemi di rete possono comunque trattare dati tecnici della connessione, come l'indirizzo IP. La composizione delle richieste e dei log deve essere verificata sul codice e sulla configurazione di produzione prima della pubblicazione.</p>
+      <h3>3.6 Dati non richiesti intenzionalmente</h3>
+      <p>L'app non è progettata per chiedere categorie particolari di dati personali ai sensi dell'art. 9 GDPR. L'utente è invitato a non inserire informazioni sensibili o dati personali di terzi nei campi del profilo o in eventuali comunicazioni di assistenza.</p>
     </section>
 
     <section id="finalita">
-      <h2>3. Finalità e basi giuridiche</h2>
-      <p>I dati sono trattati per autenticare gli utenti, gestire i profili, mostrare mappe e percorsi, generare quiz, registrare progressi e risultati, gestire amicizie e notifiche, fornire assistenza e proteggere il servizio da abusi.</p>
-      <p>Le basi giuridiche applicabili devono essere individuate e documentate dal titolare per ciascuna finalità: possono comprendere l'esecuzione del servizio richiesto, il consenso per permessi e funzioni facoltative, il legittimo interesse alla sicurezza e l'adempimento di obblighi di legge. Questa sezione deve essere verificata dal titolare prima della pubblicazione; non costituisce una determinazione automatica della base giuridica.</p>
+      <h2>4. Finalità, basi giuridiche e conferimento dei dati</h2>
+      <p>I dati sono utilizzati esclusivamente per le finalità descritte di seguito. La base giuridica definitiva per ciascun trattamento deve essere selezionata e documentata dal titolare dopo aver verificato il funzionamento del servizio, il rapporto con l'utente e le aspettative ragionevoli degli interessati. Le indicazioni riportate nella tabella sono una mappa di valutazione e non una dichiarazione che tutte le basi siano già state definitivamente scelte.</p>
+      <table>
+        <thead><tr><th>Finalità</th><th>Dati principali</th><th>Base giuridica da verificare</th></tr></thead>
+        <tbody>
+          <tr><td>Creazione e gestione dell'account, autenticazione e accesso alle funzioni</td><td>UID, email, dati del profilo e autenticazione</td><td>Art. 6(1)(b) GDPR, se il trattamento è necessario per fornire il servizio richiesto; altrimenti altra base appropriata da documentare.</td></tr>
+          <tr><td>Gestione dei profili, progressi, tour, quiz e classifica</td><td>Username, avatar, XP, tour, risultati e statistiche</td><td>Art. 6(1)(b) per le funzioni essenziali richieste oppure art. 6(1)(f) previa valutazione del bilanciamento; eventuale consenso per funzioni realmente facoltative.</td></tr>
+          <tr><td>Ricerca utenti, richieste di amicizia e condivisione delle statistiche</td><td>Username, relazioni social e statistiche selezionate</td><td>Art. 6(1)(b) e/o art. 6(1)(f), previa definizione della necessità e delle aspettative degli utenti; consenso se la funzione è strutturata come facoltativa su tale base.</td></tr>
+          <tr><td>Utilizzo della posizione per mappa, distanze e tappe</td><td>Coordinate GPS e dati tecnici correlati</td><td>Base da determinare in funzione della specifica funzione richiesta. Il permesso di localizzazione del sistema operativo è un controllo tecnico e non equivale automaticamente al consenso GDPR.</td></tr>
+          <tr><td>Notifiche push</td><td>Token FCM, preferenze e dati necessari all'invio</td><td>Art. 6(1)(b) per notifiche strettamente necessarie al servizio oppure consenso per notifiche facoltative/promozionali, se previste.</td></tr>
+          <tr><td>Sicurezza, prevenzione abusi, diagnosi e risoluzione dei problemi</td><td>Log, IP, eventi tecnici e dati diagnostici</td><td>Art. 6(1)(f) GDPR, previo legittimo interesse documentato, oppure art. 6(1)(c) quando sussiste uno specifico obbligo legale.</td></tr>
+          <tr><td>Gestione delle richieste degli utenti e tutela dei diritti</td><td>Dati forniti nella richiesta e dati dell'account</td><td>Art. 6(1)(c) per gli obblighi applicabili e/o art. 6(1)(f) per la gestione e tutela del servizio.</td></tr>
+        </tbody>
+      </table>
+      <p>Il conferimento dei dati necessari all'autenticazione e alle funzioni richieste è necessario per utilizzare tali funzioni. La posizione è facoltativa: se non viene concessa o viene disattivata, le funzioni che dipendono dalla posizione possono non essere disponibili o risultare limitate. Le preferenze di notifica possono essere modificate e i permessi del dispositivo possono essere revocati dalle impostazioni del sistema operativo.</p>
+      <p>Il titolare dovrà evitare di utilizzare il consenso come base giuridica quando non sia realmente libero, specifico, informato e revocabile, e dovrà separare le finalità che richiedono basi differenti.</p>
     </section>
 
-    <section id="posizione">
-      <h2>4. Posizione e mappe</h2>
-      <p>L'app controlla lo stato dei servizi di localizzazione quando viene aperta la schermata principale e può proporre la richiesta del permesso in quella fase. Se il permesso è concesso e la preferenza GPS è attiva, la posizione può essere mostrata sulla mappa; durante un tour viene utilizzata anche per calcolare la distanza dalla tappa corrente e rilevare l'arrivo. Il permesso può essere revocato dalle impostazioni del dispositivo e la preferenza GPS può essere disattivata nell'app.</p>
-      <p>Quando viene richiesta una linea di percorso pedonale, le coordinate di origine e destinazione sono inviate al servizio Mapbox Directions. Le richieste delle mappe utilizzano tile forniti, secondo lo stile selezionato, da CARTO, Stadia Maps o Esri/ArcGIS. Questi fornitori ricevono i dati tecnici necessari a rispondere alle richieste.</p>
+    <section id="gps">
+      <h2>5. Posizione e mappe</h2>
+      <p>Quando l'utente concede il permesso di localizzazione e utilizza la mappa o un percorso, l'app può accedere alle coordinate del dispositivo per mostrare la posizione sulla mappa, calcolare distanze e supportare il rilevamento dell'arrivo presso una tappa. La posizione non è necessaria per tutte le funzioni dell'app e il permesso può essere negato o revocato nelle impostazioni del dispositivo. La preferenza GPS disponibile nell'app può inoltre disattivare le funzioni che la utilizzano.</p>
+      <p>Quando viene richiesto un percorso pedonale, le coordinate di origine e destinazione possono essere trasmesse a Mapbox Directions per calcolare il percorso. Le richieste delle mappe possono comportare il contatto con CARTO, Stadia Maps o Esri/ArcGIS, a seconda del servizio e dello stile utilizzato. I fornitori possono ricevere indirizzo IP, metadati della richiesta e, nel caso del servizio di routing, le coordinate necessarie al calcolo.</p>
+      <p>La posizione è un dato potenzialmente delicato sotto il profilo della riservatezza. Il titolare deve verificare se le coordinate siano soltanto elaborate sul dispositivo o anche registrate, trasmesse o conservate, e descrivere nella versione definitiva l'effettivo comportamento del codice. Non si deve presumere che la disattivazione del GPS cancelli dati eventualmente già registrati.</p>
     </section>
 
     <section id="visibilita">
-      <h2>5. Visibilità del profilo e delle statistiche</h2>
-      <p>L'applicazione include una <strong>Classifica globale</strong> accessibile a tutti gli utenti autenticati: i primi 50 account ordinati per esperienza (XP) compaiono con nome visualizzato, username, avatar e XP. La propria riga è mostrata separatamente in alto e, anche quando si è fuori dalla Top 50, viene indicata la posizione effettiva.</p>
-      <p>Ogni profilo consultabile dagli utenti autenticati mostra inoltre una hero card con XP, numero di amici e numero di tour completati. Il numero di amici è un dato aggregato: non rende pubblici gli UID o i nomi delle persone nell'elenco. L'identità pubblica minima (nome visualizzato, username e avatar) è utilizzata anche per la ricerca di altri account e l'invio di richieste di amicizia.</p>
-      <p>Le statistiche dettagliate e i progressi di approfondimento (dettaglio dei POI visitati, risultati e risposte dei singoli quiz, tempi di percorrenza, achievement e lista amici) <strong>non sono pubblici</strong> e sono archiviati nella raccolta protetta <code>friend_stats</code>: possono essere letti esclusivamente dal titolare dell'account e dagli amici reciproci. Le regole di sicurezza Firestore impediscono accessi non autorizzati direttamente a livello di database.</p>
-      <p>Le richieste di amicizia e gli altri dati privati dell'account (inclusa l'email) non sono mai consultabili dagli altri utenti.</p>
+      <h2>6. Profili, classifica e funzionalità social</h2>
+      <h3>6.1 Profilo visibile agli utenti autenticati</h3>
+      <p>Il profilo consultabile dagli utenti autenticati può mostrare nome visualizzato, username, avatar, XP, numero di amici e numero di tour completati. Il conteggio degli amici è un dato aggregato e non equivale alla pubblicazione dell'intera lista degli amici.</p>
+      <h3>6.2 Classifica globale</h3>
+      <p>La classifica globale mostra ai soli utenti autenticati i primi 50 account ordinati per XP, con nome visualizzato, username, avatar e punteggio. L'app può mostrare separatamente anche la posizione dell'utente corrente quando non rientra nei primi 50. La partecipazione alla classifica comporta quindi la visibilità di questi dati agli altri utenti autenticati.</p>
+      <h3>6.3 Statistiche dettagliate e amici</h3>
+      <p>Le statistiche dettagliate, i risultati e le risposte dei quiz, i dettagli dei POI, i tempi, gli achievement e le relazioni social non sono destinati alla consultazione pubblica. Secondo la configurazione descritta del progetto, i dati dettagliati contenuti in <code>friend_stats</code> sono accessibili al proprietario e agli amici reciproci, secondo le regole di sicurezza Firestore. Le richieste di amicizia e l'indirizzo email non sono mostrati nella classifica pubblica.</p>
+      <p>La visibilità effettiva dipende dalle regole Firestore e dalla logica applicativa pubblicate. Il titolare deve verificare periodicamente che le regole del database siano coerenti con questa informativa e che non esistano percorsi alternativi che espongano dati privati.</p>
     </section>
 
-    <section id="fornitori">
-      <h2>6. Fornitori e destinatari</h2>
-      <p>I dati possono essere trattati dai seguenti fornitori quando vengono utilizzate le relative funzioni:</p>
+    <section id="quiz">
+      <h2>7. Quiz e servizi di intelligenza artificiale</h2>
+      <p>Il backend quiz del progetto può utilizzare un servizio esterno di modelli linguistici per generare domande e risposte a partire dalle informazioni del luogo e dal contesto di gioco. Il provider configurato può cambiare nel tempo; la configurazione attualmente indicata per il progetto è Groq. La versione definitiva dell'informativa dovrà riportare il provider effettivamente attivo, il relativo ruolo, i suoi termini, le condizioni di conservazione e le eventuali garanzie sui trasferimenti.</p>
+      <p>Le richieste al backend possono includere nome e descrizione del luogo, XP corrente e lingua. Il progetto dichiara di non inviare direttamente l'UID Firebase nella richiesta quiz; ciò non esclude il trattamento di dati tecnici della connessione da parte del server e del provider. Prima della pubblicazione occorre verificare se i prompt o le risposte siano conservati dal provider, utilizzati per migliorare i modelli o trasferiti ad altri subfornitori.</p>
+      <p>Le domande generate automaticamente possono contenere inesattezze o formulazioni imprecise. I contenuti hanno finalità culturali e ludico-didattiche e non costituiscono una fonte storica ufficiale né una decisione automatizzata con effetti giuridici sull'utente.</p>
+    </section>
+
+    <section id="destinatari">
+      <h2>8. Destinatari, fornitori e responsabili del trattamento</h2>
+      <p>I dati possono essere trattati da fornitori tecnici che erogano servizi necessari al funzionamento dell'app. Il ruolo di ciascun fornitore (responsabile del trattamento ai sensi dell'art. 28 GDPR oppure titolare autonomo) deve essere determinato sulla base delle attività effettive e dei contratti applicabili; non tutti i fornitori devono essere qualificati automaticamente come responsabili.</p>
       <ul>
-        <li><strong>Google Firebase Authentication e Google Sign-In:</strong> autenticazione e gestione dell'identità.</li>
-        <li><strong>Cloud Firestore:</strong> archiviazione di account, profili, relazioni social, progressi e statistiche.</li>
-        <li><strong>Firebase Cloud Messaging:</strong> invio delle notifiche push.</li>
-        <li><strong>Mapbox:</strong> richieste per i percorsi pedonali.</li>
-        <li><strong>CARTO, Stadia Maps e Esri/ArcGIS:</strong> distribuzione delle mappe.</li>
-        <li><strong>Backend quiz del progetto:</strong> riceve i dati elencati nella sezione 2 e si collega al provider di modelli linguistici configurato sul server (attualmente il preset predefinito è Groq; la configurazione può essere modificata dal gestore del servizio).</li>
-        <li><strong>Hosting del sito e CDN:</strong> erogazione delle pagine e delle risorse esterne indicate nella sezione successiva.</li>
+        <li><strong>Google/Firebase Authentication e Google Sign-In:</strong> autenticazione e gestione dell'identità.</li>
+        <li><strong>Google Cloud Firestore:</strong> archiviazione di account, profili, relazioni, progressi e statistiche.</li>
+        <li><strong>Firebase Cloud Messaging:</strong> infrastruttura per le notifiche push.</li>
+        <li><strong>Firebase Crashlytics:</strong> raccolta di report diagnostici e crash per individuare e correggere errori; i report possono includere informazioni tecniche sul dispositivo e dettagli dell'evento.</li>
+        <li><strong>Mapbox:</strong> calcolo dei percorsi quando viene richiesta la funzione di routing.</li>
+        <li><strong>CARTO, Stadia Maps ed Esri/ArcGIS:</strong> servizi di mappe e distribuzione delle tile, secondo la configurazione utilizzata.</li>
+        <li><strong>Provider del modello linguistico (attualmente Groq, da confermare in produzione):</strong> elaborazione delle richieste quiz inviate dal backend.</li>
+        <li><strong>Cloudflare Pages o altro hosting/CDN effettivamente configurato:</strong> pubblicazione del sito e distribuzione delle risorse.</li>
+        <li><strong>Google Fonts e unpkg:</strong> distribuzione di font e librerie esterne caricate dal sito, se ancora presenti nella versione pubblicata.</li>
       </ul>
-      <p>I fornitori trattano i dati secondo i rispettivi termini e documenti privacy. Alcuni trattamenti possono avvenire fuori dallo Spazio Economico Europeo; il titolare deve verificare e documentare le eventuali garanzie per i trasferimenti internazionali. I dati possono inoltre essere comunicati quando ciò sia richiesto dalla legge o necessario per tutelare il servizio e gli utenti.</p>
+      <p>Il titolare può autorizzare persone che collaborano alla gestione tecnica e amministrativa, limitando i loro accessi ai dati necessari e imponendo obblighi di riservatezza e sicurezza. I dati possono essere comunicati ad autorità pubbliche quando previsto dalla legge o necessario per tutelare diritti e sicurezza.</p>
+      <div class="notice"><strong>DA COMPLETARE:</strong> verificare l'elenco effettivo dei fornitori in produzione, le rispettive ragioni sociali, i link alle informative e ai DPA, i sub-responsabili e la configurazione di ogni servizio. L'elenco sopra è ricavato dalle informazioni tecniche attualmente disponibili e non sostituisce tale verifica.</div>
     </section>
 
-    <section id="sito">
-      <h2>7. Sito web, cookie e risorse esterne</h2>
-      <p>Il codice del sito non integra Google Analytics. Le pagine caricano font da Google Fonts e le icone Phosphor tramite la libreria ospitata su <code>unpkg.com</code>; il browser contatta quindi tali fornitori per scaricare le risorse. Il fornitore di hosting può trattare log tecnici. Le impostazioni del browser permettono di gestire i cookie eventualmente installati dal sito o dai suoi fornitori.</p>
-      <p>L'app conserva sul dispositivo alcune impostazioni locali. Il codice attuale non prevede una coda locale di quiz completati in attesa di sincronizzazione con Firestore.</p>
+    <section id="trasferimenti">
+      <h2>9. Trasferimenti di dati fuori dallo Spazio Economico Europeo</h2>
+      <p>Alcuni fornitori o loro subfornitori possono trattare dati in Paesi fuori dallo Spazio Economico Europeo. Prima della pubblicazione definitiva, il titolare deve verificare per ciascun fornitore i Paesi di trattamento e le condizioni applicabili, inclusa l'eventuale decisione di adeguatezza, l'adesione a un quadro di trasferimento riconosciuto o l'adozione di clausole contrattuali standard e misure supplementari, quando necessarie.</p>
+      <p>Le informazioni definitive sui trasferimenti, sui destinatari e sulle garanzie applicabili devono essere rese disponibili agli utenti e, ove previsto, deve essere indicato come ottenere copia delle garanzie pertinenti.</p>
+    </section>
+
+    <section id="cookie">
+      <h2>10. Sito web, cookie e risorse esterne</h2>
+      <p>Il sito può generare log tecnici necessari alla consegna delle pagine, alla sicurezza e alla diagnosi di malfunzionamenti. Il codice attualmente esaminato non integra Google Analytics. Alcune pagine caricano risorse esterne, tra cui font Google Fonts e icone Phosphor tramite unpkg.com: il browser dell'utente contatta tali domini e comunica i dati tecnici normalmente necessari alla richiesta, come l'indirizzo IP.</p>
+      <p>Il caricamento di una risorsa esterna non dimostra, da solo, che il sito installi cookie non tecnici. La presenza e la classificazione dei cookie, del local storage e di eventuali identificatori devono essere verificate con un controllo tecnico della versione pubblicata. Se vengono utilizzati cookie o strumenti di tracciamento non necessari, dovranno essere fornite le informazioni e raccolte le eventuali preferenze/consensi richiesti dalla normativa applicabile.</p>
     </section>
 
     <section id="conservazione">
-      <h2>8. Conservazione e cancellazione</h2>
-      <p>I dati sono conservati per il tempo necessario alle finalità per cui sono trattati e secondo i tempi che il titolare deve stabilire e documentare in relazione agli obblighi applicabili.</p>
-      <p>L'utente può eliminare in qualunque momento il proprio account e tutti i dati associati in modo autonomo e immediato direttamente dall'app: aprendo <strong>Impostazioni → Elimina account</strong> e confermando la richiesta. La cancellazione in-app rimuove definitivamente il profilo, il nome utente registrato, la presenza nella classifica globale (leaderboard), le statistiche e i dati privati. In alternativa, è possibile seguire le istruzioni nella <a href="delete-account.html">pagina dedicata alla cancellazione dell'account</a> via email. Eventuali dati che debbano essere conservati per obbligo di legge o per la sicurezza saranno trattati nei limiti previsti dalla normativa.</p>
-      <p>Prima della pubblicazione, il titolare deve completare i tempi di conservazione per ciascuna categoria di dati e verificare le politiche di conservazione dei fornitori e dei backup.</p>
+      <h2>11. Conservazione e cancellazione</h2>
+      <p>I dati sono conservati per il tempo necessario alle finalità per cui sono raccolti, nel rispetto dei principi di limitazione della conservazione e minimizzazione. I periodi specifici devono essere stabiliti e documentati dal titolare. In assenza di un termine numerico, devono essere indicati criteri verificabili per determinare quando i dati vengono eliminati o anonimizzati.</p>
+      <table>
+        <thead><tr><th>Categoria</th><th>Criterio di conservazione da definire</th></tr></thead>
+        <tbody>
+          <tr><td>Dati account e profilo</td><td>Per la durata dell'account; eliminazione o anonimizzazione dopo la cancellazione, salvo dati da conservare per obblighi o controversie.</td></tr>
+          <tr><td>Progressi, XP, quiz e statistiche</td><td>Per la durata dell'account e per il tempo necessario a gestire cancellazione, sicurezza e contestazioni; verificare eventuali copie residue.</td></tr>
+          <tr><td>Richieste e relazioni di amicizia</td><td>Per la durata della relazione o fino alla cancellazione dell'account e dei dati collegati.</td></tr>
+          <tr><td>Token notifiche</td><td>Fino alla disattivazione delle notifiche, alla sostituzione del token o alla cancellazione dell'account.</td></tr>
+          <tr><td>Log tecnici e crash report</td><td>Secondo i periodi configurati dal progetto e dai fornitori; indicare i periodi effettivi dopo averli verificati.</td></tr>
+          <tr><td>Dati presso fornitori e backup</td><td>Secondo DPA, termini e cicli di cancellazione/backup dei singoli fornitori, da verificare e documentare.</td></tr>
+        </tbody>
+      </table>
+      <p>L'utente può avviare la cancellazione del proprio account dall'app tramite <strong>Impostazioni → Elimina account</strong>, se la funzione è disponibile nella versione installata, oppure seguire le istruzioni della <a href="delete-account.html">pagina dedicata alla cancellazione</a>. La richiesta comporta l'eliminazione dei dati associati secondo il flusso implementato. Alcuni log, backup o dati che debbano essere conservati per obbligo di legge o per la tutela di diritti possono permanere per il periodo strettamente necessario, con accesso limitato.</p>
+      <p>Prima della pubblicazione definitiva, verificare il comportamento effettivo della cancellazione su Firebase Authentication, Firestore, leaderboard, profili pubblici, statistiche, richieste di amicizia, token FCM, backend quiz e fornitori esterni. Non deve essere promessa una cancellazione immediata da sistemi di terzi o backup se non è tecnicamente garantita.</p>
     </section>
 
     <section id="diritti">
-      <h2>9. Diritti dell'interessato</h2>
-      <p>Nei casi e nei limiti previsti dal GDPR, l'interessato può chiedere accesso ai dati, rettifica, cancellazione, limitazione, portabilità, opposizione e può revocare il consenso senza pregiudicare la liceità del trattamento precedente alla revoca. È inoltre possibile proporre reclamo al Garante per la protezione dei dati personali. Le richieste possono essere inviate al recapito indicato nella sezione 12, una volta completata l'identificazione del titolare.</p>
+      <h2>12. Diritti degli interessati</h2>
+      <p>Nei casi e nei limiti previsti dal GDPR, l'interessato può chiedere:</p>
+      <ul>
+        <li>accesso ai dati personali e alle informazioni sul trattamento (art. 15);</li>
+        <li>rettifica dei dati inesatti o integrazione di quelli incompleti (art. 16);</li>
+        <li>cancellazione dei dati nei casi previsti (art. 17);</li>
+        <li>limitazione del trattamento (art. 18);</li>
+        <li>portabilità dei dati forniti, nei casi previsti (art. 20);</li>
+        <li>opposizione ai trattamenti basati sul legittimo interesse o per finalità di marketing, nei casi previsti (art. 21);</li>
+        <li>revoca del consenso in qualsiasi momento, quando il trattamento si basa sul consenso, senza pregiudicare la liceità del trattamento precedente (art. 7).</li>
+      </ul>
+      <p>Le richieste possono essere inviate al recapito privacy indicato nella sezione 1. Il titolare risponde nei termini dell'art. 12 GDPR e può chiedere informazioni ragionevoli per verificare l'identità del richiedente, evitando di raccogliere dati eccedenti.</p>
+      <p>L'interessato ha inoltre diritto di proporre reclamo al <a href="https://www.garanteprivacy.it/">Garante per la protezione dei dati personali</a>, senza pregiudizio di ogni altro rimedio amministrativo o giurisdizionale.</p>
     </section>
 
     <section id="minori">
-      <h2>10. Utenti minorenni</h2>
-      <p>Il progetto è pensato anche per l'utilizzo in contesti didattici e scolastici da parte di studenti minorenni. A tutela dei minori, l'app espone nella classifica globale e nella ricerca unicamente pseudonimi (username e nome scelto), avatar grafici non fotografici e punteggio XP: nessun dato anagrafico sensibile, email o storico dei percorsi viene reso pubblico o condiviso con terzi. Il titolare e le istituzioni scolastiche coinvolte devono verificare l'adeguatezza delle procedure, dei consensi informati e dei regolamenti d'istituto in relazione alle normative vigenti sulla tutela dei minori nei servizi digitali.</p>
+      <h2>13. Minori</h2>
+      <p>Cesena Remembers è un progetto che può essere utilizzato anche da studenti minorenni. L'informativa deve essere letta e resa comprensibile anche agli utenti più giovani. Il titolare deve adottare misure adeguate per proteggere i minori, limitare la visibilità ai dati strettamente necessari e prevenire contatti o divulgazioni non desiderate.</p>
+      <p>In Italia, ai sensi dell'art. 2-quinquies del D.Lgs. 196/2003, il minore che ha compiuto 14 anni può esprimere autonomamente il consenso al trattamento dei propri dati personali in relazione all'offerta diretta di servizi della società dell'informazione quando il trattamento si basa sul consenso. Per i minori di 14 anni, in tale specifico caso, il consenso è prestato o autorizzato da chi esercita la responsabilità genitoriale. Questa soglia non si applica indistintamente a tutti i trattamenti: per le altre basi giuridiche valgono le condizioni previste dal GDPR e dal diritto nazionale.</p>
+      <p>Il permesso tecnico del dispositivo per accedere alla posizione non sostituisce automaticamente il consenso GDPR e non risolve da solo le questioni relative alla capacità del minore di concludere un contratto. Le condizioni di utilizzo e le procedure di autorizzazione devono essere verificate in relazione all'età dell'utente e alle funzionalità effettivamente offerte.</p>
+      <p>La scuola non è automaticamente titolare dei trattamenti dell'app per il solo fatto di presentarla o utilizzarla informalmente. Se la scuola decide autonomamente di raccogliere o utilizzare dati degli studenti per proprie finalità didattiche o amministrative, dovrà valutare i propri obblighi e fornire le informazioni pertinenti.</p>
     </section>
 
     <section id="sicurezza">
-      <h2>11. Sicurezza e aggiornamenti</h2>
-      <p>Il progetto utilizza servizi di terze parti e regole di accesso per proteggere i dati. Nessun sistema di trasmissione o archiviazione può garantire sicurezza assoluta. L'informativa può essere aggiornata quando cambiano l'app, i fornitori o i trattamenti; la data dell'ultima revisione sarà riportata in questa pagina.</p>
+      <h2>14. Sicurezza e gestione delle violazioni</h2>
+      <p>Il progetto utilizza controlli di accesso, regole di sicurezza del database e servizi di fornitori specializzati. Le misure effettive comprendono, nei limiti della configurazione in produzione, autenticazione degli utenti, autorizzazioni a livello di database, protezione delle comunicazioni e strumenti diagnostici. La sicurezza non può essere garantita in modo assoluto.</p>
+      <p>Il titolare deve mantenere un processo per gestire incidenti e violazioni dei dati personali, valutare il rischio per i diritti e le libertà degli interessati e, quando richiesto dagli artt. 33 e 34 GDPR, notificare la violazione all'autorità di controllo e comunicare l'evento alle persone interessate.</p>
     </section>
 
-    <section id="contatti">
-      <h2>12. Contatti</h2>
-      <p>Per informazioni o richieste relative alla privacy: <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>.</p>
-      <p>Sito web: <a href="https://cesenaremembers.com">https://cesenaremembers.com</a>.</p>
+    <section id="automatizzati">
+      <h2>15. Decisioni automatizzate e profilazione</h2>
+      <p>L'app calcola automaticamente punteggi, progressi e posizioni in classifica sulla base delle attività di gioco. I quiz possono essere generati con il supporto di modelli linguistici. Sulla base delle funzionalità attualmente descritte, tali processi non sono destinati a produrre decisioni con effetti giuridici o analogamente significativi sull'utente ai sensi dell'art. 22 GDPR. Questa valutazione dovrà essere aggiornata se in futuro saranno introdotte funzionalità ulteriori o valutazioni automatizzate che incidano significativamente sugli utenti.</p>
+    </section>
+
+    <section id="aggiornamenti">
+      <h2>16. Aggiornamenti dell'informativa</h2>
+      <p>L'informativa può essere aggiornata in caso di modifiche dell'app, dei fornitori, delle finalità o della normativa. La versione applicabile è quella pubblicata con la data di aggiornamento più recente. In caso di modifiche sostanziali, gli utenti saranno informati con modalità adeguate e, quando necessario, sarà richiesto un nuovo consenso.</p>
     </section>
 
     <footer>
