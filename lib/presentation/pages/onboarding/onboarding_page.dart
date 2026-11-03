@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+
+import '../../../core/logging/app_logger.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../theme/app_palette.dart';
@@ -86,7 +88,13 @@ class _OnboardingPageState extends State<OnboardingPage>
     setState(() => _completing = true);
     try {
       await sl<UserProfileUseCases>().markOnboardingCompleted(widget.uid);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to save onboarding completion',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'OnboardingPage',
+      );
       if (mounted) setState(() => _completing = false);
     }
   }
