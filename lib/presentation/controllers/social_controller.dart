@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import '../../core/logging/app_logger.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../core/logging/app_logger.dart';
 import '../../domain/entities/userprofile.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../domain/usecases/user_progress_use_cases.dart';
