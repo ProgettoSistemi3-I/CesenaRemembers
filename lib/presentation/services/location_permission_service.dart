@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../core/logging/app_logger.dart';
-import 'package:geolocator/geolocator.dart';
 
 enum LocationAccessStatus { granted, serviceDisabled, denied, deniedForever, error }
 
