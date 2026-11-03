@@ -82,7 +82,13 @@ class SettingsController extends ChangeNotifier {
       errorMessage = null;
 
       _themeController.toggleTheme(modalitaNotte);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Unable to load account preferences',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'SettingsController',
+      );
       errorMessage = 'errorLoadPrefs';
     } finally {
       isLoading = false;
@@ -129,7 +135,13 @@ class SettingsController extends ChangeNotifier {
       if (newNotifiche != null) {
         await PushNotificationService.initializeAndSaveToken();
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Unable to update account preferences',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'SettingsController',
+      );
       // 3) Rollback
       // Ripristina lo stato precedente senza cancellare l'errore che deve
       // essere mostrato nello snackbar.
@@ -140,7 +152,13 @@ class SettingsController extends ChangeNotifier {
         posizione = profile.gpsEnabled;
         _themeController.toggleTheme(modalitaNotte);
         LocationPreferenceStore.setGpsEnabled(posizione);
-      } catch (_) {
+      } catch (rollbackError, rollbackStackTrace) {
+        AppLogger.error(
+          'Unable to restore account preferences after update failure',
+          error: rollbackError,
+          stackTrace: rollbackStackTrace,
+          name: 'SettingsController',
+        );
         // Mantieni lo stato ottimistico se anche il recupero remoto fallisce.
       }
       errorMessage = 'errorConnectionSettings';
@@ -157,7 +175,13 @@ class SettingsController extends ChangeNotifier {
       await PushNotificationService.unregisterCurrentUser();
       await _signOutUseCase();
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Logout failed',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'SettingsController',
+      );
       errorMessage = 'errorLogout';
       isLoggingOut = false;
       _safeNotifyListeners();
@@ -196,7 +220,16 @@ class SettingsController extends ChangeNotifier {
       AppLogger.error('Delete account failed during re-authentication or Firestore cleanup',
           error: e, name: 'SettingsController');
       errorMessage = 'errorDeleteAccountAuth';
-      try { await _signOutUseCase(); } catch (_) {}
+      try {
+        await _signOutUseCase();
+      } catch (signOutError, signOutStackTrace) {
+        AppLogger.error(
+          'Sign-out recovery after account deletion failure also failed',
+          error: signOutError,
+          stackTrace: signOutStackTrace,
+          name: 'SettingsController',
+        );
+      }
       isDeletingAccount = false;
       ShellNavigationStore.deletingAccount.value = false;
       _safeNotifyListeners();
