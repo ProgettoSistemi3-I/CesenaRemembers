@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:cesena_remembers/l10n/app_localizations.dart';
+
 import 'firebase_options.dart';
 import 'core/logging/app_logger.dart';
 import 'core/logging/crashlytics_reporter.dart';
@@ -16,13 +19,12 @@ import 'presentation/theme/app_palette.dart';
 import 'presentation/theme/theme_controller.dart';
 import 'presentation/pages/splash_screen.dart';
 import 'presentation/services/push_notification_service.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:flutter/foundation.dart';
 
 const bool _useFirestoreEmulator = bool.fromEnvironment(
   'USE_FIRESTORE_EMULATOR',
   defaultValue: false,
 );
+
 const String _firestoreEmulatorHost = String.fromEnvironment(
   'FIRESTORE_EMULATOR_HOST',
   defaultValue: '127.0.0.1',
@@ -35,6 +37,7 @@ void main() {
 
       FlutterError.onError = (details) {
         FlutterError.presentError(details);
+
         unawaited(
           CrashlyticsReporter.record(
             details.exception,
@@ -54,6 +57,7 @@ void main() {
             fatal: true,
           ),
         );
+
         return true;
       };
 
@@ -78,6 +82,7 @@ void main() {
 
 Future<void> _bootstrapAndRun() async {
   final result = await AppBootstrap.run();
+
   if (!result.success) {
     runApp(
       BootstrapErrorApp(
@@ -87,11 +92,13 @@ Future<void> _bootstrapAndRun() async {
     );
     return;
   }
+
   runApp(const CesenaRemembersApp());
 }
 
 class AppBootstrapResult {
   const AppBootstrapResult.success() : success = true, message = null;
+
   const AppBootstrapResult.failure(this.message) : success = false;
 
   final bool success;
@@ -103,18 +110,35 @@ class AppBootstrap {
 
   static Future<AppBootstrapResult> run() async {
     try {
+      // 1. Firebase initialization.
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      await FirebaseAppCheck.instance.activate(
-        androidProvider: kReleaseMode
-            ? AndroidProvider.playIntegrity
-            : AndroidProvider.debug,
+
+      // 2. Firebase App Check.
+      // Debug/Profile: Debug provider.
+      // Release: Play Integrity.
+      final appCheckProvider = kReleaseMode
+          ? AndroidProvider.playIntegrity
+          : AndroidProvider.debug;
+
+      debugPrint(
+        '[AppCheck] Inizializzazione provider: '
+        '${kReleaseMode ? "Play Integrity" : "Debug"}',
       );
+
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: appCheckProvider,
+      );
+
+      debugPrint('[AppCheck] Provider attivato correttamente.');
+
+      // 3. Crashlytics.
       await CrashlyticsReporter.initialize();
 
-      // Le dart-define configurano l'emulatore solo nelle build DEBUG.
-      // La configurazione avviene prima di registrare/istanziare i repository.
+      // 4. Firestore Emulator.
+      // Enabled only in DEBUG when explicitly requested
+      // through dart-define.
       if (kDebugMode && _useFirestoreEmulator) {
         final host = _firestoreEmulatorHost.trim();
 
@@ -135,9 +159,13 @@ class AppBootstrap {
         );
       }
 
+      // 5. Firebase Messaging.
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
+      // 6. Dependency Injection.
       await di.init();
+
+      // 7. Theme initialization.
       try {
         await di.sl<ThemeController>().initTheme();
       } catch (error, stackTrace) {
@@ -149,8 +177,6 @@ class AppBootstrap {
         );
       }
 
-      // La luminosità viene applicata dal widget radice in base al tema attivo.
-
       return const AppBootstrapResult.success();
     } catch (error, stackTrace) {
       await CrashlyticsReporter.record(
@@ -159,6 +185,7 @@ class AppBootstrap {
         reason: 'Application bootstrap failed',
         fatal: true,
       );
+
       return AppBootstrapResult.failure(error.toString());
     }
   }
@@ -229,6 +256,7 @@ class CesenaRemembersApp extends StatelessWidget {
       listenable: Listenable.merge([themeCtrl, localeNotifier]),
       builder: (context, _) {
         final isDark = themeCtrl.themeMode == ThemeMode.dark;
+
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -238,6 +266,7 @@ class CesenaRemembersApp extends StatelessWidget {
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
         );
+
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: PushNotificationService.navigatorKey,
