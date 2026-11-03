@@ -16,6 +16,8 @@ import 'presentation/theme/app_palette.dart';
 import 'presentation/theme/theme_controller.dart';
 import 'presentation/pages/splash_screen.dart';
 import 'presentation/services/push_notification_service.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
 
 const bool _useFirestoreEmulator = bool.fromEnvironment(
   'USE_FIRESTORE_EMULATOR',
@@ -27,48 +29,51 @@ const String _firestoreEmulatorHost = String.fromEnvironment(
 );
 
 void main() {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    FlutterError.onError = (details) {
-      FlutterError.presentError(details);
-      unawaited(
-        CrashlyticsReporter.record(
-          details.exception,
-          details.stack ?? StackTrace.current,
-          reason: 'Unhandled Flutter framework error',
-          fatal: true,
-        ),
-      );
-    };
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+        unawaited(
+          CrashlyticsReporter.record(
+            details.exception,
+            details.stack ?? StackTrace.current,
+            reason: 'Unhandled Flutter framework error',
+            fatal: true,
+          ),
+        );
+      };
 
-    PlatformDispatcher.instance.onError = (error, stackTrace) {
+      PlatformDispatcher.instance.onError = (error, stackTrace) {
+        unawaited(
+          CrashlyticsReporter.record(
+            error,
+            stackTrace,
+            reason: 'Unhandled platform dispatcher error',
+            fatal: true,
+          ),
+        );
+        return true;
+      };
+
+      if (!kDebugMode) {
+        ErrorWidget.builder = (_) => const SizedBox.shrink();
+      }
+
+      await _bootstrapAndRun();
+    },
+    (error, stackTrace) {
       unawaited(
         CrashlyticsReporter.record(
           error,
           stackTrace,
-          reason: 'Unhandled platform dispatcher error',
+          reason: 'Unhandled asynchronous zone error',
           fatal: true,
         ),
       );
-      return true;
-    };
-
-    if (!kDebugMode) {
-      ErrorWidget.builder = (_) => const SizedBox.shrink();
-    }
-
-    await _bootstrapAndRun();
-  }, (error, stackTrace) {
-    unawaited(
-      CrashlyticsReporter.record(
-        error,
-        stackTrace,
-        reason: 'Unhandled asynchronous zone error',
-        fatal: true,
-      ),
-    );
-  });
+    },
+  );
 }
 
 Future<void> _bootstrapAndRun() async {
@@ -100,6 +105,11 @@ class AppBootstrap {
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
+      );
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: kReleaseMode
+            ? AndroidProvider.playIntegrity
+            : AndroidProvider.debug,
       );
       await CrashlyticsReporter.initialize();
 
