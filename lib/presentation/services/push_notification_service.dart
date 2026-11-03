@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/logging/app_logger.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
 import 'shell_navigation_store.dart';
@@ -12,15 +13,24 @@ import 'notification_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  final activeUid = FirebaseAuth.instance.currentUser?.uid;
-  if (activeUid == null || message.data['recipientUid'] != activeUid) return;
-  final title = message.data['title'] as String? ?? 'Cesena Remembers';
-  final body = message.data['body'] as String? ?? '';
-  if (body.isEmpty) return;
-  final service = NotificationService();
-  await service.init();
-  await service.showLocalNotification(title, body);
+  try {
+    await Firebase.initializeApp();
+    final activeUid = FirebaseAuth.instance.currentUser?.uid;
+    if (activeUid == null || message.data['recipientUid'] != activeUid) return;
+    final title = message.data['title'] as String? ?? 'Cesena Remembers';
+    final body = message.data['body'] as String? ?? '';
+    if (body.isEmpty) return;
+    final service = NotificationService();
+    await service.init();
+    await service.showLocalNotification(title, body);
+  } catch (error, stackTrace) {
+    AppLogger.error(
+      'FCM background message handler failed',
+      error: error,
+      stackTrace: stackTrace,
+      name: 'PushNotificationService',
+    );
+  }
 }
 
 class PushNotificationService {
@@ -81,13 +91,24 @@ class PushNotificationService {
           } else {
             await profiles.removeFcmToken(activeUid, newToken);
           }
-        } catch (_) {
+        } catch (error, stackTrace) {
+          AppLogger.error(
+            'FCM token refresh handling failed',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'PushNotificationService',
+          );
           // Push non deve impedire l'uso dell'app in caso di rete/permessi.
         }
       });
       _setupNotificationListeners();
-    } catch (_) {
-      // L'app resta utilizzabile anche se FCM non è disponibile.
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'FCM initialization failed; app remains usable without push',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PushNotificationService',
+      );
     }
   }
 
@@ -109,12 +130,26 @@ class PushNotificationService {
     if (token != null) {
       try {
         await profiles.removeFcmToken(uid, token);
-      } catch (_) {}
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Unable to remove the stored FCM token from the profile',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'PushNotificationService',
+        );
+      }
     }
     if (deleteFcmToken) {
       try {
         await FirebaseMessaging.instance.deleteToken();
-      } catch (_) {}
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Unable to delete the local FCM token',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'PushNotificationService',
+        );
+      }
       _registeredToken = null;
     }
   }

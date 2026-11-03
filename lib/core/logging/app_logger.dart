@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:developer' as developer;
+
+import 'crashlytics_reporter.dart';
 
 class AppLogger {
   const AppLogger._();
@@ -14,5 +17,15 @@ class AppLogger {
     String name = 'CesenaRemembers',
   }) {
     developer.log(message, name: name, error: error, stackTrace: stackTrace);
+
+    if (error != null) {
+      unawaited(
+        CrashlyticsReporter.record(
+          error,
+          stackTrace ?? StackTrace.current,
+          reason: 'Handled application error in $name',
+        ),
+      );
+    }
   }
 }

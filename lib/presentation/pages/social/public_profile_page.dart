@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import 'package:cesena_remembers/l10n/l10n_extensions.dart';
 
+import '../../../core/logging/app_logger.dart';
 import '../../../domain/entities/userprofile.dart';
 
 import '../../../domain/usecases/user_profile_use_cases.dart';
@@ -83,7 +84,13 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
         _loadError = null;
       });
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to load a public profile',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PublicProfilePage',
+      );
       if (!mounted) return;
 
       setState(() {

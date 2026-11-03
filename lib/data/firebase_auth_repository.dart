@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../config/app_runtime_config.dart';
+import '../core/logging/app_logger.dart';
 import '../domain/entities/app_user.dart';
 import '../domain/repositories/auth_repository.dart';
 
@@ -118,7 +119,14 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (_) {
       try {
         await _googleSignIn.signOut();
-      } catch (_) {}
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Google account sign-out fallback failed',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'FirebaseAuthRepository',
+        );
+      }
     }
   }
 }

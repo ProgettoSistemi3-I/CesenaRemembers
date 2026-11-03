@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../core/logging/app_logger.dart';
+
 enum LocationAccessStatus { granted, serviceDisabled, denied, deniedForever, error }
 
 class LocationPermissionService {
@@ -16,7 +18,13 @@ class LocationPermissionService {
       final permission = await Geolocator.checkPermission();
       return permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to check active location permission',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'LocationPermissionService',
+      );
       return false;
     }
   }
@@ -30,7 +38,13 @@ class LocationPermissionService {
       final permission = await Geolocator.checkPermission();
       return permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to check granted location permission',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'LocationPermissionService',
+      );
       return false;
     }
   }
@@ -69,7 +83,13 @@ class LocationPermissionService {
       }
 
       return LocationAccessStatus.granted;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Location access check failed',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'LocationPermissionService',
+      );
       return LocationAccessStatus.error;
     }
   }

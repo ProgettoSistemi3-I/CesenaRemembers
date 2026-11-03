@@ -130,7 +130,14 @@ extension _MapPageTourActions on _MapPageState {
           userXp = profile.xp;
           _cachedUserXp = userXp;
         }
-      } catch (_) {}
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Unable to refresh the player XP before showing tour completion',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'MapPageTour',
+        );
+      }
     }
 
     final isLastStop =

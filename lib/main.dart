@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -6,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import 'firebase_options.dart';
+import 'core/logging/app_logger.dart';
+import 'core/logging/crashlytics_reporter.dart';
 import 'injection_container.dart' as di;
 import 'presentation/theme/app_palette.dart';
 import 'presentation/theme/theme_controller.dart';
@@ -21,12 +26,49 @@ const String _firestoreEmulatorHost = String.fromEnvironment(
   defaultValue: '127.0.0.1',
 );
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (!kDebugMode) {
-    ErrorWidget.builder = (_) => const SizedBox.shrink();
-  }
-  await _bootstrapAndRun();
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      unawaited(
+        CrashlyticsReporter.record(
+          details.exception,
+          details.stack ?? StackTrace.current,
+          reason: 'Unhandled Flutter framework error',
+          fatal: true,
+        ),
+      );
+    };
+
+    PlatformDispatcher.instance.onError = (error, stackTrace) {
+      unawaited(
+        CrashlyticsReporter.record(
+          error,
+          stackTrace,
+          reason: 'Unhandled platform dispatcher error',
+          fatal: true,
+        ),
+      );
+      return true;
+    };
+
+    if (!kDebugMode) {
+      ErrorWidget.builder = (_) => const SizedBox.shrink();
+    }
+
+    await _bootstrapAndRun();
+  }, (error, stackTrace) {
+    unawaited(
+      CrashlyticsReporter.record(
+        error,
+        stackTrace,
+        reason: 'Unhandled asynchronous zone error',
+        fatal: true,
+      ),
+    );
+  });
 }
 
 Future<void> _bootstrapAndRun() async {
@@ -59,6 +101,7 @@ class AppBootstrap {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      await CrashlyticsReporter.initialize();
 
       // Le dart-define configurano l'emulatore solo nelle build DEBUG.
       // La configurazione avviene prima di registrare/istanziare i repository.
@@ -87,13 +130,26 @@ class AppBootstrap {
       await di.init();
       try {
         await di.sl<ThemeController>().initTheme();
-      } catch (_) {}
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Theme initialization failed during bootstrap',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'AppBootstrap',
+        );
+      }
 
       // La luminosità viene applicata dal widget radice in base al tema attivo.
 
       return const AppBootstrapResult.success();
-    } catch (e) {
-      return AppBootstrapResult.failure(e.toString());
+    } catch (error, stackTrace) {
+      await CrashlyticsReporter.record(
+        error,
+        stackTrace,
+        reason: 'Application bootstrap failed',
+        fatal: true,
+      );
+      return AppBootstrapResult.failure(error.toString());
     }
   }
 }
