@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Termini di utilizzo di Cesena Remembers." />
+  <meta name="description" content="Bozza dei termini di utilizzo di Cesena Remembers." />
   <link rel="canonical" href="https://cesenaremembers.com/legal/terms.html" />
   <title>Termini di utilizzo – Cesena Remembers</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.7; color: #1a1a1a; background: #fff; padding: 2rem 1rem 4rem; }
-    .container { max-width: 760px; margin: 0 auto; }
+    .container { max-width: 800px; margin: 0 auto; }
     header { border-bottom: 1px solid #e5e5e5; padding-bottom: 1.5rem; margin-bottom: 2rem; }
     .badge { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #185FA5; background: #E6F1FB; padding: 4px 10px; border-radius: 4px; margin-bottom: .75rem; }
     h1 { font-size: 28px; font-weight: 650; color: #111; margin-bottom: .4rem; } .meta { font-size: 14px; color: #666; }
@@ -17,93 +17,182 @@
     nav.toc p { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #555; margin-bottom: .75rem; }
     nav.toc ol { padding-left: 1.25rem; } nav.toc li { font-size: 14px; margin-bottom: 4px; }
     section { margin-bottom: 2.25rem; } h2 { font-size: 20px; font-weight: 650; color: #111; margin-bottom: .75rem; padding-top: .25rem; }
-    p { margin-bottom: 1rem; } ul { padding-left: 1.4rem; margin-bottom: 1rem; } li { margin-bottom: 4px; } a { color: #185FA5; }
+    p { margin-bottom: 1rem; } ul, ol { padding-left: 1.4rem; margin-bottom: 1rem; } li { margin-bottom: 5px; }
+    a { color: #185FA5; } .notice { border-left: 4px solid #b7791f; padding: .8rem 1rem; background: #fff8e8; margin: 1rem 0; }
+    .draft { border-left: 4px solid #b42318; padding: 1rem; background: #fff0ef; margin: 1rem 0 1.5rem; }
+    .draft strong { color: #9f1c13; }
     footer { border-top: 1px solid #e5e5e5; padding-top: 1.5rem; font-size: 13px; color: #888; text-align: center; }
-    @media (prefers-color-scheme: dark) { body { background: #121212; color: #e0e0e0; } header, footer { border-color: #333; } h1, h2 { color: #f0f0f0; } .meta { color: #999; } .badge { background: #0c3a60; color: #85B7EB; } nav.toc { background: #1e1e1e; border-color: #333; } nav.toc p { color: #aaa; } a { color: #85B7EB; } }
+    @media (prefers-color-scheme: dark) {
+      body { background: #121212; color: #e0e0e0; } header, footer { border-color: #333; }
+      h1, h2 { color: #f0f0f0; } .meta { color: #999; } .badge { background: #0c3a60; color: #85B7EB; }
+      nav.toc { background: #1e1e1e; border-color: #333; } nav.toc p { color: #aaa; } a { color: #85B7EB; }
+      .notice { background: #302713; } .draft { background: #351b1a; } .draft strong { color: #ffaaa3; }
+    }
   </style>
 </head>
 <body>
   <main class="container">
     <header>
-      <div class="badge">Condizioni</div>
+      <div class="badge">Bozza condizioni</div>
       <h1>Termini di utilizzo</h1>
-      <p class="meta">Cesena Remembers · Ultimo aggiornamento: 31 ottobre 2026</p>
+      <p class="meta">Cesena Remembers · Versione di lavoro del 3 novembre 2026</p>
     </header>
+
+    <div class="draft" role="alert">
+      <strong>ATTENZIONE — BOZZA NON ANCORA PRONTA PER L'ACCETTAZIONE DEFINITIVA.</strong>
+      Prima di rendere questi termini vincolanti occorre identificare il soggetto che offre effettivamente il servizio, verificare la capacità e la rappresentanza necessarie per gli atti contrattuali, controllare il regolamento del concorso e verificare la coerenza con l'informativa privacy. I campi “DA COMPLETARE” devono essere risolti prima dell'uso definitivo.
+    </div>
 
     <nav class="toc" aria-label="Indice">
       <p>Indice</p>
       <ol>
-        <li><a href="#accettazione">Accettazione</a></li>
-        <li><a href="#account">Account</a></li>
-        <li><a href="#uso">Uso del servizio</a></li>
-        <li><a href="#contenuti">Contenuti e proprietà intellettuale</a></li>
-        <li><a href="#disponibilita">Disponibilità e accuratezza</a></li>
-        <li><a href="#responsabilita">Responsabilità</a></li>
-        <li><a href="#sospensione">Sospensione e chiusura</a></li>
-        <li><a href="#legge">Legge applicabile</a></li>
-        <li><a href="#modifiche">Modifiche</a></li>
+        <li><a href="#gestore">Identità del gestore e contatti</a></li>
+        <li><a href="#oggetto">Oggetto e caratteristiche del servizio</a></li>
+        <li><a href="#accettazione">Accettazione e modifiche</a></li>
+        <li><a href="#minori">Utenti minorenni</a></li>
+        <li><a href="#account">Account e sicurezza</a></li>
+        <li><a href="#funzioni">Funzioni, profili e classifica</a></li>
+        <li><a href="#regole">Regole di utilizzo</a></li>
+        <li><a href="#gps">Mappe, GPS e sicurezza nei percorsi</a></li>
+        <li><a href="#quiz">Quiz e contenuti generati automaticamente</a></li>
+        <li><a href="#proprieta">Proprietà intellettuale e licenza d'uso</a></li>
+        <li><a href="#terzi">Servizi di terzi</a></li>
+        <li><a href="#disponibilita">Disponibilità e modifiche del servizio</a></li>
+        <li><a href="#sospensione">Sospensione e cessazione</a></li>
+        <li><a href="#responsabilita">Responsabilità e diritti inderogabili</a></li>
+        <li><a href="#privacy">Protezione dei dati personali</a></li>
+        <li><a href="#legge">Legge applicabile e controversie</a></li>
         <li><a href="#contatti">Contatti</a></li>
       </ol>
     </nav>
 
+    <section id="gestore">
+      <h2>1. Identità del gestore e contatti</h2>
+      <p>Cesena Remembers è un progetto digitale dedicato alla storia della città di Cesena, accessibile tramite l'applicazione mobile e il sito <a href="https://cesenaremembers.com">cesenaremembers.com</a>.</p>
+      <div class="notice">
+        <strong>DA COMPLETARE PRIMA DELL'ACCETTAZIONE:</strong> questi termini devono identificare il soggetto che offre il servizio e assume gli obblighi verso l'utente. Non va indicato automaticamente il titolare dell'account Google Play, un autore o la scuola: il ruolo deve corrispondere alla situazione giuridica e organizzativa effettiva.
+        <p><strong>Gestore/fornitore del servizio:</strong> [NOME E COGNOME O DENOMINAZIONE, QUALIFICA E RECAPITO DA VERIFICARE]</p>
+        <p><strong>Email di contatto:</strong> <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a> (da confermare).</p>
+      </div>
+      <p>La titolarità dell'account utilizzato per distribuire l'app tramite uno store, la titolarità dei diritti sul software e il ruolo di titolare del trattamento dei dati personali sono posizioni giuridiche distinte e non coincidono automaticamente.</p>
+    </section>
+
+    <section id="oggetto">
+      <h2>2. Oggetto e caratteristiche del servizio</h2>
+      <p>Cesena Remembers è un'applicazione a carattere culturale, storico e ludico-didattico che può offrire:</p>
+      <ul>
+        <li>contenuti informativi sulla storia di Cesena e sui luoghi di interesse;</li>
+        <li>mappe e percorsi guidati, anche con funzionalità basate sulla posizione;</li>
+        <li>quiz e domande relative ai luoghi e ai contenuti dell'app;</li>
+        <li>registrazione dei progressi, punti esperienza (XP), achievement e classifiche;</li>
+        <li>profili utente, ricerca username, richieste di amicizia e condivisione di alcune statistiche;</li>
+        <li>notifiche e funzioni tecniche di assistenza e diagnostica.</li>
+      </ul>
+      <p>Le funzionalità disponibili possono variare in base alla versione dell'app, al dispositivo, ai permessi concessi e alla disponibilità dei fornitori esterni.</p>
+    </section>
+
     <section id="accettazione">
-      <h2>1. Accettazione</h2>
-      <p>Accedendo o utilizzando Cesena Remembers tramite il sito <a href="https://cesenaremembers.com">cesenaremembers.com</a> o l'app, l'utente dichiara di aver letto questi termini. Se non li accetta, non deve utilizzare le funzioni del servizio.</p>
+      <h2>3. Accettazione e modifiche dei termini</h2>
+      <p>Questi termini disciplinano l'utilizzo del servizio. Prima di utilizzare le funzioni che richiedono un account, l'utente deve poterli consultare e deve essere informato delle condizioni applicabili. La modalità concreta di accettazione deve essere implementata in modo da registrare, quando necessario, la versione dei termini accettata e la data dell'accettazione.</p>
+      <p>Se l'utente non accetta le condizioni applicabili, non deve utilizzare le funzioni soggette a tali condizioni. Le modifiche sostanziali saranno comunicate con modalità adeguate; quando richiesto dalla legge o dalla natura della modifica, sarà chiesto un nuovo consenso o una nuova accettazione. La semplice pubblicazione di una nuova versione non rende automaticamente vincolante una modifica che richieda l'accettazione dell'utente.</p>
+    </section>
+
+    <section id="minori">
+      <h2>4. Utenti minorenni</h2>
+      <p>Il servizio può essere utilizzato anche da studenti minorenni. L'utente deve utilizzare l'app in modo adeguato alla propria età e, quando richiesto dalla legge o dalle condizioni applicabili, con il coinvolgimento o l'autorizzazione di chi esercita la responsabilità genitoriale.</p>
+      <p>La soglia dei 14 anni prevista dall'art. 2-quinquies del Codice Privacy riguarda il consenso al trattamento dei dati personali nell'ambito dell'offerta diretta di servizi della società dell'informazione quando il trattamento si basa sul consenso. Non costituisce una regola generale che attribuisce a ogni minore di almeno 14 anni la capacità di concludere autonomamente qualsiasi contratto. Le questioni relative alla capacità contrattuale e alla rappresentanza restano disciplinate dal diritto civile applicabile.</p>
+      <p>Il gestore non intende raccogliere consapevolmente dati non necessari o categorie particolari di dati personali dai minori. L'utente non deve pubblicare nel profilo informazioni come indirizzo di casa, numero di telefono, email, dati sanitari o altri dettagli personali non necessari.</p>
     </section>
 
     <section id="account">
-      <h2>2. Account e Classifica globale</h2>
-      <p>Alcune funzioni richiedono l'accesso tramite Google Sign-In e Firebase Authentication. L'utente è tenuto a proteggere il proprio account e a segnalare tempestivamente eventuali accessi non autorizzati. Le informazioni del profilo (nome visualizzato e username) devono essere corrette, non devono impersonare altre persone né contenere espressioni offensive o volgari.</p>
-      <p>Partecipando ai percorsi e ai quiz, i progressi dell'utente si traducono in punti esperienza (XP). L'utente accetta che il proprio nome visualizzato, username, avatar e il punteggio XP siano inclusi nella Classifica globale (Top 50), consultabile da tutti gli utenti autenticati. Nel profilo pubblico sono inoltre mostrati XP, numero di amici (solo conteggio) e tour completati; l'elenco degli amici e le statistiche dettagliate restano riservati al proprietario e agli amici reciproci.</p>
-      <p>L'utente può eliminare in qualunque momento il proprio account e tutti i dati associati direttamente dall'applicazione tramite la voce <strong>Impostazioni → Elimina account</strong>, oppure inviando una richiesta via email come indicato nella <a href="delete-account.html">pagina dedicata</a>.</p>
+      <h2>5. Account e sicurezza</h2>
+      <p>Alcune funzioni richiedono la creazione di un account tramite Google Sign-In e Firebase Authentication. L'utente deve fornire informazioni di profilo appropriate, scegliere uno username disponibile e non impersonare altre persone. L'utente deve custodire le credenziali del proprio account Google e segnalare al gestore eventuali accessi sospetti o utilizzi non autorizzati.</p>
+      <p>L'account è personale e non deve essere ceduto, venduto o condiviso con altri utenti. L'utente è responsabile delle attività effettuate attraverso il proprio account nella misura prevista dalla legge e tenuto conto dell'età e della capacità di agire. Il gestore può adottare misure ragionevoli per verificare segnalazioni di abuso o proteggere il servizio.</p>
+      <p>L'utente può richiedere la cancellazione dell'account tramite la funzione disponibile nell'app, se presente nella versione utilizzata, oppure seguendo le istruzioni della <a href="delete-account.html">pagina dedicata alla cancellazione</a>. La cancellazione comporta la rimozione dei dati secondo l'informativa privacy e fatti salvi gli obblighi legali e i tempi tecnici dei fornitori.</p>
     </section>
 
-    <section id="uso">
-      <h2>3. Uso del servizio</h2>
-      <p>L'utente si impegna a utilizzare il servizio nel rispetto della legge e dei diritti altrui. In particolare, non deve:</p>
+    <section id="funzioni">
+      <h2>6. Funzioni, profili e classifica</h2>
+      <p>Le attività svolte nell'app possono generare XP, progressi, achievement e posizioni in classifica. Gli XP sono punti virtuali utilizzati esclusivamente all'interno dell'esperienza di gioco: non hanno valore monetario, non costituiscono un credito e non possono essere venduti, trasferiti o convertiti in denaro.</p>
+      <p>La classifica globale può mostrare ai soli utenti autenticati i primi 50 account per XP, con nome visualizzato, username, avatar e punteggio. L'app può mostrare separatamente la posizione dell'utente corrente anche se fuori dalla Top 50. Il profilo consultabile dagli utenti autenticati può inoltre mostrare XP, numero di amici e numero di tour completati.</p>
+      <p>Le statistiche dettagliate, i risultati dei quiz, i dettagli dei luoghi visitati e le relazioni social sono soggetti alle impostazioni e alle regole di accesso descritte nell'informativa privacy. L'utente deve tenere presente che i dati espressamente mostrati nel profilo o nella classifica sono visibili agli altri utenti autenticati.</p>
+    </section>
+
+    <section id="regole">
+      <h2>7. Regole di utilizzo</h2>
+      <p>L'utente si impegna a utilizzare il servizio nel rispetto della legge, dei diritti altrui e delle presenti condizioni. In particolare, è vietato:</p>
       <ul>
-        <li>tentare di accedere senza autorizzazione a dati, account o sistemi;</li>
-        <li>alterare deliberatamente i risultati, le classifiche o il funzionamento dell'app;</li>
-        <li>diffondere spam, malware, minacce o contenuti illeciti;</li>
-        <li>interferire con la disponibilità o la sicurezza del servizio;</li>
-        <li>utilizzare contenuti o software del progetto oltre i limiti consentiti dalla legge o dalle autorizzazioni ricevute.</li>
+        <li>tentare di accedere senza autorizzazione ad account, dati, database, infrastrutture o sistemi;</li>
+        <li>aggirare le regole di sicurezza, i controlli di accesso o le limitazioni tecniche;</li>
+        <li>alterare artificialmente XP, risultati, risposte, progressi o classifiche;</li>
+        <li>utilizzare bot, script o strumenti automatizzati per interferire con il servizio o ottenere vantaggi non previsti;</li>
+        <li>impersonare altre persone o utilizzare username, avatar o contenuti offensivi, minacciosi, discriminatori o illeciti;</li>
+        <li>molestare altri utenti, inviare richieste ripetute in modo abusivo o utilizzare le funzioni social per spam;</li>
+        <li>caricare, trasmettere o diffondere malware, codice dannoso o contenuti che violino diritti di terzi;</li>
+        <li>utilizzare il servizio per attività illecite o per compromettere la sicurezza e la disponibilità dell'app.</li>
       </ul>
+      <p>L'utente può segnalare problemi, abusi o contenuti inappropriati all'indirizzo <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>. Il gestore valuterà le segnalazioni e adotterà misure proporzionate, compatibilmente con le risorse e gli obblighi applicabili.</p>
     </section>
 
-    <section id="contenuti">
-      <h2>4. Contenuti e proprietà intellettuale</h2>
-      <p>Testi, grafica, marchi, software e materiali originali del progetto sono protetti dalle norme sulla proprietà intellettuale, salvo i contenuti di terzi soggetti alle rispettive licenze. Le attribuzioni e le condizioni delle fonti esterne restano applicabili. Nessuna disposizione trasferisce all'utente diritti di proprietà sui materiali del progetto.</p>
+    <section id="gps">
+      <h2>8. Mappe, GPS e sicurezza nei percorsi</h2>
+      <p>Le funzioni di mappa e percorso possono utilizzare la posizione del dispositivo, se l'utente concede il relativo permesso. L'utente può negare o revocare il permesso e alcune funzioni potrebbero non essere disponibili. Le coordinate possono essere inviate a fornitori di mappe o routing quando necessario a richiedere tile o calcolare un percorso, secondo quanto descritto nell'informativa privacy.</p>
+      <p>Mappe, distanze, indicazioni e posizione GPS possono essere imprecise, incomplete o non aggiornate. I percorsi hanno finalità culturale e orientativa e non sostituiscono segnaletica, indicazioni delle autorità, informazioni ufficiali, regole di accesso o valutazioni personali di sicurezza.</p>
+      <p>L'utente deve prestare attenzione all'ambiente circostante, rispettare il codice della strada, le proprietà private, i divieti di accesso e le indicazioni delle autorità. Non deve utilizzare lo smartphone in modo da distrarsi durante la guida o in situazioni pericolose. Non è garantito che tutti i luoghi siano accessibili, aperti o sicuri al momento della visita.</p>
+    </section>
+
+    <section id="quiz">
+      <h2>9. Quiz e contenuti generati automaticamente</h2>
+      <p>Alcuni quiz possono essere generati o supportati da sistemi automatici e modelli linguistici sulla base delle informazioni relative ai luoghi e del contesto di gioco. Tali sistemi possono produrre errori, contenuti incompleti o formulazioni imprecise. Il gestore si impegna a mantenere il servizio con ragionevole cura, ma non garantisce che ogni domanda o risposta sia sempre corretta, completa o aggiornata.</p>
+      <p>I quiz hanno finalità culturali, informative e ludico-didattiche. Non costituiscono una fonte storica ufficiale, una consulenza professionale o un'indicazione vincolante. Per informazioni storiche o di sicurezza rilevanti, l'utente dovrebbe consultare fonti autorevoli e aggiornate.</p>
+    </section>
+
+    <section id="proprieta">
+      <h2>10. Proprietà intellettuale e licenza d'uso</h2>
+      <p>Il software, la struttura dell'app, gli elementi grafici, i testi originali, i marchi e gli altri materiali originali di Cesena Remembers sono protetti dalla normativa applicabile in materia di diritto d'autore e proprietà intellettuale. I diritti spettano ai rispettivi autori o titolari, secondo la legge e gli eventuali accordi validi tra loro.</p>
+      <p>La partecipazione a iniziative, attività o concorsi scolastici non comporta di per sé una cessione automatica dei diritti sul software. Eventuali licenze, autorizzazioni o obblighi derivanti dal regolamento del concorso, da accordi scritti o da contributi di terzi restano impregiudicati e devono essere rispettati. La titolarità e la ripartizione dei diritti sul progetto devono essere verificate sulla base dei contributi effettivi e dei documenti applicabili.</p>
+      <p>All'utente è concessa una licenza personale, limitata, non esclusiva, non trasferibile e revocabile per utilizzare l'app e i relativi contenuti per finalità personali e non commerciali, nei limiti delle funzionalità offerte e delle presenti condizioni. Salvo quanto consentito dalla legge o da licenze di terzi, non è consentito copiare, modificare, distribuire, decompilare, effettuare reverse engineering o sfruttare commercialmente il software o i contenuti senza autorizzazione scritta del titolare dei diritti.</p>
+      <p>Mappe, librerie, font, SDK, contenuti storici e altri materiali di terzi restano soggetti alle rispettive licenze e condizioni. In caso di conflitto, le condizioni di licenza del terzo prevalgono per il relativo materiale.</p>
+    </section>
+
+    <section id="terzi">
+      <h2>11. Servizi di terzi</h2>
+      <p>Il servizio può dipendere da Google Sign-In, Firebase, servizi di mappe e routing, provider di modelli linguistici, hosting, CDN e altri fornitori. Tali servizi sono soggetti alle condizioni e alle informative dei rispettivi fornitori. Il gestore non controlla integralmente disponibilità, modifiche o interruzioni delle infrastrutture di terzi, ma resta responsabile degli obblighi che la legge gli attribuisce per la propria parte di servizio.</p>
+      <p>Il trattamento dei dati personali tramite tali servizi è descritto nell'<a href="privacy.html">informativa privacy</a>.</p>
     </section>
 
     <section id="disponibilita">
-      <h2>5. Disponibilità e accuratezza</h2>
-      <p>Il servizio è fornito nello stato in cui si trova e può essere temporaneamente indisponibile per manutenzione, guasti o problemi dei fornitori esterni. Le informazioni storiche e i percorsi hanno finalità culturali e didattiche: non sostituiscono fonti archivistiche, indicazioni ufficiali o informazioni di sicurezza aggiornate.</p>
-      <p>Mappe, percorsi e posizione GPS possono essere imprecisi o non disponibili. L'utente deve rispettare la segnaletica, le regole di accesso ai luoghi e le condizioni di sicurezza durante gli spostamenti.</p>
-    </section>
-
-    <section id="responsabilita">
-      <h2>6. Responsabilità</h2>
-      <p>Nei limiti consentiti dalle norme inderogabili applicabili, il gestore non garantisce che il servizio sia privo di interruzioni o errori. Nessuna clausola di questi termini esclude o limita responsabilità che non possono essere escluse o limitate per legge, né i diritti riconosciuti ai consumatori.</p>
+      <h2>12. Disponibilità e modifiche del servizio</h2>
+      <p>Il servizio è fornito secondo le funzionalità e le condizioni tecniche disponibili al momento dell'utilizzo. Possono verificarsi interruzioni, manutenzioni, errori, perdita temporanea di connettività o indisponibilità dovute a problemi tecnici o a fornitori esterni. Il gestore può aggiornare, modificare o rimuovere funzioni per ragioni tecniche, di sicurezza, legali o organizzative, nel rispetto degli obblighi inderogabili applicabili.</p>
+      <p>Quando una modifica incide in modo significativo sulle condizioni d'uso o sui diritti degli utenti, il gestore fornirà un'informazione adeguata e, ove necessario, richiederà una nuova accettazione. Nulla in questa clausola esclude i diritti inderogabili eventualmente spettanti all'utente.</p>
     </section>
 
     <section id="sospensione">
-      <h2>7. Sospensione e chiusura</h2>
-      <p>Il gestore può sospendere o limitare l'accesso quando vi siano motivi di sicurezza, manutenzione o violazioni di questi termini, nel rispetto della normativa applicabile. L'utente può interrompere l'utilizzo del servizio e richiedere la cancellazione del proprio account.</p>
+      <h2>13. Sospensione e cessazione</h2>
+      <p>In presenza di violazioni delle condizioni, rischi per la sicurezza, abusi, obblighi di legge o necessità tecniche, il gestore può adottare misure proporzionate, come limitare temporaneamente una funzione, sospendere un account o interrompere l'accesso al servizio. Quando ragionevolmente possibile, l'utente sarà informato della misura e delle relative ragioni, salvo che ciò sia vietato o pregiudichi la sicurezza o un'indagine.</p>
+      <p>L'utente può cessare di utilizzare il servizio in qualsiasi momento e richiedere la cancellazione dell'account secondo le modalità indicate nella pagina dedicata e nell'informativa privacy. La cessazione dell'account non elimina eventuali dati che debbano essere conservati per obbligo di legge o per la tutela di diritti, nei limiti previsti.</p>
+    </section>
+
+    <section id="responsabilita">
+      <h2>14. Responsabilità e diritti inderogabili</h2>
+      <p>Il gestore adotta ragionevoli misure per mantenere il servizio funzionante e sicuro, ma non garantisce l'assenza assoluta di errori, interruzioni o vulnerabilità. Nei limiti consentiti dalla legge, il gestore non risponde di danni derivanti da uso improprio dell'app, mancato rispetto delle indicazioni di sicurezza, indisponibilità di servizi di terzi o circostanze fuori dal proprio ragionevole controllo.</p>
+      <p>Nessuna disposizione di questi termini esclude o limita responsabilità che non possono essere escluse o limitate per legge, né pregiudica i diritti inderogabili riconosciuti ai consumatori o agli utenti dalla normativa applicabile. Le eventuali limitazioni di responsabilità devono essere interpretate nei limiti consentiti dalle norme imperative.</p>
+    </section>
+
+    <section id="privacy">
+      <h2>15. Protezione dei dati personali</h2>
+      <p>Il trattamento dei dati personali è descritto nell'<a href="privacy.html">informativa privacy</a>, che illustra categorie di dati, finalità, basi giuridiche, destinatari, conservazione e diritti degli interessati. I presenti termini non sostituiscono l'informativa e non costituiscono, da soli, una richiesta di consenso al trattamento dei dati.</p>
+      <p>Quando una funzione richiede un consenso specifico (ad esempio per un trattamento facoltativo basato sul consenso), questo deve essere richiesto separatamente con modalità chiare e revocabili. I permessi tecnici del dispositivo, come l'accesso alla posizione o alle notifiche, sono gestiti anche attraverso il sistema operativo.</p>
     </section>
 
     <section id="legge">
-      <h2>8. Legge applicabile</h2>
-      <p>Questi termini sono regolati dalla legge italiana e dalle disposizioni dell'Unione europea applicabili. Restano fermi i diritti inderogabili dell'utente e le norme sulla competenza giurisdizionale e sul foro applicabili al caso concreto, in particolare quando l'utente agisce come consumatore.</p>
-    </section>
-
-    <section id="modifiche">
-      <h2>9. Modifiche</h2>
-      <p>I termini possono essere aggiornati in caso di modifiche del servizio o della normativa. La versione aggiornata viene pubblicata su questa pagina con la relativa data. Quando richiesto, le modifiche sostanziali saranno comunicate agli utenti con modalità adeguate.</p>
+      <h2>16. Legge applicabile e controversie</h2>
+      <p>Le presenti condizioni sono regolate dalla legge italiana e dalle disposizioni dell'Unione europea applicabili. Restano fermi i diritti inderogabili dell'utente e le norme sulla competenza giurisdizionale e sul foro applicabili al caso concreto, in particolare quando l'utente agisce come consumatore. Nessuna clausola intende imporre un foro o una procedura di risoluzione delle controversie in contrasto con le norme inderogabili.</p>
     </section>
 
     <section id="contatti">
-      <h2>10. Contatti</h2>
-      <p>Per informazioni sul servizio: <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>.</p>
+      <h2>17. Contatti</h2>
+      <p>Per assistenza, segnalazioni o informazioni sui termini: <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a> (recapito da confermare e presidiare).</p>
       <p>Sito web: <a href="https://cesenaremembers.com">https://cesenaremembers.com</a>.</p>
     </section>
 
