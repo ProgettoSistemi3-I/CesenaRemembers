@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import '../../core/logging/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/userprofile.dart';
@@ -117,7 +119,13 @@ class SocialController extends ChangeNotifier {
       final rank = await _progressUseCases.getLeaderboardRank(uid: uid);
       if (_isDisposed || token != _rankRequestToken || currentUserId != uid) return;
       _currentUserRank = rank ?? 0;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to refresh the current user leaderboard rank',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'SocialController',
+      );
       if (_isDisposed || token != _rankRequestToken || currentUserId != uid) return;
       _currentUserRank = 0;
     }
@@ -163,6 +171,12 @@ class SocialController extends ChangeNotifier {
           unawaited(
             _progressUseCases.ensureFriendAchievements(uid: uid).catchError(
               (Object error, StackTrace stackTrace) {
+                AppLogger.error(
+                  'Unable to update friendship achievements',
+                  error: error,
+                  stackTrace: stackTrace,
+                  name: 'SocialController',
+                );
                 // Il prossimo aggiornamento profilo riproverà il controllo.
               },
             ),
@@ -257,7 +271,13 @@ class SocialController extends ChangeNotifier {
         final results = await _socialUseCases.searchUsers(normalizedQuery);
         if (_isDisposed || searchId != _searchSequence) return;
         searchResults = results;
-      } catch (e) {
+      } catch (e, stackTrace) {
+        AppLogger.error(
+          'User search failed',
+          error: e,
+          stackTrace: stackTrace,
+          name: 'SocialController',
+        );
         if (_isDisposed || searchId != _searchSequence) return;
         errorMessage = 'errorSearch';
       } finally {
@@ -307,7 +327,13 @@ class SocialController extends ChangeNotifier {
           break;
       }
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Friendship action failed',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'SocialController',
+      );
       errorMessage = 'errorAction';
       _safeNotifyListeners();
       return false;
