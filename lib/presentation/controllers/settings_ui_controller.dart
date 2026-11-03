@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/logging/app_logger.dart';
+
 import '../services/locale_preference_store.dart';
 import '../../domain/usecases/user_preferences_use_cases.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
@@ -33,7 +35,13 @@ class SettingsUiController extends ChangeNotifier {
           uid: uid,
           languageCode: locale.languageCode,
         );
-      } catch (_) {
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Unable to persist the selected language preference',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'SettingsUiController',
+        );
         // La lingua locale resta applicata anche offline.
       }
     }
