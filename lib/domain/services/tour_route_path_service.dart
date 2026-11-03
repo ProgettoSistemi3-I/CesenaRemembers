@@ -1,3 +1,4 @@
+import '../../core/logging/app_logger.dart';
 import '../entities/route_path.dart';
 import '../entities/tour_stop.dart';
 import '../repositories/route_directions_repository.dart';
@@ -17,7 +18,13 @@ class TourRoutePathService {
         destination: destination.position,
       );
       if (path.isDrawable) return path;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Route directions unavailable; using straight-line fallback',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'TourRoutePathService',
+      );
       // La mappa deve restare utile anche senza token Mapbox o rete.
     }
 
