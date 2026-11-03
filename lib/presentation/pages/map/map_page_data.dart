@@ -37,7 +37,13 @@ extension _MapPageDataLogic on _MapPageState {
         _loadError = null;
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to load points of interest',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPage',
+      );
       if (!mounted) return;
       setState(() {
         _pois = [];
