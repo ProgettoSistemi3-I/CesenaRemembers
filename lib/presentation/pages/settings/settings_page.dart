@@ -1,10 +1,9 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/logging/app_logger.dart';
-
 import '../../../domain/usecases/auth_use_cases.dart';
 import '../../../domain/usecases/user_preferences_use_cases.dart';
 import '../../../domain/usecases/user_profile_use_cases.dart';
