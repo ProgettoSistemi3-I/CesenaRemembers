@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import '../../core/logging/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/userprofile.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
@@ -63,7 +65,13 @@ class ProfileController extends ChangeNotifier {
     try {
       profile = await _profileUseCases.getUserProfile(uid);
       errorMessage = null;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Unable to load the current user profile',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'ProfileController',
+      );
       errorMessage = 'errorLoadProfile';
     } finally {
       isLoading = false;
@@ -99,7 +107,13 @@ class ProfileController extends ChangeNotifier {
       }
       errorMessage = null;
       _safeNotifyListeners();
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Unable to save the current user profile',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'ProfileController',
+      );
       errorMessage = 'errorSaveProfile';
       _safeNotifyListeners();
     }
