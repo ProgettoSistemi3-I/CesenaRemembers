@@ -1,8 +1,9 @@
 import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 import '../../../core/logging/app_logger.dart';
-import 'dart:ui';
-import 'package:flutter/material.dart';
 import '../../theme/app_palette.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../l10n/l10n_extensions.dart';
