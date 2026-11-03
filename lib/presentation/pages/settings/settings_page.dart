@@ -1,9 +1,6 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/logging/app_logger.dart';
 import '../../../domain/usecases/auth_use_cases.dart';
 import '../../../domain/usecases/user_preferences_use_cases.dart';
 import '../../../domain/usecases/user_profile_use_cases.dart';
@@ -374,54 +371,6 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
-  // TEMPORARY: remove these Crashlytics test actions before merging to main.
-  void _runCrashlyticsNonFatalTest() {
-    AppLogger.error(
-      'Manual Crashlytics non-fatal test',
-      error: StateError('CRASHLYTICS_TEST_NON_FATAL'),
-      stackTrace: StackTrace.current,
-      name: 'CrashlyticsTest',
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Test non-fatale registrato. Controlla Crashlytics dopo la sincronizzazione.',
-        ),
-      ),
-    );
-  }
-
-  void _confirmCrashlyticsFatalTest() {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Test crash fatale'),
-        content: const Text(
-          "L'app verrà chiusa immediatamente per verificare Crashlytics. "
-          'Procedi solo quando hai salvato eventuali attività.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Annulla'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppPalette.danger,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              FirebaseCrashlytics.instance.crash();
-            },
-            child: const Text('Avvia crash'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -653,33 +602,6 @@ class _SettingsPageState extends State<SettingsPage>
                               ),
                             ],
                           ),
-                          // TEMPORARY CRASHLYTICS TEST CONTROLS.
-                          // Remove this entire block after verifying both reports.
-                          if (kReleaseMode) ...[
-                            const SizedBox(height: 32),
-                            const _SectionLabel('DIAGNOSTICA TEMPORANEA'),
-                            const SizedBox(height: 16),
-                            _SettingsCard(
-                              children: [
-                                _ActionRow(
-                                  icon: Icons.bug_report_outlined,
-                                  title: 'TEST NON-FATAL',
-                                  subtitle: 'Registra un errore di prova senza chiudere l’app.',
-                                  accent: AppPalette.tan,
-                                  onTap: _runCrashlyticsNonFatalTest,
-                                ),
-                                const _ThinDivider(),
-                                _ActionRow(
-                                  icon: Icons.warning_amber_rounded,
-                                  title: 'TEST FATAL CRASH',
-                                  subtitle: 'Chiude intenzionalmente l’app dopo conferma.',
-                                  accent: AppPalette.danger,
-                                  destructive: true,
-                                  onTap: _confirmCrashlyticsFatalTest,
-                                ),
-                              ],
-                            ),
-                          ],
                           const SizedBox(height: 48),
                         ],
                       ),
