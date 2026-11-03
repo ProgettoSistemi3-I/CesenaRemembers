@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../core/logging/app_logger.dart';
+
 import '../../domain/entities/quiz_question.dart';
 import '../../domain/usecases/get_poi_quiz_usecases.dart';
 
@@ -69,7 +71,13 @@ class PoiQuizController extends ChangeNotifier {
       _selectedAnswer = null;
       _quizDone = _questions.isEmpty;
       _lastQuestionAnswered = false;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to load the POI quiz',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PoiQuizController',
+      );
       if (!_isDisposed) _error = 'errorCommunication';
     } finally {
       if (!_isDisposed) {
