@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/logging/app_logger.dart';
 import '../../domain/usecases/auth_use_cases.dart';
 import '../../injection_container.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
@@ -100,7 +101,13 @@ class _LoginPageState extends State<LoginPage>
       } else {
         setState(() => _error = _mapAuthErrorMessage(e));
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'Unexpected Google sign-in failure',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'LoginPage',
+      );
       if (!mounted) return;
       // Gestisce anche ACCOUNT_BANNED lanciato da auth_gate via signOut
       final msg = e.toString();
