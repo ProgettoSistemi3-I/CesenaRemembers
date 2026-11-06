@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../core/logging/app_logger.dart';
+import '../../core/logging/crashlytics_reporter.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/entities/userprofile.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -9,6 +10,7 @@ import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
 import '../pages/login_page.dart';
 import '../pages/onboarding/onboarding_page.dart';
+import '../pages/onboarding/consent_onboarding_page.dart';
 import '../pages/profile/profile_setup_page.dart';
 import '../theme/theme_controller.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
@@ -132,6 +134,10 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       );
     }
     if (isBanned) {
+      await CrashlyticsReporter.setCollectionEnabled(
+        false,
+        discardUnsentReports: true,
+      );
       widget.onBannedAccount();
       await _authRepository.signOut();
       throw const _BannedFromFirestoreException();
@@ -153,6 +159,22 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
         name: 'AuthGate',
       );
       rethrow;
+    }
+
+    // Restore diagnostics only when an earlier explicit choice is present.
+    try {
+      final profile = await _profileUseCases.getUserProfile(widget.appUser.id);
+      await CrashlyticsReporter.setCollectionEnabled(
+        profile.crashlyticsEnabled,
+        discardUnsentReports: !profile.crashlyticsEnabled,
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to restore diagnostics consent',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'AuthGate',
+      );
     }
 
     unawaited(sl<ThemeController>().refreshFromProfile().catchError((_) {}));
@@ -272,6 +294,9 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
                 uid: widget.appUser.id,
                 email: widget.appUser.email,
               );
+            }
+            if (!profile.permissionsSetupCompleted) {
+              return ConsentOnboardingPage(uid: widget.appUser.id);
             }
             if (!profile.onboardingCompleted) {
               return OnboardingPage(uid: widget.appUser.id);

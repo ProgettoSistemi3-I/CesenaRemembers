@@ -99,7 +99,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get notificationsTitle => 'Notifiche';
 
   @override
-  String get notificationsSubtitle => 'Ricevi avvisi su tappe e premi';
+  String get notificationsSubtitle => 'Attiva per acconsentire alle notifiche push su richieste di amicizia e nuove amicizie.';
 
   @override
   String get darkModeTitle => 'Modalità Notte';
@@ -144,7 +144,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get versionSheetTitle => 'Versione app';
 
   @override
-  String get versionSheetBody => "Metadati versione letti dall'app installata";
+  String get versionSheetBody => 'Metadati versione letti dall\'app installata';
 
   @override
   String get termsTitle => 'Termini di servizio';
@@ -599,7 +599,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsNotifications => 'Notifiche';
 
   @override
-  String get settingsNotifSubtitle => 'Ricevi avvisi su tappe e premi';
+  String get settingsNotifSubtitle => 'Attiva per acconsentire alle notifiche push su richieste di amicizia e nuove amicizie.';
 
   @override
   String get settingsDarkMode => 'Modalità Notte';
@@ -844,10 +844,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get quiz_fallback_desc => 'Il quiz online non è al momento disponibile. Ecco tre domande di riserva dedicate a questo luogo.';
-
-
-
-
 
   @override
   String get quiz_santa_cristina_q1 => 'In quale parte della chiesa fu allestito il rifugio antiaereo?';
@@ -1266,6 +1262,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS';
+
   @override
   String get quiz_santa_cristina_q3 => 'Come descrisse don Leo Bagnoli la cripta-rifugio?';
 
@@ -1373,4 +1370,67 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get quiz_rifugi_antiaerei_q3_o3 => 'Con porte di legno riempite d’acqua';
+
+  @override
+  String get consentNotificationsTag => 'NOTIFICHE';
+
+  @override
+  String get consentNotificationsTitle => 'Non perderti le novità';
+
+  @override
+  String get consentNotificationsBody => 'Ricevi un avviso quando arriva una richiesta di amicizia o quando sblocchi un nuovo traguardo.';
+
+  @override
+  String get consentNotificationsNote => 'Le notifiche sono facoltative: puoi disattivarle in qualsiasi momento nelle Impostazioni.';
+
+  @override
+  String get consentNotificationsAccept => 'Attiva le notifiche';
+
+  @override
+  String get consentNotificationsDecline => 'Non ora';
+
+  @override
+  String get consentLocationTag => 'POSIZIONE';
+
+  @override
+  String get consentLocationTitle => 'Cesena, tappa dopo tappa';
+
+  @override
+  String get consentLocationBody => 'La posizione ci permette di mostrarti dove sei sulla mappa e accompagnarti durante i tour guidati.';
+
+  @override
+  String get consentLocationNote => 'Android ti chiederà il permesso solo dopo la tua scelta. Puoi continuare a usare l’app anche senza GPS.';
+
+  @override
+  String get consentLocationAccept => 'Attiva la posizione';
+
+  @override
+  String get consentLocationDecline => 'Non ora';
+
+  @override
+  String get consentDiagnosticsTag => 'DIAGNOSTICA FACOLTATIVA';
+
+  @override
+  String get consentDiagnosticsTitle => 'Aiutaci a migliorare l’app';
+
+  @override
+  String get consentDiagnosticsBody => 'In caso di errore, puoi inviare a Firebase Crashlytics un report tecnico con stack trace, versione dell’app, informazioni sul dispositivo e identificatore tecnico dell’installazione. Ci aiuta a individuare e correggere i problemi.';
+
+  @override
+  String get consentDiagnosticsNote => 'È facoltativo: l’app funziona normalmente anche senza. Puoi revocare il consenso dalle Impostazioni.';
+
+  @override
+  String get consentDiagnosticsAccept => 'Condividi i report tecnici';
+
+  @override
+  String get consentDiagnosticsDecline => 'Preferisco di no';
+
+  @override
+  String get consentSaveError => 'Non siamo riusciti a salvare la scelta. Controlla la connessione e riprova.';
+
+  @override
+  String get settingsDiagnostics => 'Report tecnici';
+
+  @override
+  String get settingsDiagnosticsSubtitle => 'Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics.';
 }

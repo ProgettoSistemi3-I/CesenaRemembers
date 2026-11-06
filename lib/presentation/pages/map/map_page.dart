@@ -54,6 +54,11 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
+  void _updateMapState(VoidCallback callback) {
+    if (!mounted) return;
+    setState(callback);
+  }
+
   final MapController _mapController = MapController();
   final _poiMarkerFactory = const PoiMarkerFactory();
   final TourStopMapper _tourStopMapper = const TourStopMapper();

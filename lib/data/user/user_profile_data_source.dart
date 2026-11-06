@@ -279,9 +279,20 @@ class UserProfileDataSource {
       ),
       'fcmTokens': List<String>.from(existingData['fcmTokens'] ?? []),
       'preferences': {
-        'notifiche': existingPrefs['notifiche'] ?? true,
+        'notifiche': existingPrefs['notifiche'] ?? false,
+        'notificheConsenso': existingPrefs['notificheConsenso'] ?? false,
+        'permissionsSetupCompleted':
+            existingPrefs['permissionsSetupCompleted'] == true,
+        'crashlyticsEnabled': existingPrefs['crashlyticsEnabled'] == true,
+        if (existingPrefs['crashlyticsConsentAt'] is Timestamp)
+          'crashlyticsConsentAt': existingPrefs['crashlyticsConsentAt'],
+        if (existingPrefs['posizioneGpsConsensoAt'] is Timestamp)
+          'posizioneGpsConsensoAt': existingPrefs['posizioneGpsConsensoAt'],
+        if (existingPrefs['notificheConsensoAt'] is Timestamp)
+          'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
         'posizioneGps': existingPrefs['posizioneGps'] ?? true,
+        'languageCode': existingPrefs['languageCode'] ?? 'it',
       },
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -337,14 +348,37 @@ class UserProfileDataSource {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    bool? crashlytics,
+    bool? permissionsSetupCompleted,
     String? languageCode,
   }) async {
     final Map<String, dynamic> updates = {
       'updatedAt': FieldValue.serverTimestamp(),
     };
-    if (notifiche != null) updates['preferences.notifiche'] = notifiche;
+    if (notifiche != null) {
+      updates['preferences.notifiche'] = notifiche;
+      updates['preferences.notificheConsenso'] = notifiche;
+      updates['preferences.notificheConsensoAt'] = notifiche
+          ? FieldValue.serverTimestamp()
+          : FieldValue.delete();
+    }
     if (darkMode != null) updates['preferences.modalitaNotte'] = darkMode;
-    if (gps != null) updates['preferences.posizioneGps'] = gps;
+    if (gps != null) {
+      updates['preferences.posizioneGps'] = gps;
+      updates['preferences.posizioneGpsConsensoAt'] = gps
+          ? FieldValue.serverTimestamp()
+          : FieldValue.delete();
+    }
+    if (crashlytics != null) {
+      updates['preferences.crashlyticsEnabled'] = crashlytics;
+      updates['preferences.crashlyticsConsentAt'] = crashlytics
+          ? FieldValue.serverTimestamp()
+          : FieldValue.delete();
+    }
+    if (permissionsSetupCompleted != null) {
+      updates['preferences.permissionsSetupCompleted'] =
+          permissionsSetupCompleted;
+    }
     if (languageCode != null &&
         (languageCode == 'it' || languageCode == 'en')) {
       updates['preferences.languageCode'] = languageCode;

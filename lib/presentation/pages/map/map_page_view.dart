@@ -43,10 +43,10 @@ extension _MapPageView on _MapPageState {
             currentRotation: _currentRotation,
             onRotationChanged: _onRotationChanged,
             isMapMenuOpen: _isMapMenuOpen,
-            onCloseMapMenu: () => setState(() => _isMapMenuOpen = false),
+            onCloseMapMenu: () => _updateMapState(() => _isMapMenuOpen = false),
             alignPositionOnUpdate: _alignPositionOnUpdate,
             onDisableFollowUser: () =>
-                setState(() => _alignPositionOnUpdate = AlignOnUpdate.never),
+                _updateMapState(() => _alignPositionOnUpdate = AlignOnUpdate.never),
             canUseLocation: data.canUseLocation,
             currentMapUrl: currentMapUrl,
             attributionVerticalOffset: attributionVerticalOffset,
@@ -94,7 +94,7 @@ extension _MapPageView on _MapPageState {
                 iconColor: AppPalette.danger,
                 onTap: () {
                   _mapController.rotate(0);
-                  setState(() => _currentRotation = 0);
+                  _updateMapState(() => _currentRotation = 0);
                 },
               ),
             ),
@@ -104,12 +104,12 @@ extension _MapPageView on _MapPageState {
             child: MapTypeButton(
               isOpen: _isMapMenuOpen,
               selectedMapStyle: _selectedMapStyle,
-              onToggle: () => setState(() => _isMapMenuOpen = !_isMapMenuOpen),
-              onSelectStandard: () => setState(() {
+              onToggle: () => _updateMapState(() => _isMapMenuOpen = !_isMapMenuOpen),
+              onSelectStandard: () => _updateMapState(() {
                 _selectedMapStyle = MapStyle.standard;
                 _isMapMenuOpen = false;
               }),
-              onSelectSatellite: () => setState(() {
+              onSelectSatellite: () => _updateMapState(() {
                 _selectedMapStyle = MapStyle.satellite;
                 _isMapMenuOpen = false;
               }),
@@ -124,7 +124,7 @@ extension _MapPageView on _MapPageState {
               iconColor: _isMapLocked
                   ? AppPalette.danger
                   : data.theme.colorScheme.onSurfaceVariant,
-              onTap: () => setState(() => _isMapLocked = !_isMapLocked),
+              onTap: () => _updateMapState(() => _isMapLocked = !_isMapLocked),
             ),
           ),
           Positioned(
@@ -245,7 +245,7 @@ extension _MapPageView on _MapPageState {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
-                setState(() => _isLoading = true);
+                _updateMapState(() => _isLoading = true);
                 _loadPois();
               },
               style: ElevatedButton.styleFrom(
@@ -310,7 +310,7 @@ class _MapCanvas extends StatefulWidget {
 
 class _MapCanvasState extends State<_MapCanvas> {
   // Il position stream viene creato UNA SOLA VOLTA e riutilizzato ad ogni rebuild.
-  // Se fosse dentro build(), verrebbe ricreato ad ogni setState() del genitore
+  // Se fosse dentro build(), verrebbe ricreato ad ogni _updateMapState() del genitore
   // (es. ogni secondo durante il tour), causando N subscription aperte.
   late final Stream<LocationMarkerPosition?> _positionStream =
       const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream(

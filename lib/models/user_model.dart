@@ -9,6 +9,8 @@ class UserModel extends UserProfile {
     super.avatarId,
     super.profileCompleted,
     super.onboardingCompleted,
+    super.permissionsSetupCompleted,
+    super.crashlyticsEnabled,
     super.xp,
     super.friendsCount,
     super.visitedPoiIds,
@@ -39,6 +41,11 @@ class UserModel extends UserProfile {
       avatarId: json['avatarId'] ?? 'soldato',
       profileCompleted: json['profileCompleted'] ?? false,
       onboardingCompleted: json['onboardingCompleted'] ?? false,
+      permissionsSetupCompleted:
+          json['preferences']?['permissionsSetupCompleted'] == true,
+      crashlyticsEnabled:
+          json['preferences']?['crashlyticsEnabled'] == true &&
+          json['preferences']?['crashlyticsConsentAt'] != null,
       xp: json['xp'] ?? 0,
       friendsCount: (json['friendsCount'] as num?)?.toInt() ?? friends.length,
       visitedPoiIds: List<String>.from(json['visitedPoiIds'] ?? []),
@@ -48,7 +55,9 @@ class UserModel extends UserProfile {
       pendingAchievements: List<String>.from(
         json['pendingAchievements'] ?? [],
       ),
-      notificheEnabled: json['preferences']?['notifiche'] ?? true,
+      notificheEnabled: json['preferences']?['notifiche'] == true &&
+          json['preferences']?['notificheConsenso'] == true &&
+          json['preferences']?['notificheConsensoAt'] != null,
       darkModeEnabled:
           json['preferences']?['modalitaNotte'] ??
           json['preferences']?['modalità notte'] ??
@@ -93,6 +102,8 @@ class UserModel extends UserProfile {
       'fcmTokens': fcmTokens,
       'preferences': {
         'notifiche': notificheEnabled,
+        'permissionsSetupCompleted': permissionsSetupCompleted,
+        'crashlyticsEnabled': crashlyticsEnabled,
         'modalitaNotte': darkModeEnabled,
         'posizioneGps': gpsEnabled,
       },

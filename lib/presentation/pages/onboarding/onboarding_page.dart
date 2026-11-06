@@ -156,8 +156,8 @@ class _OnboardingPageState extends State<OnboardingPage>
 
     return Scaffold(
       backgroundColor: isDark
-          ? const Color(0xFF0C0F0D)
-          : const Color(0xFFF5F1EB),
+          ? const Color(0xFF0D1720)
+          : const Color(0xFFEDF2F5),
       body: Stack(
         children: [
           _AnimatedBackground(ctrl: _bgCtrl, slide: _page, isDark: isDark),
@@ -327,6 +327,11 @@ class _AnimatedBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = _accents[slide];
+    final coolAccent = Color.lerp(
+      const Color(0xFF7898B3),
+      accent,
+      0.18,
+    )!;
     return AnimatedBuilder(
       animation: ctrl,
       builder: (_, child) {
@@ -338,7 +343,7 @@ class _AnimatedBackground extends StatelessWidget {
               left: -90 + t * 20,
               child: _Blob(
                 size: 360 + t * 40,
-                color: accent.withValues(alpha: isDark ? 0.13 : 0.09),
+                color: coolAccent.withValues(alpha: isDark ? 0.18 : 0.14),
               ),
             ),
             Positioned(
@@ -346,7 +351,9 @@ class _AnimatedBackground extends StatelessWidget {
               right: -70 + t * 18,
               child: _Blob(
                 size: 310 + t * 50,
-                color: AppPalette.tan.withValues(alpha: isDark ? 0.08 : 0.07),
+                color: const Color(0xFF8DAFA6).withValues(
+                  alpha: isDark ? 0.12 : 0.11,
+                ),
               ),
             ),
             Positioned(
@@ -354,7 +361,9 @@ class _AnimatedBackground extends StatelessWidget {
               left: MediaQuery.of(context).size.width * 0.45,
               child: _Blob(
                 size: 200 + t * 30,
-                color: AppPalette.moss.withValues(alpha: isDark ? 0.06 : 0.05),
+                color: const Color(0xFF9AAFC9).withValues(
+                  alpha: isDark ? 0.10 : 0.09,
+                ),
               ),
             ),
           ],

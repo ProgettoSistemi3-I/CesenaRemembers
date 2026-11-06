@@ -479,7 +479,14 @@ class TourPlanSheet extends StatelessWidget {
             Expanded(
               child: ReorderableListView.builder(
                 itemCount: upcomingStops.length,
-                onReorder: onReorder,
+                // `onReorderItem` was introduced in Flutter 3.41.
+                // Keep compatibility with Flutter 3.38 and earlier via the
+                // legacy callback, normalizing its insertion index manually.
+                // ignore: deprecated_member_use
+                onReorder: (oldIndex, newIndex) {
+                  if (newIndex > oldIndex) newIndex--;
+                  onReorder(oldIndex, newIndex);
+                },
                 buildDefaultDragHandles: false,
                 proxyDecorator: (child, index, animation) {
                   return Material(

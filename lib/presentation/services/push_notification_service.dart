@@ -46,38 +46,55 @@ class PushNotificationService {
   static StreamSubscription<RemoteMessage>? _openedSubscription;
   static StreamSubscription<RemoteMessage>? _foregroundSubscription;
 
-  static Future<void> initializeAndSaveToken() async {
+  static Future<void> initializeAndSaveToken({
+    bool requestPermissionIfNeeded = true,
+  }) async {
     final profiles = sl<UserProfileUseCases>();
     final uid = profiles.getCurrentUserUid();
     if (uid == null || uid.isEmpty) return;
 
+    final messaging = FirebaseMessaging.instance;
+
     if (_initializedUid != uid) {
       final oldUid = _initializedUid;
       if (oldUid != null) {
-        await _unregisterTokenForUid(oldUid, profiles, deleteFcmToken: false);
+        await messaging.setAutoInitEnabled(false);
+        await _unregisterTokenForUid(oldUid, profiles, deleteFcmToken: true);
       }
       _initializedUid = uid;
     }
 
     try {
-      final messaging = FirebaseMessaging.instance;
       final profile = await profiles.getUserProfile(uid);
       // Non chiedere il permesso di sistema quando l'utente ha disattivato
       // esplicitamente le notifiche nell'app.
       if (!profile.notificheEnabled) {
+        await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
         return;
       }
-      final permission = await messaging.requestPermission(
-        alert: true, badge: true, sound: true,
-      );
-      if (permission.authorizationStatus != AuthorizationStatus.authorized) {
+      var authorizationStatus =
+          (await messaging.getNotificationSettings()).authorizationStatus;
+      if (authorizationStatus != AuthorizationStatus.authorized &&
+          requestPermissionIfNeeded) {
+        final permission = await messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        authorizationStatus = permission.authorizationStatus;
+      }
+      if (authorizationStatus != AuthorizationStatus.authorized) {
+        await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
         return;
       }
 
+      // Re-enable FCM registration only after explicit in-app consent and
+      // the operating-system permission have both been granted.
+      await messaging.setAutoInitEnabled(true);
       final token = await messaging.getToken();
       if (token != null && token.isNotEmpty) {
         await profiles.saveFcmToken(uid, token);
@@ -116,6 +133,8 @@ class PushNotificationService {
   }
 
   static Future<void> unregisterCurrentUser() async {
+    final messaging = FirebaseMessaging.instance;
+    await messaging.setAutoInitEnabled(false);
     final profiles = sl<UserProfileUseCases>();
     final uid = profiles.getCurrentUserUid();
     if (uid != null && uid.isNotEmpty) {
@@ -136,13 +155,16 @@ class PushNotificationService {
     }
 
     try {
-      final currentToken = await FirebaseMessaging.instance.getToken();
-      if (currentToken != null && currentToken.isNotEmpty) {
-        tokensToRemove.add(currentToken);
-      }
+      // Read only tokens already persisted after a prior explicit opt-in.
+      // Do not call FirebaseMessaging.getToken() while opted out: that would
+      // create or access an installation identifier without consent.
+      final profile = await profiles.getUserProfile(uid);
+      tokensToRemove.addAll(
+        profile.fcmTokens.where((token) => token.isNotEmpty),
+      );
     } catch (error, stackTrace) {
       AppLogger.error(
-        'Unable to retrieve the current FCM token during unregistration',
+        'Unable to load saved FCM tokens during unregistration',
         error: error,
         stackTrace: stackTrace,
         name: 'PushNotificationService',
@@ -163,15 +185,18 @@ class PushNotificationService {
     }
 
     if (deleteFcmToken) {
-      try {
-        await FirebaseMessaging.instance.deleteToken();
-      } catch (error, stackTrace) {
-        AppLogger.error(
-          'Unable to delete the local FCM token',
-          error: error,
-          stackTrace: stackTrace,
-          name: 'PushNotificationService',
-        );
+      // Delete only when a previous, consented registration is known.
+      if (tokensToRemove.isNotEmpty) {
+        try {
+          await FirebaseMessaging.instance.deleteToken();
+        } catch (error, stackTrace) {
+          AppLogger.error(
+            'Unable to delete the local FCM token',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'PushNotificationService',
+          );
+        }
       }
       _registeredToken = null;
     }

@@ -23,7 +23,7 @@ extension _MapPageRouteLine on _MapPageState {
 
     if (!mounted || requestId != _routeLineRequestId) return;
 
-    setState(() {
+    _updateMapState(() {
       _routeLinePoints = _toRouteLinePoints(path);
     });
   }
@@ -33,7 +33,7 @@ extension _MapPageRouteLine on _MapPageState {
     _routeLineRequestId++;
     if (_routeLinePoints.isEmpty) return;
     if (mounted) {
-      setState(() => _routeLinePoints = const []);
+      _updateMapState(() => _routeLinePoints = const []);
     }
   }
 
