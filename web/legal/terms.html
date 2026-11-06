@@ -29,15 +29,10 @@
 <body>
 <main>
   <header>
-    <p class="meta">Cesena Remembers · Versione consolidata · 3 novembre 2026</p>
+    <p class="meta">Cesena Remembers · Versione aggiornata al 6 novembre 2026</p>
     <h1>Termini di utilizzo</h1>
     <p class="meta">Condizioni di utilizzo dell'app mobile e dei servizi collegati.</p>
   </header>
-
-  <div class="notice">
-    <strong>Informazioni organizzative da verificare prima dell'entrata in vigore</strong>
-    I gestori operativi indicati sono Lorenzo Ostolani e Luca Bazzocchi, entrambi minorenni. Per gli atti contrattuali e gli impegni giuridici per i quali è richiesta capacità di agire o rappresentanza devono intervenire i rispettivi esercenti la responsabilità genitoriale e, quando necessario, le autorizzazioni previste dalla legge. Prima dell'entrata in vigore occorre verificare la rappresentanza, gli accordi sul progetto e i contratti con i fornitori.
-  </div>
 
   <nav aria-label="Indice">
     <strong>Indice</strong>
@@ -67,7 +62,7 @@
     <p>Cesena Remembers è un progetto digitale dedicato alla storia della città di Cesena, accessibile tramite l'applicazione mobile e il sito <a href="https://cesenaremembers.com">cesenaremembers.com</a>.</p>
     <p><strong>Gestori operativi del progetto:</strong> Lorenzo Ostolani e Luca Bazzocchi, co-sviluppatori e gestori operativi del servizio.</p>
     <p>Entrambi i gestori sono minorenni. Le attività quotidiane di sviluppo e gestione sono svolte da loro; gli atti, i contratti e gli impegni giuridici per i quali l'ordinamento richiede capacità di agire o rappresentanza sono compiuti con l'intervento dei rispettivi esercenti la responsabilità genitoriale e, quando necessario, con le ulteriori autorizzazioni previste dalla legge. Questa indicazione non attribuisce ai minori una capacità contrattuale che l'ordinamento non riconosce.</p>
-    <p><strong>Email di contatto del progetto:</strong> <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>. La casella deve essere mantenuta attiva e monitorata dai gestori e, per gli atti che lo richiedono, dai rispettivi rappresentanti legali.</p>
+    <p><strong>Email di contatto del progetto:</strong> <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>.</p>
     <p>La titolarità del trattamento dei dati personali, la gestione operativa, il rapporto con lo store e i diritti sul software sono ruoli distinti. Per il trattamento dei dati, Lorenzo Ostolani e Luca Bazzocchi sono indicati come contitolari nella relativa <a href="privacy.html">informativa privacy</a>, sulla base della loro dichiarata determinazione congiunta di finalità e mezzi.</p>
   </section>
 
@@ -88,7 +83,7 @@
   <section id="accettazione">
     <h2>3. Accettazione e modifiche</h2>
     <p>Prima di utilizzare le funzioni soggette a queste condizioni, l'utente deve poterle consultare in modo chiaro e accedere all'informativa privacy. L'accettazione dei presenti termini è distinta dal consenso al trattamento dei dati personali: l'informativa privacy non costituisce, da sola, una richiesta di consenso.</p>
-    <p>Il gestore deve implementare una modalità di accettazione adeguata al servizio e alla normativa, conservando quando necessario la versione dei termini e la data dell'accettazione. Se una modifica sostanziale richiede una nuova accettazione, la semplice pubblicazione sul sito non la sostituisce.</p>
+    <p>I termini sono pubblicati sul sito e sono consultabili dalle pagine di informazione dell'app. L'eventuale richiesta di accettazione di condizioni o consensi specifici è distinta dall'informativa privacy e viene presentata separatamente quando prevista per la funzione interessata.</p>
     <p>Chi non accetta le condizioni non deve utilizzare le funzioni soggette a esse. Le modifiche saranno comunicate con modalità adeguate e, quando richiesto, sarà chiesta una nuova accettazione.</p>
   </section>
 
@@ -140,7 +135,7 @@
     <h2>9. Quiz e contenuti generati automaticamente</h2>
     <p>Alcuni quiz sono generati o supportati da modelli linguistici sulla base di schede di fatti storici mantenute dal progetto. I sistemi automatici possono produrre errori, omissioni o formulazioni imprecise. Il gestore adotta controlli ragionevoli, ma non garantisce che ogni domanda o risposta sia sempre corretta, completa o aggiornata.</p>
     <p>I quiz hanno finalità culturali, informative e ludico-didattiche; non costituiscono una fonte storica ufficiale, una consulenza professionale o un'indicazione vincolante. Per questioni storiche o di sicurezza rilevanti, l'utente deve consultare fonti autorevoli e aggiornate.</p>
-    <p>La richiesta al backend quiz predefinito utilizza attualmente HTTP e non HTTPS. Il progetto non trasmette tramite tale richiesta UID Firebase, email o password, ma i dati della richiesta e l'IP non sono protetti dalla cifratura del trasporto. È una limitazione tecnica nota e il passaggio a HTTPS è raccomandato prima della distribuzione pubblica.</p>
+    <p>La richiesta al backend quiz predefinito utilizza HTTPS/TLS sull'indirizzo <code>https://pascal.ispascalcomandini.it:8000</code>. Il client accetta il certificato server incluso nell'app come trust anchor dedicato. La richiesta non include UID Firebase, email o password; il server riceve l'IP di origine e i dati necessari a generare il quiz.</p>
   </section>
 
   <section id="proprieta">
@@ -152,7 +147,7 @@
 
   <section id="terzi">
     <h2>11. Servizi di terzi</h2>
-    <p>Il funzionamento dell'app può dipendere da Google Sign-In e Firebase (Authentication, Firestore, Cloud Messaging, Crashlytics e App Check), Google Play Integrity, GroqCloud per la generazione dei quiz, Mapbox per i percorsi, CARTO, Stadia Maps ed Esri/ArcGIS per le mappe, nonché Cloudflare Pages, Google Fonts e unpkg per il sito. Tali fornitori operano secondo i propri contratti, condizioni e informative.</p>
+    <p>Il funzionamento dell'app può dipendere da Google Sign-In e Firebase (Authentication, Firestore, Cloud Messaging, Crashlytics e App Check), Google Play Integrity, GroqCloud per la generazione dei quiz, Mapbox per i percorsi, CARTO, Stadia Maps ed Esri/ArcGIS per le mappe, Cloudflare Pages e Google Fonts per il sito, GitHub per la distribuzione degli APK e Google Play per la distribuzione dell'app. Tali fornitori operano secondo i propri contratti, condizioni e informative.</p>
     <p>Il trattamento dei dati personali tramite tali servizi è descritto nell'<a href="privacy.html">informativa privacy</a>. Il gestore resta responsabile degli obblighi che la legge gli attribuisce per la propria parte di servizio e non garantisce la disponibilità ininterrotta delle infrastrutture di terzi.</p>
   </section>
 
@@ -187,13 +182,13 @@
 
   <section id="contatti">
     <h2>17. Contatti</h2>
-    <p>Per assistenza, segnalazioni o informazioni sui termini: <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a> (da confermare e presidiare dal gestore identificato nella sezione 1).</p>
+    <p>Per assistenza, segnalazioni o informazioni sui termini: <a href="mailto:cesenaremembers@gmail.com">cesenaremembers@gmail.com</a>.</p>
     <p>Sito web: <a href="https://cesenaremembers.com">https://cesenaremembers.com</a>.</p>
   </section>
 
   <footer>
     <p>© 2026 Cesena Remembers · <a href="privacy.html">Informativa privacy</a> · <a href="delete-account.html">Cancellazione account</a></p>
-    <p>Versione consolidata del 3 novembre 2026.</p>
+    <p>Ultimo aggiornamento: 6 novembre 2026.</p>
   </footer>
 </main>
 </body>
