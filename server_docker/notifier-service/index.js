@@ -73,16 +73,16 @@ usersQuery.onSnapshot(async snapshot => {
     const newFriends = friends.filter(
       friendUid => !previousState.friends.includes(friendUid)
     );
-    const acceptedRequest = sentRequests.length < previousState.sentRequests.length;
-    if (acceptedRequest) {
-      for (const friendUid of newFriends) {
-        if (await hasBlockBetween(userId, friendUid)) continue;
-        await inviaNotifica(userId, fcmTokens, {
-          title: 'Nuova amicizia!',
-          body: 'La tua richiesta di amicizia è stata accettata.',
-          type: 'friend_accepted'
-        });
-      }
+    const acceptedFriends = newFriends.filter(
+      friendUid => previousState.sentRequests.includes(friendUid)
+    );
+    for (const friendUid of acceptedFriends) {
+      if (await hasBlockBetween(userId, friendUid)) continue;
+      await inviaNotifica(userId, fcmTokens, {
+        title: 'Nuova amicizia!',
+        body: 'La tua richiesta di amicizia è stata accettata.',
+        type: 'friend_accepted'
+      });
     }
   }
 }, error => {
