@@ -129,22 +129,39 @@ class PushNotificationService {
     UserProfileUseCases profiles, {
     required bool deleteFcmToken,
   }) async {
+    final tokensToRemove = <String>{};
+    final cachedToken = _registeredToken;
+    if (cachedToken != null && cachedToken.isNotEmpty) {
+      tokensToRemove.add(cachedToken);
+    }
+
     try {
-      // Il token esiste anche dopo un riavvio, quando la cache statica
-      // _registeredToken è vuota.
-      final token = _registeredToken ??
-          await FirebaseMessaging.instance.getToken();
-      if (token != null && token.isNotEmpty) {
-        await profiles.removeFcmToken(uid, token);
+      final currentToken = await FirebaseMessaging.instance.getToken();
+      if (currentToken != null && currentToken.isNotEmpty) {
+        tokensToRemove.add(currentToken);
       }
     } catch (error, stackTrace) {
       AppLogger.error(
-        'Unable to remove the stored FCM token from the profile',
+        'Unable to retrieve the current FCM token during unregistration',
         error: error,
         stackTrace: stackTrace,
         name: 'PushNotificationService',
       );
     }
+
+    for (final token in tokensToRemove) {
+      try {
+        await profiles.removeFcmToken(uid, token);
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Unable to remove an FCM token from the user profile',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'PushNotificationService',
+        );
+      }
+    }
+
     if (deleteFcmToken) {
       try {
         await FirebaseMessaging.instance.deleteToken();
