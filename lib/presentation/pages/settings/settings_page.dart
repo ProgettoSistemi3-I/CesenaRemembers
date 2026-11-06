@@ -555,7 +555,7 @@ class _SettingsPageState extends State<SettingsPage>
                                 accent: AppPalette.tan,
                                 onTap: () => launchUrl(
                                   Uri.parse(
-                                    'https://cesenaremembers.com/legal/privacy.html',
+                                    'https://cesenaremembers.com/legal/${AppLocalizations.of(context)!.localeName.startsWith('en') ? 'privacy-en.html' : 'privacy.html'}',
                                   ),
                                 ),
                               ),
@@ -598,7 +598,7 @@ class _SettingsPageState extends State<SettingsPage>
                                 accent: AppPalette.olive,
                                 onTap: () => launchUrl(
                                   Uri.parse(
-                                    'https://cesenaremembers.com/legal/terms.html',
+                                    'https://cesenaremembers.com/legal/${AppLocalizations.of(context)!.localeName.startsWith('en') ? 'terms-en.html' : 'terms.html'}',
                                   ),
                                 ),
                               ),
