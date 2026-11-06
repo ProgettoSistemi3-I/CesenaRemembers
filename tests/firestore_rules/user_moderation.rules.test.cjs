@@ -118,6 +118,12 @@ test('a blocked relationship prevents creating a friend request', async () => {
 });
 
 test('blocked users cannot bypass request checks by editing user arrays directly', async () => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore();
+    await updateDoc(doc(db, 'users/alice'), { sentFriendRequests: [] });
+    await updateDoc(doc(db, 'users/bob'), { receivedFriendRequests: [] });
+  });
+
   await assertSucceeds(setDoc(
     doc(aliceDb(), 'user_blocks/alice/blocked/bob'),
     { createdAt: serverTimestamp() },
