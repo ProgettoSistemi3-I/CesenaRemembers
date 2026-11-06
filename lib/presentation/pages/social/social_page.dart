@@ -306,8 +306,10 @@ class _SocialPageState extends State<SocialPage> {
                     children: [
                       Text(
                         isCurrentUser && isPinned
-                            ? "${entry.displayName} (${AppLocalizations.of(context)!.socialYou})"
-                            : entry.displayName,
+                            ? "${entry.displayName.isEmpty ? AppLocalizations.of(context)!.socialDefaultUsername : entry.displayName} (${AppLocalizations.of(context)!.socialYou})"
+                            : (entry.displayName.isEmpty
+                                ? AppLocalizations.of(context)!.socialDefaultUsername
+                                : entry.displayName),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
