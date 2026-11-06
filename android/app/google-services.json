@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "966666011561-56ujoii2cvesn3coh1ldbashgem0rpup.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.cesenaremembers.app",
+            "certificate_hash": "8d4e36cfa1ac0d2ef5613bb90d84cc73c89a2f88"
+          }
+        },
+        {
           "client_id": "966666011561-6iqa2q1bn3vb3hcpi4428fek68924da0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
