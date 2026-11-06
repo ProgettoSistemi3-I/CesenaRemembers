@@ -21,13 +21,7 @@ const usersCache = new Map();
 console.log("Notifier Cesena Remembers avviato: ascolto selettivo delle modifiche utenti.");
 
 // La projection evita di leggere email e gli altri campi privati/non necessari.
-const usersQuery = db.collection('users').select(
-  'receivedFriendRequests',
-  'sentFriendRequests',
-  'friends',
-  'fcmTokens',
-  'preferences.notifiche'
-);
+const usersQuery = db.collection('users');
 
 usersQuery.onSnapshot(async snapshot => {
   for (const change of snapshot.docChanges()) {
