@@ -165,6 +165,10 @@ class PushNotificationService {
     // la mostriamo qui. In background se ne occupa FCM, evitando il doppio invio
     // che si verificava ascoltando anche gli aggiornamenti Firestore in AuthGate.
     _foregroundSubscription ??= FirebaseMessaging.onMessage.listen((message) {
+      final recipientUid = message.data['recipientUid'] as String?;
+      final activeUid = FirebaseAuth.instance.currentUser?.uid;
+      if (recipientUid != null && recipientUid != activeUid) return;
+
       final title = message.notification?.title ??
           message.data['title'] as String? ??
           'Cesena Remembers';
