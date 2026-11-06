@@ -8,19 +8,19 @@ Questo è un microservizio Node.js dockerizzato che ascolta le modifiche al data
    - Vai sulla Console di Firebase.
    - Apri "Impostazioni progetto" -> "Account di servizio".
    - Clicca su "Genera nuova chiave privata".
-   - Rinomina il file scaricato in `serviceAccountKey.json` e posizionalo in QUESTA cartella (accanto a `index.js`). **NON COMMITTARE MAI QUESTO FILE SU GIT!**
+   - Rinomina il file scaricato in `serviceAccountKey.json` e posizionalo in questa cartella (accanto a `index.js`). Il file è escluso dal contesto di build Docker e viene montato in sola lettura dal compose. **Non aggiungerlo mai a Git e non inserirlo nell'immagine.**
 
-2. **Crea l'immagine Docker:**
-   Nel terminale, assicurati di essere dentro questa cartella (`notifier_service`) ed esegui:
+2. **Avvia il servizio tramite Docker Compose:**
+   Dal percorso `server_docker` (dove si trova `docker-compose.yml`), dopo aver creato la chiave:
    ```bash
-   docker build -t cesena-notifier .
+   docker compose up -d --build notifier-service
    ```
-
-3. **Avvia il container:**
+   Per controllare lo stato e i log:
    ```bash
-   docker run -d --name notifier cesena-notifier
+   docker compose ps notifier-service
+   docker compose logs -f notifier-service
    ```
-   *Nota: `-d` lo avvia in background. Rimuovilo se vuoi vedere i log nel terminale, oppure usa `docker logs -f notifier`.*
+   Il compose monta `./notifier-service/serviceAccountKey.json` in `/usr/src/app/serviceAccountKey.json:ro`. Se il file manca, Docker Compose non potrà avviare il servizio.
 
 ## Come Funziona
-Il server mantiene una cache locale dello stato di `receivedFriendRequests` per ogni utente. Quando rileva che l'array in Firestore si allunga, recupera i `fcmTokens` salvati in quel documento utente e invia un messaggio broadcast usando `admin.messaging().sendEachForMulticast()`.
+Il server ascolta in Firestore soltanto `receivedFriendRequests`, `sentFriendRequests`, `friends`, `fcmTokens` e `preferences.notifiche`: non carica il campo email né gli altri dati del profilo. Le notifiche vengono inviate solo quando la preferenza è attiva. I token rifiutati da FCM come non validi o non più registrati vengono rimossi dal documento utente. La cache locale viene inizializzata senza invii al primo snapshot.
