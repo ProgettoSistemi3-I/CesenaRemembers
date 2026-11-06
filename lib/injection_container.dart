@@ -19,6 +19,7 @@ import 'domain/usecases/user_preferences_use_cases.dart';
 import 'domain/usecases/user_profile_use_cases.dart';
 import 'domain/usecases/user_progress_use_cases.dart';
 import 'domain/usecases/user_social_use_cases.dart';
+import 'domain/usecases/user_moderation_use_cases.dart';
 import 'domain/usecases/get_poi_quiz_usecases.dart';
 import 'presentation/controllers/social_controller.dart';
 import 'presentation/theme/theme_controller.dart';
@@ -83,6 +84,9 @@ Future<void> init() async {
   }
   if (!sl.isRegistered<UserSocialUseCases>()) {
     sl.registerLazySingleton(() => UserSocialUseCases(sl()));
+  }
+  if (!sl.isRegistered<UserModerationUseCases>()) {
+    sl.registerLazySingleton(() => UserModerationUseCases(sl()));
   }
   if (!sl.isRegistered<TourRoutePathService>()) {
     sl.registerLazySingleton(() => TourRoutePathService(directions: sl()));
