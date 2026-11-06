@@ -136,13 +136,16 @@ class PushNotificationService {
     }
 
     try {
-      final currentToken = await FirebaseMessaging.instance.getToken();
-      if (currentToken != null && currentToken.isNotEmpty) {
-        tokensToRemove.add(currentToken);
-      }
+      // Read only tokens already persisted after a prior explicit opt-in.
+      // Do not call FirebaseMessaging.getToken() while opted out: that would
+      // create or access an installation identifier without consent.
+      final profile = await profiles.getUserProfile(uid);
+      tokensToRemove.addAll(
+        profile.fcmTokens.where((token) => token.isNotEmpty),
+      );
     } catch (error, stackTrace) {
       AppLogger.error(
-        'Unable to retrieve the current FCM token during unregistration',
+        'Unable to load saved FCM tokens during unregistration',
         error: error,
         stackTrace: stackTrace,
         name: 'PushNotificationService',
@@ -163,15 +166,18 @@ class PushNotificationService {
     }
 
     if (deleteFcmToken) {
-      try {
-        await FirebaseMessaging.instance.deleteToken();
-      } catch (error, stackTrace) {
-        AppLogger.error(
-          'Unable to delete the local FCM token',
-          error: error,
-          stackTrace: stackTrace,
-          name: 'PushNotificationService',
-        );
+      // Delete only when a previous, consented registration is known.
+      if (tokensToRemove.isNotEmpty) {
+        try {
+          await FirebaseMessaging.instance.deleteToken();
+        } catch (error, stackTrace) {
+          AppLogger.error(
+            'Unable to delete the local FCM token',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'PushNotificationService',
+          );
+        }
       }
       _registeredToken = null;
     }
