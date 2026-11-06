@@ -21,6 +21,9 @@ services:
     depends_on:
       - quiz-server
       - uniklas-backend
+    networks:
+      - default
+      - quiz-backend
 
   # 1. MICROSERVIZIO QUIZ (Python) - Inalterato, riceve le richieste da Nginx
   quiz-server:
@@ -42,6 +45,8 @@ services:
       QUIZ_RATE_LIMIT_MAX_CLIENTS: "10000"
       FORWARDED_ALLOW_IPS: "*"
     restart: unless-stopped
+    networks:
+      - quiz-backend
 
   # 2. MICROSERVIZIO NOTIFICHE (Node.js) - Totalmente inalterato
   notifier-service:
@@ -74,3 +79,10 @@ services:
     expose:
       - "5000"
     restart: unless-stopped
+
+
+networks:
+  # Isola Uvicorn dagli altri container: soltanto Nginx condivide la rete
+  # del quiz, perciò è l'unico peer da cui accettare gli header forwarded.
+  quiz-backend:
+    driver: bridge
