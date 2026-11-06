@@ -187,6 +187,10 @@ class SettingsController extends ChangeNotifier {
 
     try {
       await PushNotificationService.unregisterCurrentUser();
+      await CrashlyticsReporter.setCollectionEnabled(
+        false,
+        discardUnsentReports: true,
+      );
       await _signOutUseCase();
       return true;
     } catch (e, stackTrace) {
@@ -216,6 +220,10 @@ class SettingsController extends ChangeNotifier {
       // può richiedere credenziali recenti per eliminare l'account Auth.
       await _deleteCurrentUserUseCase.reauthenticate();
       await PushNotificationService.unregisterCurrentUser();
+      await CrashlyticsReporter.setCollectionEnabled(
+        false,
+        discardUnsentReports: true,
+      );
       await _profileUseCases.deleteUserData(uid: uid);
     } catch (e) {
       AppLogger.error('Delete account failed at Firestore cleanup',
