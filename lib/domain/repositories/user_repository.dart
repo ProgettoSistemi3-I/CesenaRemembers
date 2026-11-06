@@ -52,6 +52,17 @@ abstract class IUserRepository {
   Future<void> removeFriend(String currentUid, String friendUid);
   Future<List<UserProfile>> getUsersByIds(List<String> uids);
   Future<bool> checkAreFriends(String currentUid, String targetUid);
+  // User moderation
+  Future<void> blockUser(String currentUid, String targetUid);
+  Future<void> unblockUser(String currentUid, String targetUid);
+  Future<List<String>> getBlockedUserIds(String uid);
+  Future<void> reportUser({
+    required String reporterUid,
+    required String reportedUid,
+    required String reportedField,
+    required String reason,
+    required String details,
+  });
   Future<void> saveFcmToken(String uid, String token);
   Future<void> removeFcmToken(String uid, String token);
 
