@@ -270,7 +270,13 @@ class _SocialPageState extends State<SocialPage> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          onTap: () => _openProfile(entry.uid, entry.displayName, entry.username),
+          onTap: () => _openProfile(
+            entry.uid,
+            entry.displayName.isEmpty
+                ? AppLocalizations.of(context)!.socialDefaultUsername
+                : entry.displayName,
+            entry.username,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
