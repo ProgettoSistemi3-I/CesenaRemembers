@@ -381,7 +381,7 @@ class _LoginPageState extends State<LoginPage>
                     style: linkStyle,
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => launchUrl(
-                        Uri.parse('https://cesenaremembers.com/legal/terms.html'),
+                        Uri.parse('https://cesenaremembers.com/legal/${l10n.localeName.startsWith('en') ? 'terms-en.html' : 'terms.html'}'),
                         mode: LaunchMode.externalApplication,
                       ),
                   ),
@@ -391,7 +391,7 @@ class _LoginPageState extends State<LoginPage>
                     style: linkStyle,
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => launchUrl(
-                        Uri.parse('https://cesenaremembers.com/legal/privacy.html'),
+                        Uri.parse('https://cesenaremembers.com/legal/${l10n.localeName.startsWith('en') ? 'privacy-en.html' : 'privacy.html'}'),
                         mode: LaunchMode.externalApplication,
                       ),
                   ),
