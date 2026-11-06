@@ -47,7 +47,7 @@ A block document is written first. Existing relationships are then removed throu
 2. Check the stored reported-field snapshot and reason, then assess the profile against the Terms of Use.
 3. Update the moderation status from a trusted administrator session to reviewed, action_taken or dismissed.
 4. If a suspension is warranted, use the existing banned_users / scripts/ban_user.py procedure. Do not auto-ban on a single user report.
-5. Retain report records for no more than 24 months after closure unless a documented legal or claims-preservation need requires longer.
+5. Reports are retained for up to 24 months from receipt. Run scripts/cleanup_user_reports.py periodically with a protected Firebase Admin service account (dry-run by default; add --apply to delete expired reports). Preserve older records only where a documented legal or claims-preservation need requires it.
 
 ## Firestore Rules tests
 
