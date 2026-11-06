@@ -281,6 +281,11 @@ class UserProfileDataSource {
       'preferences': {
         'notifiche': existingPrefs['notifiche'] ?? false,
         'notificheConsenso': existingPrefs['notificheConsenso'] ?? false,
+        'permissionsSetupCompleted':
+            existingPrefs['permissionsSetupCompleted'] == true,
+        'crashlyticsEnabled': existingPrefs['crashlyticsEnabled'] == true,
+        if (existingPrefs['crashlyticsConsentAt'] is Timestamp)
+          'crashlyticsConsentAt': existingPrefs['crashlyticsConsentAt'],
         if (existingPrefs['notificheConsensoAt'] is Timestamp)
           'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
@@ -341,6 +346,8 @@ class UserProfileDataSource {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    bool? crashlytics,
+    bool? permissionsSetupCompleted,
     String? languageCode,
   }) async {
     final Map<String, dynamic> updates = {
@@ -355,6 +362,16 @@ class UserProfileDataSource {
     }
     if (darkMode != null) updates['preferences.modalitaNotte'] = darkMode;
     if (gps != null) updates['preferences.posizioneGps'] = gps;
+    if (crashlytics != null) {
+      updates['preferences.crashlyticsEnabled'] = crashlytics;
+      updates['preferences.crashlyticsConsentAt'] = crashlytics
+          ? FieldValue.serverTimestamp()
+          : FieldValue.delete();
+    }
+    if (permissionsSetupCompleted != null) {
+      updates['preferences.permissionsSetupCompleted'] =
+          permissionsSetupCompleted;
+    }
     if (languageCode != null &&
         (languageCode == 'it' || languageCode == 'en')) {
       updates['preferences.languageCode'] = languageCode;
