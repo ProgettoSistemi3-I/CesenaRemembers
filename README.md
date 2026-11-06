@@ -28,7 +28,7 @@ Cesena Remembers 1945 è un'applicazione mobile educativa che accompagna alla sc
 - [Requisiti](#requisiti)
 - [Configurazione locale](#configurazione-locale)
 - [Build e pubblicazione Android](#build-e-pubblicazione-android)
-- [Firebase e manutenzione](#firebase-e-m manutenzione)
+- [Firebase e manutenzione](#firebase-e-manutenzione)
 - [Test e controlli](#test-e-controlli)
 - [Documentazione e riferimenti](#documentazione-e-riferimenti)
 - [Licenza](#licenza)
@@ -362,8 +362,7 @@ Da eseguire soltanto dopo avere verificato progetto e ambiente di destinazione:
 
 ```bash
 firebase login
-firebase use cesenaremembers1945
-firebase deploy --only firestore:rules
+firebase deploy --project cesenaremembers1945 --only firestore:rules
 ```
 
 ### Migrazione e proiezioni utente
