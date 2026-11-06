@@ -3,7 +3,7 @@
   "private": true,
   "description": "Firestore Security Rules tests for Cesena Remembers moderation features",
   "scripts": {
-    "test": "firebase emulators:exec --only firestore --project demo-cesena-remembers \"node --test user_moderation.rules.test.cjs\""
+    "test": "cd ../.. && firebase emulators:exec --only firestore --project demo-cesena-remembers \"node --test tests/firestore_rules/user_moderation.rules.test.cjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^4.0.1",
