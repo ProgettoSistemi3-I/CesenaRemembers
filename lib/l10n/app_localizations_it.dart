@@ -138,13 +138,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get versionTitle => 'Versione';
 
   @override
-  String get versionSubtitle => '1.0.0';
+  String get versionSubtitle => '—';
 
   @override
   String get versionSheetTitle => 'Versione app';
 
   @override
-  String get versionSheetBody => 'Build number: 1.0.0';
+  String get versionSheetBody => "Metadati versione letti dall'app installata";
 
   @override
   String get termsTitle => 'Termini di servizio';
