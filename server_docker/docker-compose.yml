@@ -62,7 +62,12 @@ services:
     restart: unless-stopped
     volumes:
       # La chiave resta fuori dall'immagine e dal repository; montaggio read-only.
-      - ./notifier-service/serviceAccountKey.json:/usr/src/app/serviceAccountKey.json:ro
+      - type: bind
+        source: ./notifier-service/serviceAccountKey.json
+        target: /usr/src/app/serviceAccountKey.json
+        read_only: true
+        bind:
+          create_host_path: false
 
   # 3. BACKEND UNIKLAS (.NET 9 C#) - Nuovo servizio isolato
   uniklas-backend:
