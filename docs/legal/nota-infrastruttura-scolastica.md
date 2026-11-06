@@ -5,7 +5,7 @@
 
 ## 1. Istituto e infrastruttura
 
-L'infrastruttura è messa a disposizione dall'**Istituto Superiore “Pascal-Comandini”**, con sede in Piazzale Macrelli 100, 47521 Cesena (FC), C.F. 90076540401, tramite un Raspberry Pi dedicato al progetto e la connettività necessaria a rendere raggiungibile il servizio quiz.
+L'infrastruttura è messa a disposizione dall'**Istituto Superiore Pascal - Comandini**, con sede in Piazzale Macrelli 100, 47521 Cesena (FC), C.F. 90076540401, tramite un Raspberry Pi dedicato al progetto e la connettività necessaria a rendere raggiungibile il servizio quiz.
 
 L'istituto ha autorizzato l'utilizzo del dispositivo e della rete per ospitare il backend di Cesena Remembers. Secondo quanto dichiarato dai due gestori del progetto, l'autorizzazione consente loro di amministrare il server per il progetto come infrastruttura dedicata.
 
