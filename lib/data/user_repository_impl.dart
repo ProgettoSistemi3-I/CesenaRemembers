@@ -6,19 +6,23 @@ import 'user/user_cleanup_data_source.dart';
 import 'user/user_profile_data_source.dart';
 import 'user/user_progress_data_source.dart';
 import 'user/user_social_data_source.dart';
+import 'user/user_moderation_data_source.dart';
 
 class UserRepositoryImpl implements IUserRepository {
   UserRepositoryImpl({required this.firestore})
     : _profile = UserProfileDataSource(firestore: firestore),
       _progress = UserProgressDataSource(firestore: firestore),
       _social = UserSocialDataSource(firestore: firestore),
-      _cleanup = UserCleanupDataSource(firestore: firestore);
+      _cleanup = UserCleanupDataSource(firestore: firestore) {
+    _moderation = UserModerationDataSource(firestore: firestore, social: _social);
+  }
 
   final FirebaseFirestore firestore;
   final UserProfileDataSource _profile;
   final UserProgressDataSource _progress;
   final UserSocialDataSource _social;
   final UserCleanupDataSource _cleanup;
+  late final UserModerationDataSource _moderation;
 
   @override
   String? getCurrentUserUid() => _profile.getCurrentUserUid();
@@ -155,6 +159,34 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<bool> checkAreFriends(String currentUid, String targetUid) =>
       _social.checkAreFriends(currentUid, targetUid);
+
+  // --- USER MODERATION ---
+  @override
+  Future<void> blockUser(String currentUid, String targetUid) =>
+      _moderation.blockUser(currentUid, targetUid);
+
+  @override
+  Future<void> unblockUser(String currentUid, String targetUid) =>
+      _moderation.unblockUser(currentUid, targetUid);
+
+  @override
+  Future<List<String>> getBlockedUserIds(String uid) =>
+      _moderation.getBlockedUserIds(uid);
+
+  @override
+  Future<void> reportUser({
+    required String reporterUid,
+    required String reportedUid,
+    required String reportedField,
+    required String reason,
+    required String details,
+  }) => _moderation.reportUser(
+    reporterUid: reporterUid,
+    reportedUid: reportedUid,
+    reportedField: reportedField,
+    reason: reason,
+    details: details,
+  );
 
   @override
   Future<void> saveFcmToken(String uid, String token) =>
