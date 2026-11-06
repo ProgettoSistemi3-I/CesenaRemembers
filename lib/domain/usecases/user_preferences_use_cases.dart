@@ -10,12 +10,16 @@ class UserPreferencesUseCases {
     bool? notifiche,
     bool? darkMode,
     bool? gps,
+    bool? crashlytics,
+    bool? permissionsSetupCompleted,
     String? languageCode,
   }) => _repository.updatePreferences(
     uid: uid,
     notifiche: notifiche,
     darkMode: darkMode,
     gps: gps,
+    crashlytics: crashlytics,
+    permissionsSetupCompleted: permissionsSetupCompleted,
     languageCode: languageCode,
   );
 }
