@@ -25,8 +25,8 @@ service cloud.firestore {
         prefs.keys().hasOnly([
           'notifiche', 'notificheConsenso', 'notificheConsensoAt',
           'permissionsSetupCompleted', 'crashlyticsEnabled',
-          'crashlyticsConsentAt', 'modalitaNotte', 'posizioneGps',
-          'languageCode'
+          'crashlyticsConsentAt', 'posizioneGpsConsensoAt',
+          'modalitaNotte', 'posizioneGps', 'languageCode'
         ]) &&
         (!('notifiche' in prefs) || prefs.notifiche is bool) &&
         (!('notificheConsenso' in prefs) || prefs.notificheConsenso is bool) &&
@@ -41,6 +41,8 @@ service cloud.firestore {
           prefs.crashlyticsEnabled is bool) &&
         (!('crashlyticsConsentAt' in prefs) ||
           prefs.crashlyticsConsentAt is timestamp) &&
+        (!('posizioneGpsConsensoAt' in prefs) ||
+          prefs.posizioneGpsConsensoAt is timestamp) &&
         (!prefs.get('crashlyticsEnabled', false) ||
           prefs.get('crashlyticsConsentAt', null) is timestamp) &&
         (!('modalitaNotte' in prefs) || prefs.modalitaNotte is bool) &&
