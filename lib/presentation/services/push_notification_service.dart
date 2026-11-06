@@ -17,6 +17,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await Firebase.initializeApp();
     final activeUid = FirebaseAuth.instance.currentUser?.uid;
     if (activeUid == null || message.data['recipientUid'] != activeUid) return;
+    // Le notifiche FCM con payload "notification" vengono mostrate dal sistema
+    // operativo in background: evita di mostrarle una seconda volta come locali.
+    if (message.notification != null) return;
     final title = message.data['title'] as String? ?? 'Cesena Remembers';
     final body = message.data['body'] as String? ?? '';
     if (body.isEmpty) return;
@@ -62,7 +65,7 @@ class PushNotificationService {
       // Non chiedere il permesso di sistema quando l'utente ha disattivato
       // esplicitamente le notifiche nell'app.
       if (!profile.notificheEnabled) {
-        await _unregisterTokenForUid(uid, profiles, deleteFcmToken: false);
+        await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
         return;
       }
@@ -70,7 +73,7 @@ class PushNotificationService {
         alert: true, badge: true, sound: true,
       );
       if (permission.authorizationStatus != AuthorizationStatus.authorized) {
-        await _unregisterTokenForUid(uid, profiles, deleteFcmToken: false);
+        await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
         return;
       }
@@ -126,18 +129,21 @@ class PushNotificationService {
     UserProfileUseCases profiles, {
     required bool deleteFcmToken,
   }) async {
-    final token = _registeredToken;
-    if (token != null) {
-      try {
+    try {
+      // Il token esiste anche dopo un riavvio, quando la cache statica
+      // _registeredToken è vuota.
+      final token = _registeredToken ??
+          await FirebaseMessaging.instance.getToken();
+      if (token != null && token.isNotEmpty) {
         await profiles.removeFcmToken(uid, token);
-      } catch (error, stackTrace) {
-        AppLogger.error(
-          'Unable to remove the stored FCM token from the profile',
-          error: error,
-          stackTrace: stackTrace,
-          name: 'PushNotificationService',
-        );
       }
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to remove the stored FCM token from the profile',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PushNotificationService',
+      );
     }
     if (deleteFcmToken) {
       try {
@@ -159,8 +165,12 @@ class PushNotificationService {
     // la mostriamo qui. In background se ne occupa FCM, evitando il doppio invio
     // che si verificava ascoltando anche gli aggiornamenti Firestore in AuthGate.
     _foregroundSubscription ??= FirebaseMessaging.onMessage.listen((message) {
-      final title = message.data['title'] as String? ?? 'Cesena Remembers';
-      final body = message.data['body'] as String? ?? '';
+      final title = message.notification?.title ??
+          message.data['title'] as String? ??
+          'Cesena Remembers';
+      final body = message.notification?.body ??
+          message.data['body'] as String? ??
+          '';
       if (body.isEmpty) return;
       unawaited(_showForegroundNotification(title, body));
     });
