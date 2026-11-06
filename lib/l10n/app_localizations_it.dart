@@ -512,16 +512,19 @@ class AppLocalizationsIt extends AppLocalizations {
   String get loginGoogleButton => 'ACCEDI CON GOOGLE';
 
   @override
-  String get loginTermsNoticePrefix => 'Continuando accetti i ';
+  String get loginTermsNoticePrefix => 'Accetto i ';
 
   @override
   String get loginTermsLink => 'Termini di Servizio';
 
   @override
-  String get loginTermsAnd => ' e l\'';
+  String get loginTermsAnd => ' e dichiaro di aver preso visione dell\'';
 
   @override
   String get loginPrivacyLink => 'Informativa sulla Privacy';
+
+  @override
+  String get loginAgeConfirmation => 'Dichiaro di aver compiuto almeno 14 anni.';
 
   @override
   String get errorCommunication => 'Errore durante la comunicazione con il server.';
