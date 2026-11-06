@@ -97,7 +97,13 @@ class _LoginPageState extends State<LoginPage>
     });
     try {
       await _signInWithGoogle();
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stackTrace) {
+      AppLogger.error(
+        'Google sign-in failed with FirebaseAuthException (code: ${e.code})',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'LoginPage',
+      );
       if (!mounted) return;
       if (e.code == 'user-disabled') {
         setState(() {
