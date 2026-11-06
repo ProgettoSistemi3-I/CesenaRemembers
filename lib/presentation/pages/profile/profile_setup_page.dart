@@ -14,12 +14,10 @@ class ProfileSetupPage extends StatefulWidget {
     super.key,
     required this.uid,
     required this.email,
-    this.suggestedName,
   });
 
   final String uid;
   final String email;
-  final String? suggestedName;
 
   @override
   State<ProfileSetupPage> createState() => _ProfileSetupPageState();
@@ -37,9 +35,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(
-      text: (widget.suggestedName ?? '').trim(),
-    );
+    _nameController = TextEditingController();
   }
 
   @override
