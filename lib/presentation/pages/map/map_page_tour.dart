@@ -91,12 +91,9 @@ extension _MapPageTourActions on _MapPageState {
                 upcomingStops: stops,
                 distanceFromPrevious: distances,
                 onReorder: (oldIndex, newIndex) {
-                  final normalizedNewIndex = oldIndex < newIndex
-                      ? newIndex - 1
-                      : newIndex;
                   _tourController.reorderUpcomingStops(
                     oldRelativeIndex: oldIndex,
-                    newRelativeIndex: normalizedNewIndex,
+                    newRelativeIndex: newIndex,
                   );
                   setModalState(() {});
                 },
@@ -112,7 +109,7 @@ extension _MapPageTourActions on _MapPageState {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (!mounted) return;
       _mapController.move(position, 17.0);
-      setState(() => _alignPositionOnUpdate = AlignOnUpdate.never);
+      _updateMapState(() => _alignPositionOnUpdate = AlignOnUpdate.never);
     });
   }
 
@@ -139,6 +136,7 @@ extension _MapPageTourActions on _MapPageState {
         );
       }
     }
+    if (!mounted) return;
 
     final isLastStop =
         _tourController.currentStopIndex ==

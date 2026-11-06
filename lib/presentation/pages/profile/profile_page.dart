@@ -122,7 +122,10 @@ class _ProfilePageState extends State<ProfilePage>
       final profile = _profileController.profile;
       if (profile != null) {
         ShellNavigationStore.openFriendRequestsPanel.value = false;
-        Future.microtask(() => _showNotificationsList(profile, Theme.of(context)));
+        Future.microtask(() {
+          if (!mounted) return;
+          _showNotificationsList(profile, Theme.of(context));
+        });
       }
     }
   }

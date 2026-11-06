@@ -4,7 +4,7 @@ extension _MapPageLocationLogic on _MapPageState {
   void _onGpsPreferenceChanged() {
     if (!mounted) return;
     final enabled = LocationPreferenceStore.gpsEnabled.value;
-    setState(() {
+    _updateMapState(() {
       _isGpsPreferenceEnabled = enabled;
       if (!enabled) {
         _alignPositionOnUpdate = AlignOnUpdate.never;
@@ -20,18 +20,18 @@ extension _MapPageLocationLogic on _MapPageState {
     if (!mounted || kIsWeb) return;
     _serviceStatusSub = Geolocator.getServiceStatusStream().listen((status) {
       if (!mounted) return;
-      setState(() {
+      _updateMapState(() {
         _isGpsEnabled = (status == ServiceStatus.enabled);
       });
       _verifyLocationState(requestPerms: false);
     }, onError: (Object error, StackTrace stackTrace) {
       if (!mounted) return;
-      setState(() => _isGpsEnabled = false);
+      _updateMapState(() => _isGpsEnabled = false);
     });
   }
 
   Future<void> _verifyLocationState({required bool requestPerms}) async {
-    if (mounted) setState(() => _isCheckingLocation = true);
+    if (mounted) _updateMapState(() => _isCheckingLocation = true);
 
     try {
       if (kIsWeb) {
@@ -43,7 +43,7 @@ extension _MapPageLocationLogic on _MapPageState {
             perm == LocationPermission.whileInUse ||
             perm == LocationPermission.always;
         if (mounted) {
-          setState(() {
+          _updateMapState(() {
             _isGpsEnabled = true;
             _hasPermissions = hasPerm;
             _isCheckingLocation = false;
@@ -64,7 +64,7 @@ extension _MapPageLocationLogic on _MapPageState {
           perm == LocationPermission.always;
 
       if (mounted) {
-        setState(() {
+        _updateMapState(() {
           _isGpsEnabled = gps;
           _hasPermissions = hasPerm;
           _isCheckingLocation = false;
@@ -78,7 +78,7 @@ extension _MapPageLocationLogic on _MapPageState {
         name: 'MapPage',
       );
       if (mounted) {
-        setState(() {
+        _updateMapState(() {
           _isGpsEnabled = false;
           _hasPermissions = false;
           _isCheckingLocation = false;
@@ -99,7 +99,7 @@ extension _MapPageLocationLogic on _MapPageState {
       return;
     }
 
-    setState(() {
+    _updateMapState(() {
       _isCenteringOnUser = true;
       _alignPositionOnUpdate = AlignOnUpdate.always;
     });
@@ -115,8 +115,8 @@ extension _MapPageLocationLogic on _MapPageState {
         position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 6),
           ),
-          timeLimit: const Duration(seconds: 6),
         );
       } catch (_) {
         position = await Geolocator.getLastKnownPosition();
@@ -130,7 +130,7 @@ extension _MapPageLocationLogic on _MapPageState {
       }
     } finally {
       if (mounted) {
-        setState(() => _isCenteringOnUser = false);
+        _updateMapState(() => _isCenteringOnUser = false);
       }
     }
   }

@@ -9,7 +9,7 @@ extension _MapPageDataLogic on _MapPageState {
         availableStops: _MapPageState._cachedStops!,
       );
       _bindTourUpdates();
-      setState(() {
+      _updateMapState(() {
         _pois = _MapPageState._cachedPois!;
         _isLoading = false;
         _loadError = null;
@@ -31,7 +31,7 @@ extension _MapPageDataLogic on _MapPageState {
       _tourController = TourSessionController(availableStops: stops);
       _bindTourUpdates();
 
-      setState(() {
+      _updateMapState(() {
         _pois = pois;
         _markers = _buildMarkers(pois);
         _loadError = null;
@@ -45,7 +45,7 @@ extension _MapPageDataLogic on _MapPageState {
         name: 'MapPage',
       );
       if (!mounted) return;
-      setState(() {
+      _updateMapState(() {
         _pois = [];
         _markers = const [];
         _loadError = 'errorLoadPoi';
@@ -83,7 +83,7 @@ extension _MapPageDataLogic on _MapPageState {
     if ((_currentRotation - rotation).abs() < 0.5) {
       return; // Soglia per evitare ricalcoli eccessivi
     }
-    setState(() {
+    _updateMapState(() {
       _currentRotation = rotation;
       // Ricalcola i marker solo quando la rotazione cambia
       if (_pois.isNotEmpty) _markers = _buildMarkers(_pois);
@@ -95,7 +95,7 @@ extension _MapPageDataLogic on _MapPageState {
     _tourUpdatesSub = _tourController.updates.listen((_) {
       // Aggiorna solo lo stato del tour, NON i marker.
       if (mounted) {
-        setState(() {});
+        _updateMapState(() {});
         unawaited(_refreshRouteLine());
       }
     });
@@ -104,11 +104,11 @@ extension _MapPageDataLogic on _MapPageState {
 
 extension _MapPagePoiPreviewLogic on _MapPageState {
   void _selectPoi(Poi poi) {
-    setState(() => _selectedPoi = poi);
+    _updateMapState(() => _selectedPoi = poi);
   }
 
   void _clearSelectedPoi() {
     if (_selectedPoi == null) return;
-    setState(() => _selectedPoi = null);
+    _updateMapState(() => _selectedPoi = null);
   }
 }

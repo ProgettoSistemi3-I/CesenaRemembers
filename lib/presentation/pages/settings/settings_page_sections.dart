@@ -3,13 +3,11 @@ part of 'settings_page.dart';
 class _HeaderCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final IconData? icon;
   final String? imageAsset;
 
   const _HeaderCard({
     required this.title,
     required this.subtitle,
-    this.icon,
     this.imageAsset,
   });
 
@@ -54,7 +52,7 @@ class _HeaderCard extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   )
-                : Icon(icon, size: 32, color: AppPalette.olive),
+                : const SizedBox(width: 32, height: 32),
           ),
           const SizedBox(width: 20),
           Expanded(

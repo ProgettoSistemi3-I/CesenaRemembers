@@ -479,7 +479,7 @@ class TourPlanSheet extends StatelessWidget {
             Expanded(
               child: ReorderableListView.builder(
                 itemCount: upcomingStops.length,
-                onReorder: onReorder,
+                onReorderItem: onReorder,
                 buildDefaultDragHandles: false,
                 proxyDecorator: (child, index, animation) {
                   return Material(
