@@ -1,0 +1,79 @@
+name: Android APK release
+
+# Parte solo quando crei un tag tipo v1.0.1 (o a mano dal tab Actions).
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # serve per creare la Release e allegare l'APK
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Prepara la firma (keystore dai secret)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$STORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > android/key.properties
+
+      - run: flutter pub get
+
+      - name: Build APK release
+        env:
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+          STADIA_MAPS_API_KEY: ${{ secrets.STADIA_MAPS_API_KEY }}
+          MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
+          CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
+        run: |
+          flutter build apk --release \
+            --dart-define=GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID \
+            --dart-define=STADIA_MAPS_API_KEY=$STADIA_MAPS_API_KEY \
+            --dart-define=MAPBOX_ACCESS_TOKEN=$MAPBOX_ACCESS_TOKEN \
+            --dart-define=CARTO_API_KEY=$CARTO_API_KEY
+          cp build/app/outputs/flutter-apk/app-release.apk cesena-remembers.apk
+
+      - name: Mostra l'impronta SHA-1 del certificato di firma
+        run: |
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs cesena-remembers.apk | grep -E "SHA-(1|256)"
+
+      - name: Pulisci i file di firma
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cesena-remembers-apk
+          path: cesena-remembers.apk
+
+      - name: Pubblica nella Release (solo sui tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cesena-remembers.apk
+          generate_release_notes: true
