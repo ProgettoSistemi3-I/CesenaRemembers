@@ -4,6 +4,12 @@ services:
   # - /api/generate-quiz e / -> a quiz-server (Cesena Remembers)
   # - /api/                  -> a uniklas-backend (UniKlas)
   gateway:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     image: nginx:alpine
     container_name: cesena-gateway
     restart: unless-stopped
@@ -18,6 +24,12 @@ services:
 
   # 1. MICROSERVIZIO QUIZ (Python) - Inalterato, riceve le richieste da Nginx
   quiz-server:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     build: 
       context: ./quiz-service
     container_name: cesena-quiz-server
@@ -33,13 +45,28 @@ services:
 
   # 2. MICROSERVIZIO NOTIFICHE (Node.js) - Totalmente inalterato
   notifier-service:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     build: 
       context: ./notifier-service
     container_name: cesena-notifier-service
     restart: unless-stopped
+    volumes:
+      # La chiave resta fuori dall'immagine e dal repository; montaggio read-only.
+      - ./notifier-service/serviceAccountKey.json:/usr/src/app/serviceAccountKey.json:ro
 
   # 3. BACKEND UNIKLAS (.NET 9 C#) - Nuovo servizio isolato
   uniklas-backend:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     build:
       context: ./uniklas-backend
       dockerfile: Dockerfile
