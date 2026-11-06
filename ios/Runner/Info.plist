@@ -65,19 +65,5 @@
 		</dict>
 	</array>
 
-	<!-- Permesso HTTP cleartext per il backend quiz (pascal.ispascalcomandini.it) -->
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>pascal.ispascalcomandini.it</key>
-			<dict>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
-	</dict>
 </dict>
 </plist>

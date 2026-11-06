@@ -4,18 +4,22 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 
 import '../core/logging/app_logger.dart';
+import 'network/pinned_client.dart';
 import '../domain/entities/quiz_load_result.dart';
 import '../domain/entities/quiz_question.dart';
 import '../domain/repositories/i_quiz_repository.dart';
 import 'seeds/historic_places_seed.dart';
 
 class QuizRepositoryImpl implements IQuizRepository {
-  QuizRepositoryImpl({http.Client? httpClient})
-    : _httpClient = httpClient ?? http.Client();
+  QuizRepositoryImpl({http.Client? httpClient}) : _httpClient = httpClient;
 
-  final http.Client _httpClient;
+  http.Client? _httpClient;
+
+  Future<http.Client> _client() async =>
+      _httpClient ??= await createQuizHttpClient();
+
   static const String _defaultBaseUrl =
-      'http://pascal.ispascalcomandini.it:8000';
+      'https://pascal.ispascalcomandini.it:8000';
   static const _fallbackDifficultyLabel = 'quiz_fallback_name';
   static const _requestTimeout = Duration(seconds: 12);
   static final Map<String, QuizLoadResult> _memoryCache =
@@ -42,7 +46,7 @@ class QuizRepositoryImpl implements IQuizRepository {
     );
 
     try {
-      final response = await _httpClient
+      final response = await (await _client())
           .post(
             Uri.parse('$baseUrl/api/generate-quiz'),
             headers: {'Content-Type': 'application/json'},

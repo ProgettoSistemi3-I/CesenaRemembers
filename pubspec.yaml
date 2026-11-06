@@ -59,6 +59,7 @@ flutter:
     - assets/avatars/
     - assets/achievements/
     - assets/images/pois/
+    - assets/certs/server.crt
 
 flutter_launcher_icons:
   android: "launcher_icon"

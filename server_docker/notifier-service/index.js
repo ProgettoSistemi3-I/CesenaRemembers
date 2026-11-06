@@ -2,100 +2,112 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-const keyPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(__dirname, 'serviceAccountKey.json');
+// Verifica la presenza della chiave
+const keyPath = path.join(__dirname, 'serviceAccountKey.json');
 if (!fs.existsSync(keyPath)) {
-  console.error('Credenziali Firebase non trovate. Monta il service account come secret read-only.');
+  console.error("ERRORE CRITICO: Il file 'serviceAccountKey.json' non e' presente.");
+  console.error("Scaricalo dalla console di Firebase (Impostazioni Progetto -> Account di Servizio) e inseriscilo in questa cartella.");
   process.exit(1);
 }
 
 const serviceAccount = require(keyPath);
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
 const db = admin.firestore();
-const users = db.collection('users');
 
-console.log("Notifier avviato: ascolto degli eventi nella collection group 'inbox'.");
+console.log("🚀 Notifier Service avviato. In ascolto su modifiche alla collection 'users'...");
 
-let initialSnapshot = true;
-db.collectionGroup('inbox').onSnapshot(async (snapshot) => {
-  // La prima snapshot contiene richieste già esistenti: non inviare notifiche retroattive.
-  if (initialSnapshot) {
-    initialSnapshot = false;
+// Ascolta tutte le modifiche ai documenti nella collection 'users'
+db.collection('users').onSnapshot(snapshot => {
+  snapshot.docChanges().forEach(async (change) => {
+    
+    if (change.type === 'modified') {
+      const newData = change.doc.data();
+      
+      // Estrarre dati necessari
+      const receivedRequests = newData.receivedFriendRequests || [];
+      const sentRequests = newData.sentFriendRequests || []; // 🔴 NUOVO: Tracciamo le inviate
+      const friends = newData.friends || []; 
+      const fcmTokens = newData.fcmTokens || [];
+      const userId = change.doc.id;
+
+      const previousState = global.usersCache ? global.usersCache[userId] : null;
+      
+      // Aggiorniamo la cache includendo anche i sentRequests
+      if (!global.usersCache) global.usersCache = {};
+      global.usersCache[userId] = {
+        requestsCount: receivedRequests.length,
+        friendsCount: friends.length,
+        sentCount: sentRequests.length // 🔴 NUOVO
+      };
+
+      // Se non avevamo lo stato precedente, lo saltiamo per evitare falsi positivi all'avvio
+      if (!previousState) return;
+
+      // ------------------------------------------------------------------
+      // CASO 1: NUOVA RICHIESTA RICEVUTA
+      // ------------------------------------------------------------------
+      if (receivedRequests.length > previousState.requestsCount) {
+        console.log(`🔔 Nuova richiesta di amicizia per l'utente ${userId}!`);
+        await inviaNotifica(fcmTokens, {
+          title: 'Nuova richiesta di amicizia',
+          body: 'Qualcuno vuole stringere amicizia con te su Cesena Remembers!',
+          type: 'friend_request'
+        });
+      }
+
+      // ------------------------------------------------------------------
+      // CASO 2: RICHIESTA ACCETTATA (Nuovo amico aggiunto)
+      // ------------------------------------------------------------------
+      // 🔴 IL FIX: Inviamo la notifica SOLO a chi ha visto diminuire le sue richieste INVIATE
+      if (friends.length > previousState.friendsCount && sentRequests.length < previousState.sentCount) {
+        console.log(`🤝 L'utente ${userId} ha un nuovo amico (aveva inviato lui la richiesta)!`);
+        await inviaNotifica(fcmTokens, {
+          title: 'Nuova Amicizia!',
+          body: 'La tua richiesta di amicizia è stata accettata.',
+          type: 'friend_accepted'
+        });
+      }
+
+    } else if (change.type === 'added') {
+      // Inizializza la cache all'avvio del server per i documenti già esistenti
+      if (!global.usersCache) global.usersCache = {};
+      global.usersCache[change.doc.id] = {
+        requestsCount: (change.doc.data().receivedFriendRequests || []).length,
+        friendsCount: (change.doc.data().friends || []).length,
+        sentCount: (change.doc.data().sentFriendRequests || []).length // 🔴 NUOVO
+      };
+    }
+  });
+}, err => {
+  console.error("Errore durante l'ascolto di Firestore:", err);
+});
+
+// Funzione helper per inviare la notifica pulendo il codice principale
+async function inviaNotifica(tokens, payload) {
+  if (tokens.length === 0) {
+    console.log(`⚠️ Impossibile inviare notifica: Nessun token FCM registrato.`);
     return;
   }
 
-  for (const change of snapshot.docChanges()) {
-    const request = change.doc.data() || {};
-    const senderUid = request.senderUid;
-    const recipientUid = request.recipientUid;
-    if (!senderUid || !recipientUid || senderUid === recipientUid) continue;
+  const message = {
+    notification: {
+      title: payload.title,
+      body: payload.body
+    },
+    data: {
+      type: payload.type
+    },
+    tokens: tokens 
+  };
 
-    if (change.type === 'added') {
-      await sendToUser(recipientUid, {
-        title: { it: 'Nuova richiesta di amicizia', en: 'New friend request' },
-        body: { it: 'Hai ricevuto una richiesta di amicizia su Cesena Remembers.', en: 'You received a friend request on Cesena Remembers.' },
-        type: 'friend_request',
-      });
-    } else if (change.type === 'removed') {
-      // La richiesta rimossa corrisponde a un'accettazione solo se il mittente
-      // risulta ora amico del destinatario; rifiuti, annullamenti e cancellazioni
-      // account non generano questa notifica.
-      try {
-        const senderSnapshot = await users.doc(senderUid).get();
-        const sender = senderSnapshot.data() || {};
-        const accepted = (sender.friends || []).includes(recipientUid) &&
-          !(sender.sentFriendRequests || []).includes(recipientUid);
-        if (accepted) {
-          await sendToUser(senderUid, {
-            title: { it: 'Nuova amicizia', en: 'New friend' },
-            body: { it: 'La tua richiesta di amicizia è stata accettata.', en: 'Your friend request was accepted.' },
-            type: 'friend_accepted',
-          });
-        }
-      } catch (error) {
-        console.error('Errore nel controllo di una richiesta rimossa:', error.message);
-      }
-    }
-  }
-}, (error) => {
-  console.error('Errore durante l’ascolto delle richieste:', error);
-});
-
-async function sendToUser(userId, payload) {
   try {
-    const snapshot = await users.doc(userId).get();
-    if (!snapshot.exists) return;
-    const data = snapshot.data() || {};
-    if (data.preferences?.notifiche === false) return;
-    const tokens = Array.isArray(data.fcmTokens) ? data.fcmTokens.filter(Boolean) : [];
-    if (tokens.length === 0) return;
-
-    const language = data.preferences?.languageCode === 'en' ? 'en' : 'it';
-    const response = await admin.messaging().sendEachForMulticast({
-      data: {
-        type: payload.type,
-        recipientUid: userId,
-        title: payload.title[language],
-        body: payload.body[language],
-      },
-      tokens,
-    });
-
-    const invalidTokens = [];
-    response.responses.forEach((item, index) => {
-      const code = item.error?.code || '';
-      if (!item.success && (
-        code.includes('registration-token-not-registered') ||
-        code.includes('invalid-registration-token')
-      )) {
-        invalidTokens.push(tokens[index]);
-      }
-    });
-    if (invalidTokens.length) {
-      await users.doc(userId).update({
-        fcmTokens: admin.firestore.FieldValue.arrayRemove(...invalidTokens),
-      });
-    }
+    const response = await admin.messaging().sendEachForMulticast(message);
+    console.log(`✅ Notifica "${payload.title}" inviata a ${response.successCount} dispositivi.`);
   } catch (error) {
-    console.error(`Errore invio notifica a ${userId}:`, error.message);
+    console.error("Errore durante l'invio della notifica:", error);
   }
 }

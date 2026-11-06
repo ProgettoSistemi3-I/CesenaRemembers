@@ -1,0 +1,7 @@
+.env
+certs/
+serviceAccountKey.json
+__pycache__/
+tools/results/
+*.bak
+*.tar.gz
