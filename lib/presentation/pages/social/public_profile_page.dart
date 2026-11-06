@@ -7,6 +7,8 @@ import '../../../core/logging/app_logger.dart';
 import '../../../domain/entities/userprofile.dart';
 
 import '../../../domain/usecases/user_profile_use_cases.dart';
+import '../../../domain/usecases/user_moderation_use_cases.dart';
+import 'moderation_text.dart';
 
 import '../../../injection_container.dart';
 
@@ -47,6 +49,8 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
   bool _isLoading = true;
   bool _isFriendActionInProgress = false;
+  bool _isBlockedByMe = false;
+  bool _isModerationInProgress = false;
 
   String? _loadError;
 
@@ -73,12 +77,16 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       final profile = await profiles.getUserProfile(widget.uid);
       final myUid = _socialCtrl.currentUserId;
       final myProfile = myUid.isEmpty ? null : await profiles.getUserProfile(myUid);
+      final blockedIds = myUid.isEmpty
+          ? const <String>[]
+          : await sl<UserModerationUseCases>().getBlockedUserIds(myUid);
 
       if (!mounted) return;
 
       setState(() {
         _targetProfile = profile;
         _myProfile = myProfile;
+        _isBlockedByMe = blockedIds.contains(widget.uid);
 
         _isLoading = false;
 
@@ -186,6 +194,299 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  Future<void> _handleModerationMenu(String action) async {
+    if (action == 'report') {
+      await _showReportDialog();
+    } else if (action == 'block') {
+      await _confirmAndBlock();
+    } else if (action == 'unblock') {
+      await _unblockTarget();
+    }
+  }
+
+  Future<void> _showReportDialog() async {
+    final target = _targetProfile;
+    final reporterUid = _socialCtrl.currentUserId;
+    if (target == null || reporterUid.isEmpty) return;
+
+    String reportedField = 'displayName';
+    String reason = 'inappropriate_name';
+    String details = '';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final isEnglish =
+              Localizations.localeOf(context).languageCode == 'en';
+          String t(String it, String en) => isEnglish ? en : it;
+
+          return AlertDialog(
+            title: Text(t('Segnala profilo', 'Report profile')),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t(
+                    'Quale contenuto vuoi segnalare?',
+                    'Which profile content do you want to report?',
+                  )),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: reportedField,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'displayName',
+                        child: Text(t('Nome visualizzato', 'Display name')),
+                      ),
+                      DropdownMenuItem(
+                        value: 'username',
+                        child: Text(t('Username', 'Username')),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => reportedField = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Text(t('Motivo della segnalazione', 'Reason for reporting')),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: reason,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'inappropriate_name',
+                        child: Text(t('Nome o username inappropriato', 'Inappropriate name or username')),
+                      ),
+                      DropdownMenuItem(
+                        value: 'impersonation',
+                        child: Text(t('Impersonificazione', 'Impersonation')),
+                      ),
+                      DropdownMenuItem(
+                        value: 'harassment',
+                        child: Text(t('Molestie o bullismo', 'Harassment or bullying')),
+                      ),
+                      DropdownMenuItem(
+                        value: 'spam',
+                        child: Text(t('Spam', 'Spam')),
+                      ),
+                      DropdownMenuItem(
+                        value: 'other',
+                        child: Text(t('Altro', 'Other')),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) setDialogState(() => reason = value);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    maxLength: 500,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: t(
+                        'Ulteriori dettagli (facoltativi)',
+                        'Additional details (optional)',
+                      ),
+                      border: const OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                    ),
+                    onChanged: (value) => details = value,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Text(t('Annulla', 'Cancel')),
+              ),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                label: Text(t('Invia', 'Submit')),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await sl<UserModerationUseCases>().reportUser(
+        reporterUid: reporterUid,
+        reportedUid: target.uid,
+        reportedField: reportedField,
+        reason: reason,
+        details: details,
+      );
+      if (!mounted) return;
+      final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEnglish
+              ? 'Report sent. Thank you.'
+              : 'Segnalazione inviata. Grazie.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to submit a user report',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PublicProfilePage',
+      );
+      if (!mounted) return;
+      final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEnglish
+              ? 'Unable to send the report. Please try again.'
+              : 'Impossibile inviare la segnalazione. Riprova.'),
+          backgroundColor: AppPalette.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _confirmAndBlock() async {
+    final target = _targetProfile;
+    if (target == null || _isModerationInProgress) return;
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(isEnglish ? 'Block user?' : 'Bloccare questo utente?'),
+        content: Text(isEnglish
+            ? 'They will no longer be able to send you friend requests. Any existing friendship or pending request will be removed. You can unblock them in Settings.'
+            : 'Non potrà più inviarti richieste di amicizia. Le amicizie e le richieste in sospeso verranno rimosse. Potrai sbloccarlo dalle Impostazioni.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(isEnglish ? 'Cancel' : 'Annulla'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppPalette.danger,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(isEnglish ? 'Block' : 'Blocca'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isModerationInProgress = true);
+    try {
+      await sl<UserModerationUseCases>().blockUser(
+        _socialCtrl.currentUserId,
+        target.uid,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEnglish ? 'User blocked.' : 'Utente bloccato.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.of(context).pop();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to complete user block',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PublicProfilePage',
+      );
+      var blockWasCreated = false;
+      try {
+        blockWasCreated = (await sl<UserModerationUseCases>()
+                .getBlockedUserIds(_socialCtrl.currentUserId))
+            .contains(target.uid);
+      } catch (_) {
+        // The original error remains the most useful diagnostic.
+      }
+      if (!mounted) return;
+      setState(() {
+        _isModerationInProgress = false;
+        _isBlockedByMe = blockWasCreated;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(blockWasCreated
+              ? (isEnglish
+                  ? 'The block is active, but some existing social data could not be cleaned up. Please retry later.'
+                  : 'Il blocco è attivo, ma non è stato possibile ripulire tutti i dati social. Riprova più tardi.')
+              : (isEnglish
+                  ? 'Unable to block this user. Please try again.'
+                  : 'Impossibile bloccare questo utente. Riprova.')),
+          backgroundColor: AppPalette.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      if (blockWasCreated) await _loadProfile();
+      return;
+    }
+    if (mounted) setState(() => _isModerationInProgress = false);
+  }
+
+  Future<void> _unblockTarget() async {
+    final target = _targetProfile;
+    if (target == null || _isModerationInProgress) return;
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+    setState(() => _isModerationInProgress = true);
+    try {
+      await sl<UserModerationUseCases>().unblockUser(
+        _socialCtrl.currentUserId,
+        target.uid,
+      );
+      if (!mounted) return;
+      setState(() => _isBlockedByMe = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEnglish ? 'User unblocked.' : 'Utente sbloccato.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to unblock user',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'PublicProfilePage',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEnglish
+              ? 'Unable to unblock this user.'
+              : 'Impossibile sbloccare questo utente.'),
+          backgroundColor: AppPalette.danger,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isModerationInProgress = false);
+    }
   }
 
   // Visualizza la lista amici dell'utente
@@ -508,6 +809,52 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         centerTitle: true,
 
         iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+        actions: myUid == profile.uid
+            ? const []
+            : [
+                PopupMenuButton<String>(
+                  enabled: !_isModerationInProgress,
+                  tooltip: ModerationText.of(
+                    context,
+                    it: 'Opzioni profilo',
+                    en: 'Profile options',
+                  ),
+                  onSelected: _handleModerationMenu,
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'report',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.flag_outlined, color: AppPalette.danger),
+                          const SizedBox(width: 12),
+                          Text(ModerationText.of(
+                            context,
+                            it: 'Segnala profilo',
+                            en: 'Report profile',
+                          )),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _isBlockedByMe ? 'unblock' : 'block',
+                      child: Row(
+                        children: [
+                          Icon(
+                            _isBlockedByMe ? Icons.person_add_alt_1 : Icons.block,
+                            color: AppPalette.danger,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(ModerationText.of(
+                            context,
+                            it: _isBlockedByMe ? 'Sblocca utente' : 'Blocca utente',
+                            en: _isBlockedByMe ? 'Unblock user' : 'Block user',
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
       ),
 
       body: SingleChildScrollView(
@@ -602,7 +949,23 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
 
                   // Bottoni Amicizia
                   if (myUid != profile.uid) ...[
-                    if (isFriend)
+                    if (_isBlockedByMe)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          ModerationText.of(
+                            context,
+                            it: 'Hai bloccato questo utente.',
+                            en: 'You have blocked this user.',
+                          ),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    else if (isFriend)
                       FilledButton.tonalIcon(
                         onPressed: () => _onFriendAction('remove'),
 

@@ -71,7 +71,7 @@
 
   <section id="ambito">
     <h2>2. Ambito e funzionamento del servizio</h2>
-    <p>Questa informativa riguarda l'app mobile Cesena Remembers e il sito <a href="https://cesenaremembers.com">cesenaremembers.com</a>. L'app offre contenuti culturali sulla storia di Cesena, mappe, percorsi, quiz, progressi di gioco, profili, classifica e funzioni social limitate alle richieste di amicizia e alla condivisione di alcune statistiche.</p>
+    <p>Questa informativa riguarda l'app mobile Cesena Remembers e il sito <a href="https://cesenaremembers.com">cesenaremembers.com</a>. L'app offre contenuti culturali sulla storia di Cesena, mappe, percorsi, quiz, progressi di gioco, profili, classifica e funzioni social che comprendono ricerca utenti, richieste e relazioni di amicizia, blocco e segnalazione degli account e condivisione di alcune statistiche.</p>
     <p>La scuola può utilizzare o presentare il progetto in un contesto didattico. Ciò non rende automaticamente la scuola titolare dei trattamenti effettuati nell'app. Se una scuola decide autonomamente di utilizzare dati degli studenti per proprie finalità, deve valutare e disciplinare separatamente il proprio ruolo e fornire le informazioni pertinenti.</p>
     <p>Nella versione attuale l'app non integra Firebase Analytics/Google Analytics né SDK pubblicitari.</p>
   </section>
@@ -96,7 +96,7 @@
       <li>UID tecnici, richieste di amicizia, stato delle richieste, relazioni reciproche e conteggi;</li>
       <li>statistiche dettagliate rese disponibili soltanto al proprietario e, secondo le regole applicative e Firestore, agli amici reciproci.</li>
     </ul>
-    <p><strong>Dati di moderazione:</strong> quando un account viene sospeso o bannato per violazioni o abusi, il progetto può conservare nella collection Firestore <code>banned_users</code> l'UID dell'account, la motivazione del provvedimento e la data (<code>bannedAt</code>). Questi dati sono utilizzati esclusivamente per la sicurezza del servizio e la prevenzione di nuove violazioni.</p>
+    <p><strong>Dati di moderazione:</strong> le segnalazioni inviate dall'app possono contenere UID del segnalante e dell'account segnalato, nome visualizzato e username rilevati al momento della segnalazione, campo contestato, categoria del motivo, dettagli facoltativi, data e stato della revisione. Le segnalazioni sono conservate nella collection privata <code>user_reports</code> e non sono consultabili dagli account tramite l'app. Le liste di blocco conservano gli UID dell'utente che blocca e dell'account bloccato e la data del blocco nella collection <code>user_blocks</code>. Quando un account viene sospeso o bannato, il progetto può inoltre conservare in <code>banned_users</code> l'UID dell'account, la motivazione e la data (<code>bannedAt</code>). Questi dati sono utilizzati per sicurezza, moderazione e prevenzione degli abusi.</p>
     <h3>3.4 Posizione, dispositivo e notifiche</h3>
     <ul>
       <li>coordinate GPS mentre l'utente utilizza funzioni che richiedono la posizione e ha concesso il permesso;</li>
@@ -207,6 +207,7 @@
       <thead><tr><th>Categoria</th><th>Periodo o criterio</th></tr></thead>
       <tbody>
         <tr><td>Account, profilo, username, XP, progressi, statistiche e relazioni social in Firestore</td><td>Per la durata dell'account. Quando la cancellazione in-app termina con successo, il codice elimina i documenti operativi in users, public_profiles, friend_stats, leaderboard, usernames e le relazioni/richieste collegate. Le eventuali copie di backup gestite da Google seguono i cicli di conservazione e cancellazione previsti dal servizio e dalle impostazioni applicabili; la cancellazione dall'app riguarda i dati operativi attivi.</td></tr>
+        <tr><td>Segnalazioni e dati di moderazione</td><td>Le segnalazioni sono conservate per un massimo di 24 mesi dalla ricezione, poi eliminate, salvo obblighi di legge o necessità documentate di tutela di diritti. I blocchi restano nella lista dell'utente che li ha creati fino allo sblocco o alla cancellazione dell'account che li ha creati; una voce riferita a un account cancellato può restare nella lista di sicurezza del soggetto che ha effettuato il blocco finché quest'ultimo non la rimuove.</td></tr>
         <tr><td>Account e dati di autenticazione Firebase</td><td>Fino alla richiesta di eliminazione dell'utente da parte del cliente Firebase; i successivi tempi di rimozione dai sistemi attivi e dai backup seguono le condizioni e i periodi dichiarati da Google.</td></tr>
         <tr><td>Token FCM conservati nel profilo</td><td>Fino a disattivazione delle notifiche, sostituzione del token o cancellazione dell'account. Il codice rimuove il token dal profilo quando le notifiche vengono disattivate, quando il token viene sostituito o durante la cancellazione account. Il token locale viene inoltre eliminato dal servizio FCM quando l'utente disattiva le notifiche nell'app.</td></tr>
         <tr><td>Crashlytics</td><td>90 giorni per stack trace, dati diagnostici estratti e identificativi associati prima che Google avvii la rimozione da sistemi attivi e backup.</td></tr>

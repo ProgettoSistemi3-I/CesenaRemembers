@@ -26,6 +26,24 @@ class UserCleanupDataSource {
     final data = snapshot.data()!;
     final normalizedUsername = (data['usernameNormalized'] as String?)?.trim();
 
+    // Remove the account owner's outgoing block list. Blocks created by other
+    // users remain in their own safety lists and can be removed by those users.
+    final ownBlocks = await _firestore
+        .collection('user_blocks')
+        .doc(uid)
+        .collection('blocked')
+        .get();
+    for (var i = 0; i < ownBlocks.docs.length; i += 450) {
+      final batch = _firestore.batch();
+      final end = i + 450 > ownBlocks.docs.length
+          ? ownBlocks.docs.length
+          : i + 450;
+      for (final block in ownBlocks.docs.sublist(i, end)) {
+        batch.delete(block.reference);
+      }
+      await batch.commit();
+    }
+
     final List<String> myFriends = List<String>.from(data['friends'] ?? []);
     final List<String> iSentRequestsTo = List<String>.from(
       data['sentFriendRequests'] ?? [],

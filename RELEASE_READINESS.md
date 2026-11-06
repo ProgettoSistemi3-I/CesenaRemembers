@@ -15,6 +15,19 @@ This file contains operational checks that cannot be completed by editing reposi
 - [ ] Verify that Italian and English legal pages are deployed and that login and Settings open the version matching the app language.
 - [ ] Verify that the public account-deletion pages and the in-app deletion flow are available and tested: `https://cesenaremembers.com/legal/delete-account.html` and `https://cesenaremembers.com/legal/delete-account-en.html`.
 
+## User-generated profile moderation
+
+The feature implementation is present on branch `feat/user-reporting-blocking`. Do not consider it released until the following checks are complete:
+
+- [ ] Deploy the updated `firestore.rules` and run `npm test` from `tests/firestore_rules` against the Firestore Emulator. Review the rules simulator output and verify every affected branch remains within the expression-evaluation budget.
+- [ ] Test the Android app end-to-end: report both display name and username; all five report reasons; optional details and the 500-character limit; block an existing friend; block with an incoming or outgoing pending request; block in either direction; unblock; verify no old friendship or request is restored.
+- [ ] Confirm a blocked user cannot create or accept a friend request by using both app flows and direct Firestore SDK calls. Confirm detailed friend statistics are denied while global leaderboard and public hero-card fields remain available as intended.
+- [ ] Build and deploy the notifier container with the updated `server_docker/notifier-service/index.js`. Test pushes for incoming and accepted requests, both directions of a block, notification opt-out, app foreground/background/terminated states and simultaneous request changes.
+- [ ] Give only the designated moderators access to `user_reports` through Firebase Console or a trusted Admin SDK workflow. Client-side Firestore reads, updates and deletes of reports must remain denied. Never ship service-account credentials in the app.
+- [ ] Approve the report retention period and schedule `scripts/cleanup_user_reports.py` at an appropriate cadence using a protected service account. Run it in dry-run mode first; use `--apply` only after reviewing the listed records.
+- [ ] Publish the updated Italian and English Terms and Privacy Notice to Cloudflare Pages. Verify both links from the app and ensure the descriptions, retention, operational workflow and actual practice match.
+- [ ] Verify that moderators can review reports, document decisions, take proportionate action and process appeals/support requests before public release.
+
 ## Deployment and credentials
 
 - [ ] Place the Firebase Admin service-account key at `server_docker/notifier-service/serviceAccountKey.json` on the server only. It is excluded from Docker build context and is mounted read-only into the notifier container; never commit it or bake it into the image.

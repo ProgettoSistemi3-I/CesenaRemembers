@@ -46,9 +46,9 @@ usersQuery.onSnapshot(async snapshot => {
 
     const previousState = usersCache.get(userId);
     usersCache.set(userId, {
-      requestsCount: receivedRequests.length,
-      friendsCount: friends.length,
-      sentCount: sentRequests.length
+      receivedRequests: [...receivedRequests],
+      friends: [...friends],
+      sentRequests: [...sentRequests]
     });
 
     // I documenti iniziali servono solo a popolare la cache.
@@ -56,7 +56,13 @@ usersQuery.onSnapshot(async snapshot => {
       continue;
     }
 
-    if (receivedRequests.length > previousState.requestsCount) {
+    // Compare request IDs rather than array lengths: a simultaneous removal
+    // and insertion must not hide a new request or trigger a duplicate push.
+    const newRequestSenders = receivedRequests.filter(
+      senderUid => !previousState.receivedRequests.includes(senderUid)
+    );
+    for (const senderUid of newRequestSenders) {
+      if (await hasBlockBetween(userId, senderUid)) continue;
       await inviaNotifica(userId, fcmTokens, {
         title: 'Nuova richiesta di amicizia',
         body: 'Qualcuno vuole stringere amicizia con te su Cesena Remembers!',
@@ -64,10 +70,14 @@ usersQuery.onSnapshot(async snapshot => {
       });
     }
 
-    if (
-      friends.length > previousState.friendsCount &&
-      sentRequests.length < previousState.sentCount
-    ) {
+    const newFriends = friends.filter(
+      friendUid => !previousState.friends.includes(friendUid)
+    );
+    const acceptedFriends = newFriends.filter(
+      friendUid => previousState.sentRequests.includes(friendUid)
+    );
+    for (const friendUid of acceptedFriends) {
+      if (await hasBlockBetween(userId, friendUid)) continue;
       await inviaNotifica(userId, fcmTokens, {
         title: 'Nuova amicizia!',
         body: 'La tua richiesta di amicizia è stata accettata.',
@@ -78,6 +88,14 @@ usersQuery.onSnapshot(async snapshot => {
 }, error => {
   console.error('Errore durante l\'ascolto selettivo di Firestore:', error);
 });
+
+async function hasBlockBetween(uidA, uidB) {
+  const [blockerBlock, reciprocalBlock] = await Promise.all([
+    db.doc(`user_blocks/${uidA}/blocked/${uidB}`).get(),
+    db.doc(`user_blocks/${uidB}/blocked/${uidA}`).get()
+  ]);
+  return blockerBlock.exists || reciprocalBlock.exists;
+}
 
 async function inviaNotifica(userId, tokens, payload) {
   if (!Array.isArray(tokens) || tokens.length === 0) {
