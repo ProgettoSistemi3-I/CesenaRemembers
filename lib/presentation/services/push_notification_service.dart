@@ -46,7 +46,9 @@ class PushNotificationService {
   static StreamSubscription<RemoteMessage>? _openedSubscription;
   static StreamSubscription<RemoteMessage>? _foregroundSubscription;
 
-  static Future<void> initializeAndSaveToken() async {
+  static Future<void> initializeAndSaveToken({
+    bool requestPermissionIfNeeded = true,
+  }) async {
     final profiles = sl<UserProfileUseCases>();
     final uid = profiles.getCurrentUserUid();
     if (uid == null || uid.isEmpty) return;
@@ -72,10 +74,18 @@ class PushNotificationService {
         _setupNotificationListeners();
         return;
       }
-      final permission = await messaging.requestPermission(
-        alert: true, badge: true, sound: true,
-      );
-      if (permission.authorizationStatus != AuthorizationStatus.authorized) {
+      var authorizationStatus =
+          (await messaging.getNotificationSettings()).authorizationStatus;
+      if (authorizationStatus != AuthorizationStatus.authorized &&
+          requestPermissionIfNeeded) {
+        final permission = await messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        authorizationStatus = permission.authorizationStatus;
+      }
+      if (authorizationStatus != AuthorizationStatus.authorized) {
         await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
