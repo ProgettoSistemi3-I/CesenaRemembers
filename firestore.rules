@@ -1319,7 +1319,7 @@ service cloud.firestore {
 
     match /user_blocks/{blockerUid}/blocked/{blockedUid} {
       // Only the owner can inspect their own block list.
-      allow get, list: if isOwner(blockerUid) && isNotBanned();
+      allow get, list: if isOwner(blockerUid);
 
       allow create: if isOwner(blockerUid) &&
         isNotBanned() &&
