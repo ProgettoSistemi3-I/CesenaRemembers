@@ -286,6 +286,8 @@ class UserProfileDataSource {
         'crashlyticsEnabled': existingPrefs['crashlyticsEnabled'] == true,
         if (existingPrefs['crashlyticsConsentAt'] is Timestamp)
           'crashlyticsConsentAt': existingPrefs['crashlyticsConsentAt'],
+        if (existingPrefs['posizioneGpsConsensoAt'] is Timestamp)
+          'posizioneGpsConsensoAt': existingPrefs['posizioneGpsConsensoAt'],
         if (existingPrefs['notificheConsensoAt'] is Timestamp)
           'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
@@ -361,7 +363,12 @@ class UserProfileDataSource {
           : FieldValue.delete();
     }
     if (darkMode != null) updates['preferences.modalitaNotte'] = darkMode;
-    if (gps != null) updates['preferences.posizioneGps'] = gps;
+    if (gps != null) {
+      updates['preferences.posizioneGps'] = gps;
+      updates['preferences.posizioneGpsConsensoAt'] = gps
+          ? FieldValue.serverTimestamp()
+          : FieldValue.delete();
+    }
     if (crashlytics != null) {
       updates['preferences.crashlyticsEnabled'] = crashlytics;
       updates['preferences.crashlyticsConsentAt'] = crashlytics
