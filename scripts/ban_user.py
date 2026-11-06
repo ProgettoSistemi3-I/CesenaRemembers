@@ -26,13 +26,24 @@ Esempi:
 from __future__ import annotations
 
 import argparse
+import calendar
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+
+
+def add_months(value: datetime, months: int) -> datetime:
+    """Add calendar months, clamping the day when the target month is shorter."""
+    month_index = value.month - 1 + months
+    year = value.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(value.day, calendar.monthrange(year, month)[1])
+    return value.replace(year=year, month=month, day=day)
 
 
 def normalize_username(value: str | None) -> str:
@@ -108,16 +119,27 @@ def ban_user(
 
     batch = db.batch()
 
-    # 1. Imposta banned_users
-    batch.set(
-        banned_ref,
-        {
-            "uid": uid,
-            "reason": reason,
-            "bannedAt": firestore.SERVER_TIMESTAMP,
-        },
-        merge=True,
-    )
+    # 1. Imposta banned_users con scadenza a 24 mesi. Non riavviare la
+    # retention quando si ripete la pulizia di un utente già bannato.
+    existing_ban = banned_snap.to_dict() or {}
+    ban_record: dict[str, Any] = {
+        "uid": uid,
+        "reason": reason,
+    }
+    if not banned_snap.exists:
+        ban_record["bannedAt"] = firestore.SERVER_TIMESTAMP
+        ban_record["retentionUntil"] = add_months(datetime.now(timezone.utc), 24)
+    elif not existing_ban.get("retentionUntil"):
+        previous_ban_at = existing_ban.get("bannedAt")
+        if isinstance(previous_ban_at, datetime):
+            if previous_ban_at.tzinfo is None:
+                previous_ban_at = previous_ban_at.replace(tzinfo=timezone.utc)
+            retention_base = previous_ban_at
+        else:
+            retention_base = datetime.now(timezone.utc)
+        ban_record["retentionUntil"] = add_months(retention_base, 24)
+
+    batch.set(banned_ref, ban_record, merge=True)
 
     # 2. Cancella leaderboard, public_profiles, friend_stats, usernames
     for _, doc_ref in docs_to_delete:

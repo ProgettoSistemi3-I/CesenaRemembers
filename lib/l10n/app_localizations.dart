@@ -356,7 +356,7 @@ abstract class AppLocalizations {
   /// No description provided for @versionSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'1.0.0'**
+  /// **'—'**
   String get versionSubtitle;
 
   /// No description provided for @versionSheetTitle.
@@ -368,7 +368,7 @@ abstract class AppLocalizations {
   /// No description provided for @versionSheetBody.
   ///
   /// In en, this message translates to:
-  /// **'Build number: 1.0.0'**
+  /// **'Version metadata is read from the installed app'**
   String get versionSheetBody;
 
   /// No description provided for @termsTitle.
@@ -1084,6 +1084,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get loginPrivacyLink;
+
+  /// No description provided for @loginAgeConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirm that I am at least 14 years old.'**
+  String get loginAgeConfirmation;
 
   /// No description provided for @errorCommunication.
   ///

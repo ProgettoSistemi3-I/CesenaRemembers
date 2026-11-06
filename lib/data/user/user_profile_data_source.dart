@@ -438,6 +438,15 @@ class UserProfileDataSource {
         snapshot.data()?['fcmTokens'] ?? const [],
       );
       if (existing.contains(token)) return;
+
+      // Le Rules accettano una sola aggiunta o rimozione per scrittura e
+      // limitano l'array a 20 token: rimuovi il meno recente prima di aggiungere.
+      if (existing.length >= 20) {
+        await ref.update({
+          'fcmTokens': FieldValue.arrayRemove([existing.first]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
       await ref.update({
         'fcmTokens': FieldValue.arrayUnion([token]),
         'updatedAt': FieldValue.serverTimestamp(),

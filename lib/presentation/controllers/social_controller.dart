@@ -29,9 +29,7 @@ class LeaderboardEntry {
   factory LeaderboardEntry.fromMap(Map<String, dynamic> data, int rank) {
     return LeaderboardEntry(
       uid: data['uid'] as String,
-      displayName: (data['displayName'] as String?)?.trim().isNotEmpty == true
-          ? (data['displayName'] as String).trim()
-          : 'default_user',
+      displayName: (data['displayName'] as String?)?.trim() ?? '',
       username: (data['username'] as String?)?.trim() ?? '',
       avatarId: (data['avatarId'] as String?)?.trim().isNotEmpty == true
           ? (data['avatarId'] as String).trim()

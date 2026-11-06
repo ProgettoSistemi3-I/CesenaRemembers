@@ -2,11 +2,10 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// Verifica la presenza della chiave
 const keyPath = path.join(__dirname, 'serviceAccountKey.json');
 if (!fs.existsSync(keyPath)) {
-  console.error("ERRORE CRITICO: Il file 'serviceAccountKey.json' non e' presente.");
-  console.error("Scaricalo dalla console di Firebase (Impostazioni Progetto -> Account di Servizio) e inseriscilo in questa cartella.");
+  console.error("ERRORE CRITICO: il file 'serviceAccountKey.json' non è presente.");
+  console.error("Crea la chiave Firebase Admin e montala in sola lettura tramite docker-compose.yml.");
   process.exit(1);
 }
 
@@ -17,79 +16,72 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
+const usersCache = new Map();
 
-console.log("🚀 Notifier Service avviato. In ascolto su modifiche alla collection 'users'...");
+console.log("Notifier Cesena Remembers avviato: ascolto selettivo delle modifiche utenti.");
 
-// Ascolta tutte le modifiche ai documenti nella collection 'users'
-db.collection('users').onSnapshot(snapshot => {
-  snapshot.docChanges().forEach(async (change) => {
-    
-    if (change.type === 'modified') {
-      const newData = change.doc.data();
-      
-      // Estrarre dati necessari
-      const receivedRequests = newData.receivedFriendRequests || [];
-      const sentRequests = newData.sentFriendRequests || []; // 🔴 NUOVO: Tracciamo le inviate
-      const friends = newData.friends || []; 
-      const fcmTokens = newData.fcmTokens || [];
-      const userId = change.doc.id;
+// La projection evita di leggere email e gli altri campi privati/non necessari.
+const usersQuery = db.collection('users').select(
+  'receivedFriendRequests',
+  'sentFriendRequests',
+  'friends',
+  'fcmTokens',
+  'preferences.notifiche'
+);
 
-      const previousState = global.usersCache ? global.usersCache[userId] : null;
-      
-      // Aggiorniamo la cache includendo anche i sentRequests
-      if (!global.usersCache) global.usersCache = {};
-      global.usersCache[userId] = {
-        requestsCount: receivedRequests.length,
-        friendsCount: friends.length,
-        sentCount: sentRequests.length // 🔴 NUOVO
-      };
-
-      // Se non avevamo lo stato precedente, lo saltiamo per evitare falsi positivi all'avvio
-      if (!previousState) return;
-
-      // ------------------------------------------------------------------
-      // CASO 1: NUOVA RICHIESTA RICEVUTA
-      // ------------------------------------------------------------------
-      if (receivedRequests.length > previousState.requestsCount) {
-        console.log(`🔔 Nuova richiesta di amicizia per l'utente ${userId}!`);
-        await inviaNotifica(fcmTokens, {
-          title: 'Nuova richiesta di amicizia',
-          body: 'Qualcuno vuole stringere amicizia con te su Cesena Remembers!',
-          type: 'friend_request'
-        });
-      }
-
-      // ------------------------------------------------------------------
-      // CASO 2: RICHIESTA ACCETTATA (Nuovo amico aggiunto)
-      // ------------------------------------------------------------------
-      // 🔴 IL FIX: Inviamo la notifica SOLO a chi ha visto diminuire le sue richieste INVIATE
-      if (friends.length > previousState.friendsCount && sentRequests.length < previousState.sentCount) {
-        console.log(`🤝 L'utente ${userId} ha un nuovo amico (aveva inviato lui la richiesta)!`);
-        await inviaNotifica(fcmTokens, {
-          title: 'Nuova Amicizia!',
-          body: 'La tua richiesta di amicizia è stata accettata.',
-          type: 'friend_accepted'
-        });
-      }
-
-    } else if (change.type === 'added') {
-      // Inizializza la cache all'avvio del server per i documenti già esistenti
-      if (!global.usersCache) global.usersCache = {};
-      global.usersCache[change.doc.id] = {
-        requestsCount: (change.doc.data().receivedFriendRequests || []).length,
-        friendsCount: (change.doc.data().friends || []).length,
-        sentCount: (change.doc.data().sentFriendRequests || []).length // 🔴 NUOVO
-      };
+usersQuery.onSnapshot(async snapshot => {
+  for (const change of snapshot.docChanges()) {
+    const userId = change.doc.id;
+    if (change.type === 'removed') {
+      usersCache.delete(userId);
+      continue;
     }
-  });
-}, err => {
-  console.error("Errore durante l'ascolto di Firestore:", err);
+    const data = change.doc.data() || {};
+    const receivedRequests = data.receivedFriendRequests || [];
+    const sentRequests = data.sentFriendRequests || [];
+    const friends = data.friends || [];
+    const fcmTokens = data.fcmTokens || [];
+    // I profili legacy senza la preferenza conservano il default applicativo: true.
+    const notificationsEnabled = data.preferences?.notifiche !== false;
+
+    const previousState = usersCache.get(userId);
+    usersCache.set(userId, {
+      requestsCount: receivedRequests.length,
+      friendsCount: friends.length,
+      sentCount: sentRequests.length
+    });
+
+    // I documenti iniziali servono solo a popolare la cache.
+    if (change.type !== 'modified' || !previousState || !notificationsEnabled) {
+      continue;
+    }
+
+    if (receivedRequests.length > previousState.requestsCount) {
+      await inviaNotifica(userId, fcmTokens, {
+        title: 'Nuova richiesta di amicizia',
+        body: 'Qualcuno vuole stringere amicizia con te su Cesena Remembers!',
+        type: 'friend_request'
+      });
+    }
+
+    if (
+      friends.length > previousState.friendsCount &&
+      sentRequests.length < previousState.sentCount
+    ) {
+      await inviaNotifica(userId, fcmTokens, {
+        title: 'Nuova amicizia!',
+        body: 'La tua richiesta di amicizia è stata accettata.',
+        type: 'friend_accepted'
+      });
+    }
+  }
+}, error => {
+  console.error('Errore durante l\'ascolto selettivo di Firestore:', error);
 });
 
-// Funzione helper per inviare la notifica pulendo il codice principale
-async function inviaNotifica(tokens, payload) {
-  if (tokens.length === 0) {
-    console.log(`⚠️ Impossibile inviare notifica: Nessun token FCM registrato.`);
+async function inviaNotifica(userId, tokens, payload) {
+  if (!Array.isArray(tokens) || tokens.length === 0) {
+    console.log(`Nessun token FCM per l'utente ${userId}; notifica ignorata.`);
     return;
   }
 
@@ -99,15 +91,43 @@ async function inviaNotifica(tokens, payload) {
       body: payload.body
     },
     data: {
-      type: payload.type
+      title: payload.title,
+      body: payload.body,
+      type: payload.type,
+      recipientUid: userId
     },
-    tokens: tokens 
+    tokens
   };
 
   try {
     const response = await admin.messaging().sendEachForMulticast(message);
-    console.log(`✅ Notifica "${payload.title}" inviata a ${response.successCount} dispositivi.`);
+    console.log(
+      `Notifica "${payload.title}" inviata: ${response.successCount}/${tokens.length} dispositivi.`
+    );
+
+    const invalidTokens = response.responses
+      .map((result, index) => ({
+        token: tokens[index],
+        code: result.error?.code
+      }))
+      .filter(item =>
+        item.code === 'messaging/registration-token-not-registered' ||
+        item.code === 'messaging/invalid-registration-token'
+      )
+      .map(item => item.token);
+
+    if (invalidTokens.length > 0) {
+      const userRef = db.collection('users').doc(userId);
+      // Le Firestore Rules consentono una sola rimozione di token per scrittura.
+      for (const invalidToken of invalidTokens) {
+        await userRef.update({
+          fcmTokens: admin.firestore.FieldValue.arrayRemove(invalidToken),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      console.log(`Rimossi ${invalidTokens.length} token FCM non validi per ${userId}.`);
+    }
   } catch (error) {
-    console.error("Errore durante l'invio della notifica:", error);
+    console.error("Errore durante l'invio o la pulizia dei token FCM:", error);
   }
 }

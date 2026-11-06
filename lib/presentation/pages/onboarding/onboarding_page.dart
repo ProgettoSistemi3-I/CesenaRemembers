@@ -955,7 +955,7 @@ class _QuizMockup extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Question
                 Text(
-                  AppLocalizations.of(context)!.quiz_rocca_q2,
+                  AppLocalizations.of(context)!.quiz_rocca_q1,
                   style: TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w700,
@@ -968,22 +968,17 @@ class _QuizMockup extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Answers
                 _QuizOption(
-                  text: '1350',
-                  isDark: isDark,
-                  state: _OptionState.normal,
-                ),
-                _QuizOption(
-                  text: '1380',
+                  text: AppLocalizations.of(context)!.quiz_rocca_q1_o1,
                   isDark: isDark,
                   state: _OptionState.correct,
                 ),
                 _QuizOption(
-                  text: '1412',
+                  text: AppLocalizations.of(context)!.quiz_rocca_q1_o2,
                   isDark: isDark,
                   state: _OptionState.normal,
                 ),
                 _QuizOption(
-                  text: '1290',
+                  text: AppLocalizations.of(context)!.quiz_rocca_q1_o3,
                   isDark: isDark,
                   state: _OptionState.normal,
                 ),

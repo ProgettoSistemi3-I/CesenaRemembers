@@ -4,6 +4,12 @@ services:
   # - /api/generate-quiz e / -> a quiz-server (Cesena Remembers)
   # - /api/                  -> a uniklas-backend (UniKlas)
   gateway:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     image: nginx:alpine
     container_name: cesena-gateway
     restart: unless-stopped
@@ -15,9 +21,18 @@ services:
     depends_on:
       - quiz-server
       - uniklas-backend
+    networks:
+      - default
+      - quiz-backend
 
   # 1. MICROSERVIZIO QUIZ (Python) - Inalterato, riceve le richieste da Nginx
   quiz-server:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     build: 
       context: ./quiz-service
     container_name: cesena-quiz-server
@@ -30,16 +45,38 @@ services:
       QUIZ_RATE_LIMIT_MAX_CLIENTS: "10000"
       FORWARDED_ALLOW_IPS: "*"
     restart: unless-stopped
+    networks:
+      - quiz-backend
 
   # 2. MICROSERVIZIO NOTIFICHE (Node.js) - Totalmente inalterato
   notifier-service:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     build: 
       context: ./notifier-service
     container_name: cesena-notifier-service
     restart: unless-stopped
+    volumes:
+      # La chiave resta fuori dall'immagine e dal repository; montaggio read-only.
+      - type: bind
+        source: ./notifier-service/serviceAccountKey.json
+        target: /usr/src/app/serviceAccountKey.json
+        read_only: true
+        bind:
+          create_host_path: false
 
   # 3. BACKEND UNIKLAS (.NET 9 C#) - Nuovo servizio isolato
   uniklas-backend:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     build:
       context: ./uniklas-backend
       dockerfile: Dockerfile
@@ -47,3 +84,10 @@ services:
     expose:
       - "5000"
     restart: unless-stopped
+
+
+networks:
+  # Isola Uvicorn dagli altri container: soltanto Nginx condivide la rete
+  # del quiz, perciò è l'unico peer da cui accettare gli header forwarded.
+  quiz-backend:
+    driver: bridge

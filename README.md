@@ -26,7 +26,7 @@ Dependency injection centralizzata in `lib/injection_container.dart` con `get_it
 L'app usa:
 - Firebase (auth + firestore)
 - Mappe tile esterne
-- Backend quiz AI (endpoint HTTP configurato internamente nel repository quiz)
+- Backend quiz AI (endpoint HTTPS/TLS configurato internamente nel repository quiz; certificato server incluso nell'app e usato come trust anchor dedicato)
 
 ### Quiz: fallback resiliente
 
@@ -100,17 +100,19 @@ La release richiede un tuo keystore e `android/key.properties`, escluso dal repo
 
 ### Limiti da tenere presenti
 
-L'endpoint quiz resta HTTP come richiesto; l'app Android consente il cleartext soltanto per `pascal.ispascalcomandini.it`, non globalmente. Il server applica un limite base per IP e non usa nome/descrizione inviati dal client per generare il prompt. Non trasmettere token Firebase su questo endpoint HTTP. La limitazione per IP non sostituisce autenticazione a livello di rete, HTTPS e rate limiting al reverse proxy. Con Docker, imposta `FORWARDED_ALLOW_IPS` nell’ambiente del server al solo IP/gateway del proxy che si collega al container (ad esempio ngrok o il reverse proxy effettivo): il valore predefinito `127.0.0.1` è valido soltanto se il proxy raggiunge Uvicorn da localhost. Non impostare `*` su un servizio raggiungibile direttamente da Internet, perché consentirebbe di falsificare `X-Forwarded-For`.
+Il client contatta il backend quiz tramite `https://pascal.ispascalcomandini.it:8000`. Nginx termina TLS sulla porta 8000 e inoltra la richiesta al container quiz sulla rete Docker. Il client usa il certificato server incluso nell'app come trust anchor dedicato; Android non consente cleartext e il manifest non introduce eccezioni. Una rotazione del certificato richiede l'aggiornamento coordinato del certificato sul server e dell'asset distribuito nell'app. Il server applica limiti di frequenza per IP; questo non equivale ad autenticazione e non impedisce ogni abuso. Il container quiz non pubblica porte sull'host e condivide una rete Docker dedicata soltanto con Nginx; il valore permissivo `FORWARDED_ALLOW_IPS=*` è accettabile solo finché questa separazione resta invariata. Non collegare altri container alla rete `quiz-backend` e non esporre direttamente la porta Uvicorn sull'host. Il client non invia UID Firebase, email o password al backend quiz. Il prompt generato dal backend usa la whitelist di POI e le schede storiche lato server, non il nome/descrizione del luogo inviati dal client.
 
 Le Rules limitano gli incrementi XP per singola scrittura, ma il punteggio è ancora calcolato dal client: non è anti-cheat completo. Per una classifica affidabile, la registrazione definitiva di XP e achievement deve essere spostata su un backend fidato con Firebase Admin SDK.
 
 
-### Prima della pubblicazione: elementi che richiedono ancora un'azione del titolare
+### Prima della pubblicazione: verifiche operative
+
+Per i controlli manuali su Play Console, privacy, età degli utenti, infrastruttura scolastica e deployment consulta [RELEASE_READINESS.md](RELEASE_READINESS.md). La retention dei record di moderazione scaduti è gestita da `scripts/purge_expired_bans.py` (dry-run predefinito).
 
 - Esegui e verifica la migrazione `public_profiles` prima di pubblicare le nuove Rules; il client da solo non può migrare i documenti già su Firebase.
-- `xp` e statistiche sono ancora registrati dal client. Le Rules limitano l'incremento a 80 XP, applicano un intervallo minimo di 5 secondi e impediscono di dichiarare il tour completo senza tutte le tappe e una durata minima; non è comunque anti-cheat completo. La soluzione definitiva è assegnare il punteggio in un backend attendibile con Firebase Admin SDK.
-- In `web/legal/privacy.html` inserisci l'identità e i recapiti effettivi del titolare del trattamento e verifica con il responsabile del progetto finalità, basi giuridiche, destinatari e tempi di conservazione. Compila anche Data Safety e il modulo di cancellazione account nella Play Console. L'URL di cancellazione fornito dal sito va pubblicato su un dominio accessibile.
-- Il rate limit del quiz è per IP e non equivale ad autenticazione; il quiz resta in HTTP come richiesto, quindi un intermediario di rete può alterare richieste/risposte. Non inviare token di autenticazione o segreti su quell'endpoint.
+- `xp` e statistiche sono ancora registrati dal client. Le Rules applicano limiti strutturali e di incremento al contenuto delle scritture, ma **non** impongono un intervallo minimo di 5 secondi né verificano una durata minima del tour. Il punteggio lato client non è anti-cheat: la soluzione definitiva è assegnarlo e validarlo in un backend attendibile con Firebase Admin SDK.
+- Verifica e completa in Play Console Data Safety, target audience, contenuti e URL pubblici di privacy e cancellazione account. La pagina di cancellazione è pubblicata su `https://cesenaremembers.com/legal/delete-account.html`.
+- Il rate limit del quiz è per IP e non equivale ad autenticazione. Il trasporto verso Nginx è HTTPS con certificato server incluso nell'app; il traffico tra Nginx e il container quiz è sulla rete Docker interna.
 - Attiva Firebase App Check (Play Integrity) dopo aver verificato che la versione Play sia registrata; prima fai test in monitoraggio e poi enforcement.
 - Prima di `flutter build appbundle --release`, crea `android/key.properties` con la chiave upload che possiedi già e conserva il keystore fuori dal repository. Il file non viene incluso nello ZIP.
 - Qui non è stato possibile eseguire `flutter analyze`, test Flutter, né compilare APK/AAB perché Flutter SDK/Gradle/Firebase CLI non sono presenti nell'ambiente di verifica.
