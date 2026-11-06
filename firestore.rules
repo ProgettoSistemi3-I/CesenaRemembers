@@ -24,7 +24,9 @@ service cloud.firestore {
       return prefs is map &&
         prefs.keys().hasOnly([
           'notifiche', 'notificheConsenso', 'notificheConsensoAt',
-          'modalitaNotte', 'posizioneGps', 'languageCode'
+          'permissionsSetupCompleted', 'crashlyticsEnabled',
+          'crashlyticsConsentAt', 'modalitaNotte', 'posizioneGps',
+          'languageCode'
         ]) &&
         (!('notifiche' in prefs) || prefs.notifiche is bool) &&
         (!('notificheConsenso' in prefs) || prefs.notificheConsenso is bool) &&
@@ -33,6 +35,14 @@ service cloud.firestore {
         (!prefs.get('notifiche', false) ||
           (prefs.get('notificheConsenso', false) == true &&
            prefs.get('notificheConsensoAt', null) is timestamp)) &&
+        (!('permissionsSetupCompleted' in prefs) ||
+          prefs.permissionsSetupCompleted is bool) &&
+        (!('crashlyticsEnabled' in prefs) ||
+          prefs.crashlyticsEnabled is bool) &&
+        (!('crashlyticsConsentAt' in prefs) ||
+          prefs.crashlyticsConsentAt is timestamp) &&
+        (!prefs.get('crashlyticsEnabled', false) ||
+          prefs.get('crashlyticsConsentAt', null) is timestamp) &&
         (!('modalitaNotte' in prefs) || prefs.modalitaNotte is bool) &&
         (!('posizioneGps' in prefs) || prefs.posizioneGps is bool) &&
         (!('languageCode' in prefs) ||
