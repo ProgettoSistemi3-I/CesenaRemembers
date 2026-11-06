@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/models/user_model.dart';
+import 'package:cesena_remembers/models/user_model.dart';
 
 void main() {
   group('UserModel consent preferences', () {
