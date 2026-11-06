@@ -54,6 +54,7 @@ A block document is written first. Existing relationships are then removed throu
 The Node test project in tests/firestore_rules exercises:
 - owner-only block list access and mutation;
 - blocked relationship rejection at the friend-request document boundary;
+- rejection of batch writes that try to bypass request checks by editing user arrays directly;
 - allowed friend request creation when no block exists;
 - valid report creation, private report records, and rejection of forged or client-modified reports.
 
