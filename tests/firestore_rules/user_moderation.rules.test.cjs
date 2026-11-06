@@ -126,6 +126,39 @@ test('a friend request remains possible when neither user has blocked the other'
   ));
 });
 
+test('a block in the reverse direction also prevents a friend request', async () => {
+  await assertSucceeds(setDoc(
+    doc(bobDb(), 'user_blocks/bob/blocked/alice'),
+    { createdAt: serverTimestamp() },
+  ));
+
+  await assertFails(setDoc(
+    doc(aliceDb(), 'friend_requests/bob/inbox/alice'),
+    {
+      senderUid: 'alice',
+      recipientUid: 'bob',
+      createdAt: serverTimestamp(),
+    },
+  ));
+});
+
+test('detailed friend statistics are denied across a blocked relationship', async () => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore();
+    await updateDoc(doc(db, 'users/alice'), { friends: ['bob'] });
+    await updateDoc(doc(db, 'users/bob'), { friends: ['alice'] });
+    await setDoc(doc(db, 'friend_stats/alice'), { xp: 100 });
+    await setDoc(doc(db, 'friend_stats/bob'), { xp: 200 });
+  });
+
+  await assertSucceeds(setDoc(
+    doc(aliceDb(), 'user_blocks/alice/blocked/bob'),
+    { createdAt: serverTimestamp() },
+  ));
+
+  await assertFails(getDoc(doc(bobDb(), 'friend_stats/alice')));
+});
+
 test('a valid user report can be created but is not readable by app clients', async () => {
   const report = doc(collection(aliceDb(), 'user_reports'));
 
