@@ -479,6 +479,17 @@ class _SettingsPageState extends State<SettingsPage>
                                 ),
                               ),
                               const _ThinDivider(),
+                              _SwitchRow(
+                                icon: Icons.bug_report_outlined,
+                                title: AppLocalizations.of(context)!.settingsDiagnostics,
+                                subtitle: AppLocalizations.of(context)!.settingsDiagnosticsSubtitle,
+                                accent: AppPalette.tan,
+                                value: _controller.diagnostica,
+                                onChanged: (v) => _controller.updatePreference(
+                                  newDiagnostica: v,
+                                ),
+                              ),
+                              const _ThinDivider(),
                               _ActionRow(
                                 icon: Icons.privacy_tip_outlined,
                                 title: AppLocalizations.of(context)!.settingsPrivacyPolicy,
