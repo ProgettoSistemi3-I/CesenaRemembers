@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/usecases/auth_use_cases.dart';
@@ -38,10 +39,12 @@ class _SettingsPageState extends State<SettingsPage>
   late Animation<Offset> _slideAnim;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _gpsToggleKey = GlobalKey();
+  String _appVersion = '—';
 
   @override
   void initState() {
     super.initState();
+    _loadAppVersion();
 
     // INIZIALIZZAZIONE CON IL THEME CONTROLLER GLOBALE!
     _controller = SettingsController(
@@ -79,6 +82,16 @@ class _SettingsPageState extends State<SettingsPage>
     ShellNavigationStore.focusGpsToggleInSettings.addListener(
       _onFocusGpsRequested,
     );
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() => _appVersion = packageInfo.version);
+    } catch (_) {
+      // La pagina resta utilizzabile anche se il plugin non restituisce i metadati.
+    }
   }
 
   Future<void> _scrollToGpsToggle() async {
@@ -574,7 +587,7 @@ class _SettingsPageState extends State<SettingsPage>
                               _ActionRow(
                                 icon: Icons.info_outline,
                                 title: AppLocalizations.of(context)!.settingsVersion,
-                                subtitle: AppLocalizations.of(context)!.versionSubtitle,
+                                subtitle: _appVersion,
                                 accent: AppPalette.moss,
                               ),
                               const _ThinDivider(),
