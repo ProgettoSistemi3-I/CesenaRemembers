@@ -6,6 +6,8 @@ class UserProfile {
   final String avatarId;
   final bool profileCompleted;
   final bool onboardingCompleted;
+  final bool permissionsSetupCompleted;
+  final bool crashlyticsEnabled;
   final int xp;
   final int friendsCount;
   final List<String> visitedPoiIds;
@@ -33,6 +35,8 @@ class UserProfile {
     this.avatarId = 'soldato',
     this.profileCompleted = false,
     this.onboardingCompleted = false,
+    this.permissionsSetupCompleted = false,
+    this.crashlyticsEnabled = false,
     this.xp = 0,
     this.friendsCount = 0,
     this.visitedPoiIds = const [],
@@ -67,6 +71,8 @@ class UserProfile {
     String? avatarId,
     bool? profileCompleted,
     bool? onboardingCompleted,
+    bool? permissionsSetupCompleted,
+    bool? crashlyticsEnabled,
     int? xp,
     int? friendsCount,
     List<String>? visitedPoiIds,
@@ -94,6 +100,9 @@ class UserProfile {
       avatarId: avatarId ?? this.avatarId,
       profileCompleted: profileCompleted ?? this.profileCompleted,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      permissionsSetupCompleted:
+          permissionsSetupCompleted ?? this.permissionsSetupCompleted,
+      crashlyticsEnabled: crashlyticsEnabled ?? this.crashlyticsEnabled,
       xp: xp ?? this.xp,
       friendsCount: friendsCount ?? this.friendsCount,
       visitedPoiIds: visitedPoiIds ?? this.visitedPoiIds,
