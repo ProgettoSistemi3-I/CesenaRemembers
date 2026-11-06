@@ -65,11 +65,8 @@ class LocationPermissionService {
             : LocationAccessStatus.denied;
       }
 
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return LocationAccessStatus.serviceDisabled;
-      }
-
+      // The user has already accepted the in-app explanation. Request the
+      // Android runtime permission before inspecting the GPS hardware switch.
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -80,6 +77,11 @@ class LocationPermissionService {
 
       if (permission == LocationPermission.deniedForever) {
         return LocationAccessStatus.deniedForever;
+      }
+
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return LocationAccessStatus.serviceDisabled;
       }
 
       return LocationAccessStatus.granted;
