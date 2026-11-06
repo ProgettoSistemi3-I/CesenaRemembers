@@ -78,7 +78,11 @@ class _MainShellState extends State<MainShell> {
     // Serializza la richiesta FCM dopo quella GPS: Android non deve gestire
     // due richieste di autorizzazione runtime contemporaneamente.
     try {
-      await PushNotificationService.initializeAndSaveToken();
+      // The first-launch consent flow already requested Android permission.
+      // On app startup, only register when the OS permission is already granted.
+      await PushNotificationService.initializeAndSaveToken(
+        requestPermissionIfNeeded: false,
+      );
     } catch (error, stackTrace) {
       AppLogger.error(
         'Startup notification initialization failed',
