@@ -32,6 +32,10 @@ const usersQuery = db.collection('users').select(
 usersQuery.onSnapshot(async snapshot => {
   for (const change of snapshot.docChanges()) {
     const userId = change.doc.id;
+    if (change.type === 'removed') {
+      usersCache.delete(userId);
+      continue;
+    }
     const data = change.doc.data() || {};
     const receivedRequests = data.receivedFriendRequests || [];
     const sentRequests = data.sentFriendRequests || [];
