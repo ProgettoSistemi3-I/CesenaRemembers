@@ -4,6 +4,7 @@ import '../../domain/usecases/auth_use_cases.dart';
 import '../../domain/usecases/user_preferences_use_cases.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../core/logging/app_logger.dart';
+import '../../core/logging/crashlytics_reporter.dart';
 import '../theme/theme_controller.dart';
 import '../services/location_permission_service.dart';
 import '../services/location_preference_store.dart';
@@ -23,6 +24,7 @@ class SettingsController extends ChangeNotifier {
   bool notifiche = false;
   bool modalitaNotte = false;
   bool posizione = true;
+  bool diagnostica = false;
 
   // Stato UI
   bool isLoading = true;
@@ -70,6 +72,7 @@ class SettingsController extends ChangeNotifier {
 
       notifiche = profile.notificheEnabled;
       modalitaNotte = profile.darkModeEnabled;
+      diagnostica = profile.crashlyticsEnabled;
 
       // Il toggle rappresenta la preferenza scelta/salvata dall'utente,
       // non lo stato momentaneo del permesso Android. All'avvio Android può
@@ -100,10 +103,12 @@ class SettingsController extends ChangeNotifier {
     bool? newNotifiche,
     bool? newModalitaNotte,
     bool? newPosizione,
+    bool? newDiagnostica,
   }) async {
     if (newPosizione == true) {
       final status = await _locationService.ensureLocationAccess();
-      if (status != LocationAccessStatus.granted) {
+      if (status != LocationAccessStatus.granted &&
+          status != LocationAccessStatus.serviceDisabled) {
         errorMessage = 'errorGpsDenied';
         posizione = false;
         LocationPreferenceStore.setGpsEnabled(false);
@@ -114,6 +119,7 @@ class SettingsController extends ChangeNotifier {
 
     // 1) Aggiornamento ottimistico
     if (newNotifiche != null) notifiche = newNotifiche;
+    if (newDiagnostica != null) diagnostica = newDiagnostica;
     if (newModalitaNotte != null) {
       modalitaNotte = newModalitaNotte;
       _themeController.toggleTheme(newModalitaNotte);
@@ -131,7 +137,14 @@ class SettingsController extends ChangeNotifier {
         notifiche: newNotifiche,
         darkMode: newModalitaNotte,
         gps: newPosizione,
+        crashlytics: newDiagnostica,
       );
+      if (newDiagnostica != null) {
+        await CrashlyticsReporter.setCollectionEnabled(
+          newDiagnostica,
+          discardUnsentReports: true,
+        );
+      }
       if (newNotifiche != null) {
         await PushNotificationService.initializeAndSaveToken();
       }
@@ -150,6 +163,7 @@ class SettingsController extends ChangeNotifier {
         notifiche = profile.notificheEnabled;
         modalitaNotte = profile.darkModeEnabled;
         posizione = profile.gpsEnabled;
+        diagnostica = profile.crashlyticsEnabled;
         _themeController.toggleTheme(modalitaNotte);
         LocationPreferenceStore.setGpsEnabled(posizione);
       } catch (rollbackError, rollbackStackTrace) {
