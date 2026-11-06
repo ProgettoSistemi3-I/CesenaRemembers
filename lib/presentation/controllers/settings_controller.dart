@@ -20,7 +20,7 @@ class SettingsController extends ChangeNotifier {
   final LocationPermissionService _locationService;
 
   // Stato preferenze (persistite su Firebase + cache locale)
-  bool notifiche = true;
+  bool notifiche = false;
   bool modalitaNotte = false;
   bool posizione = true;
 

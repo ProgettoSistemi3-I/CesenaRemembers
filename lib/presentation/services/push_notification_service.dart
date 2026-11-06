@@ -51,20 +51,23 @@ class PushNotificationService {
     final uid = profiles.getCurrentUserUid();
     if (uid == null || uid.isEmpty) return;
 
+    final messaging = FirebaseMessaging.instance;
+
     if (_initializedUid != uid) {
       final oldUid = _initializedUid;
       if (oldUid != null) {
-        await _unregisterTokenForUid(oldUid, profiles, deleteFcmToken: false);
+        await messaging.setAutoInitEnabled(false);
+        await _unregisterTokenForUid(oldUid, profiles, deleteFcmToken: true);
       }
       _initializedUid = uid;
     }
 
     try {
-      final messaging = FirebaseMessaging.instance;
       final profile = await profiles.getUserProfile(uid);
       // Non chiedere il permesso di sistema quando l'utente ha disattivato
       // esplicitamente le notifiche nell'app.
       if (!profile.notificheEnabled) {
+        await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
         return;
@@ -73,11 +76,15 @@ class PushNotificationService {
         alert: true, badge: true, sound: true,
       );
       if (permission.authorizationStatus != AuthorizationStatus.authorized) {
+        await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
         return;
       }
 
+      // Re-enable FCM registration only after explicit in-app consent and
+      // the operating-system permission have both been granted.
+      await messaging.setAutoInitEnabled(true);
       final token = await messaging.getToken();
       if (token != null && token.isNotEmpty) {
         await profiles.saveFcmToken(uid, token);
@@ -116,6 +123,8 @@ class PushNotificationService {
   }
 
   static Future<void> unregisterCurrentUser() async {
+    final messaging = FirebaseMessaging.instance;
+    await messaging.setAutoInitEnabled(false);
     final profiles = sl<UserProfileUseCases>();
     final uid = profiles.getCurrentUserUid();
     if (uid != null && uid.isNotEmpty) {

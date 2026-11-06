@@ -31,6 +31,7 @@ This file contains operational checks that cannot be completed by editing reposi
 
 ## Functional and security tests
 
+- [ ] Verify FCM auto-initialization and Analytics collection are disabled in the Android manifest. Confirm no FCM registration token/installation identifier is generated or uploaded before the in-app opt-in and Android notification permission are both granted.
 - [ ] Test notifications for incoming friend requests and accepted requests with the app foregrounded, backgrounded and terminated. Confirm English and Italian content follows the stored profile language.
 - [ ] Test GPS recovery on a physical Android device: revoke location permission while the app remains open, restore it in system settings, return to the app and confirm the shared position stream resumes without force-closing.
 - [ ] Test disabling notifications, force-closing/restarting the app, then receiving another request. No token should remain registered for a disabled user and no push should be sent.
