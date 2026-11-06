@@ -99,7 +99,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get notificationsTitle => 'Notifiche';
 
   @override
-  String get notificationsSubtitle => 'Ricevi avvisi su tappe e premi';
+  String get notificationsSubtitle => 'Attiva per acconsentire alle notifiche push su richieste di amicizia e nuove amicizie.';
 
   @override
   String get darkModeTitle => 'Modalità Notte';
@@ -144,7 +144,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get versionSheetTitle => 'Versione app';
 
   @override
-  String get versionSheetBody => "Metadati versione letti dall'app installata";
+  String get versionSheetBody => 'Metadati versione letti dall\'app installata';
 
   @override
   String get termsTitle => 'Termini di servizio';
@@ -599,7 +599,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsNotifications => 'Notifiche';
 
   @override
-  String get settingsNotifSubtitle => 'Ricevi avvisi su tappe e premi';
+  String get settingsNotifSubtitle => 'Attiva per acconsentire alle notifiche push su richieste di amicizia e nuove amicizie.';
 
   @override
   String get settingsDarkMode => 'Modalità Notte';
@@ -844,10 +844,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get quiz_fallback_desc => 'Il quiz online non è al momento disponibile. Ecco tre domande di riserva dedicate a questo luogo.';
-
-
-
-
 
   @override
   String get quiz_santa_cristina_q1 => 'In quale parte della chiesa fu allestito il rifugio antiaereo?';
@@ -1266,6 +1262,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS';
+
   @override
   String get quiz_santa_cristina_q3 => 'Come descrisse don Leo Bagnoli la cripta-rifugio?';
 

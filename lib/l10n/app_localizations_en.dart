@@ -99,7 +99,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsTitle => 'Notifications';
 
   @override
-  String get notificationsSubtitle => 'Receive alerts on stops and rewards';
+  String get notificationsSubtitle => 'Enable to consent to push notifications for friend requests and new friendships.';
 
   @override
   String get darkModeTitle => 'Night Mode';
@@ -599,7 +599,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifications => 'Notifications';
 
   @override
-  String get settingsNotifSubtitle => 'Receive alerts for stops and rewards';
+  String get settingsNotifSubtitle => 'Enable to consent to push notifications for friend requests and new friendships.';
 
   @override
   String get settingsDarkMode => 'Dark Mode';
@@ -844,10 +844,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quiz_fallback_desc => 'The online quiz is temporarily unavailable. Here are three backup questions about this place.';
-
-
-
-
 
   @override
   String get quiz_santa_cristina_q1 => 'Which part of the church was adapted as an air-raid shelter?';
@@ -1266,6 +1262,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community';
+
   @override
   String get quiz_santa_cristina_q3 => 'How did Father Leo Bagnoli describe the shelter in the crypt?';
 
