@@ -502,7 +502,7 @@ class _SocialPageState extends State<SocialPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Lvl ${user.level}',
+                            '${AppLocalizations.of(context)!.publicStatLevel} ${user.level}',
                             style: TextStyle(
                               color: theme.colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w700,

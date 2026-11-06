@@ -36,7 +36,10 @@ usersQuery.onSnapshot(async snapshot => {
     const friends = data.friends || [];
     const fcmTokens = data.fcmTokens || [];
     // I profili legacy senza la preferenza conservano il default applicativo: true.
-    const notificationsEnabled = data.preferences?.notifiche !== false;
+    const notificationsEnabled =
+      data.preferences?.notifiche === true &&
+      data.preferences?.notificheConsenso === true &&
+      data.preferences?.notificheConsensoAt != null;
 
     const previousState = usersCache.get(userId);
     usersCache.set(userId, {

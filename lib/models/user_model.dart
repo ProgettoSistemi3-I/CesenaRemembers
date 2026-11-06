@@ -48,7 +48,9 @@ class UserModel extends UserProfile {
       pendingAchievements: List<String>.from(
         json['pendingAchievements'] ?? [],
       ),
-      notificheEnabled: json['preferences']?['notifiche'] ?? true,
+      notificheEnabled: json['preferences']?['notifiche'] == true &&
+          json['preferences']?['notificheConsenso'] == true &&
+          json['preferences']?['notificheConsensoAt'] != null,
       darkModeEnabled:
           json['preferences']?['modalitaNotte'] ??
           json['preferences']?['modalità notte'] ??

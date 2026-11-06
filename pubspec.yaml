@@ -2,7 +2,7 @@ name: cesena_remembers
 description: "Tour storici interattivi e quiz per Cesena Remembers."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.10.4
@@ -37,7 +37,6 @@ dependencies:
   path_provider: ^2.1.0
   shared_preferences: ^2.3.3
   flutter_local_notifications: ^18.0.1
-  permission_handler: ^11.3.1
   package_info_plus: ^10.2.2
   firebase_app_check: ^0.3.2+10
 
@@ -64,5 +63,4 @@ flutter:
 
 flutter_launcher_icons:
   android: "launcher_icon"
-  ios: true
   image_path: "assets/icon/app_icon.png"

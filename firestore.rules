@@ -23,9 +23,16 @@ service cloud.firestore {
     function validPreferences(prefs) {
       return prefs is map &&
         prefs.keys().hasOnly([
-          'notifiche', 'modalitaNotte', 'posizioneGps', 'languageCode'
+          'notifiche', 'notificheConsenso', 'notificheConsensoAt',
+          'modalitaNotte', 'posizioneGps', 'languageCode'
         ]) &&
         (!('notifiche' in prefs) || prefs.notifiche is bool) &&
+        (!('notificheConsenso' in prefs) || prefs.notificheConsenso is bool) &&
+        (!('notificheConsensoAt' in prefs) ||
+          prefs.notificheConsensoAt is timestamp) &&
+        (!prefs.get('notifiche', false) ||
+          (prefs.get('notificheConsenso', false) == true &&
+           prefs.get('notificheConsensoAt', null) is timestamp)) &&
         (!('modalitaNotte' in prefs) || prefs.modalitaNotte is bool) &&
         (!('posizioneGps' in prefs) || prefs.posizioneGps is bool) &&
         (!('languageCode' in prefs) ||

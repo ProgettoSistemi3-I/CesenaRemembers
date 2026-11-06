@@ -17,13 +17,19 @@ class TourSessionController {
     required List<TourStop> availableStops,
     TourRoutePlanner routePlanner = const TourRoutePlanner(),
     double arrivedThresholdMeters = defaultArrivedThresholdMeters,
+    Future<LatLng> Function()? originResolver,
+    Stream<Position> Function()? positionStreamFactory,
   }) : _availableStops = List.unmodifiable(availableStops),
        _routePlanner = routePlanner,
-       _arrivedThresholdMeters = arrivedThresholdMeters;
+       _arrivedThresholdMeters = arrivedThresholdMeters,
+       _originResolver = originResolver,
+       _positionStreamFactory = positionStreamFactory;
 
   final List<TourStop> _availableStops;
   final TourRoutePlanner _routePlanner;
   final double _arrivedThresholdMeters;
+  final Future<LatLng> Function()? _originResolver;
+  final Stream<Position> Function()? _positionStreamFactory;
 
   final StreamController<void> _updates = StreamController<void>.broadcast();
 
@@ -111,8 +117,10 @@ class TourSessionController {
     _emit();
 
     _startPositionTracking();
+    // Il cronometro totale parte anche se la prima tappa è già raggiunta:
+    // durante lo stato arrived deve continuare a contare il tempo dei quiz.
+    _startTimer();
     _checkCurrentStopArrival();
-    if (_status == TourStatus.running) _startTimer();
     return true;
   }
 
@@ -174,6 +182,14 @@ class TourSessionController {
   }
 
   Future<LatLng> _resolveOrigin() async {
+    final resolver = _originResolver;
+    if (resolver != null) {
+      final origin = await resolver();
+      _userPosition = origin;
+      _hasRealUserPosition = true;
+      return origin;
+    }
+
     try {
       final pos = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
@@ -190,7 +206,9 @@ class TourSessionController {
 
   void _startPositionTracking() {
     _positionSubscription?.cancel();
-    _positionSubscription = SharedPositionStream.positions.listen(
+    final positions =
+        _positionStreamFactory?.call() ?? SharedPositionStream.positions;
+    _positionSubscription = positions.listen(
       (position) {
         _userPosition = LatLng(position.latitude, position.longitude);
         _hasRealUserPosition = true;
@@ -214,7 +232,8 @@ class TourSessionController {
 
   void _triggerArrival() {
     if (_status == TourStatus.arrived) return;
-    _timer?.cancel();
+    // Non annullare il timer: il totale comprende anche il tempo dei quiz.
+    // _startTimer incrementa elapsedSeconds soltanto mentre la tappa è running.
     _status = TourStatus.arrived;
     _emit();
   }

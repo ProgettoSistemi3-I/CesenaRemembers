@@ -38,7 +38,7 @@ class UserProfile {
     this.visitedPoiIds = const [],
     this.unlockedAchievements = const [],
     this.pendingAchievements = const [],
-    this.notificheEnabled = true,
+    this.notificheEnabled = false,
     this.darkModeEnabled = false,
     this.gpsEnabled = true,
     this.maxQuizScore = 0,

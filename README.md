@@ -397,7 +397,7 @@ python -m pip install pytest
 python -m pytest -q tests
 ```
 
-I test del servizio quiz usano un provider LLM fittizio e verificano il contratto HTTP, i dieci POI, i parametri, la validazione delle risposte, il fallback tramite errori non-200 e i timeout senza richiedere una vera chiave LLM.
+Il workflow GitHub Actions esegue anche `flutter analyze`, l'intera suite `flutter test` e il controllo sintattico del notifier a ogni push su `main` e sui branch `fix/**`, oltre che prima delle release. Lo stesso job rigenera le localizzazioni dagli ARB e aggiorna nel branch di revisione i file Dart generati e il lockfile. I test del servizio quiz usano un provider LLM fittizio e verificano il contratto HTTP, i dieci POI, i parametri, la validazione delle risposte, il fallback tramite errori non-200 e i timeout senza richiedere una vera chiave LLM.
 
 ### Verifiche di release
 
@@ -421,6 +421,7 @@ Prima di distribuire una versione controllare almeno:
 | [`DIAGNOSTICA_FIRESTORE.md`](DIAGNOSTICA_FIRESTORE.md) | Note di diagnostica Firestore |
 | [`firestore.rules`](firestore.rules) | Regole di accesso al database |
 | [`firebase.json`](firebase.json) | Configurazione Firebase ed emulatori |
+| [`firestore.indexes.json`](firestore.indexes.json) | Indici compositi Firestore richiesti dalle query |
 | [`server_docker/quiz-service/facts/README.md`](server_docker/quiz-service/facts/README.md) | Formato e criteri delle schede storiche per i quiz |
 | [`server_docker/notifier-service/README.md`](server_docker/notifier-service/README.md) | Configurazione e avvio del servizio notifiche |
 | [`web/legal/`](web/legal/) | Privacy, Termini e istruzioni di eliminazione account in italiano e inglese |

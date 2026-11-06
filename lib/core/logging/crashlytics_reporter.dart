@@ -2,35 +2,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
-/// Centralized, privacy-conscious Crashlytics reporting.
-///
-/// Raw exception messages are deliberately not uploaded: backend/plugin
-/// messages can contain identifiers, URLs or user-provided data. The original
-/// stack trace and exception type are retained for diagnosis.
+/// Crashlytics is kept disabled while the ePrivacy assessment of installation
+/// identifiers and any required consent flow are pending.
 class CrashlyticsReporter {
   const CrashlyticsReporter._();
 
-  static bool get _isSupportedPlatform {
-    if (kIsWeb) return false;
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.android ||
-      TargetPlatform.iOS ||
-      TargetPlatform.macOS => true,
-      _ => false,
-    };
-  }
+  static bool get _isSupportedPlatform =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   static bool get _isReady =>
       _isSupportedPlatform && Firebase.apps.isNotEmpty;
 
-  /// Enables collection in release builds and keeps local debug sessions out
-  /// of the production Crashlytics dashboard.
+  static const bool _collectionAllowed = false;
+
   static Future<void> initialize() async {
     if (!_isReady) return;
 
     try {
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-        !kDebugMode,
+        _collectionAllowed,
       );
     } catch (_) {
       // Diagnostics must never prevent the app from starting.
@@ -43,7 +33,7 @@ class CrashlyticsReporter {
     required String reason,
     bool fatal = false,
   }) async {
-    if (!_isReady) return;
+    if (!_isReady || !_collectionAllowed) return;
 
     try {
       await FirebaseCrashlytics.instance.recordError(

@@ -279,9 +279,13 @@ class UserProfileDataSource {
       ),
       'fcmTokens': List<String>.from(existingData['fcmTokens'] ?? []),
       'preferences': {
-        'notifiche': existingPrefs['notifiche'] ?? true,
+        'notifiche': existingPrefs['notifiche'] ?? false,
+        'notificheConsenso': existingPrefs['notificheConsenso'] ?? false,
+        if (existingPrefs['notificheConsensoAt'] is Timestamp)
+          'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
         'posizioneGps': existingPrefs['posizioneGps'] ?? true,
+        'languageCode': existingPrefs['languageCode'] ?? 'it',
       },
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -342,7 +346,13 @@ class UserProfileDataSource {
     final Map<String, dynamic> updates = {
       'updatedAt': FieldValue.serverTimestamp(),
     };
-    if (notifiche != null) updates['preferences.notifiche'] = notifiche;
+    if (notifiche != null) {
+      updates['preferences.notifiche'] = notifiche;
+      updates['preferences.notificheConsenso'] = notifiche;
+      updates['preferences.notificheConsensoAt'] = notifiche
+          ? FieldValue.serverTimestamp()
+          : FieldValue.delete();
+    }
     if (darkMode != null) updates['preferences.modalitaNotte'] = darkMode;
     if (gps != null) updates['preferences.posizioneGps'] = gps;
     if (languageCode != null &&
