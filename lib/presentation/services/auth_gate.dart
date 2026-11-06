@@ -271,7 +271,6 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
               return ProfileSetupPage(
                 uid: widget.appUser.id,
                 email: widget.appUser.email,
-                suggestedName: widget.appUser.displayName,
               );
             }
             if (!profile.onboardingCompleted) {
