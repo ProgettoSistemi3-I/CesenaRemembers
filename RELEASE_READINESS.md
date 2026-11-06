@@ -20,7 +20,7 @@ This file contains operational checks that cannot be completed by editing reposi
 ## Deployment and credentials
 
 - [ ] Restrict the Android Firebase API key in Google Cloud Console: set the Android application restriction to package `it.cesenaremembers.app` and the correct Play App Signing SHA-1 certificate; restrict the key to the APIs actually required by the shipped Firebase/Google SDKs. Verify that the production key and any development keys have separate, appropriate restrictions.
-- [ ] Deploy the committed Firestore indexes with `firebase deploy --only firestore:indexes --project cesenaremembers1945`. Confirm the leaderboard query succeeds on a clean project after index creation.
+- [ ] Deploy the updated Firestore rules and committed indexes with `firebase deploy --only firestore:rules,firestore:indexes --project cesenaremembers1945`. Confirm the leaderboard query succeeds on a clean project after index creation and the new notification-consent fields pass the deployed rules.
 - [ ] Enable Firebase App Check enforcement for each production Firebase service used by the app only after validating Android Play Integrity with the Play App Signing identity. A debug provider/token is not a production verification.
 - [ ] Place the Firebase Admin service-account key at `server_docker/notifier-service/serviceAccountKey.json` on the server only. It is excluded from Docker build context and is mounted read-only into the notifier container; never commit it or bake it into the image.
 - [ ] From `server_docker`, validate the Compose configuration and start the notifier with `docker compose up -d --build notifier-service`. Confirm the container remains healthy and its logs do not contain credential or permission errors.
