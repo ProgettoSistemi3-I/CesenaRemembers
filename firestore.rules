@@ -252,10 +252,21 @@ service cloud.firestore {
         get(targetPath).data.get('friends', []).hasAny([request.auth.uid]);
     }
 
+    function hasBlockBetween(uidA, uidB) {
+      return exists(
+        /databases/$(database)/documents/user_blocks/$(uidA)/blocked/$(uidB)
+      ) || exists(
+        /databases/$(database)/documents/user_blocks/$(uidB)/blocked/$(uidA)
+      );
+    }
+
     function canReadFriendStats(uid) {
       return isNotBanned() &&
         !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
-        (isOwner(uid) || areFriends(uid));
+        (
+          isOwner(uid) ||
+          (!hasBlockBetween(request.auth.uid, uid) && areFriends(uid))
+        );
     }
 
     // Aggiornamento della lista amici da parte di un altro utente.
@@ -748,6 +759,7 @@ service cloud.firestore {
         peer is string &&
         peer.size() > 0 &&
         peer != uid &&
+        !hasBlockBetween(uid, peer) &&
         !resource.data.get('friends', []).hasAny([peer]) &&
         !resource.data.get('receivedFriendRequests', []).hasAny([peer]) &&
         !exists(/databases/$(database)/documents/banned_users/$(peer)) &&
@@ -793,6 +805,7 @@ service cloud.firestore {
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data;
 
       return !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
+        !hasBlockBetween(uid, request.auth.uid) &&
         request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly([
             'receivedFriendRequests', 'updatedAt'
@@ -821,6 +834,7 @@ service cloud.firestore {
             'sentFriendRequests', 'lastFriendActionPeerUid', 'updatedAt'
           ]) &&
         peer == request.auth.uid &&
+        !hasBlockBetween(uid, request.auth.uid) &&
         listRemovesOnly(
           resource.data.get('sentFriendRequests', []),
           request.resource.data.get('sentFriendRequests', []),
@@ -896,6 +910,7 @@ service cloud.firestore {
         peer is string &&
         peer.size() > 0 &&
         peer != uid &&
+        !hasBlockBetween(uid, peer) &&
         listRemovesOnly(
           resource.data.get('receivedFriendRequests', []),
           request.resource.data.get('receivedFriendRequests', []),
@@ -1245,6 +1260,7 @@ service cloud.firestore {
       allow create: if isOwner(senderUid) &&
         isNotBanned() &&
         recipientUid != senderUid &&
+        !hasBlockBetween(recipientUid, senderUid) &&
         !exists(
           /databases/$(database)/documents/banned_users/$(recipientUid)
         ) &&
@@ -1295,6 +1311,94 @@ service cloud.firestore {
             /databases/$(database)/documents/users/$(recipientUid)
           ).data.get('receivedFriendRequests', []).hasAny([senderUid])
         );
+    }
+
+    // ---------------------------------------------------------
+    // USER BLOCKS
+    // ---------------------------------------------------------
+
+    match /user_blocks/{blockerUid}/blocked/{blockedUid} {
+      // Only the owner can inspect their own block list.
+      allow get, list: if isOwner(blockerUid) && isNotBanned();
+
+      allow create: if isOwner(blockerUid) &&
+        isNotBanned() &&
+        blockerUid != blockedUid &&
+        !exists(
+          /databases/$(database)/documents/banned_users/$(blockedUid)
+        ) &&
+        exists(
+          /databases/$(database)/documents/public_profiles/$(blockedUid)
+        ) &&
+        request.resource.data.keys().hasOnly(['createdAt']) &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt == request.time;
+
+      // Allow account deletion to remove its own outgoing block records,
+      // including when the account is under suspension.
+      allow delete: if isOwner(blockerUid);
+      allow update: if false;
+    }
+
+    // ---------------------------------------------------------
+    // USER REPORTS
+    // ---------------------------------------------------------
+
+    match /user_reports/{reportId} {
+      // Reports contain private moderation data and are not readable by clients.
+      allow get, list: if false;
+
+      allow create: if isSignedIn() &&
+        isNotBanned() &&
+        request.resource.data.keys().hasOnly([
+          'reporterUid', 'reportedUid', 'reportedField', 'reportedValue',
+          'reportedDisplayName', 'reportedUsername', 'reason', 'details',
+          'createdAt', 'status'
+        ]) &&
+        request.resource.data.reporterUid == request.auth.uid &&
+        request.resource.data.reportedUid is string &&
+        request.resource.data.reportedUid != request.auth.uid &&
+        request.resource.data.reportedField in ['displayName', 'username'] &&
+        request.resource.data.reason in [
+          'inappropriate_name', 'impersonation', 'harassment', 'spam', 'other'
+        ] &&
+        request.resource.data.details is string &&
+        request.resource.data.details.size() <= 500 &&
+        request.resource.data.reportedDisplayName is string &&
+        request.resource.data.reportedDisplayName.size() >= 2 &&
+        request.resource.data.reportedDisplayName.size() <= 30 &&
+        request.resource.data.reportedUsername is string &&
+        request.resource.data.reportedUsername.size() >= 3 &&
+        request.resource.data.reportedUsername.size() <= 20 &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.status == 'pending' &&
+        !exists(
+          /databases/$(database)/documents/banned_users/$(request.resource.data.reportedUid)
+        ) &&
+        exists(
+          /databases/$(database)/documents/public_profiles/$(request.resource.data.reportedUid)
+        ) &&
+        get(
+          /databases/$(database)/documents/public_profiles/$(request.resource.data.reportedUid)
+        ).data.displayName == request.resource.data.reportedDisplayName &&
+        get(
+          /databases/$(database)/documents/public_profiles/$(request.resource.data.reportedUid)
+        ).data.username == request.resource.data.reportedUsername &&
+        (
+          (
+            request.resource.data.reportedField == 'displayName' &&
+            request.resource.data.reportedValue ==
+              request.resource.data.reportedDisplayName
+          ) ||
+          (
+            request.resource.data.reportedField == 'username' &&
+            request.resource.data.reportedValue ==
+              request.resource.data.reportedUsername
+          )
+        );
+
+      allow update, delete: if false;
     }
 
     // ---------------------------------------------------------
