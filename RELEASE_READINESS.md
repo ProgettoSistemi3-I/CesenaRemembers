@@ -18,6 +18,7 @@ This file contains operational checks that cannot be completed by editing reposi
 - [ ] From `server_docker`, validate the Compose configuration and start the notifier with `docker compose up -d --build notifier-service`. Confirm the container remains healthy and its logs do not contain credential or permission errors.
 - [ ] Verify that the certificate mounted for Nginx is the same certificate bundled at `assets/certs/server.crt`. The app trusts that certificate specifically; certificate replacement requires a coordinated app update and server deployment. Check validity/expiry and test the public endpoint at `https://pascal.ispascalcomandini.it:8000`.
 - [ ] Confirm Docker log rotation is active on the target host. Compose configures at most three 10 MB JSON log files for each service container; host-level logs and external reverse-proxy logs need their own policy.
+- [ ] Keep the quiz container on the dedicated `quiz-backend` Docker network shared only with Nginx. Do not publish the Uvicorn port on the host or attach unrelated containers to that network while `FORWARDED_ALLOW_IPS=*` is configured.
 
 ## Functional and security tests
 
