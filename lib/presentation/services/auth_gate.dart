@@ -134,6 +134,10 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       );
     }
     if (isBanned) {
+      await CrashlyticsReporter.setCollectionEnabled(
+        false,
+        discardUnsentReports: true,
+      );
       widget.onBannedAccount();
       await _authRepository.signOut();
       throw const _BannedFromFirestoreException();
