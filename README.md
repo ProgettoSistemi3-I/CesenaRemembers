@@ -203,8 +203,6 @@ Il gateway Nginx riceve le richieste HTTPS sulla porta `8000` e inoltra `/api/ge
 
 Il client utilizza HTTPS e un certificato server incluso nell'app (`assets/certs/server.crt`) come trust anchor dedicato. La chiave privata TLS (`server.key`) deve rimanere sul server e non deve essere aggiunta a Git. La sostituzione del certificato richiede un aggiornamento coordinato del server e della versione dell'app distribuita.
 
-**Nota sul Compose corrente:** `server_docker/docker-compose.yml` dichiara anche il servizio `uniklas-backend` con contesto `./uniklas-backend`, ma tale directory non è presente nella struttura versionata attuale di `server_docker/`. Prima di utilizzare l'intero stack Compose, ripristinare/aggiungere quel contesto oppure aggiornare la configurazione per rimuovere il servizio non disponibile e le relative dipendenze.
-
 ## Modello dati e sicurezza
 
 Le regole di accesso sono definite in [`firestore.rules`](firestore.rules) e devono essere considerate parte integrante dell'applicazione.
