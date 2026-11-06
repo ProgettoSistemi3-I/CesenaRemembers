@@ -40,7 +40,9 @@ class _LoginPageState extends State<LoginPage>
 
   bool _isLoading = false;
   String? _error;
-  bool _isBanned = false; // nuovo: traccia se l'errore è un ban
+  bool _isBanned = false;
+  bool _acceptedTermsAndPrivacy = false;
+  bool _confirmedMinimumAge = false;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
@@ -84,6 +86,10 @@ class _LoginPageState extends State<LoginPage>
   }
 
   Future<void> _handleSignIn() async {
+    if (!_acceptedTermsAndPrivacy || !_confirmedMinimumAge || _isLoading) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -214,13 +220,13 @@ class _LoginPageState extends State<LoginPage>
                         if (_isLoading)
                           const CircularProgressIndicator(color: _olive)
                         else ...[
+                          _buildConsentControls(scale),
+                          SizedBox(height: spacingSm),
                           _buildGoogleButton(
                             btnVertPad: btnVertPad,
                             btnFontSize: btnFontSize,
                             logoSize: logoSize,
                           ),
-                          SizedBox(height: spacingSm),
-                          _buildTermsAndPrivacyNotice(scale),
                         ],
                         if (_error != null) ...[
                           SizedBox(height: spacingSm),
@@ -291,7 +297,9 @@ class _LoginPageState extends State<LoginPage>
           ),
           elevation: 0,
         ),
-        onPressed: _handleSignIn,
+        onPressed: _acceptedTermsAndPrivacy && _confirmedMinimumAge
+            ? _handleSignIn
+            : null,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -316,12 +324,12 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Widget _buildTermsAndPrivacyNotice(double scale) {
+  Widget _buildConsentControls(double scale) {
     final l10n = AppLocalizations.of(context)!;
     final textStyle = TextStyle(
       fontSize: 11.5 * scale,
-      color: Colors.white.withValues(alpha: 0.78),
-      height: 1.45,
+      color: Colors.white.withValues(alpha: 0.86),
+      height: 1.4,
     );
     final linkStyle = TextStyle(
       fontSize: 11.5 * scale,
@@ -331,38 +339,75 @@ class _LoginPageState extends State<LoginPage>
       decorationColor: _tan,
     );
 
+    Widget buildCheckbox({
+      required bool value,
+      required ValueChanged<bool?> onChanged,
+      required Widget label,
+    }) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: _isLoading ? null : onChanged,
+            activeColor: _tan,
+            checkColor: _textDark,
+            side: const BorderSide(color: Colors.white70),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          Expanded(child: label),
+        ],
+      );
+    }
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10 * scale),
-      child: Text.rich(
-        TextSpan(
-          text: l10n.loginTermsNoticePrefix,
-          style: textStyle,
-          children: [
-            TextSpan(
-              text: l10n.loginTermsLink,
-              style: linkStyle,
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => launchUrl(
-                  Uri.parse('https://cesenaremembers.com/legal/terms.html'),
-                  mode: LaunchMode.externalApplication,
-                ),
+      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildCheckbox(
+            value: _acceptedTermsAndPrivacy,
+            onChanged: (value) => setState(
+              () => _acceptedTermsAndPrivacy = value ?? false,
             ),
-            TextSpan(
-              text: l10n.loginTermsAnd,
-              style: textStyle,
+            label: Text.rich(
+              TextSpan(
+                text: l10n.loginTermsNoticePrefix,
+                style: textStyle,
+                children: [
+                  TextSpan(
+                    text: l10n.loginTermsLink,
+                    style: linkStyle,
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => launchUrl(
+                        Uri.parse('https://cesenaremembers.com/legal/terms.html'),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                  ),
+                  TextSpan(text: l10n.loginTermsAnd, style: textStyle),
+                  TextSpan(
+                    text: l10n.loginPrivacyLink,
+                    style: linkStyle,
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => launchUrl(
+                        Uri.parse('https://cesenaremembers.com/legal/privacy.html'),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                  ),
+                ],
+              ),
             ),
-            TextSpan(
-              text: l10n.loginPrivacyLink,
-              style: linkStyle,
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => launchUrl(
-                  Uri.parse('https://cesenaremembers.com/legal/privacy.html'),
-                  mode: LaunchMode.externalApplication,
-                ),
+          ),
+          SizedBox(height: 3 * scale),
+          buildCheckbox(
+            value: _confirmedMinimumAge,
+            onChanged: (value) => setState(
+              () => _confirmedMinimumAge = value ?? false,
             ),
-          ],
-        ),
-        textAlign: TextAlign.center,
+            label: Text(l10n.loginAgeConfirmation, style: textStyle),
+          ),
+        ],
       ),
     );
   }
