@@ -105,7 +105,9 @@ Il client contatta il backend quiz tramite `https://pascal.ispascalcomandini.it:
 Le Rules limitano gli incrementi XP per singola scrittura, ma il punteggio è ancora calcolato dal client: non è anti-cheat completo. Per una classifica affidabile, la registrazione definitiva di XP e achievement deve essere spostata su un backend fidato con Firebase Admin SDK.
 
 
-### Prima della pubblicazione: elementi che richiedono ancora un'azione del titolare
+### Prima della pubblicazione: verifiche operative
+
+Per i controlli manuali su Play Console, privacy, età degli utenti, infrastruttura scolastica e deployment consulta [RELEASE_READINESS.md](RELEASE_READINESS.md).
 
 - Esegui e verifica la migrazione `public_profiles` prima di pubblicare le nuove Rules; il client da solo non può migrare i documenti già su Firebase.
 - `xp` e statistiche sono ancora registrati dal client. Le Rules applicano limiti strutturali e di incremento al contenuto delle scritture, ma **non** impongono un intervallo minimo di 5 secondi né verificano una durata minima del tour. Il punteggio lato client non è anti-cheat: la soluzione definitiva è assegnarlo e validarlo in un backend attendibile con Firebase Admin SDK.
