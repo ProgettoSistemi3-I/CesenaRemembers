@@ -36,15 +36,53 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<AppUser?> signInWithGoogle() async {
-    // Forza sempre il selettore account Google, anche se c'è un account in cache.
-    // Questo evita che un account bannato/disabilitato venga riloggato silenziosamente.
-    await _googleSignIn.signOut();
+    // Forza il selettore account per evitare il riutilizzo silenzioso di
+    // una sessione Google precedente.
+    try {
+      await _googleSignIn.signOut();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Google sign-in failed while clearing the previous Google session',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'FirebaseAuthRepository',
+      );
+      rethrow;
+    }
 
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    GoogleSignInAccount? googleUser;
+    try {
+      googleUser = await _googleSignIn.signIn();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Google account selection failed',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'FirebaseAuthRepository',
+      );
+      rethrow;
+    }
 
-    if (googleAuth == null) return null;
+    if (googleUser == null) {
+      AppLogger.info(
+        'Google account selection was cancelled',
+        name: 'FirebaseAuthRepository',
+      );
+      return null;
+    }
+
+    GoogleSignInAuthentication googleAuth;
+    try {
+      googleAuth = await googleUser.authentication;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Google authentication token retrieval failed',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'FirebaseAuthRepository',
+      );
+      rethrow;
+    }
 
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
@@ -52,23 +90,42 @@ class FirebaseAuthRepository implements AuthRepository {
     );
 
     try {
-      final UserCredential userCredential = await _firebaseAuth
-          .signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       final User? user = userCredential.user;
-      if (user == null) return null;
+      if (user == null) {
+        AppLogger.error(
+          'Firebase accepted Google credentials but returned no user',
+          name: 'FirebaseAuthRepository',
+        );
+        return null;
+      }
       return AppUser(
         id: user.uid,
         email: user.email ?? '',
         displayName: user.displayName,
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-disabled') {
-        // Rilancia con codice riconoscibile dalla LoginPage
+    } on FirebaseAuthException catch (error, stackTrace) {
+      AppLogger.error(
+        'Firebase sign-in rejected Google credentials (code: ${error.code})',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'FirebaseAuthRepository',
+      );
+      if (error.code == 'user-disabled') {
         throw FirebaseAuthException(
           code: 'user-disabled',
           message: 'user-disabled',
         );
       }
+      rethrow;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unexpected error while exchanging Google credentials with Firebase',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'FirebaseAuthRepository',
+      );
       rethrow;
     }
   }
