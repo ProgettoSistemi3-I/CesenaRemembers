@@ -1370,4 +1370,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quiz_rifugi_antiaerei_q3_o3 => 'With wooden doors filled with water';
+
+  @override
+  String get consentNotificationsTag => 'NOTIFICATIONS';
+
+  @override
+  String get consentNotificationsTitle => 'Stay up to date';
+
+  @override
+  String get consentNotificationsBody => 'Get an alert when someone sends you a friend request or you unlock a new achievement.';
+
+  @override
+  String get consentNotificationsNote => 'Notifications are optional and can be turned off at any time in Settings.';
+
+  @override
+  String get consentNotificationsAccept => 'Enable notifications';
+
+  @override
+  String get consentNotificationsDecline => 'Not now';
+
+  @override
+  String get consentLocationTag => 'LOCATION';
+
+  @override
+  String get consentLocationTitle => 'Discover Cesena, one stop at a time';
+
+  @override
+  String get consentLocationBody => 'Your location lets us show where you are on the map and guide you along the tours.';
+
+  @override
+  String get consentLocationNote => 'Android will ask for permission only after you choose to enable it. You can still use the app without GPS.';
+
+  @override
+  String get consentLocationAccept => 'Enable location';
+
+  @override
+  String get consentLocationDecline => 'Not now';
+
+  @override
+  String get consentDiagnosticsTag => 'OPTIONAL DIAGNOSTICS';
+
+  @override
+  String get consentDiagnosticsTitle => 'Help us improve the app';
+
+  @override
+  String get consentDiagnosticsBody => 'When an error occurs, you can send Firebase Crashlytics a technical report containing a stack trace, app version, device information and a technical installation identifier. This helps us find and fix problems.';
+
+  @override
+  String get consentDiagnosticsNote => 'This is optional: the app works normally without it. You can withdraw consent at any time in Settings.';
+
+  @override
+  String get consentDiagnosticsAccept => 'Share technical reports';
+
+  @override
+  String get consentDiagnosticsDecline => 'No, thanks';
+
+  @override
+  String get consentSaveError => 'We couldn\'t save your choice. Check your connection and try again.';
+
+  @override
+  String get settingsDiagnostics => 'Technical reports';
+
+  @override
+  String get settingsDiagnosticsSubtitle => 'Allow technical error reports to be sent through Firebase Crashlytics.';
 }

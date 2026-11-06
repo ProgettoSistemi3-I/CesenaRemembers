@@ -2752,6 +2752,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With wooden doors filled with water'**
   String get quiz_rifugi_antiaerei_q3_o3;
+
+  /// No description provided for @consentNotificationsTag.
+  ///
+  /// In en, this message translates to:
+  /// **'NOTIFICATIONS'**
+  String get consentNotificationsTag;
+
+  /// No description provided for @consentNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay up to date'**
+  String get consentNotificationsTitle;
+
+  /// No description provided for @consentNotificationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Get an alert when someone sends you a friend request or you unlock a new achievement.'**
+  String get consentNotificationsBody;
+
+  /// No description provided for @consentNotificationsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are optional and can be turned off at any time in Settings.'**
+  String get consentNotificationsNote;
+
+  /// No description provided for @consentNotificationsAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications'**
+  String get consentNotificationsAccept;
+
+  /// No description provided for @consentNotificationsDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get consentNotificationsDecline;
+
+  /// No description provided for @consentLocationTag.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCATION'**
+  String get consentLocationTag;
+
+  /// No description provided for @consentLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover Cesena, one stop at a time'**
+  String get consentLocationTitle;
+
+  /// No description provided for @consentLocationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location lets us show where you are on the map and guide you along the tours.'**
+  String get consentLocationBody;
+
+  /// No description provided for @consentLocationNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Android will ask for permission only after you choose to enable it. You can still use the app without GPS.'**
+  String get consentLocationNote;
+
+  /// No description provided for @consentLocationAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location'**
+  String get consentLocationAccept;
+
+  /// No description provided for @consentLocationDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get consentLocationDecline;
+
+  /// No description provided for @consentDiagnosticsTag.
+  ///
+  /// In en, this message translates to:
+  /// **'OPTIONAL DIAGNOSTICS'**
+  String get consentDiagnosticsTag;
+
+  /// No description provided for @consentDiagnosticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve the app'**
+  String get consentDiagnosticsTitle;
+
+  /// No description provided for @consentDiagnosticsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When an error occurs, you can send Firebase Crashlytics a technical report containing a stack trace, app version, device information and a technical installation identifier. This helps us find and fix problems.'**
+  String get consentDiagnosticsBody;
+
+  /// No description provided for @consentDiagnosticsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This is optional: the app works normally without it. You can withdraw consent at any time in Settings.'**
+  String get consentDiagnosticsNote;
+
+  /// No description provided for @consentDiagnosticsAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Share technical reports'**
+  String get consentDiagnosticsAccept;
+
+  /// No description provided for @consentDiagnosticsDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'No, thanks'**
+  String get consentDiagnosticsDecline;
+
+  /// No description provided for @consentSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save your choice. Check your connection and try again.'**
+  String get consentSaveError;
+
+  /// No description provided for @settingsDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical reports'**
+  String get settingsDiagnostics;
+
+  /// No description provided for @settingsDiagnosticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow technical error reports to be sent through Firebase Crashlytics.'**
+  String get settingsDiagnosticsSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
