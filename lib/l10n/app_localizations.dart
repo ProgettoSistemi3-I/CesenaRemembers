@@ -1085,6 +1085,12 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get loginPrivacyLink;
 
+  /// No description provided for @loginAgeConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirm that I am at least 14 years old.'**
+  String get loginAgeConfirmation;
+
   /// No description provided for @errorCommunication.
   ///
   /// In en, this message translates to:
