@@ -1,183 +1,437 @@
 # Cesena Remembers
 
-App Flutter educativa/gamificata per esplorare luoghi storici di Cesena con percorso su mappa, quiz e profilo utente.
+**Tour storico interattivo di Cesena — esplora i luoghi, scopri la storia e mettiti alla prova.**
 
-## Architettura
+Cesena Remembers 1945 è un'applicazione mobile educativa che accompagna alla scoperta di luoghi e testimonianze storiche della città di Cesena attraverso una mappa interattiva, percorsi a piedi, contenuti storico-culturali e quiz gamificati.
 
-Il progetto segue una struttura a layer ispirata a DDD/Clean Architecture:
+<p align="center">
+  <img src="web/loginView.jpg" alt="Anteprima di Cesena Remembers" width="720">
+</p>
 
-- `lib/domain`
-  - `entities`: modelli di dominio puri.
-  - `repositories`: contratti astratti.
-  - `usecases`: orchestrazione dei comportamenti applicativi.
-  - `services`: logica di dominio (tour routing/scoring).
-- `lib/data`
-  - implementazioni concrete dei repository.
-  - data source utente e seed locali dei POI.
-- `lib/presentation`
-  - pagine Flutter, widget e controller UI.
-- `lib/core`
-  - utilità trasversali (logging).
+<p align="center">
+  <a href="https://cesenaremembers.com">Sito ufficiale</a> ·
+  <a href="https://cesenaremembers.com/legal/privacy.html">Privacy</a> ·
+  <a href="https://cesenaremembers.com/legal/terms.html">Termini d'uso</a> ·
+  <a href="https://cesenaremembers.com/legal/delete-account.html">Eliminazione account</a>
+</p>
 
-Dependency injection centralizzata in `lib/injection_container.dart` con `get_it`.
+---
 
-## Runtime e modalità operative
+## Indice
 
-L'app usa:
-- Firebase (auth + firestore)
-- Mappe tile esterne
-- Backend quiz AI (endpoint HTTPS/TLS configurato internamente nel repository quiz; certificato server incluso nell'app e usato come trust anchor dedicato)
+- [Panoramica](#panoramica)
+- [Funzionalità](#funzionalità)
+- [Stack tecnologico](#stack-tecnologico)
+- [Architettura del progetto](#architettura-del-progetto)
+- [Backend e servizi](#backend-e-servizi)
+- [Modello dati e sicurezza](#modello-dati-e-sicurezza)
+- [Requisiti](#requisiti)
+- [Configurazione locale](#configurazione-locale)
+- [Build e pubblicazione Android](#build-e-pubblicazione-android)
+- [Firebase e manutenzione](#firebase-e-m manutenzione)
+- [Test e controlli](#test-e-controlli)
+- [Documentazione e riferimenti](#documentazione-e-riferimenti)
+- [Licenza](#licenza)
 
-### Quiz: fallback resiliente
+## Panoramica
 
-Se il backend quiz non è disponibile, l'app usa automaticamente le domande seed locali (`HistoricPlacesSeed`) e mostra un avviso esplicito in UI: domande non personalizzate + difficoltà locale.
+L'app combina esplorazione geografica e apprendimento: l'utente consulta i punti di interesse, organizza un tour, raggiunge le tappe con il supporto GPS e affronta quiz legati ai luoghi visitati. I risultati contribuiscono a progressi, XP, trofei e classifica.
 
-## Setup sviluppo
+Il catalogo storico attualmente integrato comprende dieci luoghi:
 
-Prerequisiti:
-- Flutter SDK (versione compatibile con `pubspec.yaml`)
-- Dart SDK (incluso in Flutter)
-- Configurazione Firebase valida per le piattaforme target
+- Abbazia di Santa Maria del Monte
+- Chiesa e Convento dell'Osservanza
+- Chiesa di San Rocco
+- Chiesa di Santa Cristina
+- Palazzo del Ridotto
+- Palazzo Fantaguzzi
+- Rocca Malatestiana
+- Rifugi antiaerei della Rocca
+- Stabilimento Arrigoni
+- Stazione ferroviaria di Cesena
 
-Comandi principali:
+L'applicazione e i contenuti dell'interfaccia sono disponibili in italiano e inglese.
+
+## Funzionalità
+
+### Mappa e tour
+
+- Mappa interattiva con punti di interesse, schede informative e immagini.
+- Posizione dell'utente tramite GPS, previa autorizzazione e attivazione dell'opzione nell'app.
+- Tour guidati con tappe, distanza, indicazione della tappa corrente e possibilità di riordinare le tappe successive.
+- Percorsi pedonali calcolati tramite Mapbox Directions.
+- Stili cartografici standard, scuro e satellitare, con attribuzioni dei rispettivi fornitori.
+- Aggiornamento automatico del percorso durante un tour attivo quando cambia la posizione dell'utente o la destinazione.
+
+### Quiz e gamification
+
+- Quiz contestuali ai luoghi visitati, con tre domande per sessione.
+- Generazione lato server a partire da schede storiche locali e fatti verificati.
+- Controlli strutturali e di coerenza delle domande prima che vengano restituite al client.
+- Livelli di difficoltà legati ai progressi dell'utente.
+- Calcolo di XP, risultati dei quiz, statistiche di tour e trofei.
+- Fallback locale: se il servizio remoto non è disponibile o restituisce un risultato non valido, l'app propone le domande statiche incluse nel client e segnala che non sono personalizzate.
+
+### Account e community
+
+- Accesso tramite Google Sign-In e Firebase Authentication.
+- Profilo con username, nome visualizzato, avatar, XP, progressi e trofei.
+- Richieste di amicizia, accettazione/rifiuto e rimozione delle amicizie.
+- Profili pubblici e classifica globale.
+- Statistiche dettagliate consultabili dal proprietario e dagli amici reciproci.
+- Notifiche push per nuove richieste di amicizia e richieste accettate.
+
+### Preferenze e controllo dell'account
+
+- Tema chiaro e scuro.
+- Lingua italiana o inglese.
+- Preferenze GPS e notifiche.
+- Consultazione di Privacy Policy e Termini d'uso.
+- Eliminazione dell'account dall'app e istruzioni pubbliche per richiederla anche senza accesso.
+
+## Stack tecnologico
+
+| Area | Tecnologie |
+|---|---|
+| App mobile | Flutter, Dart, Material |
+| Navigazione e mappe | `flutter_map`, `latlong2`, `geolocator`, `flutter_map_location_marker` |
+| Cartografia | CARTO, Stadia Maps, Esri/ArcGIS |
+| Routing pedonale | Mapbox Directions API |
+| Backend applicativo | Firebase Authentication, Cloud Firestore, Firebase Cloud Messaging |
+| Diagnostica e protezione | Firebase Crashlytics, Firebase App Check / Play Integrity |
+| Stato e dependency injection | Controller applicativi, Use Case, `get_it` |
+| API quiz | Python 3.11, FastAPI, Pydantic, HTTPX, Uvicorn |
+| Generazione quiz | API LLM compatibili con il protocollo OpenAI Chat Completions |
+| Push notifications | Node.js, Firebase Admin SDK, Firebase Cloud Messaging |
+| Deployment | Docker Compose, Nginx, HTTPS/TLS |
+| Automazione release Android | GitHub Actions |
+
+Le dipendenze Dart e i relativi vincoli sono definiti in [`pubspec.yaml`](pubspec.yaml); quelle Python in [`server_docker/quiz-service/requirements.txt`](server_docker/quiz-service/requirements.txt).
+
+## Architettura del progetto
+
+Il client Flutter adotta una struttura a livelli ispirata a Clean Architecture e Domain-Driven Design. L'obiettivo è isolare le regole applicative e i contratti dai dettagli infrastrutturali e dalla UI.
+
+```text
+lib/
+├── config/                 Configurazione runtime tramite dart-define
+├── core/                   Logging e diagnostica trasversale
+├── domain/
+│   ├── entities/           Entità e modelli di dominio
+│   ├── repositories/        Contratti dei repository
+│   ├── services/           Servizi e regole di dominio
+│   ├── usecases/            Casi d'uso applicativi
+│   └── validation/         Validazioni di dominio
+├── data/
+│   ├── network/            Client HTTP e certificate pinning
+│   ├── seeds/              Contenuti locali e quiz di fallback
+│   ├── user/               Data source Firestore per profili, progressi e social
+│   └── *.dart              Implementazioni concrete dei repository
+├── models/                 Modelli di serializzazione
+├── presentation/
+│   ├── controllers/        Coordinamento dello stato delle schermate
+│   ├── pages/              Schermate e flussi UI
+│   ├── services/           Servizi di presentazione e integrazioni UI
+│   ├── theme/              Tema e palette
+│   └── widgets/            Componenti riutilizzabili
+├── l10n/                   Risorse di localizzazione IT/EN
+├── firebase_options.dart   Configurazione Firebase generata
+├── injection_container.dart Composition root e registrazione get_it
+└── main.dart               Bootstrap dell'applicazione
+```
+
+### Dipendenze tra i livelli
+
+- **Presentation** gestisce schermate, interazioni e controller; invoca i casi d'uso senza contenere direttamente l'accesso a Firestore.
+- **Domain** contiene entità, interfacce dei repository, servizi e Use Case; non dipende dai dettagli Firebase o dalla UI.
+- **Data** implementa i contratti del Domain e incapsula Firebase, HTTP, seed locali e altri provider esterni.
+- **Dependency injection** è centralizzata in `lib/injection_container.dart` tramite `get_it`.
+
+Il punto di ingresso inizializza Firebase, App Check, Crashlytics, Messaging e dependency injection prima di mostrare la schermata iniziale.
+
+## Backend e servizi
+
+Il codice server relativo a Cesena Remembers è organizzato sotto [`server_docker/`](server_docker/).
+
+### Quiz API
+
+Percorso: [`server_docker/quiz-service/`](server_docker/quiz-service/)
+
+Il servizio FastAPI espone l'endpoint:
+
+```http
+POST /api/generate-quiz
+GET  /health
+```
+
+La richiesta contiene l'identificativo del POI, l'XP corrente e la lingua. Gli identificativi sono verificati rispetto alla whitelist caricata dalle schede presenti in `facts/`: il contesto storico usato per generare le domande proviene dalle schede server-side, non dal nome o dalla descrizione ricevuti dal client.
+
+Per ogni richiesta il servizio seleziona fatti verificati, invoca il provider LLM, valida le domande e restituisce HTTP 200 soltanto quando sono disponibili tre domande valide. In caso contrario restituisce un errore HTTP non-200, così il client può attivare il fallback locale.
+
+Le schede in `facts/` sono mantenute nel repository e caricate in memoria all'avvio. Attualmente sono presenti dieci schede, una per ciascun POI. Le modalità e il formato per aggiornarle sono descritti in [`facts/README.md`](server_docker/quiz-service/facts/README.md).
+
+Il provider è configurabile tramite variabili d'ambiente. Sono previsti preset per Groq, Gemini e Cerebras, oltre a un endpoint compatibile OpenAI configurabile. Il preset predefinito è Groq con modello `openai/gpt-oss-120b`.
+
+Variabili principali:
+
+| Variabile | Significato |
+|---|---|
+| `LLM_PROVIDER` | Provider da utilizzare (`groq`, `gemini`, `cerebras`, `openai_compatible`) |
+| `GROQ_API_KEY` / `GEMINI_API_KEY` / `CEREBRAS_API_KEY` | Chiave del provider selezionato |
+| `LLM_API_KEY` | Chiave generica, utile anche per provider compatibili OpenAI |
+| `LLM_BASE_URL` | URL base personalizzato del provider |
+| `LLM_MODEL` | Modello da utilizzare |
+| `LLM_TIMEOUT_S` | Timeout della singola chiamata al modello |
+| `REQUEST_DEADLINE_S` | Budget massimo per la generazione della risposta |
+| `MAX_LLM_CALLS` | Numero massimo di chiamate al modello |
+| `QUIZ_OPTIONS` | Numero di opzioni per domanda: 3 o 4 |
+| `FACTS_PER_PROMPT` | Numero massimo di fatti inseriti nel prompt |
+
+Configurazione locale: creare `server_docker/quiz-service/.env` e inserire soltanto le variabili necessarie. Il file è escluso da Git e dal contesto Docker. Non inserire chiavi reali in questo README o in altri file versionati.
+
+### Notifiche push
+
+Percorso: [`server_docker/notifier-service/`](server_docker/notifier-service/)
+
+Il servizio Node.js utilizza Firebase Admin SDK e osserva in modo selettivo i campi Firestore necessari alla gestione delle notifiche social. Invia messaggi FCM per nuove richieste di amicizia e richieste accettate, rispettando la preferenza notifiche dell'utente e rimuovendo i token FCM non più validi.
+
+La service account key deve essere presente esclusivamente sul server nel percorso previsto dal Compose (`server_docker/notifier-service/serviceAccountKey.json`), montata in sola lettura. È esclusa dal repository e dall'immagine Docker.
+
+### Nginx, TLS e rete Docker
+
+Il gateway Nginx riceve le richieste HTTPS sulla porta `8000` e inoltra `/api/generate-quiz` al servizio FastAPI. Il container quiz non pubblica direttamente la propria porta sull'host: comunica con Nginx attraverso la rete Docker dedicata `quiz-backend`.
+
+Il client utilizza HTTPS e un certificato server incluso nell'app (`assets/certs/server.crt`) come trust anchor dedicato. La chiave privata TLS (`server.key`) deve rimanere sul server e non deve essere aggiunta a Git. La sostituzione del certificato richiede un aggiornamento coordinato del server e della versione dell'app distribuita.
+
+**Nota sul Compose corrente:** `server_docker/docker-compose.yml` dichiara anche il servizio `uniklas-backend` con contesto `./uniklas-backend`, ma tale directory non è presente nella struttura versionata attuale di `server_docker/`. Prima di utilizzare l'intero stack Compose, ripristinare/aggiungere quel contesto oppure aggiornare la configurazione per rimuovere il servizio non disponibile e le relative dipendenze.
+
+## Modello dati e sicurezza
+
+Le regole di accesso sono definite in [`firestore.rules`](firestore.rules) e devono essere considerate parte integrante dell'applicazione.
+
+| Collezione | Contenuto e accesso previsto |
+|---|---|
+| `users/{uid}` | Dati privati dell'account e stato applicativo; lettura del documento riservata al proprietario. |
+| `public_profiles/{uid}` | Nome visualizzato, username, avatar e riepiloghi pubblici; consultabili dagli utenti autenticati secondo le Rules. |
+| `friend_stats/{uid}` | Statistiche dettagliate e lista amici; leggibili dal proprietario e dagli amici con relazione reciproca. La query/lista globale è disabilitata. |
+| `leaderboard/{uid}` | Proiezione minima per la classifica globale; le query sono limitate a 50 risultati. |
+| `usernames/{username}` | Indice univoco username; non è consentita la lettura globale della collezione. |
+| `friend_requests/{recipientUid}/inbox/{senderUid}` | Richieste di amicizia organizzate per destinatario. |
+| `banned_users/{uid}` | Record di moderazione gestiti lato amministrativo; il client non può crearli, modificarli o eliminarli. |
+
+La classifica è globale, mentre le statistiche dettagliate restano riservate. Il profilo pubblico può essere consultato da qualsiasi account autenticato, anche minorenne: non inserire nei campi pubblici nome completo, scuola, recapiti o altre informazioni identificative.
+
+### Aspetti di sicurezza da non confondere
+
+- Le Firestore Security Rules verificano le scritture e limitano i campi modificabili, ma non trasformano il punteggio calcolato dal client in un sistema anti-cheat completo. L'assegnazione definitiva di XP e trofei dovrebbe essere demandata a un backend fidato per una protezione più forte.
+- Il rate limit del quiz riduce gli abusi e le richieste eccessive, ma non equivale ad autenticazione dell'utente.
+- `FORWARDED_ALLOW_IPS=*` nel container quiz è coerente soltanto finché Nginx resta l'unico peer sulla rete Docker dedicata. Non collegare container non fidati a `quiz-backend`.
+- App Check usa il provider Debug nelle build debug e Play Integrity nelle build release Android. L'enforcement va configurato e verificato nella Firebase Console prima di considerarlo operativo.
+- La dichiarazione di età mostrata durante l'onboarding è autodichiarata: non costituisce verifica documentale dell'età.
+- Le chiavi Admin SDK, le chiavi private TLS, i keystore Android e i segreti dei provider non devono essere committati né inclusi nell'APK.
+
+## Requisiti
+
+Per sviluppare il client:
+
+- Flutter SDK con Dart compatibile con il vincolo `^3.10.4` dichiarato in `pubspec.yaml`.
+- Android SDK e Java 17 per compilare l'app Android.
+- Un progetto Firebase configurato per le piattaforme che si desidera eseguire.
+- Credenziali/API key dei servizi cartografici e OAuth richiesti dall'ambiente.
+
+Per lavorare sui servizi server:
+
+- Python 3.11 per il servizio quiz.
+- Docker Engine e Docker Compose per il deployment containerizzato.
+- Node.js 18 per lo sviluppo locale del notifier.
+- Firebase CLI per emulatori e distribuzione delle Firestore Rules.
+
+## Configurazione locale
+
+### 1. Clonare il repository e installare le dipendenze
 
 ```bash
+git clone https://github.com/ProgettoSistemi3-I/CesenaRemembers.git
+cd CesenaRemembers
 flutter pub get
-flutter analyze
-flutter test
-flutter run
-# release firmata, solo dopo aver configurato android/key.properties
-flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
+flutter gen-l10n
 ```
 
-## Setup produzione (linee guida)
+### 2. Configurare Firebase
 
-- Verificare credenziali Firebase e file piattaforma (`google-services.json`, `GoogleService-Info.plist`).
-- Validare disponibilità endpoint backend quiz.
-- Eseguire quality gate minimo:
-  - `flutter analyze`
-  - `flutter test`
-  - smoke test navigazione login → mappa → quiz → profilo.
+Il progetto utilizza Firebase Authentication, Cloud Firestore, Cloud Messaging, Crashlytics e App Check. Verificare che:
 
-## Qualità del codice
+1. Il progetto Firebase corretto sia selezionato nella console.
+2. Google Sign-In sia abilitato in Authentication.
+3. `android/app/google-services.json` corrisponda al progetto e all'application ID configurati.
+4. `lib/firebase_options.dart` sia aggiornato per le piattaforme effettivamente utilizzate.
+5. Le Firestore Security Rules distribuite corrispondano a `firestore.rules`.
 
-Pratiche adottate:
-- separazione use case/repository/controller;
-- riduzione commenti temporanei e marker di debug;
-- logging strutturato via `dart:developer`.
+Non copiare nel repository service account Admin SDK o altre credenziali private.
 
-## Licenza
+### 3. Configurare i parametri runtime
 
-Repository privato / uso interno progetto.
+I parametri per OAuth e provider cartografici vengono letti tramite `--dart-define` e non sono salvati nei sorgenti Dart.
 
-
-## Pubblicazione Android e Firestore (controlli pre-release)
-
-### Migrazione obbligatoria prima delle nuove Rules
-
-La nuova app separa i dati in tre raccolte: `users/{uid}` contiene dati privati e stato applicativo; `public_profiles/{uid}` contiene nome visualizzato, username, avatar e i soli riepiloghi pubblici della hero card (`xp`, `friendsCount`, `totalToursCompleted`); `friend_stats/{uid}` contiene la lista amici e le statistiche dettagliate, leggibili dal proprietario e dagli amici reciproci. `friendsCount` è un conteggio e non espone la lista degli UID. La query globale delle statistiche dettagliate è disabilitata. I profili già presenti devono essere migrati prima di distribuire le nuove Rules. Prima di distribuire `firestore.rules`, esegui la migrazione una volta con una credenziale Admin SDK conservata fuori da questa cartella:
+Esempio per Linux/macOS:
 
 ```bash
-python -m pip install firebase-admin
-# Linux/macOS
-export GOOGLE_APPLICATION_CREDENTIALS="/percorso/protetto/service-account.json"
-python scripts/migrate_public_profiles.py --project-id cesenaremembers1945
-# dopo aver controllato l'anteprima e fatto un backup Firestore:
-python scripts/migrate_public_profiles.py --project-id cesenaremembers1945 --apply
-```
-
-Su PowerShell usa `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\percorso\protetto\service-account.json"` e gli stessi comandi Python. Senza `--apply` lo script è solo dry-run. Prima fai un backup: con `--apply` normalizza e sostituisce i documenti `users/{uid}` completati e le relative proiezioni pubbliche, rimuovendo i campi legacy non previsti dallo schema; ripulisce i profili incompleti, riallinea gli indici username e ricrea solo richieste di amicizia reciproche e rimuove le proiezioni pubbliche, gli indici username e le relazioni dei profili presenti in `banned_users` (senza cancellare i documenti privati/Auth degli account bannati). Se trova un profilo completato non valido o username duplicati si ferma senza scrivere: correggi i dati segnalati, ripeti il dry-run e applica solo quando il riepilogo è coerente. Poi distribuisci le regole con `firebase deploy --only firestore:rules` (Firebase CLI autenticata sul progetto corretto). Non caricare mai la chiave Admin nel repository o nell'APK.
-
-L'output del dry-run mostra anche il numero di amici reciproci per username e quanti `friend_stats` mancano. La classifica è globale (Top 50 basata sulla raccolta `leaderboard` e sui profili pubblici), mentre le statistiche dettagliate e i progressi approfonditi restano riservati in `friend_stats` e consultabili esclusivamente dal proprietario e dai suoi amici con relazione reciproca. Non aggiungere query globali aperte su `friend_stats`: violerebbe la riservatezza delle statistiche dettagliate.
-
-Le regole del completamento profilo sono state alleggerite: verificano l'esistenza delle proiezioni nel commit, mentre le regole dedicate di `public_profiles`, `friend_stats` e `usernames` verificano che i dati corrispondano. Nei profili incompleti esistenti vengono controllate le sole chiavi modificate, così i campi legacy non toccati non bloccano l'onboarding. È previsto anche un percorso sicuro per creare nello stesso commit il documento utente completo se `ensureUserDocument` non lo ha creato.
-
-Le richieste di amicizia sono in `friend_requests/{destinatario}/inbox/{mittente}`. Le Rules impediscono letture del documento privato degli altri utenti e limitano le modifiche social cross-account ai soli UID dell'utente autenticato. Le Rules non hanno cicli/istruzioni iterative; le liste dinamiche sono limitate a 100, 200 o 500 elementi. Attenzione: il limite reale di Firestore per le letture `get/exists` nelle Rules è 10 per singola operazione e 20 per richiesta multi-documento/batch, non 1.000 iterazioni; i rami sociali vanno comunque verificati con l'emulatore.
-
-### Build release Android
-
-La release richiede un tuo keystore e `android/key.properties`, escluso dal repository. Il campo `storeFile` è relativo alla cartella `android/app` se usi un percorso relativo; se il keystore è fuori dal progetto, usa un percorso assoluto. Non includere keystore o file di servizio in uno ZIP pubblico. Prima di caricare l'AAB in Play Console, completa la firma release, verifica il Firebase project e l'OAuth client/SHA-1 in Google Cloud Console, compila la sezione Data Safety, inserisci l'URL pubblico di privacy e di eliminazione account e specifica il titolare del trattamento nell'informativa.
-
-### Limiti da tenere presenti
-
-Il client contatta il backend quiz tramite `https://pascal.ispascalcomandini.it:8000`. Nginx termina TLS sulla porta 8000 e inoltra la richiesta al container quiz sulla rete Docker. Il client usa il certificato server incluso nell'app come trust anchor dedicato; Android non consente cleartext e il manifest non introduce eccezioni. Una rotazione del certificato richiede l'aggiornamento coordinato del certificato sul server e dell'asset distribuito nell'app. Il server applica limiti di frequenza per IP; questo non equivale ad autenticazione e non impedisce ogni abuso. Il container quiz non pubblica porte sull'host e condivide una rete Docker dedicata soltanto con Nginx; il valore permissivo `FORWARDED_ALLOW_IPS=*` è accettabile solo finché questa separazione resta invariata. Non collegare altri container alla rete `quiz-backend` e non esporre direttamente la porta Uvicorn sull'host. Il client non invia UID Firebase, email o password al backend quiz. Il prompt generato dal backend usa la whitelist di POI e le schede storiche lato server, non il nome/descrizione del luogo inviati dal client.
-
-Le Rules limitano gli incrementi XP per singola scrittura, ma il punteggio è ancora calcolato dal client: non è anti-cheat completo. Per una classifica affidabile, la registrazione definitiva di XP e achievement deve essere spostata su un backend fidato con Firebase Admin SDK.
-
-
-### Prima della pubblicazione: verifiche operative
-
-Per i controlli manuali su Play Console, privacy, età degli utenti, infrastruttura scolastica e deployment consulta [RELEASE_READINESS.md](RELEASE_READINESS.md). La retention dei record di moderazione scaduti è gestita da `scripts/purge_expired_bans.py` (dry-run predefinito).
-
-- Esegui e verifica la migrazione `public_profiles` prima di pubblicare le nuove Rules; il client da solo non può migrare i documenti già su Firebase.
-- `xp` e statistiche sono ancora registrati dal client. Le Rules applicano limiti strutturali e di incremento al contenuto delle scritture, ma **non** impongono un intervallo minimo di 5 secondi né verificano una durata minima del tour. Il punteggio lato client non è anti-cheat: la soluzione definitiva è assegnarlo e validarlo in un backend attendibile con Firebase Admin SDK.
-- Verifica e completa in Play Console Data Safety, target audience, contenuti e URL pubblici di privacy e cancellazione account. La pagina di cancellazione è pubblicata su `https://cesenaremembers.com/legal/delete-account.html`.
-- Il rate limit del quiz è per IP e non equivale ad autenticazione. Il trasporto verso Nginx è HTTPS con certificato server incluso nell'app; il traffico tra Nginx e il container quiz è sulla rete Docker interna.
-- Attiva Firebase App Check (Play Integrity) dopo aver verificato che la versione Play sia registrata; prima fai test in monitoraggio e poi enforcement.
-- Prima di `flutter build appbundle --release`, crea `android/key.properties` con la chiave upload che possiedi già e conserva il keystore fuori dal repository. Il file non viene incluso nello ZIP.
-- Qui non è stato possibile eseguire `flutter analyze`, test Flutter, né compilare APK/AAB perché Flutter SDK/Gradle/Firebase CLI non sono presenti nell'ambiente di verifica.
-
-
-### Build Android con configurazione mappa
-
-Le chiavi pubbliche dei provider mappa e il client ID OAuth vanno passati anche alla build Android tramite `--dart-define`; non vengono letti automaticamente dal file Codemagic iOS:
-
-```bash
-flutter build appbundle --release \
+flutter run \
   --dart-define=GOOGLE_WEB_CLIENT_ID="$GOOGLE_WEB_CLIENT_ID" \
   --dart-define=STADIA_MAPS_API_KEY="$STADIA_MAPS_API_KEY" \
   --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN" \
   --dart-define=CARTO_API_KEY="$CARTO_API_KEY"
 ```
 
-Usa token pubblici con restrizioni di dominio/app appropriate. Non inserire chiavi server o credenziali Firebase Admin nell'app.
-
-## Classifica globale e statistiche riservate
-
-La classifica è globale: `leaderboard` contiene esclusivamente `uid` e `xp` ed è interrogabile dagli utenti autenticati con un limite massimo di 50 risultati. La lista mostra la Top 50; l'utente corrente è mostrato anche in una riga fissata in alto e, se è fuori dalla Top 50, il rango effettivo viene calcolato leggendo la classifica a pagine da 50. La proiezione `public_profiles` contiene identità e riepilogo pubblico della hero card (`xp`, `friendsCount`, `totalToursCompleted`): `friendsCount` è soltanto un numero, non espone gli UID o i nomi degli amici. Le statistiche dettagliate (`visitedPoiIds`, achievement, risultati quiz, risposte, tempi e lista amici) restano in `friend_stats` e sono leggibili soltanto dal proprietario e dagli amici reciproci.
-
-Dopo l'aggiornamento dello schema pubblico, esegui nuovamente `scripts/migrate_public_profiles.py` prima di distribuire le nuove Firestore Rules, così anche gli account già esistenti ricevono i tre aggregati pubblici.
-
-Per popolare la nuova proiezione sui profili già migrati, configura `GOOGLE_APPLICATION_CREDENTIALS` con un service account protetto fuori dal repository ed esegui prima la simulazione:
+Su PowerShell è possibile passare gli stessi parametri in un unico comando:
 
 ```powershell
-python scripts/backfill_global_leaderboard.py --project-id cesenaremembers1945
+flutter run --dart-define=GOOGLE_WEB_CLIENT_ID=$env:GOOGLE_WEB_CLIENT_ID --dart-define=STADIA_MAPS_API_KEY=$env:STADIA_MAPS_API_KEY --dart-define=MAPBOX_ACCESS_TOKEN=$env:MAPBOX_ACCESS_TOKEN --dart-define=CARTO_API_KEY=$env:CARTO_API_KEY
 ```
 
-Dopo aver verificato il numero di profili, applica il backfill:
+Il servizio quiz utilizza per impostazione predefinita `https://pascal.ispascalcomandini.it:8000`. Per un ambiente differente è possibile impostare `QUIZ_API_BASE_URL` tramite `--dart-define`.
 
-```powershell
-python scripts/backfill_global_leaderboard.py --project-id cesenaremembers1945 --apply
+### 4. Avviare l'app
+
+```bash
+flutter run
 ```
 
-Solo dopo il backfill distribuisci le nuove regole:
+### 5. Utilizzare Firestore Emulator (sviluppo)
 
-```powershell
+`firebase.json` configura l'emulatore Firestore sulla porta `8080`. Avviare l'emulatore:
+
+```bash
+firebase emulators:start --only firestore
+```
+
+Poi avviare l'app in debug abilitando esplicitamente l'emulatore:
+
+```bash
+flutter run --dart-define=USE_FIRESTORE_EMULATOR=true --dart-define=FIRESTORE_EMULATOR_HOST=127.0.0.1
+```
+
+Per l'emulatore Android usare normalmente `10.0.2.2` come host, perché `127.0.0.1` nel dispositivo emulato identifica il dispositivo stesso. Su un dispositivo fisico utilizzare l'indirizzo LAN raggiungibile del computer che esegue l'emulatore.
+
+## Build e pubblicazione Android
+
+### Build locale
+
+Per una build release firmata è necessario predisporre `android/key.properties` e il keystore di upload. Entrambi devono rimanere fuori dal versionamento.
+
+Esempio di build Android App Bundle:
+
+```bash
+flutter build appbundle --release --obfuscate --split-debug-info=build/symbols \
+  --dart-define=GOOGLE_WEB_CLIENT_ID="$GOOGLE_WEB_CLIENT_ID" \
+  --dart-define=STADIA_MAPS_API_KEY="$STADIA_MAPS_API_KEY" \
+  --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN" \
+  --dart-define=CARTO_API_KEY="$CARTO_API_KEY"
+```
+
+Conservare i simboli generati da `--split-debug-info` in un archivio privato per poter simbolicare eventuali crash. Non distribuire il keystore o `key.properties`.
+
+### GitHub Actions
+
+Il workflow [`.github/workflows/android-release.yml`](.github/workflows/android-release.yml):
+
+- può essere avviato manualmente da GitHub Actions;
+- parte automaticamente quando viene pubblicato un tag con prefisso `v` (ad esempio `v1.0.1`);
+- installa Java 17 e Flutter stable;
+- costruisce un APK release firmato;
+- carica l'APK come artifact e, quando eseguito su un tag, lo allega a una GitHub Release.
+
+Secrets richiesti dal workflow:
+
+- `KEYSTORE_BASE64`
+- `KEY_ALIAS`
+- `KEY_PASSWORD`
+- `STORE_PASSWORD`
+- `GOOGLE_WEB_CLIENT_ID`
+- `STADIA_MAPS_API_KEY`
+- `MAPBOX_ACCESS_TOKEN`
+- `CARTO_API_KEY`
+
+Il workflow crea un artifact/GitHub Release: non carica automaticamente il bundle su Google Play Console. La pubblicazione sullo store richiede il relativo passaggio in Play Console. Il file `codemagic.yaml` contiene inoltre un workflow iOS che produce un pacchetto non firmato; non equivale a una release iOS pronta per la distribuzione.
+
+## Firebase e manutenzione
+
+### Distribuzione delle Firestore Rules
+
+Da eseguire soltanto dopo avere verificato progetto e ambiente di destinazione:
+
+```bash
+firebase login
+firebase use cesenaremembers1945
 firebase deploy --only firestore:rules
 ```
 
-Le nuove versioni dell'app creano e aggiornano il documento `leaderboard/{uid}` nella stessa transazione che aggiorna XP. La cancellazione account rimuove anche il relativo documento dalla classifica.
+### Migrazione e proiezioni utente
 
-### Gestione Ban e pulizia proiezioni
+Quando si modifica lo schema dei profili o delle proiezioni, le versioni già presenti su Firestore potrebbero richiedere una migrazione prima della distribuzione delle nuove Rules. Gli script amministrativi sono in `scripts/`: `migrate_public_profiles.py` migra i documenti e le proiezioni, mentre `backfill_global_leaderboard.py` popola la classifica globale.
 
-Per bannare un account e rimuoverne contestualmente tutte le proiezioni pubbliche (`leaderboard`, `public_profiles`, `friend_stats` e `usernames`), usa lo script di amministrazione `scripts/ban_user.py`:
+Questi script utilizzano Firebase Admin SDK. Eseguire prima la modalità dry-run prevista dallo script, verificare i conteggi, predisporre un backup e utilizzare `--apply` soltanto dopo aver controllato l'anteprima. La chiave Admin deve essere conservata fuori dal repository.
 
-```powershell
-# Simulazione (dry-run)
-python scripts/ban_user.py --uid ID_UTENTE --reason "Violazione termini"
+### Ban e retention
 
-# Esecuzione effettiva
-python scripts/ban_user.py --uid ID_UTENTE --reason "Violazione termini" --apply
+- `scripts/ban_user.py` gestisce il ban e la pulizia delle proiezioni pubbliche collegate all'account.
+- `scripts/purge_expired_bans.py` individua i record di moderazione scaduti; la modalità predefinita è dry-run.
+- La retention configurata nel codice non sostituisce l'approvazione della relativa policy né la pianificazione effettiva del job di pulizia.
 
-# Pulizia proiezioni residue per tutti gli utenti già presenti in banned_users
-python scripts/ban_user.py --cleanup-banned --apply
+Consultare [`RELEASE_READINESS.md`](RELEASE_READINESS.md) prima di ogni release: contiene le verifiche manuali legali, privacy, infrastrutturali, di sicurezza e di distribuzione ancora da completare.
+
+## Test e controlli
+
+### Flutter
+
+```bash
+flutter pub get
+flutter gen-l10n
+flutter analyze
+flutter test
 ```
 
-### Licenze e Termini d'Uso delle Mappe
+### Quiz API
 
-L'app visualizza direttamente sulla mappa l'attribuzione interattiva obbligatoria (`RichAttributionWidget`) richiesta dai rispettivi fornitori di tile:
-- **OpenStreetMap & CARTO:** dati © OpenStreetMap contributors (ODbL) e tile stile Voyager © CARTO. Richiedono attribuzione visibile sulla mappa con link ai termini.
-- **Stadia Maps:** l'app usa lo stile Alidade Smooth Dark e mostra i crediti di Stadia Maps, OpenMapTiles e OpenStreetMap. L'idoneità del piano gratuito dipende dalle condizioni del piano e dal carattere effettivo dell'utilizzo: verificare i termini Stadia prima della distribuzione e non presumere che l'assenza di profitto sia da sola sufficiente.
-- **Esri World Imagery:** l'app mostra l'attribuzione prevista per il basemap World Imagery. L'accessibilità pubblica dell'endpoint non costituisce, da sola, una licenza: chi distribuisce l'app deve verificare i termini del servizio e i diritti dei fornitori delle immagini.
-- **Cache delle tile:** usa una cache LRU volatile da 8 MB, con limite di 512 KB per elemento e modalità HTTP `request`; non forza una conservazione oltre le direttive di freschezza inviate dal provider e non usa tile scadute in caso di errore di rete.
-- L'attribuzione a schermo interattiva è integrata in `FlutterMap` tramite `RichAttributionWidget`, linkando le rispettive licenze e note legali ufficiali.
+```bash
+cd server_docker/quiz-service
+python -m pip install -r requirements.txt
+python -m pip install pytest
+python -m pytest -q tests
+```
+
+I test del servizio quiz usano un provider LLM fittizio e verificano il contratto HTTP, i dieci POI, i parametri, la validazione delle risposte, il fallback tramite errori non-200 e i timeout senza richiedere una vera chiave LLM.
+
+### Verifiche di release
+
+Prima di distribuire una versione controllare almeno:
+
+- login Google e creazione/completamento profilo;
+- mappa, permessi GPS, cambio stile, avvio/interruzione tour e navigazione tra tappe;
+- quiz remoto, fallback locale e salvataggio del risultato;
+- profilo, trofei, classifica globale, richieste e rimozione amicizie;
+- notifiche in foreground, background e dopo il riavvio;
+- disattivazione notifiche e rimozione dei token FCM;
+- eliminazione account e verifica delle proiezioni residue;
+- Firestore Rules con account proprietario, account terzo, account bannato e amici reciproci;
+- build release firmata, App Check/Play Integrity e configurazione Data Safety in Play Console.
+
+## Documentazione e riferimenti
+
+| Documento | Descrizione |
+|---|---|
+| [`RELEASE_READINESS.md`](RELEASE_READINESS.md) | Checklist pre-release e attività operative da chiudere |
+| [`DIAGNOSTICA_FIRESTORE.md`](DIAGNOSTICA_FIRESTORE.md) | Note di diagnostica Firestore |
+| [`firestore.rules`](firestore.rules) | Regole di accesso al database |
+| [`firebase.json`](firebase.json) | Configurazione Firebase ed emulatori |
+| [`server_docker/quiz-service/facts/README.md`](server_docker/quiz-service/facts/README.md) | Formato e criteri delle schede storiche per i quiz |
+| [`server_docker/notifier-service/README.md`](server_docker/notifier-service/README.md) | Configurazione e avvio del servizio notifiche |
+| [`web/legal/`](web/legal/) | Privacy, Termini e istruzioni di eliminazione account in italiano e inglese |
+
+**Sito:** [cesenaremembers.com](https://cesenaremembers.com)  
+**Contatto:** [cesenaremembers@gmail.com](mailto:cesenaremembers@gmail.com)  
+**Nome pubblico sviluppatore Google Play:** OstoDev
+
+## Licenza
+
+Al momento il repository non contiene un file `LICENSE`. La disponibilità pubblica del codice su GitHub non implica automaticamente una licenza di riutilizzo, modifica o redistribuzione. Per utilizzare o integrare il software in altri progetti è necessario ottenere un'autorizzazione esplicita dai titolari dei relativi diritti.
