@@ -12,9 +12,11 @@ const {
   doc,
   getDoc,
   getDocs,
+  arrayUnion,
   serverTimestamp,
   setDoc,
   updateDoc,
+  writeBatch,
 } = require('firebase/firestore');
 
 const projectId = 'demo-cesena-remembers';
@@ -113,6 +115,31 @@ test('a blocked relationship prevents creating a friend request', async () => {
       createdAt: serverTimestamp(),
     },
   ));
+});
+
+test('blocked users cannot bypass request checks by editing user arrays directly', async () => {
+  await assertSucceeds(setDoc(
+    doc(aliceDb(), 'user_blocks/alice/blocked/bob'),
+    { createdAt: serverTimestamp() },
+  ));
+
+  const batch = writeBatch(aliceDb());
+  batch.update(doc(aliceDb(), 'users/alice'), {
+    sentFriendRequests: arrayUnion('bob'),
+    lastFriendActionPeerUid: 'bob',
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(aliceDb(), 'users/bob'), {
+    receivedFriendRequests: arrayUnion('alice'),
+    updatedAt: serverTimestamp(),
+  });
+  batch.set(doc(aliceDb(), 'friend_requests/bob/inbox/alice'), {
+    senderUid: 'alice',
+    recipientUid: 'bob',
+    createdAt: serverTimestamp(),
+  });
+
+  await assertFails(batch.commit());
 });
 
 test('a friend request remains possible when neither user has blocked the other', async () => {
