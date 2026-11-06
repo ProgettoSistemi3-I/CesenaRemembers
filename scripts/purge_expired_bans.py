@@ -64,9 +64,13 @@ def main() -> int:
     documents = list(db.collection("banned_users").stream())
 
     expired = []
+    on_legal_hold = 0
     backfill: list[tuple[firestore.DocumentReference, datetime]] = []
     for document in documents:
         data = document.to_dict() or {}
+        if data.get("legalHold") is True:
+            on_legal_hold += 1
+            continue
         retention_until = data.get("retentionUntil")
         if not isinstance(retention_until, datetime):
             if args.backfill_legacy:
@@ -89,6 +93,7 @@ def main() -> int:
 
     print(f"Record di moderazione esaminati: {len(documents)}")
     print(f"Record con retention scaduta: {len(expired)}")
+    print(f"Record in conservazione legale (non eliminati): {on_legal_hold}")
     print(f"Record legacy da backfill: {len(backfill)}")
 
     if not args.apply:
