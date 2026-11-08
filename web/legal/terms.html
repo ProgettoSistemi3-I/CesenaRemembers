@@ -134,7 +134,7 @@
     <h2>9. Quiz e contenuti generati automaticamente</h2>
     <p>Alcuni quiz sono generati o supportati da modelli linguistici sulla base di schede di fatti storici mantenute dal progetto. I sistemi automatici possono produrre errori, omissioni o formulazioni imprecise. Il gestore adotta controlli ragionevoli, ma non garantisce che ogni domanda o risposta sia sempre corretta, completa o aggiornata.</p>
     <p>I quiz hanno finalità culturali, informative e ludico-didattiche; non costituiscono una fonte storica ufficiale, una consulenza professionale o un'indicazione vincolante. Per questioni storiche o di sicurezza rilevanti, l'utente deve consultare fonti autorevoli e aggiornate.</p>
-    <p>La richiesta al backend quiz predefinito utilizza HTTPS/TLS sull'indirizzo <code>https://pascal.ispascalcomandini.it:8000</code>. Il client accetta il certificato server incluso nell'app come trust anchor dedicato. La richiesta non include UID Firebase, email o password; il server riceve l'IP di origine e i dati necessari a generare il quiz.</p>
+    <p>La richiesta al backend quiz predefinito utilizza HTTPS/TLS sull'indirizzo <code>https://pascal.ispascalcomandini.it:8000</code>. Il client accetta il certificato server incluso nell'app come trust anchor dedicato e invia un Firebase Authentication ID token nell'header <code>Authorization: Bearer</code>. Il token contiene l'UID e può includere email e altri attributi del profilo, quando disponibili. Il server verifica il token, controlla che non sia revocato e che l'account non sia disabilitato e usa l'UID per il limite di richieste per utente. La password non viene inviata. Il token e i relativi claims non vengono inoltrati al provider del modello linguistico.</p>
   </section>
 
   <section id="proprieta">
