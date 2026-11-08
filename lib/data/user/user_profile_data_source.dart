@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/legal/legal_document_versions.dart';
-
 import '../../domain/entities/userprofile.dart';
 import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
