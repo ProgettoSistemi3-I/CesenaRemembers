@@ -48,12 +48,14 @@ class UserRepositoryImpl implements IUserRepository {
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   }) => _profile.completeInitialProfile(
     uid: uid,
     email: email,
     username: username,
     displayName: displayName,
     avatarId: avatarId,
+    languageCode: languageCode,
   );
 
   @override
