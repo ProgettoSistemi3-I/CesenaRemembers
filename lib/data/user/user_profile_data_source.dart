@@ -298,7 +298,9 @@ class UserProfileDataSource {
           'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
         'posizioneGps': existingPrefs['posizioneGps'] ?? true,
-        'languageCode': existingPrefs['languageCode'] ?? 'it',
+        'languageCode': existingLanguage == 'en' || existingLanguage == 'it'
+            ? existingLanguage
+            : deviceLanguage,
       },
       'updatedAt': FieldValue.serverTimestamp(),
     };
