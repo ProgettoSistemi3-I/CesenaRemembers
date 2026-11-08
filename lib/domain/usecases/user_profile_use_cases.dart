@@ -25,12 +25,14 @@ class UserProfileUseCases {
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   }) => _repository.completeInitialProfile(
     uid: uid,
     email: email,
     username: username,
     displayName: displayName,
     avatarId: avatarId,
+    languageCode: languageCode,
   );
 
   Future<void> updateProfileBasics({
