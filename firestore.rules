@@ -155,31 +155,47 @@ service cloud.firestore {
 
       let targetBefore = get(targetPath).data;
       let targetAfter = getAfter(targetPath).data;
-      let callerBefore = get(callerPath).data;
       let callerAfter = getAfter(callerPath).data;
 
       let oldFriends = targetBefore.get('friends', []);
       let newFriends = targetAfter.get('friends', []);
-
-      let addedReciprocalFriend =
-        listAddsOnly(oldFriends, newFriends, request.auth.uid) &&
-        !callerBefore.get('friends', []).hasAny([uid]) &&
-        callerAfter.get('friends', []).hasAny([uid]);
-
-      let removedReciprocalFriend =
-        listRemovesOnly(oldFriends, newFriends, request.auth.uid) &&
-        callerBefore.get('friends', []).hasAny([uid]) &&
-        !callerAfter.get('friends', []).hasAny([uid]);
 
       return isNotBanned() &&
         uid != request.auth.uid &&
         !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
         request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly(['friendsCount']) &&
-        validPublicProfileShape(request.resource.data) &&
-        publicProfileFieldsMatch(targetAfter, request.resource.data) &&
-        request.resource.data.friendsCount == newFriends.size() &&
-        (addedReciprocalFriend || removedReciprocalFriend);
+        newFriends.size() <= 500 &&
+        request.resource.data.get('friendsCount', -1) == newFriends.size() &&
+        (
+          (
+            listAddsOnly(oldFriends, newFriends, request.auth.uid) &&
+            callerAfter.get('friends', []).hasAny([uid])
+          ) ||
+          (
+            listRemovesOnly(oldFriends, newFriends, request.auth.uid) &&
+            !callerAfter.get('friends', []).hasAny([uid])
+          )
+        );
+    }
+
+    function validOwnerPublicProfileFriendsCountUpdate(uid) {
+      let userAfter =
+        getAfter(/databases/$(database)/documents/users/$(uid)).data;
+
+      let friendCount = userAfter.get('friends', []).size();
+
+      return request.resource.data.diff(resource.data)
+          .affectedKeys().hasOnly(['friendsCount']) &&
+        friendCount <= 500 &&
+        request.resource.data.get('friendsCount', -1) == friendCount;
+    }
+
+    function friendStatsFriendListMatches(uid, friends) {
+      let statsAfter =
+        getAfter(/databases/$(database)/documents/friend_stats/$(uid)).data;
+
+      return statsAfter.get('friends', []) == friends;
     }
 
     // ---------------------------------------------------------
@@ -323,7 +339,6 @@ service cloud.firestore {
 
       return request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly(['friends']) &&
-        validFriendStatsShape(request.resource.data) &&
         peer is string &&
         peer.size() > 0 &&
         peer != uid &&
@@ -466,13 +481,35 @@ service cloud.firestore {
         );
     }
 
-    function friendAchievementChangeAllowed(oldList, newList) {
+    function friendAchievementChangeAllowed(
+      oldList,
+      newList,
+      unlockedList,
+      friendCountAfter
+    ) {
+      let added = newList.toSet().difference(oldList.toSet());
+
       return newList is list &&
         oldList is list &&
+        unlockedList is list &&
+        friendCountAfter is int &&
         newList.hasAll(oldList) &&
         newList.size() <= oldList.size() + 2 &&
-        newList.toSet().difference(oldList.toSet())
-          .hasOnly(['friend_1', 'friend_5']);
+        added.hasOnly(['friend_1', 'friend_5']) &&
+        (
+          !added.hasAny(['friend_1']) ||
+          (
+            friendCountAfter >= 1 &&
+            !unlockedList.hasAny(['friend_1'])
+          )
+        ) &&
+        (
+          !added.hasAny(['friend_5']) ||
+          (
+            friendCountAfter >= 5 &&
+            !unlockedList.hasAny(['friend_5'])
+          )
+        );
     }
 
     // ---------------------------------------------------------
@@ -907,6 +944,8 @@ service cloud.firestore {
       let peerAfter =
         getAfter(/databases/$(database)/documents/users/$(peer)).data;
 
+      let newFriends = request.resource.data.get('friends', []);
+
       return request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly([
             'receivedFriendRequests', 'friends', 'pendingAchievements',
@@ -915,6 +954,8 @@ service cloud.firestore {
         peer is string &&
         peer.size() > 0 &&
         peer != uid &&
+        newFriends is list &&
+        newFriends.size() <= 500 &&
         listRemovesOnly(
           resource.data.get('receivedFriendRequests', []),
           request.resource.data.get('receivedFriendRequests', []),
@@ -922,20 +963,24 @@ service cloud.firestore {
         ) &&
         listAddsOnly(
           resource.data.get('friends', []),
-          request.resource.data.get('friends', []),
+          newFriends,
           peer
         ) &&
         exists(requestPath) &&
         !existsAfter(requestPath) &&
         !exists(/databases/$(database)/documents/banned_users/$(peer)) &&
         peerAfter.get('friends', []).hasAny([uid]) &&
-        !peerAfter.get('sentFriendRequests', []).hasAny([uid]) &&
         friendAchievementChangeAllowed(
           resource.data.get('pendingAchievements', []),
-          request.resource.data.get('pendingAchievements', [])
+          request.resource.data.get('pendingAchievements', []),
+          resource.data.get('unlockedAchievements', []),
+          newFriends.size()
         ) &&
-        publicMirrorMatches(uid) &&
-        friendStatsMirrorMatches(uid);
+        request.resource.data.get('friends', []).size() <= 500 &&
+        getAfter(
+          /databases/$(database)/documents/public_profiles/$(uid)
+        ).data.get('friendsCount', -1) == newFriends.size() &&
+        friendStatsFriendListMatches(uid, newFriends);
     }
 
     function validAcceptedFriendUpdate(uid) {
@@ -944,12 +989,16 @@ service cloud.firestore {
       let requestPath =
         /databases/$(database)/documents/friend_requests/$(request.auth.uid)/inbox/$(uid);
 
+      let newFriends = request.resource.data.get('friends', []);
+
       return request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly([
             'sentFriendRequests', 'friends', 'pendingAchievements',
             'lastFriendActionPeerUid', 'updatedAt'
           ]) &&
         peer == request.auth.uid &&
+        newFriends is list &&
+        newFriends.size() <= 500 &&
         listRemovesOnly(
           resource.data.get('sentFriendRequests', []),
           request.resource.data.get('sentFriendRequests', []),
@@ -957,7 +1006,7 @@ service cloud.firestore {
         ) &&
         listAddsOnly(
           resource.data.get('friends', []),
-          request.resource.data.get('friends', []),
+          newFriends,
           request.auth.uid
         ) &&
         exists(requestPath) &&
@@ -965,13 +1014,16 @@ service cloud.firestore {
         !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
         friendAchievementChangeAllowed(
           resource.data.get('pendingAchievements', []),
-          request.resource.data.get('pendingAchievements', [])
+          request.resource.data.get('pendingAchievements', []),
+          resource.data.get('unlockedAchievements', []),
+          newFriends.size()
         ) &&
-        friendStatsMirrorMatches(uid);
+        friendStatsFriendListMatches(uid, newFriends);
     }
 
     function validOwnerFriendRemoval(uid) {
       let peer = request.resource.data.get('lastFriendActionPeerUid', '');
+      let newFriends = request.resource.data.get('friends', []);
 
       return request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly([
@@ -982,20 +1034,22 @@ service cloud.firestore {
         peer != uid &&
         listRemovesOnly(
           resource.data.get('friends', []),
-          request.resource.data.get('friends', []),
+          newFriends,
           peer
         ) &&
         !getAfter(
           /databases/$(database)/documents/users/$(peer)
         ).data.get('friends', []).hasAny([uid]) &&
-        !getAfter(
-          /databases/$(database)/documents/friend_stats/$(peer)
-        ).data.get('friends', []).hasAny([uid]) &&
-        publicMirrorMatches(uid) &&
-        friendStatsMirrorMatches(uid);
+        newFriends.size() <= 500 &&
+        getAfter(
+          /databases/$(database)/documents/public_profiles/$(uid)
+        ).data.get('friendsCount', -1) == newFriends.size() &&
+        friendStatsFriendListMatches(uid, newFriends);
     }
 
     function validCrossFriendRemoval(uid) {
+      let newFriends = request.resource.data.get('friends', []);
+
       return request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly([
             'friends', 'updatedAt', 'lastFriendActionPeerUid'
@@ -1004,10 +1058,10 @@ service cloud.firestore {
           request.auth.uid &&
         listRemovesOnly(
           resource.data.get('friends', []),
-          request.resource.data.get('friends', []),
+          newFriends,
           request.auth.uid
         ) &&
-        request.resource.data.get('friends', []) ==
+        newFriends ==
           getAfter(
             /databases/$(database)/documents/users/$(uid)
           ).data.get('friends', []) &&
@@ -1019,7 +1073,7 @@ service cloud.firestore {
             /databases/$(database)/documents/users/$(request.auth.uid)
           ).data.get('friends', []).hasAny([uid])
         ) &&
-        friendStatsMirrorMatches(uid);
+        friendStatsFriendListMatches(uid, newFriends);
     }
 
     // ---------------------------------------------------------
@@ -1030,24 +1084,69 @@ service cloud.firestore {
       let changed =
         request.resource.data.diff(resource.data).affectedKeys();
 
-      return (
-        changed.hasAny(['usernameNormalized']) &&
-        validInitialProfileCompletion(uid)
-      ) || (
-        !changed.hasAny(['usernameNormalized']) && (
-          validProfileBasicsUpdate(uid) ||
-          validPreferencesUpdate() ||
-          validOnboardingUpdate(uid) ||
-          validFcmTokenUpdate() ||
-          validOwnerProgressUpdate() ||
-          validOwnerFriendAchievementUpdate() ||
-          validAchievementClaim() ||
-          validSentRequestAdd(uid) ||
-          validSentRequestRemoval(uid) ||
-          validAcceptingFriendUpdate(uid) ||
-          validOwnerFriendRemoval(uid)
-        )
-      );
+      return changed.hasAny(['usernameNormalized'])
+        ? validInitialProfileCompletion(uid)
+        : changed.hasAny(['friends'])
+          ? (
+              request.resource.data.get('friends', []).size() >
+                resource.data.get('friends', []).size()
+                ? validAcceptingFriendUpdate(uid)
+                : validOwnerFriendRemoval(uid)
+            )
+          : changed.hasAny(['receivedFriendRequests'])
+            ? validReceivedRequestRemoval(uid)
+            : changed.hasAny(['sentFriendRequests'])
+              ? (
+                  request.resource.data.get('sentFriendRequests', []).size() >
+                    resource.data.get('sentFriendRequests', []).size()
+                    ? validSentRequestAdd(uid)
+                    : validSentRequestRemoval(uid)
+                )
+              : changed.hasAny([
+                  'visitedPoiIds', 'xp', 'leaderboardScore',
+                  'maxSingleTourXp', 'maxQuizScore', 'totalQuizCompleted',
+                  'totalToursCompleted', 'totalCorrectAnswers',
+                  'bestTourTimeSeconds', 'lastProgressAt'
+                ])
+                ? validOwnerProgressUpdate()
+                : changed.hasAny(['unlockedAchievements'])
+                  ? validAchievementClaim()
+                  : changed.hasAny(['pendingAchievements'])
+                    ? validOwnerFriendAchievementUpdate()
+                    : changed.hasAny(['preferences'])
+                      ? validPreferencesUpdate()
+                      : changed.hasAny(['onboardingCompleted'])
+                        ? validOnboardingUpdate(uid)
+                        : changed.hasAny(['fcmTokens'])
+                          ? validFcmTokenUpdate()
+                          : changed.hasAny([
+                              'displayName', 'displayNameNormalized', 'avatarId'
+                            ])
+                            ? validProfileBasicsUpdate(uid)
+                            : false;
+    }
+
+    function crossUserUpdateAllowed(uid) {
+      let changed =
+        request.resource.data.diff(resource.data).affectedKeys();
+
+      return changed.hasAny(['friends'])
+        ? (
+            request.resource.data.get('friends', []).size() >
+              resource.data.get('friends', []).size()
+              ? validAcceptedFriendUpdate(uid)
+              : validCrossFriendRemoval(uid)
+          )
+        : changed.hasAny(['receivedFriendRequests'])
+          ? (
+              request.resource.data.get('receivedFriendRequests', []).size() >
+                resource.data.get('receivedFriendRequests', []).size()
+                ? validIncomingRequestAdd(uid)
+                : validCrossReceivedRequestRemoval(uid)
+            )
+          : changed.hasAny(['sentFriendRequests'])
+            ? validCrossSentRequestRemoval(uid)
+            : false;
     }
 
     function userAfterCanClaimUsername(usernameId) {
@@ -1082,29 +1181,12 @@ service cloud.firestore {
           validInitialProfileCreate(userId)
         );
 
-      allow update: if isNotBanned() && (
+      allow update: if isNotBanned() &&
         (
-          isOwner(userId) &&
-          (
-            ownerUserUpdateAllowed(userId) ||
-            (
-              !request.resource.data.diff(resource.data)
-                .affectedKeys().hasAny(['usernameNormalized']) &&
-              validReceivedRequestRemoval(userId)
-            )
-          )
-        ) ||
-        (
-          !isOwner(userId) &&
-          (
-            validIncomingRequestAdd(userId) ||
-            validCrossSentRequestRemoval(userId) ||
-            validCrossReceivedRequestRemoval(userId) ||
-            validAcceptedFriendUpdate(userId) ||
-            validCrossFriendRemoval(userId)
-          )
-        )
-      );
+          isOwner(userId)
+            ? ownerUserUpdateAllowed(userId)
+            : crossUserUpdateAllowed(userId)
+        );
 
       allow delete: if isOwner(userId) &&
         !existsAfter(
@@ -1132,13 +1214,18 @@ service cloud.firestore {
         isNotBanned() &&
         validPublicProfileCreate(userId);
 
-      allow update: if (
-          isOwner(userId) &&
-          isNotBanned() &&
-          validPublicProfileShape(request.resource.data) &&
-          publicMirrorMatches(userId)
-        ) ||
-        validCrossPublicProfileFriendsCountUpdate(userId);
+      allow update: if isOwner(userId)
+        ? (
+            isNotBanned() &&
+            (
+              request.resource.data.diff(resource.data)
+                  .affectedKeys().hasOnly(['friendsCount'])
+                ? validOwnerPublicProfileFriendsCountUpdate(userId)
+                : validPublicProfileShape(request.resource.data) &&
+                  publicMirrorMatches(userId)
+            )
+          )
+        : validCrossPublicProfileFriendsCountUpdate(userId);
 
       allow delete: if isOwner(userId);
     }
@@ -1156,34 +1243,32 @@ service cloud.firestore {
         isNotBanned() &&
         validFriendStatsCreate(userId);
 
-      allow update: if isNotBanned() && (
+      allow update: if isNotBanned() &&
         (
-          isOwner(userId) &&
-          (
-            (
-              request.resource.data.diff(resource.data)
-                .affectedKeys().hasOnly([
-                  'xp',
-                  'visitedPoiIds',
-                  'unlockedAchievements',
-                  'maxQuizScore',
-                  'totalQuizCompleted',
-                  'totalToursCompleted',
-                  'totalCorrectAnswers',
-                  'bestTourTimeSeconds',
-                  'maxSingleTourXp'
-                ]) &&
-              validFriendStatsShape(request.resource.data) &&
-              friendStatsMirrorMatches(userId)
-            ) ||
-            validOwnerFriendStatsFriendsUpdate(userId)
-          )
-        ) ||
-        (
-          !isOwner(userId) &&
-          validCrossFriendStatsUpdate(userId)
-        )
-      );
+          isOwner(userId)
+            ? (
+                request.resource.data.diff(resource.data)
+                    .affectedKeys().hasAny([
+                      'xp', 'visitedPoiIds', 'unlockedAchievements',
+                      'maxQuizScore', 'totalQuizCompleted',
+                      'totalToursCompleted', 'totalCorrectAnswers',
+                      'bestTourTimeSeconds', 'maxSingleTourXp'
+                    ])
+                  ? (
+                      request.resource.data.diff(resource.data)
+                          .affectedKeys().hasOnly([
+                            'xp', 'visitedPoiIds', 'unlockedAchievements',
+                            'maxQuizScore', 'totalQuizCompleted',
+                            'totalToursCompleted', 'totalCorrectAnswers',
+                            'bestTourTimeSeconds', 'maxSingleTourXp'
+                          ]) &&
+                      validFriendStatsShape(request.resource.data) &&
+                      friendStatsMirrorMatches(userId)
+                    )
+                  : validOwnerFriendStatsFriendsUpdate(userId)
+              )
+            : validCrossFriendStatsUpdate(userId)
+        );
 
       allow delete: if isOwner(userId);
     }
@@ -1295,10 +1380,6 @@ service cloud.firestore {
 
       allow delete: if isSignedIn() &&
         (
-          request.auth.uid == recipientUid ||
-          request.auth.uid == senderUid
-        ) &&
-        (
           !existsAfter(
             /databases/$(database)/documents/users/$(senderUid)
           ) ||
@@ -1313,6 +1394,10 @@ service cloud.firestore {
           !getAfter(
             /databases/$(database)/documents/users/$(recipientUid)
           ).data.get('receivedFriendRequests', []).hasAny([senderUid])
+        ) &&
+        (
+          request.auth.uid == recipientUid ||
+          request.auth.uid == senderUid
         );
     }
 
