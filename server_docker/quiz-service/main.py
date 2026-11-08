@@ -286,7 +286,7 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
             attempt["llm_s"] = round(result.latency_s, 2)
             attempt["usage"] = {
                 k: result.usage.get(k)
-                for k in ("prompt_tokens", "completion_tokens)
+                for k in ("prompt_tokens", "completion_tokens")
                 if k in result.usage
             }
             questions = parse_llm_output(
