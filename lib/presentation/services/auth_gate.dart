@@ -161,6 +161,23 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       rethrow;
     }
 
+    // Persistent Firebase sessions may predate the timestamped acceptance
+    // evidence. Give the sign-in callback a short window to finish its write;
+    // if the current versions are still missing, return the user to the
+    // checkbox-gated login screen rather than granting access silently.
+    var hasLegalAcceptance = await _profileUseCases.hasCurrentLegalAcceptance(
+      widget.appUser.id,
+    );
+    for (var attempt = 0; !hasLegalAcceptance && attempt < 3; attempt++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      hasLegalAcceptance =
+          await _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id);
+    }
+    if (!hasLegalAcceptance) {
+      await _authRepository.signOut();
+      throw const _LegalAcceptanceRequiredException();
+    }
+
     // Restore diagnostics only when an earlier explicit choice is present.
     try {
       final profile = await _profileUseCases.getUserProfile(widget.appUser.id);
@@ -270,7 +287,9 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     return FutureBuilder<void>(
       future: _ensureFuture,
       builder: (context, ensure) {
-        if (ensure.hasError && ensure.error is _BannedFromFirestoreException) {
+        if (ensure.hasError &&
+            (ensure.error is _BannedFromFirestoreException ||
+                ensure.error is _LegalAcceptanceRequiredException)) {
           return _loading(); // lo stream auth riporta alla LoginPage
         }
         if (ensure.connectionState != ConnectionState.done) return _loading();
@@ -311,4 +330,8 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
 
 class _BannedFromFirestoreException implements Exception {
   const _BannedFromFirestoreException();
+}
+
+class _LegalAcceptanceRequiredException implements Exception {
+  const _LegalAcceptanceRequiredException();
 }
