@@ -69,7 +69,12 @@ def main() -> int:
     batch = db.batch()
     batch_size = 0
     for report in query.stream():
-        created_at: Any = (report.to_dict() or {}).get("createdAt")
+        report_data = report.to_dict() or {}
+        if report_data.get("legalHold") is True:
+            print(f"[LEGAL HOLD] {report.id} retained; legalHold=true")
+            continue
+
+        created_at: Any = report_data.get("createdAt")
         print(
             f"{'[DELETE]' if args.apply else '[DRY-RUN]'} "
             f"{report.id} createdAt={created_at}"
