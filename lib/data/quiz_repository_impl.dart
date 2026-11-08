@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 
 import '../core/logging/app_logger.dart';
@@ -10,10 +11,20 @@ import '../domain/entities/quiz_question.dart';
 import '../domain/repositories/i_quiz_repository.dart';
 import 'seeds/historic_places_seed.dart';
 
+typedef FirebaseIdTokenProvider = Future<String?> Function();
+
 class QuizRepositoryImpl implements IQuizRepository {
-  QuizRepositoryImpl({http.Client? httpClient}) : _httpClient = httpClient;
+  QuizRepositoryImpl({
+    http.Client? httpClient,
+    FirebaseIdTokenProvider? idTokenProvider,
+  }) : _httpClient = httpClient,
+       _idTokenProvider = idTokenProvider ?? _getCurrentFirebaseIdToken;
 
   http.Client? _httpClient;
+  final FirebaseIdTokenProvider _idTokenProvider;
+
+  static Future<String?> _getCurrentFirebaseIdToken() async =>
+      FirebaseAuth.instance.currentUser?.getIdToken();
 
   Future<http.Client> _client() async =>
       _httpClient ??= await createQuizHttpClient();
@@ -46,10 +57,20 @@ class QuizRepositoryImpl implements IQuizRepository {
     );
 
     try {
+      // Firebase rinnova automaticamente l'ID token quando quello in cache
+      // è scaduto o prossimo alla scadenza.
+      final idToken = await _idTokenProvider();
+      if (idToken == null || idToken.trim().isEmpty) {
+        throw StateError('Nessun utente Firebase autenticato.');
+      }
+
       final response = await (await _client())
           .post(
             Uri.parse('$baseUrl/api/generate-quiz'),
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $idToken',
+            },
             body: jsonEncode({
               'id': poiId,
               'name': poiName,

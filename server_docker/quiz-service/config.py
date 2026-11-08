@@ -11,8 +11,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Preset dei provider compatibili con l'API OpenAI "chat/completions".
-# Per cambiare provider basta LLM_PROVIDER (+ chiave); per casi particolari
-# si possono sovrascrivere LLM_BASE_URL e LLM_MODEL.
 PROVIDER_PRESETS: dict[str, dict[str, str]] = {
     "groq": {
         "base_url": "https://api.groq.com/openai/v1",
@@ -22,7 +20,6 @@ PROVIDER_PRESETS: dict[str, dict[str, str]] = {
         "response_format": "json_schema_strict",
     },
     "gemini": {
-        # Endpoint OpenAI-compatibile ufficiale dell'API Gemini.
         "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
         "model": "gemini-2.5-flash-lite",
         "key_env": "GEMINI_API_KEY",
@@ -71,8 +68,9 @@ class Settings:
     base_url: str
     model: str
     api_key: str
+    firebase_project_id: str
     reasoning_effort: str
-    response_format: str  # json_schema_strict | json_schema | json_object
+    response_format: str
     temperature: float
     max_tokens: int
     llm_timeout_s: float
@@ -96,7 +94,6 @@ def load_settings() -> Settings:
     options = _env_int("QUIZ_OPTIONS", 4)
     if options not in (3, 4):
         options = 4
-    # "off" = non inviare il parametro (per modelli che non lo supportano).
     reasoning = _env("LLM_REASONING_EFFORT", preset["reasoning_effort"]).lower()
     if reasoning == "off":
         reasoning = ""
@@ -105,13 +102,13 @@ def load_settings() -> Settings:
         base_url=_env("LLM_BASE_URL", preset["base_url"]).rstrip("/"),
         model=_env("LLM_MODEL", preset["model"]),
         api_key=api_key,
+        # Il project ID è pubblico e serve a vincolare aud/iss al progetto corretto.
+        firebase_project_id=_env("FIREBASE_PROJECT_ID", "cesenaremembers1945"),
         reasoning_effort=reasoning,
         response_format=_env("LLM_RESPONSE_FORMAT", preset["response_format"]),
         temperature=_env_float("LLM_TEMPERATURE", 0.5),
         max_tokens=_env_int("LLM_MAX_TOKENS", 2000),
-        # Il client Flutter abbandona la richiesta dopo 12 s
-        # (quiz_repository_impl.dart, _requestTimeout). Il server deve
-        # chiudere prima, per restituire un errore pulito invece di un timeout.
+        # Il client Flutter abbandona la richiesta dopo 12 s.
         llm_timeout_s=_env_float("LLM_TIMEOUT_S", 7.0),
         request_deadline_s=_env_float("REQUEST_DEADLINE_S", 9.5),
         min_call_budget_s=_env_float("MIN_CALL_BUDGET_S", 2.5),
