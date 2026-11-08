@@ -57,13 +57,20 @@ def make_client(model: str, **env):
 
     importlib.reload(main)
 
-    # Sostituisce soltanto la verifica crittografica nei test HTTP.
-    # In produzione viene usato auth.verify_id_token dell'SDK Firebase Admin.
+    # Nei test sostituiamo solo la chiamata remota, verificando che il servizio
+    # richieda sempre il controllo di revoca/disabilitazione.
+    from google.auth.credentials import AnonymousCredentials
+
+    main.firebase_admin.credentials.ApplicationDefault = lambda: AnonymousCredentials()
+
     def fake_verify_id_token(token, app=None, check_revoked=False):
+        assert check_revoked is True
         if token == VALID_TOKEN:
             return {"uid": "test-user"}
         if token == "expired-test-id-token":
             raise main.firebase_auth.ExpiredIdTokenError("expired test token", None)
+        if token == "revoked-test-id-token":
+            raise main.firebase_auth.RevokedIdTokenError("revoked test token", None)
         raise main.firebase_auth.InvalidIdTokenError("invalid test token")
 
     main.firebase_auth.verify_id_token = fake_verify_id_token
@@ -111,7 +118,11 @@ def test_quiz_requires_a_valid_bearer_token():
         assert wrong_scheme.status_code == 401
 
 
-@pytest.mark.parametrize("token", ["invalid-test-id-token", "expired-test-id-token"])
+@pytest.mark.parametrize("token", [
+    "invalid-test-id-token",
+    "expired-test-id-token",
+    "revoked-test-id-token",
+])
 def test_invalid_or_expired_firebase_token_is_rejected(token):
     with make_client("fake-good") as c:
         response = c.post(
