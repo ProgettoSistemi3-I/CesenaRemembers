@@ -11,7 +11,10 @@ import '../services/push_notification_service.dart';
 /// implementation details. The retry action resets the navigation stack to
 /// the splash screen so the user can re-enter the app without restarting it.
 class RenderErrorScreen extends StatelessWidget {
-  const RenderErrorScreen({super.key});
+  const RenderErrorScreen({super.key, this.onRetry});
+
+  /// Optional retry override for widget tests or embedding contexts.
+  final VoidCallback? onRetry;
 
   void _restartFromSplash() {
     final navigator = PushNotificationService.navigatorKey.currentState;
@@ -61,7 +64,7 @@ class RenderErrorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
-                    onPressed: _restartFromSplash,
+                    onPressed: onRetry ?? _restartFromSplash,
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('Riprova / Try again'),
                   ),
