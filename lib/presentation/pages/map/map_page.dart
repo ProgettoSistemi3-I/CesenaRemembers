@@ -112,6 +112,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   List<Poi> _pois = [];
   List<Marker> _markers = const [];
   List<LatLng> _routeLinePoints = const [];
+  bool _routeUsesMapboxDirections = false;
   Poi? _selectedPoi;
   int _routeLineRequestId = 0;
   String? _lastRouteLineSignature;
