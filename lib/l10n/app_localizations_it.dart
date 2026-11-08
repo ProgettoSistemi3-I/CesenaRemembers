@@ -785,7 +785,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get poi_rifugi_antiaerei_name => 'Rifugi Antiaerei della Rocca';
 
   @override
-  String get poi_rifugi_antiaerei_desc => 'Il rifugio di viale Mazzoni era una galleria pubblica scavata ex novo nel colle della Rocca nel 1944, su progetto dell’ingegnere capo del Comune Mario Tellerini. Poteva accogliere fino a 800 persone, con 290 posti a sedere. Aveva due ingressi protetti da strutture paraschegge e comprendeva un’infermeria, locali per i pompieri e per il responsabile del ricovero, latrine e impianti di illuminazione, acqua e telefono; quest’ultimo fu asportato dai tedeschi. Il camino di ventilazione terminava nel Parco della Rimembranza e poteva funzionare anche da uscita di sicurezza. Era stato ipotizzato un ampliamento per arrivare a 1.500 posti, ma il progetto non fu realizzato: il primo grande bombardamento su Cesena, il 13 maggio 1944, diede inizio a una lunga stagione di incursioni. La galleria era una struttura distinta dalla fortezza della Rocca.';
+  String get poi_rifugi_antiaerei_desc => 'Il rifugio di viale Mazzoni era una galleria pubblica scavata ex novo nel colle della Rocca nel 1944, su progetto dell’ingegnere capo del Comune Mario Tellerini. Poteva accogliere fino a 800 persone, con 290 posti a sedere. Aveva due ingressi protetti da strutture paraschegge e comprendeva un’infermeria, locali per i pompieri e per il responsabile del ricovero, latrine e impianti di illuminazione, acqua e telefono; quest’ultimo fu asportato dai tedeschi. Il camino di ventilazione terminava nel Parco della Rimembranza e poteva funzionare anche da uscita di sicurezza. Era stato ipotizzato un ampliamento per arrivare a 1.500 posti, ma il progetto non fu realizzato. Il primo grande bombardamento su Cesena, il 13 maggio 1944, segnò l’inizio di una lunga stagione di incursioni. La galleria era una struttura distinta dalla fortezza della Rocca.';
 
   @override
   String setupUsernameInvalid(int min, int max) {
@@ -1252,16 +1252,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get mapLicenseCartoSubtitle => '© CARTO — Basato su dati OpenStreetMap';
 
   @override
-  String get mapLicenseStadiaTitle => 'Stadia Maps / Stamen Design';
+  String get mapLicenseStadiaTitle => 'Stadia Maps — Alidade Smooth Dark';
 
   @override
-  String get mapLicenseStadiaSubtitle => '© Stadia Maps, © Stamen Design — Licenza CC BY 3.0';
+  String get mapLicenseStadiaSubtitle => '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors';
 
   @override
-  String get mapLicenseEsriTitle => 'Esri (Vista Satellite)';
+  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
 
   @override
-  String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS';
+  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
 
   @override
   String get quiz_santa_cristina_q3 => 'Come descrisse don Leo Bagnoli la cripta-rifugio?';
