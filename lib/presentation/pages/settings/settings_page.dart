@@ -13,6 +13,8 @@ import '../../theme/app_palette.dart';
 import '../../theme/theme_controller.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import '../credits_page.dart';
+import '../social/blocked_users_page.dart';
+import '../social/moderation_text.dart';
 import 'settings_feedback.dart';
 
 // Dichiariamo che la parte visiva dei widget si trova in questo file separato
@@ -487,6 +489,27 @@ class _SettingsPageState extends State<SettingsPage>
                                 value: _controller.diagnostica,
                                 onChanged: (v) => _controller.updatePreference(
                                   newDiagnostica: v,
+                                ),
+                              ),
+                              const _ThinDivider(),
+                              _ActionRow(
+                                icon: Icons.block_outlined,
+                                title: ModerationText.of(
+                                  context,
+                                  it: 'Utenti bloccati',
+                                  en: 'Blocked users',
+                                ),
+                                subtitle: ModerationText.of(
+                                  context,
+                                  it: 'Gestisci gli utenti che hai bloccato',
+                                  en: 'Manage the users you have blocked',
+                                ),
+                                accent: AppPalette.danger,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const BlockedUsersPage(),
+                                  ),
                                 ),
                               ),
                               const _ThinDivider(),
