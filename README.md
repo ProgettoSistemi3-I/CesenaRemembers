@@ -95,7 +95,7 @@ L'applicazione e i contenuti dell'interfaccia sono disponibili in italiano e ing
 |---|---|
 | App mobile | Flutter, Dart, Material |
 | Navigazione e mappe | `flutter_map`, `latlong2`, `geolocator`, `flutter_map_location_marker` |
-| Cartografia | CARTO, Stadia Maps, Esri/ArcGIS |
+| Cartografia | CARTO, Stadia Maps (Alidade Smooth Dark e Alidade Satellite) |
 | Routing pedonale | Mapbox Directions API |
 | Backend applicativo | Firebase Authentication, Cloud Firestore, Firebase Cloud Messaging |
 | Diagnostica e protezione | Firebase Crashlytics, Firebase App Check / Play Integrity |
@@ -105,6 +105,14 @@ L'applicazione e i contenuti dell'interfaccia sono disponibili in italiano e ing
 | Push notifications | Node.js, Firebase Admin SDK, Firebase Cloud Messaging |
 | Deployment | Docker Compose, Nginx, HTTPS/TLS |
 | Automazione release Android | GitHub Actions |
+
+### Licenze, attribuzioni e cache cartografica
+
+- **CARTO:** la mappa standard usa tile raster CARTO e mostra l'attribuzione a CARTO e OpenStreetMap. La build riceve la variabile `CARTO_API_KEY`.
+- **Stadia Maps:** le mappe scura e satellitare usano rispettivamente Alidade Smooth Dark e Alidade Satellite sugli endpoint UE. La vista satellitare mostra l'attribuzione richiesta a CNES, Airbus DS e PlanetObserver (dati Copernicus), oltre ai crediti Stadia Maps, OpenMapTiles e OpenStreetMap. Riferimenti: [Alidade Satellite](https://docs.stadiamaps.com/map-styles/alidade-satellite/) e [attribuzioni](https://docs.stadiamaps.com/attribution/).
+- **Piano Stadia:** i termini pubblicati con efficacia dal 9 novembre 2026 riservano il piano gratuito a utilizzi di valutazione e non commerciali. La FAQ Stadia contempla espressamente progetti accademici non commerciali svolti da studenti. Un'app che genera ricavi (per esempio tramite pubblicità o monetizzazione) o è gestita da un'organizzazione for-profit richiede un abbonamento a pagamento. Prima di monetizzare il progetto o cambiare il soggetto che lo gestisce, occorre verificare il piano applicabile con Stadia Maps. Riferimenti: [Terms of Service effective 9 November 2026](https://stadiamaps.com/terms-of-service/versions/2026-11-09/) e [FAQ](https://stadiamaps.com/faqs).
+- **Cache tile:** il client usa una cache LRU esclusivamente in memoria da 8 MB con `CachePolicy.request`, governata dagli header HTTP. Non implementa una cache persistente o un archivio offline delle tile Stadia. I termini Stadia consentono la cache locale lato client entro la durata indicata dagli header HTTP (o sette giorni se assenti); la cache offline mobile è soggetta a limiti distinti.
+- **Esri World Imagery:** non è più utilizzato dall'app. Il precedente endpoint pubblico ArcGIS World Imagery è stato rimosso perché la raggiungibilità senza token non dimostra il diritto di incorporare il servizio in un'app pubblica. Le condizioni Esri limitano l'uso gratuito previsto dai termini alle finalità non commerciali e richiedono una licenza specifica per l'uso commerciale; inoltre le immagini di terze parti possono avere ulteriori condizioni. Non essendo disponibile una licenza specifica del progetto verificata, la vista satellitare è stata sostituita con Alidade Satellite. Riferimento: [Esri Web Site and Services Terms](https://www.esri.com/it-it/legal/terms/web-site-service).
 
 Le dipendenze Dart e i relativi vincoli sono definiti in [`pubspec.yaml`](pubspec.yaml); quelle Python in [`server_docker/quiz-service/requirements.txt`](server_docker/quiz-service/requirements.txt).
 
