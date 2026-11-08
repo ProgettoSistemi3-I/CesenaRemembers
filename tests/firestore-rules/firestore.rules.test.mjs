@@ -8,6 +8,7 @@ import {
 import {
   Timestamp,
   collection,
+  deleteDoc,
   doc,
   documentId,
   getDoc,
@@ -564,3 +565,196 @@ test('account deletion can remove all owner projections in one final atomic batc
   assert.equal((await getDoc(doc(database, 'leaderboard', 'alice'))).exists(), false);
   assert.equal((await getDoc(doc(database, 'usernames', 'alice'))).exists(), false);
 });
+
+// ---------------------------------------------------------------------------
+// User reporting and blocking
+// ---------------------------------------------------------------------------
+
+test('a user can create, inspect and remove only their own block entry', async () => {
+  await seedCompleteUser('alice');
+  await seedCompleteUser('bob');
+  const aliceDb = authenticatedDb('alice');
+  const bobDb = authenticatedDb('bob');
+  const aliceBlock = doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob');
+
+  await assertSucceeds(setDoc(aliceBlock, { createdAt: serverTimestamp() }));
+  await assertSucceeds(getDoc(aliceBlock));
+  await assertSucceeds(getDocs(collection(aliceDb, 'user_blocks', 'alice', 'blocked')));
+  await assertFails(getDoc(doc(bobDb, 'user_blocks', 'alice', 'blocked', 'bob')));
+  await assertFails(getDocs(collection(bobDb, 'user_blocks', 'alice', 'blocked')));
+  await assertFails(deleteDoc(doc(bobDb, 'user_blocks', 'alice', 'blocked', 'bob')));
+  await assertSucceeds(deleteDoc(aliceBlock));
+});
+
+test('a block in either direction prevents a new friend request', async () => {
+  await seedCompleteUser('alice');
+  await seedCompleteUser('bob');
+  const aliceDb = authenticatedDb('alice');
+  const bobDb = authenticatedDb('bob');
+
+  await assertSucceeds(setDoc(
+    doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob'),
+    { createdAt: serverTimestamp() },
+  ));
+  await assertFails(setDoc(
+    doc(bobDb, 'friend_requests', 'alice', 'inbox', 'bob'),
+    {
+      senderUid: 'bob',
+      recipientUid: 'alice',
+      createdAt: serverTimestamp(),
+    },
+  ));
+
+  await assertSucceeds(deleteDoc(
+    doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob'),
+  ));
+  await assertSucceeds(setDoc(
+    doc(bobDb, 'user_blocks', 'bob', 'blocked', 'alice'),
+    { createdAt: serverTimestamp() },
+  ));
+  await assertFails(setDoc(
+    doc(aliceDb, 'friend_requests', 'bob', 'inbox', 'alice'),
+    {
+      senderUid: 'alice',
+      recipientUid: 'bob',
+      createdAt: serverTimestamp(),
+    },
+  ));
+});
+
+test('a block prevents both sides of a friend acceptance batch', async () => {
+  await seedPendingFriendRequest();
+  const aliceDb = authenticatedDb('alice');
+
+  await assertSucceeds(setDoc(
+    doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob'),
+    { createdAt: serverTimestamp() },
+  ));
+  await assertFails(friendAcceptanceBatch(aliceDb, 'friend_1').commit());
+
+  const alice = await getDocAdmin('users/alice');
+  const bob = await getDocAdmin('users/bob');
+  assert.deepEqual(alice.data().friends, []);
+  assert.deepEqual(bob.data().friends, []);
+});
+
+test('a blocked reciprocal friend cannot read detailed friend statistics', async () => {
+  await seedCompleteUser('alice', { friends: ['bob'] });
+  await seedCompleteUser('bob', { friends: ['alice'] });
+  const aliceDb = authenticatedDb('alice');
+  const bobDb = authenticatedDb('bob');
+
+  await assertSucceeds(setDoc(
+    doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob'),
+    { createdAt: serverTimestamp() },
+  ));
+
+  // Blocking does not affect the owner's access to their own statistics.
+  await assertSucceeds(getDoc(doc(aliceDb, 'friend_stats', 'alice')));
+  await assertFails(getDoc(doc(bobDb, 'friend_stats', 'alice')));
+});
+
+test('blocking still permits removal of an existing pending friend request', async () => {
+  await seedCompleteUser('alice', { receivedFriendRequests: ['bob'] });
+  await seedCompleteUser('bob', { sentFriendRequests: ['alice'] });
+  await seedDocs([[
+    'friend_requests/alice/inbox/bob',
+    { senderUid: 'bob', recipientUid: 'alice', createdAt: NOW },
+  ]]);
+  const aliceDb = authenticatedDb('alice');
+
+  await assertSucceeds(setDoc(
+    doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob'),
+    { createdAt: serverTimestamp() },
+  ));
+
+  const batch = writeBatch(aliceDb);
+  batch.update(doc(aliceDb, 'users', 'alice'), {
+    receivedFriendRequests: [],
+    lastFriendActionPeerUid: 'bob',
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(aliceDb, 'users', 'bob'), {
+    sentFriendRequests: [],
+    lastFriendActionPeerUid: 'alice',
+    updatedAt: serverTimestamp(),
+  });
+  batch.delete(doc(aliceDb, 'friend_requests', 'alice', 'inbox', 'bob'));
+
+  await assertSucceeds(batch.commit());
+  assert.equal((await getDocAdmin('friend_requests/alice/inbox/bob')).exists(), false);
+});
+
+test('valid profile reports are private and clients cannot modify or delete them', async () => {
+  await seedCompleteUser('alice');
+  const bob = await seedCompleteUser('bob');
+  const aliceDb = authenticatedDb('alice');
+  const report = doc(collection(aliceDb, 'user_reports'));
+
+  await assertSucceeds(setDoc(report, {
+    reporterUid: 'alice',
+    reportedUid: 'bob',
+    reportedField: 'username',
+    reportedValue: bob.username,
+    reportedDisplayName: bob.displayName,
+    reportedUsername: bob.username,
+    reason: 'inappropriate_name',
+    details: 'Please review this username.',
+    createdAt: serverTimestamp(),
+    status: 'pending',
+  }));
+
+  await assertFails(getDoc(report));
+  await assertFails(getDocs(collection(aliceDb, 'user_reports')));
+  await assertFails(updateDoc(report, { status: 'reviewed' }));
+  await assertFails(deleteDoc(report));
+});
+
+test('clients cannot forge reports, report themselves or submit oversized details', async () => {
+  await seedCompleteUser('alice');
+  const bob = await seedCompleteUser('bob');
+  const aliceDb = authenticatedDb('alice');
+
+  const forged = doc(collection(aliceDb, 'user_reports'));
+  await assertFails(setDoc(forged, {
+    reporterUid: 'bob',
+    reportedUid: 'alice',
+    reportedField: 'displayName',
+    reportedValue: 'ALICE Example',
+    reportedDisplayName: 'ALICE Example',
+    reportedUsername: 'alice',
+    reason: 'other',
+    details: '',
+    createdAt: serverTimestamp(),
+    status: 'pending',
+  }));
+
+  const selfReport = doc(collection(aliceDb, 'user_reports'));
+  await assertFails(setDoc(selfReport, {
+    reporterUid: 'alice',
+    reportedUid: 'alice',
+    reportedField: 'displayName',
+    reportedValue: 'ALICE Example',
+    reportedDisplayName: 'ALICE Example',
+    reportedUsername: 'alice',
+    reason: 'other',
+    details: '',
+    createdAt: serverTimestamp(),
+    status: 'pending',
+  }));
+
+  const oversized = doc(collection(aliceDb, 'user_reports'));
+  await assertFails(setDoc(oversized, {
+    reporterUid: 'alice',
+    reportedUid: 'bob',
+    reportedField: 'username',
+    reportedValue: bob.username,
+    reportedDisplayName: bob.displayName,
+    reportedUsername: bob.username,
+    reason: 'other',
+    details: 'x'.repeat(501),
+    createdAt: serverTimestamp(),
+    status: 'pending',
+  }));
+});
+
