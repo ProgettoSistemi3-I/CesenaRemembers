@@ -1,6 +1,7 @@
 __pycache__
 *.pyc
 .env
+firebase-auth-reader.json
 venv/
 env/
 .git
