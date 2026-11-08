@@ -19,6 +19,11 @@ class UserProfileUseCases {
     required String email,
   }) => _repository.ensureUserDocument(uid: uid, email: email);
 
+  Future<void> recordLegalAcceptance({
+    required String uid,
+    required String email,
+  }) => _repository.recordLegalAcceptance(uid: uid, email: email);
+
   Future<void> completeInitialProfile({
     required String uid,
     required String email,
