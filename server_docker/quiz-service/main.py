@@ -21,7 +21,6 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
 import firebase_admin
-from google.auth.credentials import AnonymousCredentials
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,18 +48,6 @@ logging.basicConfig(
 logger = logging.getLogger("quiz")
 
 
-class _FirebasePublicKeyCredential(firebase_admin.credentials.Base):
-    """Credenziale senza privilegi per la sola verifica dei JWT Firebase.
-
-    verify_id_token(check_revoked=False) controlla firma e claims usando i
-    certificati pubblici Google. Non viene usato alcun endpoint Admin
-    autenticato; le operazioni che richiedono privilegi non sono abilitate.
-    """
-
-    def get_credential(self):
-        return AnonymousCredentials()
-
-
 class QuizFailure(Exception):
     """Fallimento che deve produrre una risposta non-200 (=> fallback nell'app)."""
 
@@ -72,16 +59,17 @@ class QuizFailure(Exception):
 
 
 def _get_firebase_app():
-    """Inizializza Firebase Admin senza una chiave privata di servizio.
+    """Inizializza Firebase Admin con Application Default Credentials.
 
-    La verifica degli ID token usa il project ID e i certificati pubblici
-    Google. Non vengono eseguite operazioni amministrative sugli account.
+    Il servizio deve ricevere una credenziale server dedicata con il solo ruolo
+    Firebase Authentication Viewer. Il controllo check_revoked=True consulta
+    il record Auth per rifiutare account disabilitati e token revocati.
     """
     try:
         firebase_app = firebase_admin.get_app(FIREBASE_APP_NAME)
     except ValueError:
         firebase_app = firebase_admin.initialize_app(
-            credential=_FirebasePublicKeyCredential(),
+            credential=firebase_admin.credentials.ApplicationDefault(),
             options={"projectId": settings.firebase_project_id},
             name=FIREBASE_APP_NAME,
         )
@@ -155,13 +143,18 @@ async def _authenticate_firebase_user(request: Request) -> str:
             firebase_auth.verify_id_token,
             parts[1],
             app=request.app.state.firebase_app,
-            check_revoked=False,
+            check_revoked=True,
         )
-    except (ValueError, firebase_auth.InvalidIdTokenError) as exc:
+    except (
+        ValueError,
+        firebase_auth.InvalidIdTokenError,
+        firebase_auth.RevokedIdTokenError,
+        firebase_auth.UserDisabledError,
+    ) as exc:
         raise QuizFailure(
             401,
             "invalid_auth_token",
-            "Il Firebase ID token non è valido o è scaduto.",
+            "Il Firebase ID token non è valido, è scaduto o l'account non è attivo.",
         ) from exc
     except firebase_auth.CertificateFetchError as exc:
         logger.warning(
