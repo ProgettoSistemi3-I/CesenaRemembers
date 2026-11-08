@@ -335,23 +335,44 @@ class _MapCanvasState extends State<_MapCanvas> {
 
   static const _defaultCesenaCenter = LatLng(44.1384, 12.2471);
 
+  static const _mapboxLogoUrl =
+      'https://cdn.prod.website-files.com/6050a76fa6a633d5d54ae714/657a891ba7274ba4f8b3a168_img-main-logo.png';
+
   List<SourceAttribution> _mapAttributions() {
     if (widget.selectedMapStyle == MapStyle.satellite) {
+      final camera = widget.mapController.camera;
+      final feedbackUrl = Uri.parse(
+        'https://apps.mapbox.com/feedback/#/'
+        '${camera.center.longitude}/${camera.center.latitude}/${camera.zoom}',
+      );
       return [
         TextSourceAttribution(
-          '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)',
+          '© Mapbox',
+          onTap: () => launchUrl(
+            Uri.parse('https://www.mapbox.com/about/maps/'),
+            mode: LaunchMode.externalApplication,
+          ),
         ),
         TextSourceAttribution(
-          '© Stadia Maps',
-          onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/attribution/')),
+          '© OpenStreetMap',
+          onTap: () => launchUrl(
+            Uri.parse('https://www.openstreetmap.org/copyright'),
+            mode: LaunchMode.externalApplication,
+          ),
         ),
         TextSourceAttribution(
-          '© OpenMapTiles',
-          onTap: () => launchUrl(Uri.parse('https://openmaptiles.org/')),
+          'Improve this map',
+          onTap: () => launchUrl(
+            feedbackUrl,
+            mode: LaunchMode.externalApplication,
+          ),
         ),
         TextSourceAttribution(
-          '© OpenStreetMap contributors',
-          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
+          '© Maxar',
+          onTap: () => launchUrl(
+            Uri.parse('https://www.maxar.com/'),
+            mode: LaunchMode.externalApplication,
+          ),
         ),
       ];
     }
@@ -379,7 +400,9 @@ class _MapCanvasState extends State<_MapCanvas> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
+    return Stack(
+      children: [
+        FlutterMap(
       mapController: widget.mapController,
       options: MapOptions(
         initialCenter: _defaultCesenaCenter,
@@ -458,9 +481,51 @@ class _MapCanvasState extends State<_MapCanvas> {
               ),
             ),
             child: RichAttributionWidget(
-              alignment: AttributionAlignment.bottomLeft,
+              alignment: widget.selectedMapStyle == MapStyle.satellite
+                  ? AttributionAlignment.bottomRight
+                  : AttributionAlignment.bottomLeft,
               showFlutterMapAttribution: false,
               attributions: _mapAttributions(),
+            ),
+          ),
+          ],
+        ),
+        if (widget.selectedMapStyle == MapStyle.satellite &&
+            !widget.isMapMenuOpen)
+          Positioned(
+            left: 8,
+            bottom: widget.attributionVerticalOffset +
+                MediaQuery.of(context).padding.bottom,
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(3),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(3),
+                onTap: () => launchUrl(
+                  Uri.parse('https://www.mapbox.com/'),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: SizedBox(
+                  width: 92,
+                  height: 32,
+                  child: Image.network(
+                    _mapboxLogoUrl,
+                    fit: BoxFit.contain,
+                    filterQuality: FilterQuality.medium,
+                    semanticLabel: 'Mapbox',
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Center(
+                          child: Text(
+                            'Mapbox',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                  ),
+                ),
+              ),
             ),
           ),
       ],

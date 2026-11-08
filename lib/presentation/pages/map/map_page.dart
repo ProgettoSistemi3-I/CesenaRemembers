@@ -125,8 +125,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       'https://tiles-eu.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
       '?api_key=${AppRuntimeConfig.stadiaMapsApiKey}';
   static const _urlSatellite =
-      'https://tiles-eu.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg'
-      '?api_key=${AppRuntimeConfig.stadiaMapsApiKey}';
+      'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.jpg90'
+      '?access_token=${AppRuntimeConfig.mapboxAccessToken}';
 
   _MapBuildData get _buildData => _MapBuildData(
     theme: Theme.of(context),

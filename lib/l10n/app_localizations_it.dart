@@ -1432,10 +1432,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsDiagnosticsSubtitle => 'Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics.';
 
   @override
-  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
+  String get mapLicenseSatelliteTitle => 'Mapbox Satellite';
 
   @override
-  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
+  String get mapLicenseSatelliteSubtitle => '© Mapbox · © OpenStreetMap · © Maxar';
 
   @override
   String get mapLicenseDirectionsTitle => 'Mapbox Directions API';

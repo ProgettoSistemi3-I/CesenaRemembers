@@ -2876,13 +2876,13 @@ abstract class AppLocalizations {
   /// No description provided for @mapLicenseSatelliteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Stadia Maps — Alidade Satellite'**
+  /// **'Mapbox Satellite'**
   String get mapLicenseSatelliteTitle;
 
   /// No description provided for @mapLicenseSatelliteSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)'**
+  /// **'© Mapbox · © OpenStreetMap · © Maxar'**
   String get mapLicenseSatelliteSubtitle;
 
   /// No description provided for @mapLicenseDirectionsTitle.

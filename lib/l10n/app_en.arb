@@ -594,8 +594,8 @@
   "consentSaveError": "We couldn't save your choice. Check your connection and try again.",
   "settingsDiagnostics": "Technical reports",
   "settingsDiagnosticsSubtitle": "Allow technical error reports to be sent through Firebase Crashlytics.",
-  "mapLicenseSatelliteTitle": "Stadia Maps — Alidade Satellite",
-  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)",
+  "mapLicenseSatelliteTitle": "Mapbox Satellite",
+  "mapLicenseSatelliteSubtitle": "© Mapbox · © OpenStreetMap · © Maxar",
   "mapLicenseDirectionsTitle": "Mapbox Directions API",
   "mapLicenseDirectionsSubtitle": "Service used to calculate walking routes.",
   "mapLicenseDirectionsAttribution": "Route powered by Mapbox"
