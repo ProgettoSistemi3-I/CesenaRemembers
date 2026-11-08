@@ -340,11 +340,6 @@ class _MapCanvasState extends State<_MapCanvas> {
 
   List<SourceAttribution> _mapAttributions() {
     if (widget.selectedMapStyle == MapStyle.satellite) {
-      final camera = widget.mapController.camera;
-      final feedbackUrl = Uri.parse(
-        'https://apps.mapbox.com/feedback/#/'
-        '${camera.center.longitude}/${camera.center.latitude}/${camera.zoom}',
-      );
       return [
         TextSourceAttribution(
           '© Mapbox',
@@ -362,10 +357,17 @@ class _MapCanvasState extends State<_MapCanvas> {
         ),
         TextSourceAttribution(
           'Improve this map',
-          onTap: () => launchUrl(
-            feedbackUrl,
-            mode: LaunchMode.externalApplication,
-          ),
+          onTap: () {
+            final camera = widget.mapController.camera;
+            final feedbackUrl = Uri.parse(
+              'https://apps.mapbox.com/feedback/#/'
+              '${camera.center.longitude}/${camera.center.latitude}/${camera.zoom}',
+            );
+            return launchUrl(
+              feedbackUrl,
+              mode: LaunchMode.externalApplication,
+            );
+          },
         ),
         TextSourceAttribution(
           '© Maxar',
