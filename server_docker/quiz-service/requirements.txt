@@ -6,3 +6,4 @@ pydantic==2.13.5
 python-dotenv==1.2.3
 # Verifica server-side degli ID token Firebase (firma, scadenza e progetto).
 firebase-admin==7.7.0
+google-auth==2.62.1
