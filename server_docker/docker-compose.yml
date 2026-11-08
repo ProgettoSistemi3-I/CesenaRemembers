@@ -48,7 +48,7 @@ services:
     networks:
       - quiz-backend
 
-  # 2. MICROSERVIZIO NOTIFICHE (Node.js) - Totalmente inalterato
+  # 2. MICROSERVIZIO NOTIFICHE (Node.js) - Push localizzate in base alla lingua del destinatario
   notifier-service:
     logging:
       driver: "json-file"
