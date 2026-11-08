@@ -785,7 +785,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poi_rifugi_antiaerei_name => 'Air-Raid Shelters of the Fortress';
 
   @override
-  String get poi_rifugi_antiaerei_desc => 'The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered but never built: the first major air raid on Cesena, on 13 May 1944, began a long period of bombing. The gallery was separate from the Malatestiana Fortress itself.';
+  String get poi_rifugi_antiaerei_desc => 'The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered, but the project was never built. The first major air raid on Cesena took place on 13 May 1944, marking the beginning of a prolonged period of raids. The gallery was separate from the Malatestiana Fortress itself.';
 
   @override
   String setupUsernameInvalid(int min, int max) {
@@ -1252,16 +1252,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapLicenseCartoSubtitle => '© CARTO — Based on OpenStreetMap data';
 
   @override
-  String get mapLicenseStadiaTitle => 'Stadia Maps / Stamen Design';
+  String get mapLicenseStadiaTitle => 'Stadia Maps — Alidade Smooth Dark';
 
   @override
-  String get mapLicenseStadiaSubtitle => '© Stadia Maps, © Stamen Design — CC BY 3.0 licence';
+  String get mapLicenseStadiaSubtitle => '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors';
 
   @override
-  String get mapLicenseEsriTitle => 'Esri (Satellite view)';
+  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
 
   @override
-  String get mapLicenseEsriSubtitle => 'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community';
+  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
 
   @override
   String get quiz_santa_cristina_q3 => 'How did Father Leo Bagnoli describe the shelter in the crypt?';
