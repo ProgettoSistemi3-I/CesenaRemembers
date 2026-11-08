@@ -144,15 +144,17 @@ class UserProfileDataSource {
     required String uid,
     required String email,
   }) async {
-    final doc = await _users.doc(uid).get();
-    if (doc.exists) {
-      return;
-    }
-    await _users.doc(uid).set({
-      'email': email,
-      'updatedAt': FieldValue.serverTimestamp(),
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    final userRef = _users.doc(uid);
+    await _firestore.runTransaction((transaction) async {
+      final existingUser = await transaction.get(userRef);
+      if (existingUser.exists) return;
+
+      transaction.set(userRef, {
+        'email': email,
+        'updatedAt': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    });
   }
 
   Future<void> completeInitialProfile({
