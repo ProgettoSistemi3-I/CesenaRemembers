@@ -2880,12 +2880,21 @@ abstract class AppLocalizations {
   String get mapLicenseSatelliteSubtitle;
 
   /// No description provided for @mapLicenseDirectionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapbox Directions API'**
   String get mapLicenseDirectionsTitle;
 
   /// No description provided for @mapLicenseDirectionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service used to calculate walking routes.'**
   String get mapLicenseDirectionsSubtitle;
 
   /// No description provided for @mapLicenseDirectionsAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Route powered by Mapbox'**
   String get mapLicenseDirectionsAttribution;
 }
 
