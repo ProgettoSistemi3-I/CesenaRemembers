@@ -597,5 +597,8 @@
   "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)",
   "mapLicenseDirectionsTitle": "Mapbox Directions API",
   "mapLicenseDirectionsSubtitle": "Servizio utilizzato per il calcolo dei percorsi pedonali.",
+  "mapLicenseDirectionsAttribution": "Percorso fornito da Mapbox",
+  "mapLicenseDirectionsTitle": "Mapbox Directions API",
+  "mapLicenseDirectionsSubtitle": "Servizio utilizzato per il calcolo dei percorsi pedonali.",
   "mapLicenseDirectionsAttribution": "Percorso fornito da Mapbox"
 }
