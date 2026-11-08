@@ -56,3 +56,23 @@ android/key.properties
 
 # Build output for all packages and Android reports
 **/build/
+
+
+# Local Python virtual environments
+.venv/
+.venv-*/
+venv/
+ENV/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node.js dependencies
+node_modules/
+
+# Local Firebase emulator logs
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

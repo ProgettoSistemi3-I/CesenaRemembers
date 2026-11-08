@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests"))
 
-FAKE_PORT = 9100
+FAKE_PORT = 19100
 VALID_TOKEN = "valid-test-id-token"
 DEFAULT_HEADERS = {"Authorization": f"Bearer {VALID_TOKEN}"}
 
