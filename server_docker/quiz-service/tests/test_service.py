@@ -71,6 +71,8 @@ def make_client(model: str, **env):
             raise main.firebase_auth.ExpiredIdTokenError("expired test token", None)
         if token == "revoked-test-id-token":
             raise main.firebase_auth.RevokedIdTokenError("revoked test token", None)
+        if token == "disabled-test-id-token":
+            raise main.firebase_auth.UserDisabledError("disabled test account")
         raise main.firebase_auth.InvalidIdTokenError("invalid test token")
 
     main.firebase_auth.verify_id_token = fake_verify_id_token
@@ -78,10 +80,12 @@ def make_client(model: str, **env):
 
 
 
-def test_firebase_verifier_uses_project_scoped_keyless_credential():
+def test_firebase_app_uses_configured_project_and_test_adc_stub():
     import main
     from google.auth.credentials import AnonymousCredentials
 
+    # make_client replaces ApplicationDefault with this in-memory test stub;
+    # production requires the separately mounted read-only Auth service account.
     with make_client("fake-good"):
         firebase_app = main._get_firebase_app()
         assert firebase_app.project_id == "cesenaremembers1945"
@@ -122,6 +126,7 @@ def test_quiz_requires_a_valid_bearer_token():
     "invalid-test-id-token",
     "expired-test-id-token",
     "revoked-test-id-token",
+    "disabled-test-id-token",
 ])
 def test_invalid_or_expired_firebase_token_is_rejected(token):
     with make_client("fake-good") as c:
