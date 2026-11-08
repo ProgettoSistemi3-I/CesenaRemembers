@@ -70,6 +70,20 @@ def make_client(model: str, **env):
     return TestClient(main.app, headers=DEFAULT_HEADERS)
 
 
+
+def test_firebase_verifier_uses_project_scoped_keyless_credential():
+    import main
+    from google.auth.credentials import AnonymousCredentials
+
+    with make_client("fake-good"):
+        firebase_app = main._get_firebase_app()
+        assert firebase_app.project_id == "cesenaremembers1945"
+        assert isinstance(
+            firebase_app.credential.get_credential(),
+            AnonymousCredentials,
+        )
+
+
 BODY = {
     "id": "rocca",
     "name": "Rocca Malatestiana",
