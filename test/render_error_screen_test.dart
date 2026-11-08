@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cesena_remembers/presentation/pages/splash_screen.dart';
-import 'package:cesena_remembers/presentation/services/push_notification_service.dart';
 import 'package:cesena_remembers/presentation/widgets/render_error_screen.dart';
 
 void main() {
@@ -10,9 +8,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        navigatorKey: PushNotificationService.navigatorKey,
-        home: const RenderErrorScreen(),
+      const MaterialApp(
+        home: RenderErrorScreen(),
       ),
     );
 
@@ -22,19 +19,20 @@ void main() {
     expect(find.textContaining('FlutterErrorDetails'), findsNothing);
   });
 
-  testWidgets('retry returns the navigation stack to the splash screen', (
-    tester,
-  ) async {
+  testWidgets('retry action invokes the recovery callback', (tester) async {
+    var retryTriggered = false;
+
     await tester.pumpWidget(
       MaterialApp(
-        navigatorKey: PushNotificationService.navigatorKey,
-        home: const RenderErrorScreen(),
+        home: RenderErrorScreen(
+          onRetry: () => retryTriggered = true,
+        ),
       ),
     );
 
     await tester.tap(find.text('Riprova / Try again'));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(retryTriggered, isTrue);
   });
 }
