@@ -5,12 +5,18 @@ abstract class IUserRepository {
   Stream<UserProfile?> getUserProfileStream(String uid);
   String? getCurrentUserUid();
   Future<void> ensureUserDocument({required String uid, required String email});
+  Future<void> recordLegalAcceptance({
+    required String uid,
+    required String email,
+  });
+  Future<bool> hasCurrentLegalAcceptance(String uid);
   Future<void> completeInitialProfile({
     required String uid,
     required String email,
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   });
   Future<void> updateProfileBasics({
     required String uid,

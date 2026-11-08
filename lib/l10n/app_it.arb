@@ -251,6 +251,7 @@
   "loginTermsAnd": " e dichiaro di aver preso visione dell'",
   "loginPrivacyLink": "Informativa sulla Privacy",
   "loginAgeConfirmation": "Dichiaro di aver compiuto almeno 14 anni.",
+  "loginAcceptanceSaveError": "Non siamo riusciti a salvare la registrazione delle conferme. Controlla la connessione e riprova.",
   "errorCommunication": "Errore durante la comunicazione con il server.",
   "errorNotLoggedIn": "Utente non loggato.",
   "errorLoadPrefs": "Errore nel caricamento preferenze.",
@@ -594,5 +595,8 @@
   "settingsDiagnostics": "Report tecnici",
   "settingsDiagnosticsSubtitle": "Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics.",
   "mapLicenseSatelliteTitle": "Stadia Maps — Alidade Satellite",
-  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)"
+  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)",
+  "mapLicenseDirectionsTitle": "Mapbox Directions API",
+  "mapLicenseDirectionsSubtitle": "Servizio utilizzato per il calcolo dei percorsi pedonali.",
+  "mapLicenseDirectionsAttribution": "Percorso fornito da Mapbox"
 }

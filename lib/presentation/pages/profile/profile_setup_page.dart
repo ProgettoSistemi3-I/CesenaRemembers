@@ -113,6 +113,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         username: normalizedUsername,
         displayName: displayName,
         avatarId: avatarOptions[_selectedAvatarIndex].id,
+        languageCode: Localizations.localeOf(context).languageCode,
       );
       if (mounted) {
         setState(() => _isSaving = false);

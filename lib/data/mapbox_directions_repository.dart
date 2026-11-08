@@ -73,7 +73,7 @@ class MapboxDirectionsRepository implements RouteDirectionsRepository {
     }
 
     final points = coordinates.map(_coordinateToGeoPoint).toList(growable: false);
-    return RoutePath(points: points);
+    return RoutePath(points: points, fromMapbox: true);
   }
 
   GeoPoint _coordinateToGeoPoint(Object? coordinate) {

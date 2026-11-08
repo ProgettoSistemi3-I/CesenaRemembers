@@ -1091,6 +1091,12 @@ abstract class AppLocalizations {
   /// **'I confirm that I am at least 14 years old.'**
   String get loginAgeConfirmation;
 
+  /// No description provided for @loginAcceptanceSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save your confirmations. Check your connection and try again.'**
+  String get loginAcceptanceSaveError;
+
   /// No description provided for @errorCommunication.
   ///
   /// In en, this message translates to:
@@ -2878,6 +2884,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)'**
   String get mapLicenseSatelliteSubtitle;
+
+  /// No description provided for @mapLicenseDirectionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapbox Directions API'**
+  String get mapLicenseDirectionsTitle;
+
+  /// No description provided for @mapLicenseDirectionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service used to calculate walking routes.'**
+  String get mapLicenseDirectionsSubtitle;
+
+  /// No description provided for @mapLicenseDirectionsAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Route powered by Mapbox'**
+  String get mapLicenseDirectionsAttribution;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

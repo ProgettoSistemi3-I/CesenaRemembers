@@ -2,6 +2,7 @@
 """Script di gestione ban utenti per Cesena Remembers.
 
 Banna un utente e/o ripulisce le sue proiezioni pubbliche e statistiche:
+- Disabilita l'account Firebase Authentication e revoca i refresh token.
 - Inserisce l'utente nella collection 'banned_users' (con data e motivazione).
 - Cancella le proiezioni pubbliche e statistiche:
     - leaderboard/{uid}
@@ -34,7 +35,7 @@ from pathlib import Path
 from typing import Any
 
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import auth, credentials, firestore
 
 
 def add_months(value: datetime, months: int) -> datetime:
@@ -50,6 +51,25 @@ def normalize_username(value: str | None) -> str:
     if not value:
         return ""
     return value.strip().lower()
+
+
+def disable_and_revoke_auth_user(uid: str) -> bool:
+    """Disabilita l'account Auth e revoca tutte le sessioni attive."""
+    try:
+        auth.update_user(uid, disabled=True)
+        auth.revoke_refresh_tokens(uid)
+        print(f"Firebase Auth disabilitato e token revocati per {uid}.")
+        return True
+    except auth.UserNotFoundError:
+        # Non esiste un account Auth attivo da disabilitare.
+        print(f"Account Auth {uid} non trovato; proseguo con la bonifica Firestore.")
+        return True
+    except Exception as exc:
+        print(
+            f"ERRORE: impossibile disabilitare/revocare Firebase Auth per {uid}: {exc}",
+            file=sys.stderr,
+        )
+        return False
 
 
 def ban_user(
@@ -115,7 +135,13 @@ def ban_user(
 
     if not apply:
         print("[DRY-RUN] Nessuna modifica eseguita. Esegui con --apply per confermare il ban e la rimozione.")
+        print("[DRY-RUN] Verranno inoltre disabilitati l'account Firebase Auth e revocati i refresh token.")
         return True
+
+    # Blocca prima l'accesso Auth. Se Firebase Auth non conferma l'operazione,
+    # interrompiamo la bonifica invece di dichiarare un ban completo.
+    if not disable_and_revoke_auth_user(uid):
+        return False
 
     batch = db.batch()
 
@@ -231,6 +257,9 @@ def cleanup_all_banned(db: firestore.Client, apply: bool) -> int:
     to_clean_count = 0
     for doc in banned_docs:
         uid = doc.id
+        if apply and not disable_and_revoke_auth_user(uid):
+            print(f"Bonifica Auth non completata per {uid}; salto questo account.", file=sys.stderr)
+            continue
         lb_exists = db.collection("leaderboard").document(uid).get().exists
         pub_exists = db.collection("public_profiles").document(uid).get().exists
         fs_exists = db.collection("friend_stats").document(uid).get().exists

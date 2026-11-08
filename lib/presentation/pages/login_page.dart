@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/logging/app_logger.dart';
 import '../../domain/usecases/auth_use_cases.dart';
+import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 
@@ -37,6 +38,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   final _signInWithGoogle = sl<SignInWithGoogleUseCase>();
+  final _signOut = sl<SignOutUseCase>();
+  final _profileUseCases = sl<UserProfileUseCases>();
 
   bool _isLoading = false;
   String? _error;
@@ -96,7 +99,41 @@ class _LoginPageState extends State<LoginPage>
       _isBanned = false;
     });
     try {
-      await _signInWithGoogle();
+      final appUser = await _signInWithGoogle();
+      if (appUser == null) return;
+
+      try {
+        await _profileUseCases.recordLegalAcceptance(
+          uid: appUser.id,
+          email: appUser.email,
+        );
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Unable to save legal acceptance evidence',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'LoginPage',
+        );
+        // Do not leave an authenticated session when the required declarations
+        // could not be persisted. The user can retry once connectivity returns.
+        try {
+          await _signOut();
+        } catch (signOutError, signOutStackTrace) {
+          AppLogger.error(
+            'Sign-out after legal acceptance failure also failed',
+            error: signOutError,
+            stackTrace: signOutStackTrace,
+            name: 'LoginPage',
+          );
+        }
+        if (mounted) {
+          setState(
+            () => _error =
+                AppLocalizations.of(context)!.loginAcceptanceSaveError,
+          );
+        }
+        return;
+      }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       if (e.code == 'user-disabled') {

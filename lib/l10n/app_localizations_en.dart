@@ -527,6 +527,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginAgeConfirmation => 'I confirm that I am at least 14 years old.';
 
   @override
+  String get loginAcceptanceSaveError => 'We couldn\'t save your confirmations. Check your connection and try again.';
+
+  @override
   String get errorCommunication => 'Error communicating with the server.';
 
   @override
@@ -1433,4 +1436,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
+
+  @override
+  String get mapLicenseDirectionsTitle => 'Mapbox Directions API';
+
+  @override
+  String get mapLicenseDirectionsSubtitle => 'Service used to calculate walking routes.';
+
+  @override
+  String get mapLicenseDirectionsAttribution => 'Route powered by Mapbox';
 }

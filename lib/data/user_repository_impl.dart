@@ -42,18 +42,30 @@ class UserRepositoryImpl implements IUserRepository {
       _profile.ensureUserDocument(uid: uid, email: email);
 
   @override
+  Future<void> recordLegalAcceptance({
+    required String uid,
+    required String email,
+  }) => _profile.recordLegalAcceptance(uid: uid, email: email);
+
+  @override
+  Future<bool> hasCurrentLegalAcceptance(String uid) =>
+      _profile.hasCurrentLegalAcceptance(uid);
+
+  @override
   Future<void> completeInitialProfile({
     required String uid,
     required String email,
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   }) => _profile.completeInitialProfile(
     uid: uid,
     email: email,
     username: username,
     displayName: displayName,
     avatarId: avatarId,
+    languageCode: languageCode,
   );
 
   @override

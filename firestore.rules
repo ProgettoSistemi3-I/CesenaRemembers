@@ -20,6 +20,51 @@ service cloud.firestore {
       return value is string && value.matches('^[a-z0-9_.]{3,20}$');
     }
 
+    function validLegalAcceptanceData(d) {
+      return d.get('termsAcceptedAt', null) is timestamp &&
+        d.get('termsVersionAccepted', '') == '2026-11-08' &&
+        d.get('privacyNoticeAcknowledgedAt', null) is timestamp &&
+        d.get('privacyNoticeVersionAcknowledged', '') == '2026-11-08' &&
+        d.get('ageConfirmedAt', null) is timestamp &&
+        d.get('agePolicyVersionConfirmed', '') == '14-plus-v1';
+    }
+
+    function validLegalAcceptanceWrite() {
+      let d = request.resource.data;
+      let changed = d.diff(resource.data).affectedKeys();
+
+      return changed.hasOnly([
+          'termsAcceptedAt', 'termsVersionAccepted',
+          'privacyNoticeAcknowledgedAt', 'privacyNoticeVersionAcknowledged',
+          'ageConfirmedAt', 'agePolicyVersionConfirmed', 'updatedAt'
+        ]) &&
+        d.termsAcceptedAt == request.time &&
+        d.privacyNoticeAcknowledgedAt == request.time &&
+        d.ageConfirmedAt == request.time &&
+        d.updatedAt == request.time &&
+        validLegalAcceptanceData(d);
+    }
+
+    function validLegalAcceptanceCreate(uid) {
+      let d = request.resource.data;
+
+      return d.keys().hasOnly([
+          'email', 'createdAt', 'updatedAt',
+          'termsAcceptedAt', 'termsVersionAccepted',
+          'privacyNoticeAcknowledgedAt', 'privacyNoticeVersionAcknowledged',
+          'ageConfirmedAt', 'agePolicyVersionConfirmed'
+        ]) &&
+        d.email is string &&
+        d.email.size() <= 254 &&
+        request.auth.token.email == d.email &&
+        d.createdAt == request.time &&
+        d.updatedAt == request.time &&
+        d.termsAcceptedAt == request.time &&
+        d.privacyNoticeAcknowledgedAt == request.time &&
+        d.ageConfirmedAt == request.time &&
+        validLegalAcceptanceData(d);
+    }
+
     function validPreferences(prefs) {
       return prefs is map &&
         prefs.keys().hasOnly([
@@ -623,6 +668,7 @@ service cloud.firestore {
         /databases/$(database)/documents/friend_stats/$(uid);
 
       return d.get('profileCompleted', false) == true &&
+        validLegalAcceptanceData(d) &&
         d.email is string &&
         d.email.size() <= 254 &&
         request.auth.token.email == d.email &&
@@ -668,7 +714,10 @@ service cloud.firestore {
       return resource.data.get('profileCompleted', false) != true &&
         d.get('profileCompleted', false) == true &&
         changed.hasOnly([
-          'email', 'createdAt', 'displayName', 'displayNameNormalized',
+          'email', 'createdAt', 'termsAcceptedAt', 'termsVersionAccepted',
+          'privacyNoticeAcknowledgedAt', 'privacyNoticeVersionAcknowledged',
+          'ageConfirmedAt', 'agePolicyVersionConfirmed',
+          'displayName', 'displayNameNormalized',
           'username', 'usernameNormalized', 'avatarId', 'profileCompleted',
           'profileCompletedAt', 'onboardingCompleted', 'xp',
           'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
@@ -685,7 +734,10 @@ service cloud.firestore {
 
       return d.createdAt is timestamp &&
         d.keys().hasOnly([
-          'email', 'createdAt', 'displayName', 'displayNameNormalized',
+          'email', 'createdAt', 'termsAcceptedAt', 'termsVersionAccepted',
+          'privacyNoticeAcknowledgedAt', 'privacyNoticeVersionAcknowledged',
+          'ageConfirmedAt', 'agePolicyVersionConfirmed',
+          'displayName', 'displayNameNormalized',
           'username', 'usernameNormalized', 'avatarId', 'profileCompleted',
           'profileCompletedAt', 'onboardingCompleted', 'xp',
           'leaderboardScore', 'visitedPoiIds', 'unlockedAchievements',
@@ -1159,7 +1211,13 @@ service cloud.firestore {
 
       return changed.hasAny(['usernameNormalized'])
         ? validInitialProfileCompletion(uid)
-        : changed.hasAny(['friends'])
+        : changed.hasAny([
+            'termsAcceptedAt', 'termsVersionAccepted',
+            'privacyNoticeAcknowledgedAt', 'privacyNoticeVersionAcknowledged',
+            'ageConfirmedAt', 'agePolicyVersionConfirmed'
+          ])
+          ? validLegalAcceptanceWrite()
+          : changed.hasAny(['friends'])
           ? (
               request.resource.data.get('friends', []).size() >
                 resource.data.get('friends', []).size()
@@ -1251,6 +1309,7 @@ service cloud.firestore {
             request.resource.data.createdAt is timestamp &&
             request.resource.data.updatedAt is timestamp
           ) ||
+          validLegalAcceptanceCreate(userId) ||
           validInitialProfileCreate(userId)
         );
 

@@ -49,6 +49,14 @@ A block document is written first. Existing relationships are then removed throu
 4. If a suspension is warranted, use the existing banned_users / scripts/ban_user.py procedure. Do not auto-ban on a single user report.
 5. Reports are retained for up to 24 months from receipt. Run scripts/cleanup_user_reports.py periodically with a protected Firebase Admin service account (dry-run by default; add --apply to delete expired reports). Preserve older records only where a documented legal or claims-preservation need requires it.
 
+## Ban enforcement and required permissions
+
+`scripts/ban_user.py --apply` disables the Firebase Authentication account and revokes its refresh tokens before it performs the Firestore cleanup. The read/cleanup service account must therefore have both the existing Firestore permissions and Firebase Authentication write permissions. Grant `roles/firebaseauth.admin` (or a custom role containing the required `firebaseauth.users.update` and `firebaseauth.users.get` permissions) to the protected service account used by `GOOGLE_APPLICATION_CREDENTIALS`. Without those permissions, the script reports the Auth failure and does not continue the Firestore ban/cleanup for that UID.
+
+The quiz container uses a different, read-only service account. It only needs `roles/firebaseauth.viewer` so that `verify_id_token(..., check_revoked=True)` can read the Auth user record and reject disabled accounts or revoked ID tokens. Do not reuse the quiz verifier credential for moderation operations.
+
+A revoked refresh token does not make a previously issued ID token disappear immediately: Firebase documents that an existing ID token may remain usable until its natural expiry (up to one hour). The quiz API therefore checks revocation and disabled-account status on every verification; this is why both the ban action and `check_revoked=True` are required.
+
 ## Firestore Rules tests
 
 The Node test project in tests/firestore-rules exercises:

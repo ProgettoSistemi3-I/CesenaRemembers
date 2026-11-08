@@ -27,7 +27,7 @@
 <body>
 <main>
   <header>
-    <p class="meta">Cesena Remembers · Versione aggiornata al 6 novembre 2026</p>
+    <p class="meta">Cesena Remembers · Versione aggiornata all'8 novembre 2026</p>
     <h1>Termini di utilizzo</h1>
     <p class="meta">Condizioni di utilizzo dell'app mobile e dei servizi collegati.</p>
   </header>
@@ -82,6 +82,7 @@
     <h2>3. Accettazione e modifiche</h2>
     <p>Prima di utilizzare le funzioni soggette a queste condizioni, l'utente deve poterle consultare in modo chiaro e accedere all'informativa privacy. L'accettazione dei presenti termini è distinta dal consenso al trattamento dei dati personali: l'informativa privacy non costituisce, da sola, una richiesta di consenso.</p>
     <p>I termini sono pubblicati sul sito e sono consultabili dalle pagine di informazione dell'app. L'eventuale richiesta di accettazione di condizioni o consensi specifici è distinta dall'informativa privacy e viene presentata separatamente quando prevista per la funzione interessata.</p>
+    <p>Quando l'utente accetta i Termini, prende visione dell'informativa privacy e conferma di avere almeno 14 anni, l'app registra nel profilo privato i timestamp generati dal server e gli identificativi di versione dei documenti e della regola di età. La registrazione documenta le dichiarazioni rese nell'interfaccia; non costituisce una verifica documentale dell'identità o dell'età. La presa visione dell'informativa non equivale a un consenso al trattamento dei dati personali.</p>
     <p>Chi non accetta le condizioni non deve utilizzare le funzioni soggette a esse. Le modifiche saranno comunicate con modalità adeguate e, quando richiesto, sarà chiesta una nuova accettazione.</p>
   </section>
 
@@ -134,7 +135,7 @@
     <h2>9. Quiz e contenuti generati automaticamente</h2>
     <p>Alcuni quiz sono generati o supportati da modelli linguistici sulla base di schede di fatti storici mantenute dal progetto. I sistemi automatici possono produrre errori, omissioni o formulazioni imprecise. Il gestore adotta controlli ragionevoli, ma non garantisce che ogni domanda o risposta sia sempre corretta, completa o aggiornata.</p>
     <p>I quiz hanno finalità culturali, informative e ludico-didattiche; non costituiscono una fonte storica ufficiale, una consulenza professionale o un'indicazione vincolante. Per questioni storiche o di sicurezza rilevanti, l'utente deve consultare fonti autorevoli e aggiornate.</p>
-    <p>La richiesta al backend quiz predefinito utilizza HTTPS/TLS sull'indirizzo <code>https://pascal.ispascalcomandini.it:8000</code>. Il client accetta il certificato server incluso nell'app come trust anchor dedicato. La richiesta non include UID Firebase, email o password; il server riceve l'IP di origine e i dati necessari a generare il quiz.</p>
+    <p>La richiesta al backend quiz predefinito utilizza HTTPS/TLS sull'indirizzo <code>https://pascal.ispascalcomandini.it:8000</code>. Il client accetta il certificato server incluso nell'app come trust anchor dedicato e invia un Firebase Authentication ID token nell'header <code>Authorization: Bearer</code>. Il token contiene l'UID e può includere email e altri attributi del profilo, quando disponibili. Il server verifica il token, controlla che non sia revocato e che l'account non sia disabilitato e usa l'UID per il limite di richieste per utente. La password non viene inviata. Il token e i relativi claims non vengono inoltrati al provider del modello linguistico.</p>
   </section>
 
   <section id="proprieta">
@@ -146,7 +147,7 @@
 
   <section id="terzi">
     <h2>11. Servizi di terzi</h2>
-    <p>Il funzionamento dell'app può dipendere da Google Sign-In e Firebase (Authentication, Firestore, Cloud Messaging, Crashlytics e App Check), Google Play Integrity, GroqCloud per la generazione dei quiz, Mapbox per i percorsi, CARTO, Stadia Maps ed Esri/ArcGIS per le mappe, Cloudflare Pages per l'hosting del sito, GitHub per la distribuzione degli APK e Google Play per la distribuzione dell'app. Tali fornitori operano secondo i propri contratti, condizioni e informative. I font Manrope e Outfit del sito sono distribuiti come risorse statiche dal dominio del sito e non vengono scaricati da fornitori di font esterni.</p>
+    <p>Il funzionamento dell'app può dipendere da Google Sign-In e Firebase (Authentication, Firestore, Cloud Messaging, Crashlytics e App Check), Google Play Integrity, GroqCloud per la generazione dei quiz, Mapbox Directions per i percorsi, CARTO e Stadia Maps per le mappe, Cloudflare Pages per l'hosting del sito, GitHub per la distribuzione degli APK e Google Play per la distribuzione dell'app. Tali fornitori operano secondo i propri contratti, condizioni e informative. I font Manrope e Outfit del sito sono distribuiti come risorse statiche dal dominio del sito e non vengono scaricati da fornitori di font esterni.</p>
     <p>Il trattamento dei dati personali tramite tali servizi è descritto nell'<a href="privacy.html">informativa privacy</a>. Il gestore resta responsabile degli obblighi che la legge gli attribuisce per la propria parte di servizio e non garantisce la disponibilità ininterrotta delle infrastrutture di terzi.</p>
   </section>
 
@@ -187,7 +188,7 @@
 
   <footer>
     <p>© 2026 Cesena Remembers · <a href="terms-en.html">English</a> · <a href="privacy.html">Informativa privacy</a> · <a href="delete-account.html">Cancellazione account</a></p>
-    <p>Ultimo aggiornamento: 6 novembre 2026.</p>
+    <p>Ultimo aggiornamento: 8 novembre 2026.</p>
   </footer>
 </main>
 </body>

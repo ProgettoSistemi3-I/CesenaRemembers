@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../core/legal/legal_document_versions.dart';
 import '../../domain/entities/userprofile.dart';
 import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
@@ -104,19 +105,73 @@ class UserProfileDataSource {
     });
   }
 
+  /// Records the user's affirmative sign-in declarations in their private
+  /// Firestore profile. Timestamps are server-generated and document versions
+  /// are stored so the record identifies exactly what was acknowledged.
+  Future<void> recordLegalAcceptance({
+    required String uid,
+    required String email,
+  }) async {
+    final userRef = _users.doc(uid);
+    await _firestore.runTransaction((transaction) async {
+      final existingUser = await transaction.get(userRef);
+      final acceptance = <String, dynamic>{
+        'termsAcceptedAt': FieldValue.serverTimestamp(),
+        'termsVersionAccepted': LegalDocumentVersions.termsAccepted,
+        'privacyNoticeAcknowledgedAt': FieldValue.serverTimestamp(),
+        'privacyNoticeVersionAcknowledged':
+            LegalDocumentVersions.privacyNoticeAcknowledged,
+        'ageConfirmedAt': FieldValue.serverTimestamp(),
+        'agePolicyVersionConfirmed':
+            LegalDocumentVersions.minimumAgePolicyConfirmed,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (existingUser.exists) {
+        transaction.update(userRef, acceptance);
+      } else {
+        transaction.set(userRef, {
+          'email': email,
+          'createdAt': FieldValue.serverTimestamp(),
+          ...acceptance,
+        });
+      }
+    });
+  }
+
+  /// Checks that a signed-in account has acknowledged the current legal
+  /// document versions. Legacy sessions without evidence must sign in again
+  /// through the explicit checkbox flow before they can use the app.
+  Future<bool> hasCurrentLegalAcceptance(String uid) async {
+    final snapshot = await _users.doc(uid).get();
+    final data = snapshot.data();
+    if (data == null) return false;
+
+    return data['termsAcceptedAt'] is Timestamp &&
+        data['termsVersionAccepted'] == LegalDocumentVersions.termsAccepted &&
+        data['privacyNoticeAcknowledgedAt'] is Timestamp &&
+        data['privacyNoticeVersionAcknowledged'] ==
+            LegalDocumentVersions.privacyNoticeAcknowledged &&
+        data['ageConfirmedAt'] is Timestamp &&
+        data['agePolicyVersionConfirmed'] ==
+            LegalDocumentVersions.minimumAgePolicyConfirmed;
+  }
+
   Future<void> ensureUserDocument({
     required String uid,
     required String email,
   }) async {
-    final doc = await _users.doc(uid).get();
-    if (doc.exists) {
-      return;
-    }
-    await _users.doc(uid).set({
-      'email': email,
-      'updatedAt': FieldValue.serverTimestamp(),
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    final userRef = _users.doc(uid);
+    await _firestore.runTransaction((transaction) async {
+      final existingUser = await transaction.get(userRef);
+      if (existingUser.exists) return;
+
+      transaction.set(userRef, {
+        'email': email,
+        'updatedAt': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    });
   }
 
   Future<void> completeInitialProfile({
@@ -125,6 +180,7 @@ class UserProfileDataSource {
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   }) async {
     if (!ProfileValidation.isValidDisplayName(displayName)) {
       throw Exception('INVALID_DISPLAY_NAME');
@@ -191,6 +247,7 @@ class UserProfileDataSource {
         normalizedUsername: normalizedUsername,
         displayName: displayName,
         avatarId: avatarId,
+        languageCode: languageCode,
         includeCreatedAt: !existingUser.exists,
       );
 
@@ -232,11 +289,15 @@ class UserProfileDataSource {
     required String normalizedUsername,
     required String displayName,
     required String avatarId,
+    required String languageCode,
     required bool includeCreatedAt,
   }) {
     final existingPrefs = Map<String, dynamic>.from(
       existingData['preferences'] as Map<String, dynamic>? ?? const {},
     );
+    final requestedLanguage = languageCode.toLowerCase().split(RegExp(r'[-_]')).first;
+    final deviceLanguage = requestedLanguage == 'en' ? 'en' : 'it';
+    final existingLanguage = existingPrefs['languageCode'];
 
     return {
       'email': email,
@@ -249,6 +310,15 @@ class UserProfileDataSource {
       'profileCompleted': true,
       'onboardingCompleted': existingData['onboardingCompleted'] == true,
       'profileCompletedAt': FieldValue.serverTimestamp(),
+      'termsAcceptedAt': existingData['termsAcceptedAt'],
+      'termsVersionAccepted': existingData['termsVersionAccepted'],
+      'privacyNoticeAcknowledgedAt':
+          existingData['privacyNoticeAcknowledgedAt'],
+      'privacyNoticeVersionAcknowledged':
+          existingData['privacyNoticeVersionAcknowledged'],
+      'ageConfirmedAt': existingData['ageConfirmedAt'],
+      'agePolicyVersionConfirmed':
+          existingData['agePolicyVersionConfirmed'],
       'xp': (existingData['xp'] as num?)?.toInt() ?? 0,
       'visitedPoiIds': List<String>.from(existingData['visitedPoiIds'] ?? []),
       'unlockedAchievements': List<String>.from(
@@ -292,7 +362,9 @@ class UserProfileDataSource {
           'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
         'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
         'posizioneGps': existingPrefs['posizioneGps'] ?? true,
-        'languageCode': existingPrefs['languageCode'] ?? 'it',
+        'languageCode': existingLanguage == 'en' || existingLanguage == 'it'
+            ? existingLanguage
+            : deviceLanguage,
       },
       'updatedAt': FieldValue.serverTimestamp(),
     };
