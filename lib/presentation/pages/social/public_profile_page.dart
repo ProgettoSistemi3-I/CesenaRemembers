@@ -236,7 +236,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                   )),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: reportedField,
+                    initialValue: reportedField,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -261,7 +261,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                   Text(t('Motivo della segnalazione', 'Reason for reporting')),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: reason,
+                    initialValue: reason,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),

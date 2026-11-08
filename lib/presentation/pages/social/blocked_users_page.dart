@@ -6,7 +6,6 @@ import '../../../domain/usecases/user_moderation_use_cases.dart';
 import '../../../domain/usecases/user_social_use_cases.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_palette.dart';
-import 'moderation_text.dart';
 
 class BlockedUsersPage extends StatefulWidget {
   const BlockedUsersPage({super.key});
@@ -171,7 +170,7 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       itemCount: _blockedIds.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final uid = _blockedIds[index];
                         final profile = _profiles[uid];
