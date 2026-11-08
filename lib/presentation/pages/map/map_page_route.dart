@@ -25,15 +25,19 @@ extension _MapPageRouteLine on _MapPageState {
 
     _updateMapState(() {
       _routeLinePoints = _toRouteLinePoints(path);
+      _routeUsesMapboxDirections = path.fromMapbox;
     });
   }
 
   void _clearRouteLine() {
     _lastRouteLineSignature = null;
     _routeLineRequestId++;
-    if (_routeLinePoints.isEmpty) return;
+    if (_routeLinePoints.isEmpty && !_routeUsesMapboxDirections) return;
     if (mounted) {
-      _updateMapState(() => _routeLinePoints = const []);
+      _updateMapState(() {
+        _routeLinePoints = const [];
+        _routeUsesMapboxDirections = false;
+      });
     }
   }
 
