@@ -1433,4 +1433,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
+
+  @override
+  String get mapLicenseDirectionsTitle => 'Mapbox Directions API';
+
+  @override
+  String get mapLicenseDirectionsSubtitle => 'Servizio utilizzato per il calcolo dei percorsi pedonali.';
+
+  @override
+  String get mapLicenseDirectionsAttribution => 'Percorso fornito da Mapbox';
 }
