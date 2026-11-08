@@ -125,6 +125,7 @@ class UserProfileDataSource {
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   }) async {
     if (!ProfileValidation.isValidDisplayName(displayName)) {
       throw Exception('INVALID_DISPLAY_NAME');
