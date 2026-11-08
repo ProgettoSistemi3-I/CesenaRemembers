@@ -758,3 +758,83 @@ test('clients cannot forge reports, report themselves or submit oversized detail
   }));
 });
 
+test('blocking still permits removing an existing reciprocal friendship', async () => {
+  await seedCompleteUser('alice', { friends: ['bob'] });
+  await seedCompleteUser('bob', { friends: ['alice'] });
+  const aliceDb = authenticatedDb('alice');
+
+  await assertSucceeds(setDoc(
+    doc(aliceDb, 'user_blocks', 'alice', 'blocked', 'bob'),
+    { createdAt: serverTimestamp() },
+  ));
+
+  const batch = writeBatch(aliceDb);
+  batch.update(doc(aliceDb, 'users', 'alice'), {
+    friends: [],
+    lastFriendActionPeerUid: 'bob',
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(aliceDb, 'users', 'bob'), {
+    friends: [],
+    lastFriendActionPeerUid: 'alice',
+    updatedAt: serverTimestamp(),
+  });
+  batch.update(doc(aliceDb, 'friend_stats', 'alice'), { friends: [] });
+  batch.update(doc(aliceDb, 'friend_stats', 'bob'), { friends: [] });
+  batch.update(doc(aliceDb, 'public_profiles', 'alice'), { friendsCount: 0 });
+  batch.update(doc(aliceDb, 'public_profiles', 'bob'), { friendsCount: 0 });
+
+  await assertSucceeds(batch.commit());
+  assert.deepEqual((await getDocAdmin('users/alice')).data().friends, []);
+  assert.deepEqual((await getDocAdmin('users/bob')).data().friends, []);
+});
+
+test('all supported report reasons are accepted for a valid profile snapshot', async () => {
+  await seedCompleteUser('alice');
+  const bob = await seedCompleteUser('bob');
+  const aliceDb = authenticatedDb('alice');
+  const reasons = [
+    'inappropriate_name',
+    'impersonation',
+    'harassment',
+    'spam',
+    'other',
+  ];
+
+  for (const reason of reasons) {
+    const report = doc(collection(aliceDb, 'user_reports'));
+    await assertSucceeds(setDoc(report, {
+      reporterUid: 'alice',
+      reportedUid: 'bob',
+      reportedField: 'displayName',
+      reportedValue: bob.displayName,
+      reportedDisplayName: bob.displayName,
+      reportedUsername: bob.username,
+      reason,
+      details: '',
+      createdAt: serverTimestamp(),
+      status: 'pending',
+    }));
+  }
+});
+
+test('a report cannot replace the reported profile snapshot with forged values', async () => {
+  await seedCompleteUser('alice');
+  const bob = await seedCompleteUser('bob');
+  const aliceDb = authenticatedDb('alice');
+  const report = doc(collection(aliceDb, 'user_reports'));
+
+  await assertFails(setDoc(report, {
+    reporterUid: 'alice',
+    reportedUid: 'bob',
+    reportedField: 'displayName',
+    reportedValue: 'Fake Profile',
+    reportedDisplayName: 'Fake Profile',
+    reportedUsername: bob.username,
+    reason: 'other',
+    details: '',
+    createdAt: serverTimestamp(),
+    status: 'pending',
+  }));
+});
+

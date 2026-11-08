@@ -61,12 +61,16 @@ usersQuery.onSnapshot(async snapshot => {
       senderUid => !previousState.receivedRequests.includes(senderUid)
     );
     for (const senderUid of newRequestSenders) {
-      if (await hasBlockBetween(userId, senderUid)) continue;
-      await inviaNotifica(
-        userId,
-        fcmTokens,
-        buildFriendNotification('friend_request', languageCode)
-      );
+      try {
+        if (await hasBlockBetween(userId, senderUid)) continue;
+        await inviaNotifica(
+          userId,
+          fcmTokens,
+          buildFriendNotification('friend_request', languageCode)
+        );
+      } catch (error) {
+        console.error('Impossibile verificare il blocco prima della notifica richiesta:', error);
+      }
     }
 
     const newFriends = friends.filter(
@@ -76,12 +80,16 @@ usersQuery.onSnapshot(async snapshot => {
       friendUid => previousState.sentRequests.includes(friendUid)
     );
     for (const friendUid of acceptedFriends) {
-      if (await hasBlockBetween(userId, friendUid)) continue;
-      await inviaNotifica(
-        userId,
-        fcmTokens,
-        buildFriendNotification('friend_accepted', languageCode)
-      );
+      try {
+        if (await hasBlockBetween(userId, friendUid)) continue;
+        await inviaNotifica(
+          userId,
+          fcmTokens,
+          buildFriendNotification('friend_accepted', languageCode)
+        );
+      } catch (error) {
+        console.error('Impossibile verificare il blocco prima della notifica amicizia:', error);
+      }
     }
   }
 }, error => {

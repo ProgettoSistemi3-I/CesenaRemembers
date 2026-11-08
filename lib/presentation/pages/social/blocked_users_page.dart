@@ -45,7 +45,22 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
       }
       final moderation = sl<UserModerationUseCases>();
       final ids = await moderation.getBlockedUserIds(uid);
-      final profiles = await sl<UserSocialUseCases>().getUsersByIds(ids);
+      final social = sl<UserSocialUseCases>();
+      List<UserProfile> profiles;
+      try {
+        profiles = await social.getUsersByIds(ids);
+      } catch (_) {
+        // A blocked account may have been deleted or suspended. Keep the
+        // safety list usable so the owner can still remove that block entry.
+        profiles = [];
+        for (final id in ids) {
+          try {
+            profiles.addAll(await social.getUsersByIds([id]));
+          } catch (_) {
+            // The UID remains visible and can still be unblocked below.
+          }
+        }
+      }
       if (!mounted) return;
       setState(() {
         _blockedIds = ids;
