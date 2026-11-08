@@ -157,10 +157,12 @@ function authenticatedDb(uid, email = uid + '@example.test') {
 // Use only inside post-condition assertions: production clients must never
 // read another account's private user document to verify a social batch.
 async function getDocAdmin(path) {
-  return testEnv.withSecurityRulesDisabled(async (context) => {
+  let snapshot;
+  await testEnv.withSecurityRulesDisabled(async (context) => {
     const database = context.firestore();
-    return getDoc(doc(database, ...path.split('/')));
+    snapshot = await getDoc(doc(database, ...path.split('/')));
   });
+  return snapshot;
 }
 
 function friendAcceptanceBatch(database, award) {
