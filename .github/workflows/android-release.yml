@@ -52,7 +52,12 @@ jobs:
         run: flutter test
 
       - name: Validate notifier JavaScript syntax
-        run: node --check server_docker/notifier-service/index.js
+        run: |
+          node --check server_docker/notifier-service/index.js
+          node --check server_docker/notifier-service/notification_messages.js
+
+      - name: Test notifier notification localization
+        run: node --test server_docker/notifier-service/notification_messages.test.js
 
   build-apk:
     name: Build signed Android APK
