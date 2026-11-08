@@ -21,6 +21,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
 import firebase_admin
+from google.auth.credentials import AnonymousCredentials
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,6 +49,18 @@ logging.basicConfig(
 logger = logging.getLogger("quiz")
 
 
+class _FirebasePublicKeyCredential(firebase_admin.credentials.Base):
+    """Credenziale senza privilegi per la sola verifica dei JWT Firebase.
+
+    verify_id_token(check_revoked=False) controlla firma e claims usando i
+    certificati pubblici Google. Non viene usato alcun endpoint Admin
+    autenticato; le operazioni che richiedono privilegi non sono abilitate.
+    """
+
+    def get_credential(self):
+        return AnonymousCredentials()
+
+
 class QuizFailure(Exception):
     """Fallimento che deve produrre una risposta non-200 (=> fallback nell'app)."""
 
@@ -68,6 +81,7 @@ def _get_firebase_app():
         firebase_app = firebase_admin.get_app(FIREBASE_APP_NAME)
     except ValueError:
         firebase_app = firebase_admin.initialize_app(
+            credential=_FirebasePublicKeyCredential(),
             options={"projectId": settings.firebase_project_id},
             name=FIREBASE_APP_NAME,
         )
