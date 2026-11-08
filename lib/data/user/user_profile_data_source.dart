@@ -234,11 +234,15 @@ class UserProfileDataSource {
     required String normalizedUsername,
     required String displayName,
     required String avatarId,
+    required String languageCode,
     required bool includeCreatedAt,
   }) {
     final existingPrefs = Map<String, dynamic>.from(
       existingData['preferences'] as Map<String, dynamic>? ?? const {},
     );
+    final requestedLanguage = languageCode.toLowerCase().split(RegExp(r'[-_]')).first;
+    final deviceLanguage = requestedLanguage == 'en' ? 'en' : 'it';
+    final existingLanguage = existingPrefs['languageCode'];
 
     return {
       'email': email,
