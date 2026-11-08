@@ -200,18 +200,18 @@ class CreditsPage extends StatelessWidget {
                 subtitle: AppLocalizations.of(context)!.mapLicenseStadiaSubtitle,
                 accent: AppPalette.moss,
                 onTap: () => launchUrl(
-                  Uri.parse('https://stadiamaps.com/'),
+                  Uri.parse('https://stadiamaps.com/attribution/'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),
               const _ThinDivider(),
               _CreditRow(
                 icon: Icons.satellite_alt_outlined,
-                title: AppLocalizations.of(context)!.mapLicenseEsriTitle,
-                subtitle: AppLocalizations.of(context)!.mapLicenseEsriSubtitle,
+                title: AppLocalizations.of(context)!.mapLicenseSatelliteTitle,
+                subtitle: AppLocalizations.of(context)!.mapLicenseSatelliteSubtitle,
                 accent: AppPalette.moss,
                 onTap: () => launchUrl(
-                  Uri.parse('https://www.esri.com/en-us/legal/terms/full-master-agreement'),
+                  Uri.parse('https://stadiamaps.com/attribution/'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),
