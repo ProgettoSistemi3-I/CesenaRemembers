@@ -2525,17 +2525,17 @@ abstract class AppLocalizations {
   /// **'© Stadia Maps, © Stamen Design — CC BY 3.0 licence'**
   String get mapLicenseStadiaSubtitle;
 
-  /// No description provided for @mapLicenseEsriTitle.
+  /// No description provided for @mapLicenseSatelliteTitle.
   ///
   /// In en, this message translates to:
   /// **'Esri (Satellite view)'**
-  String get mapLicenseEsriTitle;
+  String get mapLicenseSatelliteTitle;
 
-  /// No description provided for @mapLicenseEsriSubtitle.
+  /// No description provided for @mapLicenseSatelliteSubtitle.
   ///
   /// In en, this message translates to:
   /// **'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community'**
-  String get mapLicenseEsriSubtitle;
+  String get mapLicenseSatelliteSubtitle;
 
   /// No description provided for @quiz_santa_cristina_q3.
   ///
