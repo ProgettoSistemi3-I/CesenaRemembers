@@ -118,4 +118,3 @@ def load_settings() -> Settings:
         facts_dir=Path(_env("FACTS_DIR", str(Path(__file__).parent / "facts"))),
         log_level=_env("LOG_LEVEL", "INFO").upper(),
     )
-}
