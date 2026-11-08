@@ -20,6 +20,12 @@ class UserProgressDataSource {
   CollectionReference<Map<String, dynamic>> get _leaderboard =>
       _firestore.collection('leaderboard');
 
+  /// Shared ordering keeps the visible leaderboard and rank calculation in
+  /// sync, including the ascending document-ID tie-break for equal XP.
+  Query<Map<String, dynamic>> get _orderedLeaderboard => _leaderboard
+      .orderBy('xp', descending: true)
+      .orderBy(FieldPath.documentId);
+
   /// Classifica globale: legge UID/XP e arricchisce la Top 50 con il profilo.
   /// La proiezione pubblica espone solo gli aggregati della hero card;
   /// le statistiche dettagliate restano in friend_stats.
@@ -27,10 +33,7 @@ class UserProgressDataSource {
     required String uid,
     int limit = 50,
   }) {
-    return _firestore
-        .collection('leaderboard')
-        .orderBy('xp', descending: true)
-        .orderBy(FieldPath.documentId)
+    return _orderedLeaderboard
         .limit(limit.clamp(1, 50))
         .snapshots()
         .asyncMap((snapshot) async {
@@ -62,7 +65,7 @@ class UserProgressDataSource {
   /// Rango globale reale: pagine da massimo 50, compatibili con Firestore Rules.
   /// Legge solo UID e XP, non i profili o le statistiche degli altri utenti.
   Future<int?> getLeaderboardRank({required String uid}) async {
-    final baseQuery = _leaderboard.orderBy('xp', descending: true);
+    final baseQuery = _orderedLeaderboard;
     var query = baseQuery.limit(50);
     var rank = 0;
     while (true) {

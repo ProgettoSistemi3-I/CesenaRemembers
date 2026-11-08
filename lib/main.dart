@@ -17,6 +17,7 @@ import 'injection_container.dart' as di;
 import 'presentation/theme/app_palette.dart';
 import 'presentation/theme/theme_controller.dart';
 import 'presentation/pages/splash_screen.dart';
+import 'presentation/widgets/render_error_screen.dart';
 import 'presentation/services/push_notification_service.dart';
 
 const bool _useFirestoreEmulator = bool.fromEnvironment(
@@ -61,7 +62,7 @@ void main() {
       };
 
       if (!kDebugMode) {
-        ErrorWidget.builder = (_) => const SizedBox.shrink();
+        ErrorWidget.builder = (_) => const RenderErrorScreen();
       }
 
       await _bootstrapAndRun();
