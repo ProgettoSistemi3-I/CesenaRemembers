@@ -102,6 +102,14 @@ jobs:
           MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
           CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
         run: |
+          if [ -z "$STADIA_MAPS_API_KEY" ]; then
+            echo "::error::STADIA_MAPS_API_KEY is required for Stadia dark and satellite maps."
+            exit 1
+          fi
+          if [ -z "$CARTO_API_KEY" ]; then
+            echo "::error::CARTO_API_KEY is required for the standard map."
+            exit 1
+          fi
           flutter build apk --release \
             --dart-define=GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID \
             --dart-define=STADIA_MAPS_API_KEY=$STADIA_MAPS_API_KEY \
