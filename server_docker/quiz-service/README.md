@@ -33,15 +33,24 @@ The Firebase project ID is public configuration, not a secret. Set it in
 FIREBASE_PROJECT_ID=cesenaremembers1945
 ```
 
-The same value is currently the code default. No Firebase service-account JSON
-or private key is required for ID-token verification: the Admin SDK is
-initialized with the project ID and validates tokens using Google's public
-signing certificates. The quiz container therefore must have outbound HTTPS
-access to Google's certificate endpoint.
+The same value is currently the code default. The Admin SDK is initialized
+with the project ID and a keyless anonymous credential. For this endpoint,
+`verify_id_token(check_revoked=False)` validates the token signature and
+claims using Google's public signing certificates; it does not invoke
+privileged Firebase Admin operations. The quiz container therefore needs
+outbound HTTPS access to Google's certificate endpoint, but it does not need
+a service-account JSON or private key.
 
 Do not mount the notifier's service-account key into the quiz container. The
-notifier uses that credential for separate administrative operations; quiz
-authentication does not need it.
+notifier uses that credential for separate administrative operations.
+
+The verifier intentionally does not perform a token-revocation/account-disabled
+lookup (`check_revoked=False`), which would require an authenticated Admin
+credential and an additional request to Firebase Auth. Invalid signatures,
+wrong-project tokens and expired tokens are still rejected. Firebase ID tokens
+are short-lived and the Flutter SDK refreshes them automatically. Reconsider
+revocation checks if the quiz endpoint later protects sensitive user data or
+performs privileged actions.
 
 ## Tests
 
