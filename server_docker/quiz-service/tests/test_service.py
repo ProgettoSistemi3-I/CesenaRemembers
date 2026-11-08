@@ -1,10 +1,6 @@
-"""Test d'integrazione del servizio con il provider finto.
+"""Test d'integrazione del servizio con provider LLM e token Firebase finti.
 
-Avvia il provider finto in un thread (porta 9100) e chiama l'endpoint
-reale /api/generate-quiz con TestClient. Verifica il contratto HTTP atteso
-da Flutter e i codici di errore che attivano il fallback dell'app.
-
-Esecuzione: python -m pytest -q tests/test_service.py
+Esecuzione: python -m pytest -q tests/
 """
 
 from __future__ import annotations
@@ -24,6 +20,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests"))
 
 FAKE_PORT = 9100
+VALID_TOKEN = "valid-test-id-token"
+DEFAULT_HEADERS = {"Authorization": f"Bearer {VALID_TOKEN}"}
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -50,6 +48,7 @@ def make_client(model: str, **env):
         "LLM_API_KEY": "test-key",
         "LLM_MODEL": model,
         "LLM_RESPONSE_FORMAT": "json_schema_strict",
+        "FIREBASE_PROJECT_ID": "cesenaremembers1945",
         "LLM_TIMEOUT_S": env.pop("LLM_TIMEOUT_S", "3"),
         "REQUEST_DEADLINE_S": env.pop("REQUEST_DEADLINE_S", "5"),
         **env,
@@ -57,7 +56,18 @@ def make_client(model: str, **env):
     import main
 
     importlib.reload(main)
-    return TestClient(main.app)
+
+    # Sostituisce soltanto la verifica crittografica nei test HTTP.
+    # In produzione viene usato auth.verify_id_token dell'SDK Firebase Admin.
+    def fake_verify_id_token(token, app=None, check_revoked=False):
+        if token == VALID_TOKEN:
+            return {"uid": "test-user"}
+        if token == "expired-test-id-token":
+            raise main.firebase_auth.ExpiredIdTokenError("expired test token", None)
+        raise main.firebase_auth.InvalidIdTokenError("invalid test token")
+
+    main.firebase_auth.verify_id_token = fake_verify_id_token
+    return TestClient(main.app, headers=DEFAULT_HEADERS)
 
 
 BODY = {
@@ -69,16 +79,48 @@ BODY = {
 }
 
 
+def test_quiz_requires_a_valid_bearer_token():
+    with make_client("fake-good") as c:
+        missing = c.post(
+            "/api/generate-quiz",
+            json=BODY,
+            headers={"Authorization": ""},
+        )
+        assert missing.status_code == 401
+        assert missing.json()["detail"]["error"] == "missing_auth_token"
+
+        wrong_scheme = c.post(
+            "/api/generate-quiz",
+            json=BODY,
+            headers={"Authorization": "Basic not-a-token"},
+        )
+        assert wrong_scheme.status_code == 401
+
+
+@pytest.mark.parametrize("token", ["invalid-test-id-token", "expired-test-id-token"])
+def test_invalid_or_expired_firebase_token_is_rejected(token):
+    with make_client("fake-good") as c:
+        response = c.post(
+            "/api/generate-quiz",
+            json=BODY,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code == 401
+        assert response.json()["detail"]["error"] == "invalid_auth_token"
+
+
 def test_valid_request_returns_three_questions_flutter_compatible():
     with make_client("fake-good") as c:
         for xp in (0, 300, 500, 800):
             for lang in ("it", "en"):
-                r = c.post("/api/generate-quiz", json={**BODY, "userXp": xp, "languageCode": lang})
+                r = c.post(
+                    "/api/generate-quiz",
+                    json={**BODY, "userXp": xp, "languageCode": lang},
+                )
                 assert r.status_code == 200, r.text
                 data = r.json()
                 assert len(data["questions"]) == 3
                 for q in data["questions"]:
-                    # campi letti da QuizQuestion.fromJson (Dart)
                     assert isinstance(q["question"], str) and q["question"]
                     assert isinstance(q["options"], list) and len(q["options"]) == 4
                     assert isinstance(q["correctIndex"], int) and 0 <= q["correctIndex"] < 4
@@ -98,8 +140,6 @@ def test_all_ten_pois_accepted():
 
 def test_unknown_poi_and_path_traversal_rejected():
     with make_client("fake-good") as c:
-        # Un ID sintatticamente valido ma non in whitelist è 404; valori che
-        # non superano la regex Pydantic sono respinti prima come 422.
         assert c.post("/api/generate-quiz", json={**BODY, "id": "unknown"}).status_code == 404
         for poi in ("../main", "rocca/../../etc/passwd", ""):
             r = c.post("/api/generate-quiz", json={**BODY, "id": poi})
@@ -155,7 +195,7 @@ def test_slow_provider_times_out_within_client_budget():
         r = c.post("/api/generate-quiz", json=BODY)
         elapsed = time.perf_counter() - t
         assert r.status_code == 504
-        assert elapsed < 6  # ben sotto i 12 s del client Flutter
+        assert elapsed < 6
 
 
 def test_missing_key_is_not_200():
