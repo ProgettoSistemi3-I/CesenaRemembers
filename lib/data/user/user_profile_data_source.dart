@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../core/legal/legal_document_versions.dart';
+
 import '../../domain/entities/userprofile.dart';
 import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
@@ -101,6 +103,40 @@ class UserProfileDataSource {
         return UserModel.fromJson(snapshot.data()!, snapshot.id);
       }
       return null;
+    });
+  }
+
+  /// Records the user's affirmative sign-in declarations in their private
+  /// Firestore profile. Timestamps are server-generated and document versions
+  /// are stored so the record identifies exactly what was acknowledged.
+  Future<void> recordLegalAcceptance({
+    required String uid,
+    required String email,
+  }) async {
+    final userRef = _users.doc(uid);
+    await _firestore.runTransaction((transaction) async {
+      final existingUser = await transaction.get(userRef);
+      final acceptance = <String, dynamic>{
+        'termsAcceptedAt': FieldValue.serverTimestamp(),
+        'termsVersionAccepted': LegalDocumentVersions.termsAccepted,
+        'privacyNoticeAcknowledgedAt': FieldValue.serverTimestamp(),
+        'privacyNoticeVersionAcknowledged':
+            LegalDocumentVersions.privacyNoticeAcknowledged,
+        'ageConfirmedAt': FieldValue.serverTimestamp(),
+        'agePolicyVersionConfirmed':
+            LegalDocumentVersions.minimumAgePolicyConfirmed,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (existingUser.exists) {
+        transaction.update(userRef, acceptance);
+      } else {
+        transaction.set(userRef, {
+          'email': email,
+          'createdAt': FieldValue.serverTimestamp(),
+          ...acceptance,
+        });
+      }
     });
   }
 
@@ -255,6 +291,15 @@ class UserProfileDataSource {
       'profileCompleted': true,
       'onboardingCompleted': existingData['onboardingCompleted'] == true,
       'profileCompletedAt': FieldValue.serverTimestamp(),
+      'termsAcceptedAt': existingData['termsAcceptedAt'],
+      'termsVersionAccepted': existingData['termsVersionAccepted'],
+      'privacyNoticeAcknowledgedAt':
+          existingData['privacyNoticeAcknowledgedAt'],
+      'privacyNoticeVersionAcknowledged':
+          existingData['privacyNoticeVersionAcknowledged'],
+      'ageConfirmedAt': existingData['ageConfirmedAt'],
+      'agePolicyVersionConfirmed':
+          existingData['agePolicyVersionConfirmed'],
       'xp': (existingData['xp'] as num?)?.toInt() ?? 0,
       'visitedPoiIds': List<String>.from(existingData['visitedPoiIds'] ?? []),
       'unlockedAchievements': List<String>.from(
