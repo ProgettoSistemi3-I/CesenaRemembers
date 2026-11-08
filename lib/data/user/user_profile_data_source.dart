@@ -139,6 +139,24 @@ class UserProfileDataSource {
     });
   }
 
+  /// Checks that a signed-in account has acknowledged the current legal
+  /// document versions. Legacy sessions without evidence must sign in again
+  /// through the explicit checkbox flow before they can use the app.
+  Future<bool> hasCurrentLegalAcceptance(String uid) async {
+    final snapshot = await _users.doc(uid).get();
+    final data = snapshot.data();
+    if (data == null) return false;
+
+    return data['termsAcceptedAt'] is Timestamp &&
+        data['termsVersionAccepted'] == LegalDocumentVersions.termsAccepted &&
+        data['privacyNoticeAcknowledgedAt'] is Timestamp &&
+        data['privacyNoticeVersionAcknowledged'] ==
+            LegalDocumentVersions.privacyNoticeAcknowledged &&
+        data['ageConfirmedAt'] is Timestamp &&
+        data['agePolicyVersionConfirmed'] ==
+            LegalDocumentVersions.minimumAgePolicyConfirmed;
+  }
+
   Future<void> ensureUserDocument({
     required String uid,
     required String email,
