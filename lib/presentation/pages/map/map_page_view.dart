@@ -13,7 +13,9 @@ extension _MapPageView on _MapPageState {
     const tourCardBottom = 82.0 + 12.0 * 2;
     final mapTypeBottom = data.isTourActive ? tourCardBottom : 20.0;
     final attributionVerticalOffset =
-        mapTypeBottom + mapTypeButtonHeight + mapControlsGap -
+        mapTypeBottom +
+        mapTypeButtonHeight +
+        mapControlsGap -
         attributionBottomInset;
 
     if (_isLoading || _isCheckingLocation) {
@@ -45,8 +47,9 @@ extension _MapPageView on _MapPageState {
             isMapMenuOpen: _isMapMenuOpen,
             onCloseMapMenu: () => _updateMapState(() => _isMapMenuOpen = false),
             alignPositionOnUpdate: _alignPositionOnUpdate,
-            onDisableFollowUser: () =>
-                _updateMapState(() => _alignPositionOnUpdate = AlignOnUpdate.never),
+            onDisableFollowUser: () => _updateMapState(
+              () => _alignPositionOnUpdate = AlignOnUpdate.never,
+            ),
             canUseLocation: data.canUseLocation,
             currentMapUrl: currentMapUrl,
             attributionVerticalOffset: attributionVerticalOffset,
@@ -104,7 +107,9 @@ extension _MapPageView on _MapPageState {
                       vertical: 7,
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.mapLicenseDirectionsAttribution,
+                      AppLocalizations.of(
+                        context,
+                      )!.mapLicenseDirectionsAttribution,
                       style: data.theme.textTheme.labelSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: data.theme.colorScheme.onSurface,
@@ -120,7 +125,8 @@ extension _MapPageView on _MapPageState {
             child: MapTypeButton(
               isOpen: _isMapMenuOpen,
               selectedMapStyle: _selectedMapStyle,
-              onToggle: () => _updateMapState(() => _isMapMenuOpen = !_isMapMenuOpen),
+              onToggle: () =>
+                  _updateMapState(() => _isMapMenuOpen = !_isMapMenuOpen),
               onSelectStandard: () => _updateMapState(() {
                 _selectedMapStyle = MapStyle.standard;
                 _isMapMenuOpen = false;
@@ -357,16 +363,13 @@ class _MapCanvasState extends State<_MapCanvas> {
         ),
         TextSourceAttribution(
           'Improve this map',
-          onTap: () {
+          onTap: () async {
             final camera = widget.mapController.camera;
             final feedbackUrl = Uri.parse(
               'https://apps.mapbox.com/feedback/#/'
               '${camera.center.longitude}/${camera.center.latitude}/${camera.zoom}',
             );
-            return launchUrl(
-              feedbackUrl,
-              mode: LaunchMode.externalApplication,
-            );
+            await launchUrl(feedbackUrl, mode: LaunchMode.externalApplication);
           },
         ),
         TextSourceAttribution(
@@ -382,7 +385,8 @@ class _MapCanvasState extends State<_MapCanvas> {
       return [
         TextSourceAttribution(
           '© Stadia Maps',
-          onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/attribution/')),
+          onTap: () =>
+              launchUrl(Uri.parse('https://stadiamaps.com/attribution/')),
         ),
         TextSourceAttribution(
           '© OpenMapTiles',
@@ -390,13 +394,21 @@ class _MapCanvasState extends State<_MapCanvas> {
         ),
         TextSourceAttribution(
           '© OpenStreetMap contributors',
-          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
+          onTap: () =>
+              launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
         ),
       ];
     }
     return [
-      TextSourceAttribution('© OpenStreetMap contributors', onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'))),
-      TextSourceAttribution('© CARTO', onTap: () => launchUrl(Uri.parse('https://carto.com/attributions/'))),
+      TextSourceAttribution(
+        '© OpenStreetMap contributors',
+        onTap: () =>
+            launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
+      ),
+      TextSourceAttribution(
+        '© CARTO',
+        onTap: () => launchUrl(Uri.parse('https://carto.com/attributions/')),
+      ),
     ];
   }
 
@@ -405,98 +417,103 @@ class _MapCanvasState extends State<_MapCanvas> {
     return Stack(
       children: [
         FlutterMap(
-      mapController: widget.mapController,
-      options: MapOptions(
-        initialCenter: _defaultCesenaCenter,
-        initialZoom: 14.0,
-        minZoom: 10.0,
-        maxZoom: 18.5,
-        cameraConstraint: CameraConstraint.contain(bounds: widget.cesenaBounds),
-        backgroundColor: widget.scaffoldBackgroundColor,
-        interactionOptions: InteractionOptions(
-          flags: widget.isMapLocked
-              ? InteractiveFlag.none
-              : InteractiveFlag.all,
-        ),
-        onTap: (_, _) => widget.onMapTap(),
-        onMapEvent: (event) {
-          if (event is MapEventMove || event is MapEventRotate) {
-            final rotation = widget.mapController.camera.rotation;
-            if ((rotation - widget.currentRotation).abs() > 0.1) {
-              widget.onRotationChanged(rotation);
-            }
-          }
-          if (event is MapEventMoveStart && widget.isMapMenuOpen) {
-            widget.onCloseMapMenu();
-          }
-        },
-        onPositionChanged: (_, hasGesture) {
-          if (hasGesture &&
-              widget.alignPositionOnUpdate != AlignOnUpdate.never) {
-            widget.onDisableFollowUser();
-          }
-        },
-      ),
-      children: [
-        TileLayer(
-          key: ValueKey(widget.currentMapUrl),
-          urlTemplate: widget.currentMapUrl,
-          subdomains: const ['a', 'b', 'c', 'd'],
-          userAgentPackageName: 'it.cesenaremembers.app',
-          maxZoom: 19,
-          tileBounds: widget.cesenaBounds,
-          tileProvider: widget.cachedTileProvider,
-        ),
-        if (widget.routeLinePoints.length >= 2)
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: widget.routeLinePoints,
-                color: AppPalette.olive,
-                strokeWidth: 5,
-                borderColor: Colors.white.withValues(alpha: 0.85),
-                borderStrokeWidth: 2,
-              ),
-            ],
-          ),
-        if (widget.canUseLocation)
-          CurrentLocationLayer(
-            alignPositionOnUpdate: widget.alignPositionOnUpdate,
-            style: LocationMarkerStyle(
-              marker: const DefaultLocationMarker(
-                color: Colors.blue,
-                child: Icon(Icons.navigation, color: Colors.white, size: 14),
-              ),
-              accuracyCircleColor: Colors.blue.withValues(alpha: 0.1),
-              headingSectorColor: Colors.blue.withValues(alpha: 0.2),
+          mapController: widget.mapController,
+          options: MapOptions(
+            initialCenter: _defaultCesenaCenter,
+            initialZoom: 14.0,
+            minZoom: 10.0,
+            maxZoom: 18.5,
+            cameraConstraint: CameraConstraint.contain(
+              bounds: widget.cesenaBounds,
             ),
-            positionStream: _positionStream,
+            backgroundColor: widget.scaffoldBackgroundColor,
+            interactionOptions: InteractionOptions(
+              flags: widget.isMapLocked
+                  ? InteractiveFlag.none
+                  : InteractiveFlag.all,
+            ),
+            onTap: (_, _) => widget.onMapTap(),
+            onMapEvent: (event) {
+              if (event is MapEventMove || event is MapEventRotate) {
+                final rotation = widget.mapController.camera.rotation;
+                if ((rotation - widget.currentRotation).abs() > 0.1) {
+                  widget.onRotationChanged(rotation);
+                }
+              }
+              if (event is MapEventMoveStart && widget.isMapMenuOpen) {
+                widget.onCloseMapMenu();
+              }
+            },
+            onPositionChanged: (_, hasGesture) {
+              if (hasGesture &&
+                  widget.alignPositionOnUpdate != AlignOnUpdate.never) {
+                widget.onDisableFollowUser();
+              }
+            },
           ),
-        MarkerLayer(markers: widget.markers),
-        if (!widget.isMapMenuOpen)
-          Transform.translate(
-            offset: Offset(
-              0,
-              -(
-                widget.attributionVerticalOffset +
-                MediaQuery.of(context).padding.bottom
+          children: [
+            TileLayer(
+              key: ValueKey(widget.currentMapUrl),
+              urlTemplate: widget.currentMapUrl,
+              subdomains: const ['a', 'b', 'c', 'd'],
+              userAgentPackageName: 'it.cesenaremembers.app',
+              maxZoom: 19,
+              tileBounds: widget.cesenaBounds,
+              tileProvider: widget.cachedTileProvider,
+            ),
+            if (widget.routeLinePoints.length >= 2)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: widget.routeLinePoints,
+                    color: AppPalette.olive,
+                    strokeWidth: 5,
+                    borderColor: Colors.white.withValues(alpha: 0.85),
+                    borderStrokeWidth: 2,
+                  ),
+                ],
               ),
-            ),
-            child: RichAttributionWidget(
-              alignment: widget.selectedMapStyle == MapStyle.satellite
-                  ? AttributionAlignment.bottomRight
-                  : AttributionAlignment.bottomLeft,
-              showFlutterMapAttribution: false,
-              attributions: _mapAttributions(),
-            ),
-          ),
+            if (widget.canUseLocation)
+              CurrentLocationLayer(
+                alignPositionOnUpdate: widget.alignPositionOnUpdate,
+                style: LocationMarkerStyle(
+                  marker: const DefaultLocationMarker(
+                    color: Colors.blue,
+                    child: Icon(
+                      Icons.navigation,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ),
+                  accuracyCircleColor: Colors.blue.withValues(alpha: 0.1),
+                  headingSectorColor: Colors.blue.withValues(alpha: 0.2),
+                ),
+                positionStream: _positionStream,
+              ),
+            MarkerLayer(markers: widget.markers),
+            if (!widget.isMapMenuOpen)
+              Transform.translate(
+                offset: Offset(
+                  0,
+                  -(widget.attributionVerticalOffset +
+                      MediaQuery.of(context).padding.bottom),
+                ),
+                child: RichAttributionWidget(
+                  alignment: widget.selectedMapStyle == MapStyle.satellite
+                      ? AttributionAlignment.bottomRight
+                      : AttributionAlignment.bottomLeft,
+                  showFlutterMapAttribution: false,
+                  attributions: _mapAttributions(),
+                ),
+              ),
           ],
         ),
         if (widget.selectedMapStyle == MapStyle.satellite &&
             !widget.isMapMenuOpen)
           Positioned(
             left: 8,
-            bottom: widget.attributionVerticalOffset +
+            bottom:
+                widget.attributionVerticalOffset +
                 MediaQuery.of(context).padding.bottom,
             child: Material(
               color: Colors.white,
@@ -515,16 +532,15 @@ class _MapCanvasState extends State<_MapCanvas> {
                     fit: BoxFit.contain,
                     filterQuality: FilterQuality.medium,
                     semanticLabel: 'Mapbox',
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Center(
-                          child: Text(
-                            'Mapbox',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                      child: Text(
+                        'Mapbox',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
                         ),
+                      ),
+                    ),
                   ),
                 ),
               ),
