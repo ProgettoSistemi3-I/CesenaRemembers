@@ -2878,6 +2878,15 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)'**
   String get mapLicenseSatelliteSubtitle;
+
+  /// No description provided for @mapLicenseDirectionsTitle.
+  String get mapLicenseDirectionsTitle;
+
+  /// No description provided for @mapLicenseDirectionsSubtitle.
+  String get mapLicenseDirectionsSubtitle;
+
+  /// No description provided for @mapLicenseDirectionsAttribution.
+  String get mapLicenseDirectionsAttribution;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
