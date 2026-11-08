@@ -81,6 +81,7 @@
     <h3>3.1 Account e autenticazione</h3>
     <ul>
       <li>UID Firebase, indirizzo email e informazioni associate all'autenticazione Google/Firebase;</li>
+      <li>timestamp generati dal server e identificativi di versione relativi all'accettazione dei Termini, alla presa visione dell'informativa privacy e all'autodichiarazione della soglia minima di età;</li>
       <li>nome visualizzato, username e avatar grafico scelto tra quelli disponibili nell'app;</li>
       <li>informazioni tecniche e di sicurezza dell'accesso, come indirizzo IP e dati del client, trattati dai servizi di autenticazione.</li>
     </ul>
@@ -117,7 +118,7 @@
     <table>
       <thead><tr><th>Finalità</th><th>Dati principali</th><th>Base giuridica</th></tr></thead>
       <tbody>
-        <tr><td>Creazione e gestione account, autenticazione e funzioni richieste</td><td>UID, email, profilo, credenziali/attributi di autenticazione</td><td>Art. 6(1)(b) GDPR, per i trattamenti necessari a fornire le funzioni di account espressamente richieste dall'utente.</td></tr>
+        <tr><td>Creazione e gestione account, autenticazione e documentazione delle dichiarazioni di accesso</td><td>UID, email, profilo, credenziali/attributi di autenticazione, timestamp e versioni dei Termini, dell'informativa privacy e della dichiarazione di età</td><td>Art. 6(1)(b) GDPR per le funzioni di account richieste e art. 6(1)(f) GDPR, ove applicabile, per documentare l'accettazione delle condizioni e tutelare i diritti dei contitolari e degli utenti.</td></tr>
         <tr><td>Profili, progressi, XP, tour, quiz, classifica e amicizie</td><td>Username, avatar, XP, statistiche e relazioni social</td><td>Art. 6(1)(b) per le funzioni di gioco richieste e art. 6(1)(f) per la visualizzazione dei profili, le funzioni social e la classifica, nei limiti del legittimo interesse alla gestione del servizio.</td></tr>
         <tr><td>Posizione e percorsi</td><td>Coordinate GPS e dati tecnici di richiesta</td><td>Consenso ex art. 6(1)(a), raccolto con una scelta esplicita nell'app e registrato con timestamp; il permesso Android/iOS è un requisito tecnico aggiuntivo e non sostituisce la scelta in-app.</td></tr>
         <tr><td>Notifiche push facoltative</td><td>Token FCM, preferenze e dati di consegna</td><td>Consenso ex art. 6(1)(a) se le notifiche sono opzionali; l'utente può disattivarle nell'app o nelle impostazioni del dispositivo.</td></tr>
@@ -204,6 +205,7 @@
     <table>
       <thead><tr><th>Categoria</th><th>Periodo o criterio</th></tr></thead>
       <tbody>
+        <tr><td>Registrazioni di accettazione dei Termini, presa visione privacy e autodichiarazione dell'età</td><td>Timestamp e versioni sono conservati nel profilo privato per la durata dell'account e vengono eliminati con il documento users durante la cancellazione in-app.</td></tr>
         <tr><td>Account, profilo, username, XP, progressi, statistiche e relazioni social in Firestore</td><td>Per la durata dell'account. Quando la cancellazione in-app termina con successo, il codice elimina i documenti operativi in users, public_profiles, friend_stats, leaderboard, usernames e le relazioni/richieste collegate. Le eventuali copie di backup gestite da Google seguono i cicli di conservazione e cancellazione previsti dal servizio e dalle impostazioni applicabili; la cancellazione dall'app riguarda i dati operativi attivi.</td></tr>
         <tr><td>Account e dati di autenticazione Firebase</td><td>Fino alla richiesta di eliminazione dell'utente da parte del cliente Firebase; i successivi tempi di rimozione dai sistemi attivi e dai backup seguono le condizioni e i periodi dichiarati da Google.</td></tr>
         <tr><td>Token FCM conservati nel profilo</td><td>Fino a disattivazione delle notifiche, sostituzione del token o cancellazione dell'account. Il codice rimuove il token dal profilo quando le notifiche vengono disattivate, quando il token viene sostituito o durante la cancellazione account. Il token locale viene inoltre eliminato dal servizio FCM quando l'utente disattiva le notifiche nell'app.</td></tr>
@@ -231,7 +233,7 @@
   <section id="minori">
     <h2>13. Minori</h2>
     <p>Cesena Remembers è riservata a persone che abbiano compiuto 14 anni. In fase di accesso o registrazione, prima di avviare Google Sign-In, l'app richiede di selezionare una casella obbligatoria con cui l'utente dichiara di avere almeno 14 anni. Se la dichiarazione non viene selezionata, non è possibile proseguire con l'autenticazione. Le persone che non hanno ancora compiuto 14 anni non possono creare un account né utilizzare il servizio.</p>
-    <p>La dichiarazione sull'età è un'autodichiarazione resa nell'interfaccia: non viene richiesta né raccolta la data di nascita e la casella non costituisce una verifica documentale dell'età. La selezione della casella è attualmente un controllo dell'interfaccia e non viene conservata come registrazione separata con data e ora nel profilo utente.</p>
+    <p>La dichiarazione sull'età è un'autodichiarazione resa nell'interfaccia: non viene richiesta né raccolta la data di nascita e la casella non costituisce una verifica documentale dell'età. Il profilo privato conserva il timestamp generato dal server e la versione della regola di età confermata. Sono inoltre conservati il timestamp e la versione dei Termini accettati e dell'informativa privacy presa in visione. Queste registrazioni documentano le conferme espresse nell'app, ma non verificano l'età reale né l'identità con documenti.</p>
     <p>In Italia, l'art. 2-quinquies del D.Lgs. 196/2003 prevede che il minore che ha compiuto 14 anni possa esprimere autonomamente il consenso al trattamento nell'ambito dell'offerta diretta di servizi della società dell'informazione quando la base giuridica è il consenso. Il progetto ha scelto una soglia di accesso di 14 anni e non offre la registrazione agli utenti che non l'abbiano ancora compiuta. Questa soglia non attribuisce automaticamente al minore capacità di concludere ogni contratto: la capacità contrattuale e l'eventuale rappresentanza vanno valutate separatamente.</p>
     <p>La scuola non è automaticamente titolare del trattamento dell'app per il solo fatto di utilizzarla in classe; se determina autonomamente finalità e mezzi di trattamenti didattici, deve disciplinarli con una propria informativa e gli atti necessari.</p>
   </section>
