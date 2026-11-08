@@ -86,9 +86,7 @@ extension _MapPageView on _MapPageState {
             ),
           if (_routeUsesMapboxDirections && _routeLinePoints.length >= 2)
             Positioned(
-              top: data.isLocationBannerVisible
-                  ? 112
-                  : (_currentRotation != 0 ? 72 : 16),
+              top: data.isLocationBannerVisible ? 112 : 16,
               right: 16,
               child: Material(
                 color: data.theme.colorScheme.surface.withValues(alpha: 0.96),
@@ -114,20 +112,6 @@ extension _MapPageView on _MapPageState {
                     ),
                   ),
                 ),
-              ),
-            ),
-          if (_currentRotation != 0 && !data.isLocationBannerVisible)
-            Positioned(
-              top: 16,
-              right: 20,
-              child: CircleFab(
-                heroTag: 'rot',
-                icon: Icons.navigation,
-                iconColor: AppPalette.danger,
-                onTap: () {
-                  _mapController.rotate(0);
-                  _updateMapState(() => _currentRotation = 0);
-                },
               ),
             ),
           Positioned(
