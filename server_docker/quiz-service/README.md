@@ -26,31 +26,50 @@ to the existing per-IP limit.
 
 ## Server configuration
 
-The Firebase project ID is public configuration, not a secret. Set it in
+The Firebase project ID is public configuration. Set it in
 `server_docker/quiz-service/.env`:
 
 ```dotenv
 FIREBASE_PROJECT_ID=cesenaremembers1945
 ```
 
-The same value is currently the code default. The Admin SDK is initialized
-with the project ID and a keyless anonymous credential. For this endpoint,
-`verify_id_token(check_revoked=False)` validates the token signature and
-claims using Google's public signing certificates; it does not invoke
-privileged Firebase Admin operations. The quiz container therefore needs
-outbound HTTPS access to Google's certificate endpoint, but it does not need
-a service-account JSON or private key.
+### Read-only Firebase Auth credential
 
-Do not mount the notifier's service-account key into the quiz container. The
-notifier uses that credential for separate administrative operations.
+The API verifies the token signature and project claims, and also checks that
+the account is enabled and the token has not been revoked. The latter check
+requires the Admin SDK to read the Firebase Authentication user record.
 
-The verifier intentionally does not perform a token-revocation/account-disabled
-lookup (`check_revoked=False`), which would require an authenticated Admin
-credential and an additional request to Firebase Auth. Invalid signatures,
-wrong-project tokens and expired tokens are still rejected. Firebase ID tokens
-are short-lived and the Flutter SDK refreshes them automatically. Reconsider
-revocation checks if the quiz endpoint later protects sensitive user data or
-performs privileged actions.
+Create a **dedicated service account** for the quiz container and grant it only
+the project-level IAM role **Firebase Authentication Viewer**
+(`roles/firebaseauth.viewer`). This role supplies the read-only
+`firebaseauth.users.get` permission required by the revocation check. Do not
+grant Firebase Admin/Owner, Firestore access, or reuse the notifier service
+account.
+
+Create a JSON key for this service account and place it on the server at:
+
+```text
+server_docker/quiz-service/firebase-auth-reader.json
+```
+
+The file is ignored by Git and excluded from the Docker build context. Compose
+bind-mounts it read-only at `/run/secrets/firebase-auth-reader.json` and sets
+`GOOGLE_APPLICATION_CREDENTIALS`; it is not copied into the image. Keep the
+key outside backups/logs accessible to ordinary users and rotate it if exposed.
+
+After installing the key, rebuild and restart the service from
+`server_docker`:
+
+```bash
+docker compose up -d --build quiz-server
+docker compose logs --tail=100 quiz-server
+```
+
+If the credential is missing, invalid, or lacks `firebaseauth.users.get`,
+the service fails closed rather than silently reverting to signature-only
+verification. The additional Auth lookup adds a network request to Firebase
+for each token verification; allow outbound HTTPS access to Firebase Auth.
+The notifier continues to use its own separate service account.
 
 ## Tests
 
