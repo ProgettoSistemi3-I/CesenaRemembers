@@ -222,18 +222,7 @@ class CreditsPage extends StatelessWidget {
                 subtitle: AppLocalizations.of(context)!.mapLicenseDirectionsSubtitle,
                 accent: AppPalette.moss,
                 onTap: () => launchUrl(
-                  Uri.parse('https://docs.mapbox.com/api/navigation/directions/'),
-                  mode: LaunchMode.externalApplication,
-                ),
-              ),
-              const _ThinDivider(),
-              _CreditRow(
-                icon: Icons.alt_route,
-                title: AppLocalizations.of(context)!.mapLicenseDirectionsTitle,
-                subtitle: AppLocalizations.of(context)!.mapLicenseDirectionsSubtitle,
-                accent: AppPalette.moss,
-                onTap: () => launchUrl(
-                  Uri.parse('https://docs.mapbox.com/api/navigation/directions/'),
+                  Uri.parse('https://docs.mapbox.com/help/dive-deeper/attribution/'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),
