@@ -28,15 +28,16 @@
   <p>External suppliers may act as processors, sub-processors or independent controllers depending on the specific service and the contracts actually applicable. Their role is not determined by the provider's brand alone.</p>
 
   <h2>2. Service scope and categories of data</h2>
-  <p>Cesena Remembers is an educational mobile application and website about the history of Cesena. It provides an interactive map, guided tours, location-based features, quizzes, XP, achievements, a global leaderboard, public profiles, friend requests and push notifications. The current app does not integrate Firebase Analytics/Google Analytics or advertising SDKs.</p>
+  <p>Cesena Remembers is an educational mobile application and website about the history of Cesena. It provides an interactive map, guided tours, location-based features, quizzes, XP, achievements, a global leaderboard, public profiles, friend requests, user blocking and profile reporting, and push notifications. The current app does not integrate Firebase Analytics/Google Analytics or advertising SDKs.</p>
   <ul>
     <li><strong>Account and authentication:</strong> Firebase UID, email address and information associated with Google Sign-In and Firebase Authentication.</li>
     <li><strong>Profile and game progress:</strong> display name, username, avatar, XP, completed tours, visited points of interest, quiz results, achievements and statistics.</li>
-    <li><strong>Social features:</strong> friend requests, accepted friendships and the identifiers needed to maintain those relationships.</li>
+    <li><strong>Social features:</strong> friend requests, accepted friendships, block lists and the identifiers needed to maintain those relationships.</li>
+    <li><strong>User reports:</strong> reporter and reported-account UIDs, the reported display-name or username field, a snapshot of the profile values at report time, the selected reason, optional details, creation time and review status. Reports are stored in the private Firestore collection <code>user_reports</code> and are not readable by app clients.</li>
     <li><strong>Location and device:</strong> GPS coordinates while the relevant operating-system permission and in-app preference are enabled; app version, device information, IP address and technical request logs.</li>
     <li><strong>Notifications:</strong> FCM registration token, notification preference, consent timestamp and language preference, if the user opts in.</li>
     <li><strong>Diagnostics:</strong> optional Crashlytics reports, only after an explicit in-app choice. They may contain stack traces, exception type, app/device technical information, Crashlytics Installation UUID and Firebase Installation ID.</li>
-    <li><strong>Moderation:</strong> for a banned account, UID, reason and ban date in the separate <code>banned_users</code> record.</li>
+    <li><strong>Moderation:</strong> block entries are stored in <code>user_blocks</code> and contain the blocking and blocked account UIDs and creation time. For a banned account, UID, reason and ban date are stored separately in <code>banned_users</code>.</li>
   </ul>
   <p>The app is not designed to collect special-category data, contacts, photos or chat messages.</p>
 
@@ -107,7 +108,7 @@
   <table>
     <thead><tr><th>Category</th><th>Retention period or criterion</th></tr></thead>
     <tbody>
-      <tr><td>Account, profile, username, XP, progress, statistics and social relationships in Firestore</td><td>For the life of the account. A successful in-app deletion removes operational documents in <code>users</code>, <code>public_profiles</code>, <code>friend_stats</code>, <code>leaderboard</code> and <code>usernames</code>, along with linked friendships and requests. Google-managed backup copies follow the applicable service deletion cycles; in-app deletion concerns active operational data.</td></tr>
+      <tr><td>Account, profile, username, XP, progress, statistics and social relationships in Firestore</td><td>For the life of the account. A successful in-app deletion removes operational documents in <code>users</code>, <code>public_profiles</code>, <code>friend_stats</code>, <code>leaderboard</code> and <code>usernames</code>, along with linked friendships, requests and the deleting account's own outgoing block list. Block entries held by other users may remain in their safety lists. Google-managed backup copies follow the applicable service deletion cycles; in-app deletion concerns active operational data.</td></tr>
       <tr><td>Firebase Authentication account</td><td>Until the customer requests user deletion. Subsequent removal from active systems and backups follows Google's applicable service terms and schedules.</td></tr>
       <tr><td>FCM tokens in the user profile</td><td>Until consent is withdrawn, the token is replaced or the account is deleted. The app removes the token from the profile when notifications are disabled and deletes the local FCM token when the user opts out.</td></tr>
       <tr><td>Crashlytics</td><td>When consent is active, Google states 90 days for stack traces and associated diagnostic identifiers before removal from active systems and backups. On withdrawal, the app disables collection and deletes unsent local reports.</td></tr>
@@ -117,6 +118,7 @@
       <tr><td>Mapbox Directions, Stadia Maps and CARTO</td><td>According to each provider's terms and privacy documents. Stadia Maps states approximately 7–14 days for API request/access logs. The other periods depend on the relevant service and contract; there is no single shared retention period for all map providers.</td></tr>
       <tr><td>Cloudflare Pages/CDN and Google Fonts</td><td>Service-delivery logs and metadata follow the relevant provider's terms and the plan used.</td></tr>
       <tr><td>Support emails</td><td>12 months after the request is closed, unless a dispute, legal obligation or documented need to protect legal claims requires longer retention.</td></tr>
+      <tr><td>User reports and block records</td><td>User reports are retained for up to 24 months from receipt and then deleted, unless a legal obligation or a documented need to protect legal claims requires longer retention. A block entry remains in the blocking account's list until it is removed or that account is deleted. A block entry created by another user may remain in that user's safety list after the blocked account is deleted.</td></tr>
       <tr><td>Moderation records in <code>banned_users</code></td><td>The separate record contains UID, reason and ban date and is not removed by ordinary account deletion. It is retained for up to 24 months from the ban date (<code>retentionUntil</code>) and then deleted by a periodic cleanup process, unless a legal proceeding or obligation requires longer retention.</td></tr>
       <tr><td>Local data on the device</td><td>Local preferences remain until app data is cleared or the app is uninstalled. The in-memory quiz cache ends when the app process terminates.</td></tr>
     </tbody>
