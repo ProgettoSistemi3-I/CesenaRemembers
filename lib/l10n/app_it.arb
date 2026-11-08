@@ -337,7 +337,7 @@
   "poi_fantaguzzi_name": "Palazzo Fantaguzzi",
   "poi_fantaguzzi_desc": "Palazzo Fantaguzzi si trova nell’attuale corso Gastone Sozzi, già corso Umberto I, e dal 1922 ospita la Banca Popolare di Cesena. Nei primi mesi della Repubblica Sociale Italiana una parte dell’edificio accolse anche gli uffici del fascio cittadino: le fonti non documentano invece un suo utilizzo come sede fascista per tutto il Ventennio. Per il valore simbolico di quel presidio, il comando del GAP cesenate organizzò un attentato. Il 18 gennaio 1944 quattro partigiani fecero esplodere una bomba nell’ingresso: non ci furono vittime, ma il palazzo riportò gravi danni. Alcune settimane dopo la sede del fascio fu trasferita al Palazzo del Ridotto. È importante distinguere i due luoghi: le fonti collocano al Ridotto, non a Palazzo Fantaguzzi, le successive detenzioni e torture di prigionieri.",
   "poi_rifugi_antiaerei_name": "Rifugi Antiaerei della Rocca",
-  "poi_rifugi_antiaerei_desc": "Il rifugio di viale Mazzoni era una galleria pubblica scavata ex novo nel colle della Rocca nel 1944, su progetto dell’ingegnere capo del Comune Mario Tellerini. Poteva accogliere fino a 800 persone, con 290 posti a sedere. Aveva due ingressi protetti da strutture paraschegge e comprendeva un’infermeria, locali per i pompieri e per il responsabile del ricovero, latrine e impianti di illuminazione, acqua e telefono; quest’ultimo fu asportato dai tedeschi. Il camino di ventilazione terminava nel Parco della Rimembranza e poteva funzionare anche da uscita di sicurezza. Era stato ipotizzato un ampliamento per arrivare a 1.500 posti, ma il progetto non fu realizzato: il primo grande bombardamento su Cesena, il 13 maggio 1944, diede inizio a una lunga stagione di incursioni. La galleria era una struttura distinta dalla fortezza della Rocca.",
+  "poi_rifugi_antiaerei_desc": "Il rifugio di viale Mazzoni era una galleria pubblica scavata ex novo nel colle della Rocca nel 1944, su progetto dell’ingegnere capo del Comune Mario Tellerini. Poteva accogliere fino a 800 persone, con 290 posti a sedere. Aveva due ingressi protetti da strutture paraschegge e comprendeva un’infermeria, locali per i pompieri e per il responsabile del ricovero, latrine e impianti di illuminazione, acqua e telefono; quest’ultimo fu asportato dai tedeschi. Il camino di ventilazione terminava nel Parco della Rimembranza e poteva funzionare anche da uscita di sicurezza. Era stato ipotizzato un ampliamento per arrivare a 1.500 posti, ma il progetto non fu realizzato. Il primo grande bombardamento su Cesena, il 13 maggio 1944, segnò l’inizio di una lunga stagione di incursioni. La galleria era una struttura distinta dalla fortezza della Rocca.",
   "setupUsernameInvalid": "Username non valido (usa {min}-{max} caratteri: a-z, 0-9, _ o .).",
   "@setupUsernameInvalid": {
     "placeholders": {
@@ -534,10 +534,8 @@
   "mapLicenseOsmSubtitle": "© Contributori OpenStreetMap — Licenza ODbL",
   "mapLicenseCartoTitle": "CARTO",
   "mapLicenseCartoSubtitle": "© CARTO — Basato su dati OpenStreetMap",
-  "mapLicenseStadiaTitle": "Stadia Maps / Stamen Design",
-  "mapLicenseStadiaSubtitle": "© Stadia Maps, © Stamen Design — Licenza CC BY 3.0",
-  "mapLicenseEsriTitle": "Esri (Vista Satellite)",
-  "mapLicenseEsriSubtitle": "Tiles © Esri, Maxar, Earthstar Geographics e la comunità GIS",
+  "mapLicenseStadiaTitle": "Stadia Maps — Alidade Smooth Dark",
+  "mapLicenseStadiaSubtitle": "© Stadia Maps © OpenMapTiles © OpenStreetMap contributors",
   "quiz_santa_cristina_q3": "Come descrisse don Leo Bagnoli la cripta-rifugio?",
   "quiz_santa_cristina_q3_o1": "Come un ambiente solido e asciutto",
   "quiz_santa_cristina_q3_o2": "Come un ambiente instabile e umido",
@@ -594,5 +592,7 @@
   "consentDiagnosticsDecline": "Preferisco di no",
   "consentSaveError": "Non siamo riusciti a salvare la scelta. Controlla la connessione e riprova.",
   "settingsDiagnostics": "Report tecnici",
-  "settingsDiagnosticsSubtitle": "Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics."
+  "settingsDiagnosticsSubtitle": "Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics.",
+  "mapLicenseSatelliteTitle": "Stadia Maps — Alidade Satellite",
+  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)"
 }
