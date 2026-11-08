@@ -70,7 +70,7 @@ def make_client(model: str, **env):
         if token == "expired-test-id-token":
             raise main.firebase_auth.ExpiredIdTokenError("expired test token", None)
         if token == "revoked-test-id-token":
-            raise main.firebase_auth.RevokedIdTokenError("revoked test token", None)
+            raise main.firebase_auth.RevokedIdTokenError("revoked test token")
         if token == "disabled-test-id-token":
             raise main.firebase_auth.UserDisabledError("disabled test account")
         raise main.firebase_auth.InvalidIdTokenError("invalid test token")
