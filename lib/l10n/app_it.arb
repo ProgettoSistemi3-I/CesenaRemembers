@@ -594,5 +594,8 @@
   "settingsDiagnostics": "Report tecnici",
   "settingsDiagnosticsSubtitle": "Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics.",
   "mapLicenseSatelliteTitle": "Stadia Maps — Alidade Satellite",
-  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)"
+  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)",
+  "mapLicenseDirectionsTitle": "Mapbox Directions API",
+  "mapLicenseDirectionsSubtitle": "Servizio utilizzato per il calcolo dei percorsi pedonali.",
+  "mapLicenseDirectionsAttribution": "Percorso fornito da Mapbox"
 }
