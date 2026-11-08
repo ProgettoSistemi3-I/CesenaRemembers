@@ -1091,6 +1091,12 @@ abstract class AppLocalizations {
   /// **'I confirm that I am at least 14 years old.'**
   String get loginAgeConfirmation;
 
+  /// No description provided for @loginAcceptanceSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t save your confirmations. Check your connection and try again.'**
+  String get loginAcceptanceSaveError;
+
   /// No description provided for @errorCommunication.
   ///
   /// In en, this message translates to:

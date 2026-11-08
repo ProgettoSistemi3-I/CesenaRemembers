@@ -527,6 +527,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get loginAgeConfirmation => 'Dichiaro di aver compiuto almeno 14 anni.';
 
   @override
+  String get loginAcceptanceSaveError => 'Non siamo riusciti a salvare la registrazione delle conferme. Controlla la connessione e riprova.';
+
+  @override
   String get errorCommunication => 'Errore durante la comunicazione con il server.';
 
   @override
