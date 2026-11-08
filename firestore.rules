@@ -466,13 +466,35 @@ service cloud.firestore {
         );
     }
 
-    function friendAchievementChangeAllowed(oldList, newList) {
+    function friendAchievementChangeAllowed(
+      oldList,
+      newList,
+      unlockedList,
+      friendCountAfter
+    ) {
+      let added = newList.toSet().difference(oldList.toSet());
+
       return newList is list &&
         oldList is list &&
+        unlockedList is list &&
+        friendCountAfter is int &&
         newList.hasAll(oldList) &&
         newList.size() <= oldList.size() + 2 &&
-        newList.toSet().difference(oldList.toSet())
-          .hasOnly(['friend_1', 'friend_5']);
+        added.hasOnly(['friend_1', 'friend_5']) &&
+        (
+          !added.hasAny(['friend_1']) ||
+          (
+            friendCountAfter >= 1 &&
+            !unlockedList.hasAny(['friend_1'])
+          )
+        ) &&
+        (
+          !added.hasAny(['friend_5']) ||
+          (
+            friendCountAfter >= 5 &&
+            !unlockedList.hasAny(['friend_5'])
+          )
+        );
     }
 
     // ---------------------------------------------------------
@@ -932,7 +954,9 @@ service cloud.firestore {
         !peerAfter.get('sentFriendRequests', []).hasAny([uid]) &&
         friendAchievementChangeAllowed(
           resource.data.get('pendingAchievements', []),
-          request.resource.data.get('pendingAchievements', [])
+          request.resource.data.get('pendingAchievements', []),
+          resource.data.get('unlockedAchievements', []),
+          request.resource.data.get('friends', []).size()
         ) &&
         publicMirrorMatches(uid) &&
         friendStatsMirrorMatches(uid);
@@ -965,7 +989,9 @@ service cloud.firestore {
         !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
         friendAchievementChangeAllowed(
           resource.data.get('pendingAchievements', []),
-          request.resource.data.get('pendingAchievements', [])
+          request.resource.data.get('pendingAchievements', []),
+          resource.data.get('unlockedAchievements', []),
+          request.resource.data.get('friends', []).size()
         ) &&
         friendStatsMirrorMatches(uid);
     }
