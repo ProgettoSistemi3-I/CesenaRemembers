@@ -192,6 +192,7 @@ class UserProfileDataSource {
         normalizedUsername: normalizedUsername,
         displayName: displayName,
         avatarId: avatarId,
+        languageCode: languageCode,
         includeCreatedAt: !existingUser.exists,
       );
 
