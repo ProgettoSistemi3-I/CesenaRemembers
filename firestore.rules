@@ -22,7 +22,7 @@ service cloud.firestore {
 
     function validLegalAcceptanceData(d) {
       return d.get('termsAcceptedAt', null) is timestamp &&
-        d.get('termsVersionAccepted', '') == '2026-11-06' &&
+        d.get('termsVersionAccepted', '') == '2026-11-08' &&
         d.get('privacyNoticeAcknowledgedAt', null) is timestamp &&
         d.get('privacyNoticeVersionAcknowledged', '') == '2026-11-08' &&
         d.get('ageConfirmedAt', null) is timestamp &&
