@@ -1,3 +1,20 @@
+/* Self-hosted variable fonts. Font files and SIL OFL notices are in /fonts/. */
+@font-face {
+    font-family: 'Manrope';
+    font-style: normal;
+    font-weight: 200 800;
+    font-display: swap;
+    src: url('/fonts/manrope-variable.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Outfit';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/outfit-variable.ttf') format('truetype');
+}
+
 :root {
     --bg-dark: #09090B;
     --text-main: #FAFAFA;
