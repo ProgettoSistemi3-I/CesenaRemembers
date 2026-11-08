@@ -1,15 +1,10 @@
 """Cesena Remembers — servizio di generazione dei quiz.
 
-Flusso di ogni richiesta POST /api/generate-quiz (contratto invariato):
-  1. validazione dei parametri (Pydantic) e del POI (whitelist);
-  2. lettura dei fatti verificati dalla memoria (caricati all'avvio da facts/);
-  3. selezione casuale di un sottoinsieme di fatti (varietà + prompt breve);
-  4. UNA chiamata al modello per 3 domande, con output strutturato;
-  5. validazione strutturale e storica di ogni domanda;
-  6. se mancano domande valide e resta tempo: UNA chiamata di riparazione
-     che chiede solo le domande mancanti, su fatti non ancora usati;
-  7. 200 solo con 3 domande valide; altrimenti errore HTTP non-200, che
-     nell'app attiva il fallback locale (HistoricPlacesSeed).
+Flusso di ogni richiesta POST /api/generate-quiz:
+  1. verifica server-side dell'ID token Firebase;
+  2. validazione dei parametri e del POI (whitelist);
+  3. lettura dei fatti verificati dalla memoria;
+  4. generazione e validazione di tre domande.
 
 Il quiz è generato a ogni richiesta: non esiste alcun archivio di domande.
 """
@@ -25,21 +20,25 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
+import firebase_admin
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
+from firebase_admin import auth as firebase_auth
 
 load_dotenv()
 
-from config import load_settings  # noqa: E402  (dopo load_dotenv)
+from config import load_settings  # noqa: E402
 from facts_loader import KNOWN_POI_IDS, Fact, load_all  # noqa: E402
 from llm_client import LlmClient, LlmError  # noqa: E402
 from models import PoiRequest, QuizMeta, QuizQuestionOut, QuizResponse  # noqa: E402
 from prompts import SYSTEM_PROMPT, build_user_prompt, difficulty_level, llm_json_schema  # noqa: E402
 from validation import StructuralError, check_question, near_duplicate, parse_llm_output  # noqa: E402
 
-N_QUESTIONS = 3  # requisito di progetto: esattamente tre domande
+N_QUESTIONS = 3
+FIREBASE_APP_NAME = "cesena-remembers-quiz"
 
 settings = load_settings()
 logging.basicConfig(
@@ -59,17 +58,41 @@ class QuizFailure(Exception):
         self.message = message
 
 
+def _get_firebase_app():
+    """Inizializza Firebase Admin senza una chiave privata di servizio.
+
+    La verifica degli ID token usa il project ID e i certificati pubblici
+    Google. Non vengono eseguite operazioni amministrative sugli account.
+    """
+    try:
+        firebase_app = firebase_admin.get_app(FIREBASE_APP_NAME)
+    except ValueError:
+        firebase_app = firebase_admin.initialize_app(
+            options={"projectId": settings.firebase_project_id},
+            name=FIREBASE_APP_NAME,
+        )
+
+    if firebase_app.project_id != settings.firebase_project_id:
+        raise RuntimeError(
+            "Il Firebase project ID dell'app Admin non corrisponde alla configurazione."
+        )
+    return firebase_app
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.firebase_app = _get_firebase_app()
     app.state.facts = load_all(settings.facts_dir)
     app.state.llm = LlmClient(settings)
     app.state.inflight = {}
     app.state.rate_limits = {}
+    app.state.user_rate_limits = {}
     logger.info(
-        "Avvio: provider=%s model=%s key=%s schede=%s",
+        "Avvio: provider=%s model=%s key=%s firebase_project=%s schede=%s",
         settings.provider,
         settings.model,
         "configurata" if settings.key_configured else "MANCANTE",
+        settings.firebase_project_id,
         {k: len(v.facts) for k, v in app.state.facts.items()},
     )
     yield
@@ -79,20 +102,116 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Cesena Remembers - Quiz API", lifespan=lifespan)
 # L'app Flutter nativa non usa CORS. Se in futuro viene chiamata da un browser,
 # impostare QUIZ_CORS_ORIGINS con una lista esplicita di origini autorizzate.
-_cors_origins = [origin.strip() for origin in __import__("os").getenv("QUIZ_CORS_ORIGINS", "").split(",") if origin.strip()]
+_cors_origins = [
+    origin.strip()
+    for origin in __import__("os").getenv("QUIZ_CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
 if _cors_origins:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_cors_origins,
         allow_credentials=False,
         allow_methods=["POST", "GET", "OPTIONS"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "Authorization"],
     )
 
 
 @app.exception_handler(QuizFailure)
 async def _quiz_failure_handler(_: Request, exc: QuizFailure):
-    return JSONResponse(status_code=exc.status, content={"detail": {"error": exc.code, "message": exc.message}})
+    return JSONResponse(
+        status_code=exc.status,
+        content={"detail": {"error": exc.code, "message": exc.message}},
+    )
+
+
+async def _authenticate_firebase_user(request: Request) -> str:
+    """Richiede e verifica un Firebase ID token per l'endpoint quiz."""
+    authorization = request.headers.get("Authorization", "")
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise QuizFailure(
+            401,
+            "missing_auth_token",
+            "È richiesto un Firebase ID token nell'header Authorization: Bearer.",
+        )
+
+    try:
+        decoded_token = await run_in_threadpool(
+            firebase_auth.verify_id_token,
+            parts[1],
+            app=request.app.state.firebase_app,
+            check_revoked=False,
+        )
+    except (ValueError, firebase_auth.InvalidIdTokenError) as exc:
+        raise QuizFailure(
+            401,
+            "invalid_auth_token",
+            "Il Firebase ID token non è valido o è scaduto.",
+        ) from exc
+    except firebase_auth.CertificateFetchError as exc:
+        logger.warning(
+            "Verifica Firebase temporaneamente non disponibile: certificati non raggiungibili (%s)",
+            type(exc).__name__,
+        )
+        raise QuizFailure(
+            503,
+            "auth_verification_unavailable",
+            "Verifica dell'identità temporaneamente non disponibile.",
+        ) from exc
+    except Exception as exc:
+        logger.exception("Errore interno durante la verifica del token Firebase")
+        raise QuizFailure(
+            503,
+            "auth_verification_unavailable",
+            "Verifica dell'identità temporaneamente non disponibile.",
+        ) from exc
+
+    uid = decoded_token.get("uid")
+    if not isinstance(uid, str) or not uid.strip():
+        raise QuizFailure(
+            401,
+            "invalid_auth_token",
+            "Il token Firebase non contiene un'identità valida.",
+        )
+    return uid
+
+
+def _consume_rate_limit(
+    buckets: dict[str, deque[float]],
+    key: str,
+    now: float,
+    *,
+    limit_per_minute: int,
+    max_clients: int,
+    error_code: str,
+    limit_message: str,
+) -> None:
+    """Applica una finestra mobile di 60 secondi a una chiave IP o UID."""
+    bucket = buckets.get(key)
+    if bucket is None and len(buckets) >= max_clients:
+        for existing_key, existing_bucket in list(buckets.items()):
+            while existing_bucket and now - existing_bucket[0] > 60:
+                existing_bucket.popleft()
+            if not existing_bucket:
+                buckets.pop(existing_key, None)
+        if len(buckets) >= max_clients:
+            raise QuizFailure(
+                429,
+                "rate_limit_capacity",
+                "Servizio temporaneamente occupato. Riprova tra poco.",
+            )
+        bucket = deque()
+        buckets[key] = bucket
+    elif bucket is None:
+        bucket = deque()
+        buckets[key] = bucket
+
+    while bucket and now - bucket[0] > 60:
+        bucket.popleft()
+    if len(bucket) >= limit_per_minute:
+        raise QuizFailure(429, error_code, limit_message)
+    bucket.append(now)
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +235,7 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
     started = time.perf_counter()
     deadline = started + settings.request_deadline_s
     poi_facts = app.state.facts.get(req.id)
-    if poi_facts is None:  # protetto anche dall'endpoint, difesa in profondità
+    if poi_facts is None:
         raise QuizFailure(404, "unknown_poi", "POI sconosciuto")
     if len(poi_facts.facts) < N_QUESTIONS:
         raise QuizFailure(503, "insufficient_facts", "Fatti verificati insufficienti per tre domande")
@@ -129,7 +248,7 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
     place_name = poi_facts.title
     schema = llm_json_schema(N_QUESTIONS, settings.options_per_question)
 
-    accepted: list[tuple] = []  # (LlmQuestion, list[str] warnings)
+    accepted: list[tuple] = []
     used_fact_ids: set[str] = set()
     attempts: list[dict] = []
     last_error: LlmError | StructuralError | None = None
@@ -165,9 +284,15 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
                 timeout_s=min(settings.llm_timeout_s, remaining - 0.3),
             )
             attempt["llm_s"] = round(result.latency_s, 2)
-            attempt["usage"] = {k: result.usage.get(k) for k in ("prompt_tokens", "completion_tokens") if k in result.usage}
+            attempt["usage"] = {
+                k: result.usage.get(k)
+                for k in ("prompt_tokens", "completion_tokens)
+                if k in result.usage
+            }
             questions = parse_llm_output(
-                result.content, expected_questions=missing, n_options=settings.options_per_question
+                result.content,
+                expected_questions=missing,
+                n_options=settings.options_per_question,
             )
         except LlmError as exc:
             attempt["error"] = exc.code
@@ -205,7 +330,6 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
                 used_fact_ids.update(fid.strip() for fid in q.factIds)
             else:
                 rejected.append({"factIds": q.factIds, "errors": check.errors})
-                # i fatti di una domanda scartata non vengono riproposti subito
                 used_fact_ids.update(fid.strip() for fid in q.factIds if fid.strip() in allowed)
         attempt["accepted"] = len(questions) - len(rejected)
         if rejected:
@@ -271,45 +395,40 @@ async def _generate(req: PoiRequest, request_id: str) -> QuizResponse:
 # ---------------------------------------------------------------------------
 @app.post("/api/generate-quiz", response_model=QuizResponse)
 async def generate_quiz(poi: PoiRequest, request: Request):
-    # Rate limit per IP: protegge da tap/loop eccessivi senza trasmettere
-    # Firebase ID token in chiaro sull'endpoint HTTP del progetto.
+    # Prima di consumare risorse LLM, il client deve dimostrare di essere
+    # autenticato nello stesso progetto Firebase dell'app.
+    uid = await _authenticate_firebase_user(request)
+
     now = time.monotonic()
     address = request.client.host if request.client else "unknown"
-    rate_limits: dict[str, deque[float]] = app.state.rate_limits
-    bucket = rate_limits.get(address)
-
-    # I bucket inattivi vengono rimossi quando serve spazio. Il dizionario ha
-    # una dimensione massima: non può crescere senza limite con IP casuali.
     max_clients = max(100, int(__import__("os").getenv("QUIZ_RATE_LIMIT_MAX_CLIENTS", "10000")))
-    if bucket is None and len(rate_limits) >= max_clients:
-        for client_ip, client_bucket in list(rate_limits.items()):
-            while client_bucket and now - client_bucket[0] > 60:
-                client_bucket.popleft()
-            if not client_bucket:
-                rate_limits.pop(client_ip, None)
-        if len(rate_limits) >= max_clients:
-            raise QuizFailure(429, "rate_limit_capacity", "Servizio temporaneamente occupato. Riprova tra poco.")
-        bucket = deque()
-        rate_limits[address] = bucket
-    elif bucket is None:
-        bucket = deque()
-        rate_limits[address] = bucket
 
-    while bucket and now - bucket[0] > 60:
-        bucket.popleft()
-    limit_per_minute = max(1, int(__import__("os").getenv("QUIZ_RATE_LIMIT_PER_MINUTE", "30")))
-    if len(bucket) >= limit_per_minute:
-        raise QuizFailure(429, "rate_limited", "Troppe richieste. Riprova tra poco.")
-    bucket.append(now)
+    # Mantiene il limite per IP già presente.
+    _consume_rate_limit(
+        app.state.rate_limits,
+        address,
+        now,
+        limit_per_minute=max(1, int(__import__("os").getenv("QUIZ_RATE_LIMIT_PER_MINUTE", "30"))),
+        max_clients=max_clients,
+        error_code="rate_limited",
+        limit_message="Troppe richieste da questo indirizzo. Riprova tra poco.",
+    )
+    # Aggiunge un limite per UID: cambiare rete/IP non azzera la quota utente.
+    _consume_rate_limit(
+        app.state.user_rate_limits,
+        uid,
+        now,
+        limit_per_minute=max(1, int(__import__("os").getenv("QUIZ_RATE_LIMIT_PER_USER_PER_MINUTE", "30"))),
+        max_clients=max_clients,
+        error_code="user_rate_limited",
+        limit_message="Hai effettuato troppe richieste quiz. Riprova tra poco.",
+    )
 
     if poi.id not in KNOWN_POI_IDS:
-        # Nessun accesso a file costruiti dall'input: l'ID deve essere in whitelist.
         raise QuizFailure(404, "unknown_poi", "POI sconosciuto")
 
-    # Richieste identiche contemporanee (es. doppio tap o retry di rete mentre
-    # la prima è ancora in corso) condividono la stessa generazione. Appena
-    # conclusa, la chiave viene rimossa: nessun riuso dei quiz.
-    key = (poi.id, poi.userXp, poi.languageCode)
+    # Le richieste simultanee vengono deduplicate solo per lo stesso utente.
+    key = (uid, poi.id, poi.userXp, poi.languageCode)
     inflight: dict = app.state.inflight
     task = inflight.get(key)
     if task is None:
