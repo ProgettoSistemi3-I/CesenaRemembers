@@ -414,6 +414,7 @@ class _MapCanvasState extends State<_MapCanvas> {
       ),
       children: [
         TileLayer(
+          key: ValueKey(widget.currentMapUrl),
           urlTemplate: widget.currentMapUrl,
           subdomains: const ['a', 'b', 'c', 'd'],
           userAgentPackageName: 'it.cesenaremembers.app',
