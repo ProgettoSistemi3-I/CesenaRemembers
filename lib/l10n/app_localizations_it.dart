@@ -1258,12 +1258,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get mapLicenseStadiaSubtitle => '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors';
 
   @override
-  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
-
-  @override
-  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
-
-  @override
   String get quiz_santa_cristina_q3 => 'Come descrisse don Leo Bagnoli la cripta-rifugio?';
 
   @override
@@ -1433,4 +1427,10 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get settingsDiagnosticsSubtitle => 'Consenti l’invio di report tecnici sugli errori tramite Firebase Crashlytics.';
+
+  @override
+  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
+
+  @override
+  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
 }

@@ -1258,12 +1258,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapLicenseStadiaSubtitle => '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors';
 
   @override
-  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
-
-  @override
-  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
-
-  @override
   String get quiz_santa_cristina_q3 => 'How did Father Leo Bagnoli describe the shelter in the crypt?';
 
   @override
@@ -1433,4 +1427,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDiagnosticsSubtitle => 'Allow technical error reports to be sent through Firebase Crashlytics.';
+
+  @override
+  String get mapLicenseSatelliteTitle => 'Stadia Maps — Alidade Satellite';
+
+  @override
+  String get mapLicenseSatelliteSubtitle => '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)';
 }

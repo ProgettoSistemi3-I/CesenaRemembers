@@ -1610,7 +1610,7 @@ abstract class AppLocalizations {
   /// No description provided for @poi_rifugi_antiaerei_desc.
   ///
   /// In en, this message translates to:
-  /// **'The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered but never built: the first major air raid on Cesena, on 13 May 1944, began a long period of bombing. The gallery was separate from the Malatestiana Fortress itself.'**
+  /// **'The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered, but the project was never built. The first major air raid on Cesena took place on 13 May 1944, marking the beginning of a prolonged period of raids. The gallery was separate from the Malatestiana Fortress itself.'**
   String get poi_rifugi_antiaerei_desc;
 
   /// No description provided for @setupUsernameInvalid.
@@ -2516,26 +2516,14 @@ abstract class AppLocalizations {
   /// No description provided for @mapLicenseStadiaTitle.
   ///
   /// In en, this message translates to:
-  /// **'Stadia Maps / Stamen Design'**
+  /// **'Stadia Maps — Alidade Smooth Dark'**
   String get mapLicenseStadiaTitle;
 
   /// No description provided for @mapLicenseStadiaSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'© Stadia Maps, © Stamen Design — CC BY 3.0 licence'**
+  /// **'© Stadia Maps © OpenMapTiles © OpenStreetMap contributors'**
   String get mapLicenseStadiaSubtitle;
-
-  /// No description provided for @mapLicenseSatelliteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Esri (Satellite view)'**
-  String get mapLicenseSatelliteTitle;
-
-  /// No description provided for @mapLicenseSatelliteSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community'**
-  String get mapLicenseSatelliteSubtitle;
 
   /// No description provided for @quiz_santa_cristina_q3.
   ///
@@ -2878,6 +2866,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow technical error reports to be sent through Firebase Crashlytics.'**
   String get settingsDiagnosticsSubtitle;
+
+  /// No description provided for @mapLicenseSatelliteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stadia Maps — Alidade Satellite'**
+  String get mapLicenseSatelliteTitle;
+
+  /// No description provided for @mapLicenseSatelliteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)'**
+  String get mapLicenseSatelliteSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
