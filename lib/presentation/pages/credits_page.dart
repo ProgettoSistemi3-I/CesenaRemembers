@@ -226,6 +226,17 @@ class CreditsPage extends StatelessWidget {
                   mode: LaunchMode.externalApplication,
                 ),
               ),
+              const _ThinDivider(),
+              _CreditRow(
+                icon: Icons.alt_route,
+                title: AppLocalizations.of(context)!.mapLicenseDirectionsTitle,
+                subtitle: AppLocalizations.of(context)!.mapLicenseDirectionsSubtitle,
+                accent: AppPalette.moss,
+                onTap: () => launchUrl(
+                  Uri.parse('https://docs.mapbox.com/api/navigation/directions/'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 40),
