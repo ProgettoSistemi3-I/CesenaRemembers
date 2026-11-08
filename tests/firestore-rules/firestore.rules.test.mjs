@@ -54,6 +54,12 @@ function makeUser(uid, overrides = {}) {
     email: uid + '@example.test',
     createdAt: NOW,
     updatedAt: NOW,
+    termsAcceptedAt: NOW,
+    termsVersionAccepted: '2026-11-06',
+    privacyNoticeAcknowledgedAt: NOW,
+    privacyNoticeVersionAcknowledged: '2026-11-08',
+    ageConfirmedAt: NOW,
+    agePolicyVersionConfirmed: '14-plus-v1',
     profileCompletedAt: NOW,
     displayName,
     displayNameNormalized: displayName.toLowerCase(),
@@ -197,6 +203,83 @@ async function seedPendingFriendRequest() {
     { senderUid: 'bob', recipientUid: 'alice', createdAt: NOW },
   ]]);
 }
+
+
+test('sign-in records Terms, Privacy notice and minimum-age declaration with server timestamps', async () => {
+  const database = authenticatedDb('alice');
+  const userRef = doc(database, 'users', 'alice');
+
+  await assertSucceeds(setDoc(userRef, {
+    email: 'alice@example.test',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    termsAcceptedAt: serverTimestamp(),
+    termsVersionAccepted: '2026-11-06',
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
+    privacyNoticeVersionAcknowledged: '2026-11-08',
+    ageConfirmedAt: serverTimestamp(),
+    agePolicyVersionConfirmed: '14-plus-v1',
+  }));
+
+  const saved = await getDoc(userRef);
+  assert.equal(saved.data().termsVersionAccepted, '2026-11-06');
+  assert.equal(saved.data().privacyNoticeVersionAcknowledged, '2026-11-08');
+  assert.equal(saved.data().agePolicyVersionConfirmed, '14-plus-v1');
+  assert.ok(saved.data().termsAcceptedAt instanceof Timestamp);
+  assert.ok(saved.data().privacyNoticeAcknowledgedAt instanceof Timestamp);
+  assert.ok(saved.data().ageConfirmedAt instanceof Timestamp);
+
+  await assertFails(setDoc(doc(authenticatedDb('bob'), 'users', 'bob'), {
+    email: 'bob@example.test',
+    createdAt: NOW,
+    updatedAt: NOW,
+    termsAcceptedAt: NOW,
+    termsVersionAccepted: '2026-11-06',
+    privacyNoticeAcknowledgedAt: NOW,
+    privacyNoticeVersionAcknowledged: '2026-11-08',
+    ageConfirmedAt: NOW,
+    agePolicyVersionConfirmed: '14-plus-v1',
+  }));
+});
+
+test('legal acceptance updates are owner-only, versioned and server-timestamped', async () => {
+  await seedCompleteUser('alice');
+  const database = authenticatedDb('alice');
+  const userRef = doc(database, 'users', 'alice');
+
+  await assertSucceeds(updateDoc(userRef, {
+    termsAcceptedAt: serverTimestamp(),
+    termsVersionAccepted: '2026-11-06',
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
+    privacyNoticeVersionAcknowledged: '2026-11-08',
+    ageConfirmedAt: serverTimestamp(),
+    agePolicyVersionConfirmed: '14-plus-v1',
+    updatedAt: serverTimestamp(),
+  }));
+
+  await assertFails(updateDoc(userRef, {
+    termsAcceptedAt: serverTimestamp(),
+    termsVersionAccepted: 'unknown-version',
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
+    privacyNoticeVersionAcknowledged: '2026-11-08',
+    ageConfirmedAt: serverTimestamp(),
+    agePolicyVersionConfirmed: '14-plus-v1',
+    updatedAt: serverTimestamp(),
+  }));
+
+  await assertFails(updateDoc(
+    doc(authenticatedDb('bob'), 'users', 'alice'),
+    {
+      termsAcceptedAt: serverTimestamp(),
+      termsVersionAccepted: '2026-11-06',
+      privacyNoticeAcknowledgedAt: serverTimestamp(),
+      privacyNoticeVersionAcknowledged: '2026-11-08',
+      ageConfirmedAt: serverTimestamp(),
+      agePolicyVersionConfirmed: '14-plus-v1',
+      updatedAt: serverTimestamp(),
+    },
+  ));
+});
 
 test('private user documents are owner-only and cannot be listed', async () => {
   await seedCompleteUser('alice');
