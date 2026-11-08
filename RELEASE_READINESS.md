@@ -17,6 +17,19 @@ This file contains operational checks that cannot be completed by editing reposi
 - [ ] Verify that Italian and English legal pages are deployed and that login and Settings open the version matching the app language.
 - [ ] Verify that the public account-deletion pages and the in-app deletion flow are available and tested: `https://cesenaremembers.com/legal/delete-account.html` and `https://cesenaremembers.com/legal/delete-account-en.html`.
 
+## User-generated profile moderation
+
+- [ ] Deploy the updated Firestore Rules only after the moderation tests pass on the Firestore Emulator. Preserve the optimized owner/cross-user update routing in the current rules; do not restore the older broad validation branches from the original PR.
+- [ ] Run the full Rules suite from the repository root with Node.js 20+ and Java 21:
+  `npx firebase-tools@15.34.1 emulators:exec --only firestore --project demo-cesenaremembers "npm --prefix tests/firestore-rules test"`.
+- [ ] Test the Android app end to end: report display name and username; all five report reasons; optional details and the 500-character limit; block an existing friend; block with an incoming or outgoing pending request; block in either direction; unblock; verify previous friendships and requests are not restored.
+- [ ] Verify blocked relationships cannot create or accept friend requests and cannot read each other's detailed friend statistics, while public profile fields and the public leaderboard remain available as described in the Privacy Notice.
+- [ ] Verify block cleanup does not prevent cancelling/rejecting old requests or removing an existing friendship; removal paths must remain usable after the block document is written.
+- [ ] Rebuild and deploy the notifier after validating per-UID change detection, both-direction block checks, localized notifications and the existing opt-in requirement. Test foreground, background and terminated app states.
+- [ ] Ensure a trusted moderator can inspect reports through Firebase Console or a protected Admin SDK environment. App clients must not be able to read, update or delete report documents. Never put service-account credentials in the app.
+- [ ] Approve the 24-month report-retention period and the review/escalation process. The cleanup script is dry-run by default; schedule `scripts/cleanup_user_reports.py --apply` only after approval and after validating dry-run output with a protected service account.
+- [ ] Deploy the updated Italian and English Privacy Notice and Terms of Use to Cloudflare Pages. Confirm the text describes report fields, block behavior, review process, retention and what remains in another user's block list after account deletion.
+
 ## Deployment and credentials
 
 - [ ] Restrict the Android Firebase API key in Google Cloud Console: set the Android application restriction to package `it.cesenaremembers.app` and the correct Play App Signing SHA-1 certificate; restrict the key to the APIs actually required by the shipped Firebase/Google SDKs. Verify that the production key and any development keys have separate, appropriate restrictions.

@@ -287,10 +287,79 @@ service cloud.firestore {
         get(targetPath).data.get('friends', []).hasAny([request.auth.uid]);
     }
 
+    function hasBlockBetween(uidA, uidB) {
+      return exists(
+        /databases/$(database)/documents/user_blocks/$(uidA)/blocked/$(uidB)
+      ) || exists(
+        /databases/$(database)/documents/user_blocks/$(uidB)/blocked/$(uidA)
+      );
+    }
+
+    function validReportProfileSnapshot(uid, data) {
+      let profilePath =
+        /databases/$(database)/documents/public_profiles/$(uid);
+      let profile = get(profilePath).data;
+
+      return profile.displayName == data.reportedDisplayName &&
+        profile.username == data.reportedUsername;
+    }
+
+    function validUserReportCreate() {
+      let data = request.resource.data;
+      let reportedUid = data.get('reportedUid', '');
+
+      return isNotBanned() &&
+        data.keys().hasOnly([
+          'reporterUid', 'reportedUid', 'reportedField', 'reportedValue',
+          'reportedDisplayName', 'reportedUsername', 'reason', 'details',
+          'createdAt', 'status'
+        ]) &&
+        data.get('reporterUid', '') == request.auth.uid &&
+        reportedUid is string &&
+        reportedUid.size() > 0 &&
+        reportedUid != request.auth.uid &&
+        data.get('reportedField', '') in ['displayName', 'username'] &&
+        data.get('reportedValue', null) is string &&
+        data.get('reason', '') in [
+          'inappropriate_name', 'impersonation', 'harassment', 'spam', 'other'
+        ] &&
+        data.get('details', null) is string &&
+        data.details.size() <= 500 &&
+        data.get('reportedDisplayName', null) is string &&
+        data.reportedDisplayName.size() >= 2 &&
+        data.reportedDisplayName.size() <= 30 &&
+        data.get('reportedUsername', null) is string &&
+        data.reportedUsername.size() >= 3 &&
+        data.reportedUsername.size() <= 20 &&
+        data.get('createdAt', null) is timestamp &&
+        data.createdAt == request.time &&
+        data.get('status', '') == 'pending' &&
+        !exists(
+          /databases/$(database)/documents/banned_users/$(reportedUid)
+        ) &&
+        exists(
+          /databases/$(database)/documents/public_profiles/$(reportedUid)
+        ) &&
+        validReportProfileSnapshot(reportedUid, data) &&
+        (
+          (
+            data.reportedField == 'displayName' &&
+            data.reportedValue == data.reportedDisplayName
+          ) ||
+          (
+            data.reportedField == 'username' &&
+            data.reportedValue == data.reportedUsername
+          )
+        );
+    }
+
     function canReadFriendStats(uid) {
       return isNotBanned() &&
         !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
-        (isOwner(uid) || areFriends(uid));
+        (
+          isOwner(uid) ||
+          (!hasBlockBetween(request.auth.uid, uid) && areFriends(uid))
+        );
     }
 
     // Aggiornamento della lista amici da parte di un altro utente.
@@ -804,6 +873,7 @@ service cloud.firestore {
         peer is string &&
         peer.size() > 0 &&
         peer != uid &&
+        !hasBlockBetween(uid, peer) &&
         !resource.data.get('friends', []).hasAny([peer]) &&
         !resource.data.get('receivedFriendRequests', []).hasAny([peer]) &&
         !exists(/databases/$(database)/documents/banned_users/$(peer)) &&
@@ -849,6 +919,7 @@ service cloud.firestore {
         getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data;
 
       return !exists(/databases/$(database)/documents/banned_users/$(uid)) &&
+        !hasBlockBetween(uid, request.auth.uid) &&
         request.resource.data.diff(resource.data)
           .affectedKeys().hasOnly([
             'receivedFriendRequests', 'updatedAt'
@@ -954,6 +1025,7 @@ service cloud.firestore {
         peer is string &&
         peer.size() > 0 &&
         peer != uid &&
+        !hasBlockBetween(uid, peer) &&
         newFriends is list &&
         newFriends.size() <= 500 &&
         listRemovesOnly(
@@ -997,6 +1069,7 @@ service cloud.firestore {
             'lastFriendActionPeerUid', 'updatedAt'
           ]) &&
         peer == request.auth.uid &&
+        !hasBlockBetween(uid, request.auth.uid) &&
         newFriends is list &&
         newFriends.size() <= 500 &&
         listRemovesOnly(
@@ -1349,6 +1422,7 @@ service cloud.firestore {
       allow create: if isOwner(senderUid) &&
         isNotBanned() &&
         recipientUid != senderUid &&
+        !hasBlockBetween(recipientUid, senderUid) &&
         !exists(
           /databases/$(database)/documents/banned_users/$(recipientUid)
         ) &&
@@ -1399,6 +1473,43 @@ service cloud.firestore {
           request.auth.uid == recipientUid ||
           request.auth.uid == senderUid
         );
+    }
+
+    // ---------------------------------------------------------
+    // USER BLOCKS
+    // ---------------------------------------------------------
+
+    match /user_blocks/{blockerUid}/blocked/{blockedUid} {
+      // Owners can manage their own list, including while suspended, so
+      // account deletion can always remove outgoing block entries.
+      allow get, list: if isOwner(blockerUid);
+
+      allow create: if isOwner(blockerUid) &&
+        isNotBanned() &&
+        blockerUid != blockedUid &&
+        !exists(
+          /databases/$(database)/documents/banned_users/$(blockedUid)
+        ) &&
+        exists(
+          /databases/$(database)/documents/public_profiles/$(blockedUid)
+        ) &&
+        request.resource.data.keys().hasOnly(['createdAt']) &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt == request.time;
+
+      allow delete: if isOwner(blockerUid);
+      allow update: if false;
+    }
+
+    // ---------------------------------------------------------
+    // USER REPORTS
+    // ---------------------------------------------------------
+
+    match /user_reports/{reportId} {
+      // Reports are private moderation records; app clients are write-only.
+      allow get, list: if false;
+      allow create: if validUserReportCreate();
+      allow update, delete: if false;
     }
 
     // ---------------------------------------------------------
