@@ -42,6 +42,7 @@ app.*.map.json
 # Ignora TUTTI i file JSON delle chiavi segrete nella cartella notifier_service
 server_docker/notifier-service/serviceAccountKey.json
 server_docker/quiz-service/.env
+server_docker/quiz-service/firebase-auth-reader.json
 
 # Android Studio will place build artifacts here
 /android/app/debug
