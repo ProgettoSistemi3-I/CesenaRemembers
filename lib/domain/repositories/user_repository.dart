@@ -11,6 +11,7 @@ abstract class IUserRepository {
     required String username,
     required String displayName,
     required String avatarId,
+    required String languageCode,
   });
   Future<void> updateProfileBasics({
     required String uid,
