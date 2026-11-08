@@ -9,6 +9,7 @@ abstract class IUserRepository {
     required String uid,
     required String email,
   });
+  Future<bool> hasCurrentLegalAcceptance(String uid);
   Future<void> completeInitialProfile({
     required String uid,
     required String email,
