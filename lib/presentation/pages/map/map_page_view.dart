@@ -84,6 +84,38 @@ extension _MapPageView on _MapPageState {
                 onResolve: _resolveLocationIssues,
               ),
             ),
+          if (_routeUsesMapboxDirections && _routeLinePoints.length >= 2)
+            Positioned(
+              top: data.isLocationBannerVisible
+                  ? 112
+                  : (_currentRotation != 0 ? 72 : 16),
+              right: 16,
+              child: Material(
+                color: data.theme.colorScheme.surface.withValues(alpha: 0.96),
+                borderRadius: BorderRadius.circular(10),
+                elevation: 2,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => launchUrl(
+                    Uri.parse('https://www.mapbox.com/'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)!.mapLicenseDirectionsAttribution,
+                      style: data.theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: data.theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (_currentRotation != 0 && !data.isLocationBannerVisible)
             Positioned(
               top: 16,
