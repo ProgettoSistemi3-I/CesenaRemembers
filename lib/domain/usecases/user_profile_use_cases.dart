@@ -24,6 +24,9 @@ class UserProfileUseCases {
     required String email,
   }) => _repository.recordLegalAcceptance(uid: uid, email: email);
 
+  Future<bool> hasCurrentLegalAcceptance(String uid) =>
+      _repository.hasCurrentLegalAcceptance(uid);
+
   Future<void> completeInitialProfile({
     required String uid,
     required String email,
