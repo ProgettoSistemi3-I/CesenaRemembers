@@ -44,6 +44,15 @@ services:
       QUIZ_RATE_LIMIT_PER_MINUTE: "30"
       QUIZ_RATE_LIMIT_MAX_CLIENTS: "10000"
       FORWARDED_ALLOW_IPS: "*"
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-auth-reader.json
+    volumes:
+      # Account di servizio separato e read-only (ruolo Firebase Authentication Viewer).
+      - type: bind
+        source: ./quiz-service/firebase-auth-reader.json
+        target: /run/secrets/firebase-auth-reader.json
+        read_only: true
+        bind:
+          create_host_path: false
     restart: unless-stopped
     networks:
       - quiz-backend
