@@ -55,7 +55,7 @@ function makeUser(uid, overrides = {}) {
     createdAt: NOW,
     updatedAt: NOW,
     termsAcceptedAt: NOW,
-    termsVersionAccepted: '2026-11-06',
+    termsVersionAccepted: '2026-11-08',
     privacyNoticeAcknowledgedAt: NOW,
     privacyNoticeVersionAcknowledged: '2026-11-08',
     ageConfirmedAt: NOW,
@@ -214,7 +214,7 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: '2026-11-06',
+    termsVersionAccepted: '2026-11-08',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
     privacyNoticeVersionAcknowledged: '2026-11-08',
     ageConfirmedAt: serverTimestamp(),
@@ -222,7 +222,7 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
   }));
 
   const saved = await getDoc(userRef);
-  assert.equal(saved.data().termsVersionAccepted, '2026-11-06');
+  assert.equal(saved.data().termsVersionAccepted, '2026-11-08');
   assert.equal(saved.data().privacyNoticeVersionAcknowledged, '2026-11-08');
   assert.equal(saved.data().agePolicyVersionConfirmed, '14-plus-v1');
   assert.ok(saved.data().termsAcceptedAt instanceof Timestamp);
@@ -234,7 +234,7 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
     createdAt: NOW,
     updatedAt: NOW,
     termsAcceptedAt: NOW,
-    termsVersionAccepted: '2026-11-06',
+    termsVersionAccepted: '2026-11-08',
     privacyNoticeAcknowledgedAt: NOW,
     privacyNoticeVersionAcknowledged: '2026-11-08',
     ageConfirmedAt: NOW,
@@ -249,7 +249,7 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
 
   await assertSucceeds(updateDoc(userRef, {
     termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: '2026-11-06',
+    termsVersionAccepted: '2026-11-08',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
     privacyNoticeVersionAcknowledged: '2026-11-08',
     ageConfirmedAt: serverTimestamp(),
@@ -271,7 +271,7 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
     doc(authenticatedDb('bob'), 'users', 'alice'),
     {
       termsAcceptedAt: serverTimestamp(),
-      termsVersionAccepted: '2026-11-06',
+      termsVersionAccepted: '2026-11-08',
       privacyNoticeAcknowledgedAt: serverTimestamp(),
       privacyNoticeVersionAcknowledged: '2026-11-08',
       ageConfirmedAt: serverTimestamp(),
