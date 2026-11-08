@@ -121,10 +121,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   static const _urlStandard =
       'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${AppRuntimeConfig.cartoApiKey}';
   static const _urlStandardDark =
-      'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+      'https://tiles-eu.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
       '?api_key=${AppRuntimeConfig.stadiaMapsApiKey}';
   static const _urlSatellite =
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      'https://tiles-eu.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg'
+      '?api_key=${AppRuntimeConfig.stadiaMapsApiKey}';
 
   _MapBuildData get _buildData => _MapBuildData(
     theme: Theme.of(context),

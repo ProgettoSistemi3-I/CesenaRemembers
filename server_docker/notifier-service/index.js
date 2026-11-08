@@ -1,6 +1,7 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
+const { buildFriendNotification } = require('./notification_messages');
 
 const keyPath = path.join(__dirname, 'serviceAccountKey.json');
 if (!fs.existsSync(keyPath)) {
@@ -35,6 +36,7 @@ usersQuery.onSnapshot(async snapshot => {
     const sentRequests = data.sentFriendRequests || [];
     const friends = data.friends || [];
     const fcmTokens = data.fcmTokens || [];
+    const languageCode = data.preferences?.languageCode || 'it';
     // I profili legacy senza la preferenza conservano il default applicativo: true.
     const notificationsEnabled =
       data.preferences?.notifiche === true &&
@@ -54,22 +56,22 @@ usersQuery.onSnapshot(async snapshot => {
     }
 
     if (receivedRequests.length > previousState.requestsCount) {
-      await inviaNotifica(userId, fcmTokens, {
-        title: 'Nuova richiesta di amicizia',
-        body: 'Qualcuno vuole stringere amicizia con te su Cesena Remembers!',
-        type: 'friend_request'
-      });
+      await inviaNotifica(
+        userId,
+        fcmTokens,
+        buildFriendNotification('friend_request', languageCode)
+      );
     }
 
     if (
       friends.length > previousState.friendsCount &&
       sentRequests.length < previousState.sentCount
     ) {
-      await inviaNotifica(userId, fcmTokens, {
-        title: 'Nuova amicizia!',
-        body: 'La tua richiesta di amicizia è stata accettata.',
-        type: 'friend_accepted'
-      });
+      await inviaNotifica(
+        userId,
+        fcmTokens,
+        buildFriendNotification('friend_accepted', languageCode)
+      );
     }
   }
 }, error => {

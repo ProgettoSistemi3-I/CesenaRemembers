@@ -323,16 +323,36 @@ class _MapCanvasState extends State<_MapCanvas> {
     if (widget.selectedMapStyle == MapStyle.satellite) {
       return [
         TextSourceAttribution(
-          'Sources: Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community',
-          onTap: () => launchUrl(Uri.parse('https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040')),
+          '© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)',
+        ),
+        TextSourceAttribution(
+          '© Stadia Maps',
+          onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/attribution/')),
+        ),
+        TextSourceAttribution(
+          '© OpenMapTiles',
+          onTap: () => launchUrl(Uri.parse('https://openmaptiles.org/')),
+        ),
+        TextSourceAttribution(
+          '© OpenStreetMap contributors',
+          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
         ),
       ];
     }
-    if (widget.currentMapUrl.startsWith('https://tiles.stadiamaps.com/')) {
+    if (widget.currentMapUrl.contains('stadiamaps.com')) {
       return [
-        TextSourceAttribution('© Stadia Maps', onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/'))),
-        TextSourceAttribution('© OpenMapTiles', onTap: () => launchUrl(Uri.parse('https://openmaptiles.org/'))),
-        TextSourceAttribution('© OpenStreetMap contributors', onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'))),
+        TextSourceAttribution(
+          '© Stadia Maps',
+          onTap: () => launchUrl(Uri.parse('https://stadiamaps.com/attribution/')),
+        ),
+        TextSourceAttribution(
+          '© OpenMapTiles',
+          onTap: () => launchUrl(Uri.parse('https://openmaptiles.org/')),
+        ),
+        TextSourceAttribution(
+          '© OpenStreetMap contributors',
+          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
+        ),
       ];
     }
     return [

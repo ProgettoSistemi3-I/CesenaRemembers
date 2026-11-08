@@ -337,7 +337,7 @@
   "poi_fantaguzzi_name": "Palazzo Fantaguzzi",
   "poi_fantaguzzi_desc": "Palazzo Fantaguzzi stands on today’s Corso Gastone Sozzi, formerly Corso Umberto I, and has housed the Banca Popolare di Cesena since 1922. During the first months of the Italian Social Republic, part of the building also housed the local Fascist offices; the sources do not show that it served as the Fascist headquarters throughout the entire dictatorship. Because of the symbolic importance of that presence, the Cesena GAP planned an attack. On 18 January 1944, four partisans set off a bomb at the entrance. There were no casualties, but the building was seriously damaged. A few weeks later, the local Fascist headquarters moved to Palazzo del Ridotto. The distinction matters: the sources place the later detention and torture of prisoners at the Ridotto, not at Palazzo Fantaguzzi.",
   "poi_rifugi_antiaerei_name": "Air-Raid Shelters of the Fortress",
-  "poi_rifugi_antiaerei_desc": "The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered but never built: the first major air raid on Cesena, on 13 May 1944, began a long period of bombing. The gallery was separate from the Malatestiana Fortress itself.",
+  "poi_rifugi_antiaerei_desc": "The Viale Mazzoni shelter was a public tunnel excavated into the Rocca hill in 1944, designed by Mario Tellerini, the municipal chief engineer. It could accommodate up to 800 people, with 290 seats. It had two entrances protected by blast walls and included an infirmary, rooms for firefighters and the shelter supervisor, toilets, lighting, water and a telephone; the Germans later removed the telephone. The ventilation shaft ended in the Parco della Rimembranza and could also be used as an emergency exit. An extension to increase capacity to 1,500 people was considered, but the project was never built. The first major air raid on Cesena took place on 13 May 1944, marking the beginning of a prolonged period of raids. The gallery was separate from the Malatestiana Fortress itself.",
   "setupUsernameInvalid": "Invalid username (use {min}-{max} characters: a-z, 0-9, _ or .).",
   "setupUsernameOffensive": "Username contains prohibited terms. Please choose another.",
   "setupUsernameTaken": "Username is already taken. Please choose another.",
@@ -534,10 +534,8 @@
   "mapLicenseOsmSubtitle": "© OpenStreetMap contributors — ODbL licence",
   "mapLicenseCartoTitle": "CARTO",
   "mapLicenseCartoSubtitle": "© CARTO — Based on OpenStreetMap data",
-  "mapLicenseStadiaTitle": "Stadia Maps / Stamen Design",
-  "mapLicenseStadiaSubtitle": "© Stadia Maps, © Stamen Design — CC BY 3.0 licence",
-  "mapLicenseEsriTitle": "Esri (Satellite view)",
-  "mapLicenseEsriSubtitle": "Tiles © Esri, Maxar, Earthstar Geographics and the GIS User Community",
+  "mapLicenseStadiaTitle": "Stadia Maps — Alidade Smooth Dark",
+  "mapLicenseStadiaSubtitle": "© Stadia Maps © OpenMapTiles © OpenStreetMap contributors",
   "quiz_santa_cristina_q3": "How did Father Leo Bagnoli describe the shelter in the crypt?",
   "quiz_santa_cristina_q3_o1": "As a solid and dry space",
   "quiz_santa_cristina_q3_o2": "As an unstable and damp space",
@@ -594,5 +592,7 @@
   "consentDiagnosticsDecline": "No, thanks",
   "consentSaveError": "We couldn't save your choice. Check your connection and try again.",
   "settingsDiagnostics": "Technical reports",
-  "settingsDiagnosticsSubtitle": "Allow technical error reports to be sent through Firebase Crashlytics."
+  "settingsDiagnosticsSubtitle": "Allow technical error reports to be sent through Firebase Crashlytics.",
+  "mapLicenseSatelliteTitle": "Stadia Maps — Alidade Satellite",
+  "mapLicenseSatelliteSubtitle": "© CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data)"
 }
