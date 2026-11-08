@@ -2,39 +2,44 @@ import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
 
-/// Una sorgente broadcast condivisa. Se il permesso GPS viene revocato e poi
-/// concesso di nuovo nella stessa sessione, il flusso viene riaperto senza
-/// richiedere ai consumer di ricreare la sottoscrizione.
-class SharedPositionStream {
-  SharedPositionStream._();
+/// A broadcast position source that retries after permission/service failures
+/// and after the platform position stream ends or emits an error.
+class RecoveringPositionStream {
+  RecoveringPositionStream({
+    required Future<bool> Function() isLocationServiceEnabled,
+    required Future<LocationPermission> Function() checkPermission,
+    required Stream<Position> Function() openPositionStream,
+    this.retryDelay = const Duration(seconds: 5),
+  }) : _isLocationServiceEnabled = isLocationServiceEnabled,
+       _checkPermission = checkPermission,
+       _openPositionStream = openPositionStream {
+    _controller = StreamController<Position>.broadcast(
+      onListen: _start,
+      onCancel: _stop,
+    );
+  }
 
-  static const LocationSettings _settings = LocationSettings(
-    accuracy: LocationAccuracy.high,
-    distanceFilter: 10,
-  );
-  static const Duration _retryDelay = Duration(seconds: 5);
+  final Future<bool> Function() _isLocationServiceEnabled;
+  final Future<LocationPermission> Function() _checkPermission;
+  final Stream<Position> Function() _openPositionStream;
+  final Duration retryDelay;
 
-  static final StreamController<Position> _controller =
-      StreamController<Position>.broadcast(
-        onListen: _start,
-        onCancel: _stop,
-      );
+  late final StreamController<Position> _controller;
+  StreamSubscription<Position>? _subscription;
+  Timer? _retryTimer;
+  bool _isConnecting = false;
 
-  static StreamSubscription<Position>? _subscription;
-  static Timer? _retryTimer;
-  static bool _isConnecting = false;
+  Stream<Position> get positions => _controller.stream;
 
-  static Stream<Position> get positions => _controller.stream;
-
-  static Future<void> _start() async {
+  Future<void> _start() async {
     if (_isConnecting || _subscription != null || !_controller.hasListener) {
       return;
     }
 
     _isConnecting = true;
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      final permission = await Geolocator.checkPermission();
+      final serviceEnabled = await _isLocationServiceEnabled();
+      final permission = await _checkPermission();
       final hasPermission =
           permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse;
@@ -44,12 +49,10 @@ class SharedPositionStream {
         return;
       }
 
-      // L'ultimo listener potrebbe essersi disiscritto durante i controlli.
+      // The last listener may have unsubscribed while the checks were pending.
       if (!_controller.hasListener) return;
 
-      _subscription = Geolocator.getPositionStream(
-        locationSettings: _settings,
-      ).listen(
+      _subscription = _openPositionStream().listen(
         _controller.add,
         onError: (Object error, StackTrace stackTrace) {
           final failedSubscription = _subscription;
@@ -81,16 +84,16 @@ class SharedPositionStream {
     }
   }
 
-  static void _scheduleRetry() {
+  void _scheduleRetry() {
     if (!_controller.hasListener || _retryTimer != null) return;
 
-    _retryTimer = Timer(_retryDelay, () {
+    _retryTimer = Timer(retryDelay, () {
       _retryTimer = null;
       unawaited(_start());
     });
   }
 
-  static void _stop() {
+  void _stop() {
     _retryTimer?.cancel();
     _retryTimer = null;
 
@@ -100,4 +103,30 @@ class SharedPositionStream {
       unawaited(subscription.cancel());
     }
   }
+
+  Future<void> dispose() async {
+    _stop();
+    await _controller.close();
+  }
+}
+
+/// App-wide shared GPS source. Consumers can keep their subscription alive
+/// while [RecoveringPositionStream] reopens Geolocator after permission changes.
+class SharedPositionStream {
+  SharedPositionStream._();
+
+  static const LocationSettings _settings = LocationSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 10,
+  );
+
+  static final RecoveringPositionStream _source = RecoveringPositionStream(
+    isLocationServiceEnabled: Geolocator.isLocationServiceEnabled,
+    checkPermission: Geolocator.checkPermission,
+    openPositionStream: () => Geolocator.getPositionStream(
+      locationSettings: _settings,
+    ),
+  );
+
+  static Stream<Position> get positions => _source.positions;
 }
