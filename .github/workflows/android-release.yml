@@ -118,9 +118,20 @@ jobs:
           CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
         run: |
           if [ -z "$STADIA_MAPS_API_KEY" ]; then
-            echo "::error::STADIA_MAPS_API_KEY is required for Stadia dark and satellite maps."
+            echo "::error::STADIA_MAPS_API_KEY is required for the Stadia dark map."
             exit 1
           fi
+          if [ -z "$MAPBOX_ACCESS_TOKEN" ]; then
+            echo "::error::MAPBOX_ACCESS_TOKEN is required for Mapbox Satellite and Directions."
+            exit 1
+          fi
+          case "$MAPBOX_ACCESS_TOKEN" in
+            pk.*) ;;
+            *)
+              echo "::error::MAPBOX_ACCESS_TOKEN must be a public pk. token; never use a secret sk. token in the app."
+              exit 1
+              ;;
+          esac
           if [ -z "$CARTO_API_KEY" ]; then
             echo "::error::CARTO_API_KEY is required for the standard map."
             exit 1
