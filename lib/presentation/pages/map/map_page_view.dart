@@ -498,34 +498,27 @@ class _MapCanvasState extends State<_MapCanvas> {
             left: 8,
             bottom: widget.attributionVerticalOffset +
                 MediaQuery.of(context).padding.bottom,
-            child: Material(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(3),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(3),
-                onTap: () => launchUrl(
-                  Uri.parse('https://www.mapbox.com/'),
-                  mode: LaunchMode.externalApplication,
-                ),
-                child: SizedBox(
-                  width: 92,
-                  height: 32,
-                  child: Image.network(
-                    _mapboxLogoUrl,
-                    fit: BoxFit.contain,
-                    filterQuality: FilterQuality.medium,
-                    semanticLabel: 'Mapbox',
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Center(
-                          child: Text(
-                            'Mapbox',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+            child: GestureDetector(
+              onTap: () => launchUrl(
+                Uri.parse('https://www.mapbox.com/'),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: SizedBox(
+                width: 92,
+                height: 32,
+                child: Image.network(
+                  _mapboxLogoUrl,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                  semanticLabel: 'Mapbox',
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Text(
+                        'Mapbox',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
                         ),
-                  ),
+                      ),
                 ),
               ),
             ),
