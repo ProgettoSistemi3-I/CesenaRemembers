@@ -154,6 +154,15 @@ function authenticatedDb(uid, email = uid + '@example.test') {
   return testEnv.authenticatedContext(uid, { email }).firestore();
 }
 
+// Use only inside post-condition assertions: production clients must never
+// read another account's private user document to verify a social batch.
+async function getDocAdmin(path) {
+  return testEnv.withSecurityRulesDisabled(async (context) => {
+    const database = context.firestore();
+    return getDoc(doc(database, ...path.split('/')));
+  });
+}
+
 function friendAcceptanceBatch(database, award) {
   const batch = writeBatch(database);
   batch.update(doc(database, 'users', 'alice'), {
@@ -422,13 +431,13 @@ test('friend acceptance synchronizes both users, stats, public counts and reques
 
   await assertSucceeds(friendAcceptanceBatch(database, 'friend_1').commit());
 
-  const alice = await getDoc(doc(database, 'users', 'alice'));
-  const bob = await getDoc(doc(database, 'users', 'bob'));
-  const aliceStats = await getDoc(doc(database, 'friend_stats', 'alice'));
-  const bobStats = await getDoc(doc(database, 'friend_stats', 'bob'));
-  const alicePublic = await getDoc(doc(database, 'public_profiles', 'alice'));
-  const bobPublic = await getDoc(doc(database, 'public_profiles', 'bob'));
-  const request = await getDoc(doc(database, 'friend_requests', 'alice', 'inbox', 'bob'));
+  const alice = await getDocAdmin('users/alice');
+  const bob = await getDocAdmin('users/bob');
+  const aliceStats = await getDocAdmin('friend_stats/alice');
+  const bobStats = await getDocAdmin('friend_stats/bob');
+  const alicePublic = await getDocAdmin('public_profiles/alice');
+  const bobPublic = await getDocAdmin('public_profiles/bob');
+  const request = await getDocAdmin('friend_requests/alice/inbox/bob');
 
   assert.deepEqual(alice.data().friends, ['bob']);
   assert.deepEqual(bob.data().friends, ['alice']);
@@ -474,10 +483,10 @@ test('friend removal updates both private lists, friend stats and public counts 
 
   await assertSucceeds(batch.commit());
 
-  assert.deepEqual((await getDoc(doc(database, 'users', 'alice'))).data().friends, []);
-  assert.deepEqual((await getDoc(doc(database, 'users', 'bob'))).data().friends, []);
-  assert.equal((await getDoc(doc(database, 'public_profiles', 'alice'))).data().friendsCount, 0);
-  assert.equal((await getDoc(doc(database, 'public_profiles', 'bob'))).data().friendsCount, 0);
+  assert.deepEqual((await getDocAdmin('users/alice')).data().friends, []);
+  assert.deepEqual((await getDocAdmin('users/bob')).data().friends, []);
+  assert.equal((await getDocAdmin('public_profiles/alice')).data().friendsCount, 0);
+  assert.equal((await getDocAdmin('public_profiles/bob')).data().friendsCount, 0);
 });
 
 test('achievement claiming can move one pending achievement to the unlocked mirror', async () => {
