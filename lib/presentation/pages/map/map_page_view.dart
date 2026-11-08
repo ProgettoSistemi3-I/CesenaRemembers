@@ -342,7 +342,7 @@ class _MapCanvasState extends State<_MapCanvas> {
   static const _defaultCesenaCenter = LatLng(44.1384, 12.2471);
 
   static const _mapboxLogoUrl =
-      'https://cdn.prod.website-files.com/6050a76fa6a633d5d54ae714/657a891ba7274ba4f8b3a168_img-main-logo.png';
+      'https://static-assets.mapbox.com/logos/mapbox-logo-black.png';
 
   List<SourceAttribution> _mapAttributions() {
     if (widget.selectedMapStyle == MapStyle.satellite) {
