@@ -3,43 +3,29 @@
   <url>
     <loc>https://cesenaremembers.com/</loc>
     <lastmod>2026-11-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cesenaremembers.com/legal/privacy.html</loc>
+    <loc>https://cesenaremembers.com/legal/privacy</loc>
     <lastmod>2026-11-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://cesenaremembers.com/legal/terms.html</loc>
+    <loc>https://cesenaremembers.com/legal/terms</loc>
     <lastmod>2026-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://cesenaremembers.com/legal/delete-account.html</loc>
+    <loc>https://cesenaremembers.com/legal/delete-account</loc>
     <lastmod>2026-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://cesenaremembers.com/legal/privacy-en.html</loc>
+    <loc>https://cesenaremembers.com/legal/privacy-en</loc>
     <lastmod>2026-11-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://cesenaremembers.com/legal/terms-en.html</loc>
+    <loc>https://cesenaremembers.com/legal/terms-en</loc>
     <lastmod>2026-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://cesenaremembers.com/legal/delete-account-en.html</loc>
+    <loc>https://cesenaremembers.com/legal/delete-account-en</loc>
     <lastmod>2026-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
   </url>
 </urlset>
