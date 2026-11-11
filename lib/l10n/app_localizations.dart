@@ -75,8 +75,9 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
   ///
-  /// Returns this delegate along with the Material, Cupertino and Widgets
-  /// localization delegates provided by material_ui.
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
   ///
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
