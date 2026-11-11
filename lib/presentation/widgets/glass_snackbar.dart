@@ -97,11 +97,12 @@ void _removeActiveGlassBanner() {
 }
 
 void _removeGlassBanner(OverlayEntry entry) {
-  _glassBannerTimer?.cancel();
   if (identical(_activeGlassBanner, entry)) {
+    _glassBannerTimer?.cancel();
+    _glassBannerTimer = null;
     _activeGlassBanner = null;
   }
-  if (entry.mounted) entry.remove();
+  entry.remove();
   entry.dispose();
 }
 
