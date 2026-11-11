@@ -38,6 +38,11 @@ jobs:
         working-directory: server_docker/quiz-service
         run: python -m pytest -q tests/
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.50.0"
@@ -48,6 +53,28 @@ jobs:
 
       - name: Regenerate localizations
         run: flutter gen-l10n
+
+      - name: Migrate generated localization delegates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("lib/l10n/app_localizations.dart")
+          source = path.read_text(encoding="utf-8")
+          source = source.replace(
+              "import 'package:flutter_localizations/flutter_localizations.dart';",
+              "import 'package:material_ui/material_ui.dart';",
+          )
+          old_delegates = """    delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,"""
+          new_delegates = """    delegate,
+              ...GlobalMaterialLocalizations.delegates,"""
+          if old_delegates not in source:
+              raise SystemExit("Unexpected generated Flutter localization delegate block")
+          path.write_text(source.replace(old_delegates, new_delegates, 1), encoding="utf-8")
+          PY
 
       - name: Migrate Flutter design package deprecations
         run: dart fix --apply --code=migrate_design_widgets
@@ -61,6 +88,16 @@ jobs:
             git add pubspec.lock lib/l10n/app_localizations.dart lib/l10n/app_localizations_en.dart lib/l10n/app_localizations_it.dart
             git commit -m "chore: regenerate Flutter localizations"
             git push
+          fi
+
+      - name: Verify Android runtime dependencies do not include SafetyNet
+        run: |
+          cd android
+          ./gradlew :app:dependencies --configuration debugRuntimeClasspath > ../android-dependencies.txt
+          if grep -qi "play-services-safetynet" ../android-dependencies.txt; then
+            echo "::error::Deprecated SafetyNet dependency is still present in the Android runtime graph."
+            grep -i "play-services-safetynet" ../android-dependencies.txt
+            exit 1
           fi
 
       - name: Analyze Dart code
