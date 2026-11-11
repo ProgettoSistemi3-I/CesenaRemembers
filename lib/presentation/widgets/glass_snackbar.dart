@@ -1,82 +1,151 @@
-import 'dart:ui';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../theme/app_palette.dart';
 
-enum GlassSnackType { success, error, info, xp }
+enum GlassSnackType {
+  success,
+  error,
+  info,
+  xp,
+  achievement,
+  friend,
+}
 
-/// Mostra una snackbar glassmorphism coerente con il tema dell'app.
-/// Dark mode: vetro scuro. Light mode: vetro chiaro.
+OverlayEntry? _activeGlassBanner;
+Timer? _glassBannerTimer;
+
+/// Shows a prominent in-app banner below the status bar.
+/// A new banner replaces the previous one so important events stay readable.
 void showGlassSnackBar(
   BuildContext context, {
   required String message,
+  String? title,
   GlassSnackType type = GlassSnackType.info,
   IconData? icon,
-  Duration duration = const Duration(seconds: 3),
-  EdgeInsetsGeometry? margin,
+  Duration duration = const Duration(seconds: 4),
   VoidCallback? onTap,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final overlay = Overlay.maybeOf(context, rootOverlay: true);
+  if (overlay == null) return;
 
-  Color accentColor;
-  IconData effectiveIcon;
-  switch (type) {
-    case GlassSnackType.success:
-      accentColor = AppPalette.olive;
-      effectiveIcon = icon ?? Icons.check_circle_outline_rounded;
-      break;
-    case GlassSnackType.error:
-      accentColor = AppPalette.danger;
-      effectiveIcon = icon ?? Icons.error_outline_rounded;
-      break;
-    case GlassSnackType.xp:
-      accentColor = AppPalette.tan;
-      effectiveIcon = icon ?? Icons.bolt_rounded;
-      break;
-    case GlassSnackType.info:
-      accentColor = AppPalette.moss;
-      effectiveIcon = icon ?? Icons.place_rounded;
-      break;
-  }
+  _removeActiveGlassBanner();
 
-  final content = _GlassSnackContent(
-    message: message,
-    accentColor: accentColor,
-    icon: effectiveIcon,
-    isDark: isDark,
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (overlayContext) {
+      final topInset = MediaQuery.paddingOf(overlayContext).top;
+      return Positioned(
+        top: topInset + 12,
+        left: 16,
+        right: 16,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) => Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, -12 * (1 - value)),
+                  child: child,
+                ),
+              ),
+              child: Semantics(
+                liveRegion: true,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onTap == null
+                        ? null
+                        : () {
+                            _removeGlassBanner(entry);
+                            onTap();
+                          },
+                    borderRadius: BorderRadius.circular(20),
+                    child: _GlassSnackContent(
+                      title: title,
+                      message: message,
+                      accentColor: _accentFor(type),
+                      icon: icon ?? _iconFor(type),
+                      isDark:
+                          Theme.of(overlayContext).brightness == Brightness.dark,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
   );
 
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        behavior: SnackBarBehavior.floating,
-        dismissDirection: margin != null ? DismissDirection.up : DismissDirection.down,
-        duration: duration,
-        margin: margin ?? const EdgeInsets.fromLTRB(16, 0, 16, 80),
-        padding: EdgeInsets.zero,
-        content: onTap != null
-            ? GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  onTap();
-                },
-                child: content,
-              )
-            : content,
-      ),
-    );
+  _activeGlassBanner = entry;
+  overlay.insert(entry);
+  _glassBannerTimer = Timer(duration, () => _removeGlassBanner(entry));
+}
+
+void _removeActiveGlassBanner() {
+  final current = _activeGlassBanner;
+  if (current != null) _removeGlassBanner(current);
+}
+
+void _removeGlassBanner(OverlayEntry entry) {
+  _glassBannerTimer?.cancel();
+  if (identical(_activeGlassBanner, entry)) {
+    _activeGlassBanner = null;
+  }
+  if (entry.mounted) entry.remove();
+  entry.dispose();
+}
+
+Color _accentFor(GlassSnackType type) {
+  switch (type) {
+    case GlassSnackType.success:
+      return AppPalette.olive;
+    case GlassSnackType.error:
+      return AppPalette.danger;
+    case GlassSnackType.info:
+      return AppPalette.moss;
+    case GlassSnackType.xp:
+    case GlassSnackType.achievement:
+      return AppPalette.tan;
+    case GlassSnackType.friend:
+      return AppPalette.moss;
+  }
+}
+
+IconData _iconFor(GlassSnackType type) {
+  switch (type) {
+    case GlassSnackType.success:
+      return Icons.check_circle_outline_rounded;
+    case GlassSnackType.error:
+      return Icons.error_outline_rounded;
+    case GlassSnackType.info:
+      return Icons.place_rounded;
+    case GlassSnackType.xp:
+      return Icons.bolt_rounded;
+    case GlassSnackType.achievement:
+      return Icons.emoji_events_rounded;
+    case GlassSnackType.friend:
+      return Icons.people_alt_rounded;
+  }
 }
 
 class _GlassSnackContent extends StatelessWidget {
   const _GlassSnackContent({
+    required this.title,
     required this.message,
     required this.accentColor,
     required this.icon,
     required this.isDark,
   });
 
+  final String? title;
   final String message;
   final Color accentColor;
   final IconData icon;
@@ -84,71 +153,82 @@ class _GlassSnackContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-          decoration: BoxDecoration(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.58)
-                : Colors.white.withValues(alpha: 0.65),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.13)
-                  : Colors.white.withValues(alpha: 0.9),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: accentColor.withValues(alpha: 0.22),
-                blurRadius: 18,
-                offset: const Offset(0, 5),
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.06),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // Icon capsule
-              Container(
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: isDark ? 0.22 : 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: accentColor.withValues(alpha: isDark ? 0.5 : 0.28),
-                    width: 1,
-                  ),
-                ),
-                child: Icon(icon, color: accentColor, size: 17),
-              ),
-              const SizedBox(width: 12),
-              // Message
-              Expanded(
-                child: Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.95)
-                        : const Color(0xFF1A1A1A),
-                    letterSpacing: 0.1,
-                    height: 1.3,
-                  ),
-                ),
-              ),
+    final foreground = isDark ? Colors.white : const Color(0xFF18201C);
 
-            ],
-          ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF17211F) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.72),
+          width: 1.4,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.24),
+            blurRadius: 24,
+            spreadRadius: 1,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.34 : 0.10),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: isDark ? 0.24 : 0.13),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(icon, color: accentColor, size: 26),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null && title!.trim().isNotEmpty)
+                  Text(
+                    title!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: foreground,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
+                      height: 1.2,
+                    ),
+                  ),
+                if (message.trim().isNotEmpty) ...[
+                  if (title != null && title!.trim().isNotEmpty)
+                    const SizedBox(height: 4),
+                  Text(
+                    message,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: foreground.withValues(alpha: 0.82),
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

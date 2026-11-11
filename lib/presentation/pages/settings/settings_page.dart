@@ -248,74 +248,6 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
-  void _showActionSheet(String title, String subtitle) {
-    final theme = Theme.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(28, 16, 28, 36),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 5,
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.onSurface,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 16,
-                color: theme.colorScheme.onSurfaceVariant,
-                height: 1.6,
-              ),
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppPalette.olive,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 0,
-                ),
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  AppLocalizations.of(context)!.settingsPerfect,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -573,9 +505,12 @@ class _SettingsPageState extends State<SettingsPage>
                                 title: AppLocalizations.of(context)!.settingsContacts,
                                 subtitle: 'cesenaremembers@gmail.com',
                                 accent: AppPalette.tan,
-                                onTap: () => _showActionSheet(
-                                  AppLocalizations.of(context)!.settingsContacts,
-                                  'cesenaremembers@gmail.com',
+                                onTap: () => launchUrl(
+                                  Uri(
+                                    scheme: 'mailto',
+                                    path: 'cesenaremembers@gmail.com',
+                                  ),
+                                  mode: LaunchMode.externalApplication,
                                 ),
                               ),
                             ],

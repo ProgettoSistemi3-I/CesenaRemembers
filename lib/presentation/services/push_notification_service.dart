@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/glass_snackbar.dart';
 
 import '../../core/logging/app_logger.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
@@ -76,6 +79,25 @@ class PushNotificationService {
       }
       var authorizationStatus =
           (await messaging.getNotificationSettings()).authorizationStatus;
+
+      // Android can report FCM as authorized before POST_NOTIFICATIONS is asked.
+      // Use the Android runtime API directly during the user's explicit opt-in.
+      final isAndroid =
+          !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+      if (isAndroid && requestPermissionIfNeeded) {
+        final androidPermission =
+            await NotificationService().requestAndroidNotificationPermission();
+        if (androidPermission == false) {
+          await messaging.setAutoInitEnabled(false);
+          await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
+          _setupNotificationListeners();
+          return;
+        }
+        if (androidPermission == true) {
+          authorizationStatus = AuthorizationStatus.authorized;
+        }
+      }
+
       if (authorizationStatus != AuthorizationStatus.authorized &&
           requestPermissionIfNeeded) {
         final permission = await messaging.requestPermission(
@@ -218,7 +240,7 @@ class PushNotificationService {
           message.data['body'] as String? ??
           '';
       if (body.isEmpty) return;
-      unawaited(_showForegroundNotification(title, body));
+      unawaited(_showForegroundNotification(message, title, body));
     });
     _openedSubscription ??= FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNotificationClick(message.data);
@@ -229,7 +251,36 @@ class PushNotificationService {
   }
 
 
-  static Future<void> _showForegroundNotification(String title, String body) async {
+  static Future<void> _showForegroundNotification(
+    RemoteMessage message,
+    String title,
+    String body,
+  ) async {
+    final context = navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      final notificationType = message.data['type'] as String?;
+      final isFriendNotification =
+          notificationType == 'friend_request' ||
+          notificationType == 'friend_accepted';
+
+      showGlassSnackBar(
+        context,
+        title: title,
+        message: body,
+        type: isFriendNotification ? GlassSnackType.friend : GlassSnackType.info,
+        icon: notificationType == 'friend_request'
+            ? Icons.person_add_alt_1_rounded
+            : notificationType == 'friend_accepted'
+                ? Icons.people_alt_rounded
+                : Icons.notifications_active_rounded,
+        duration: const Duration(seconds: 7),
+        onTap: isFriendNotification
+            ? () => _handleNotificationClick(message.data)
+            : null,
+      );
+      return;
+    }
+
     final service = NotificationService();
     await service.init();
     await service.showLocalNotification(title, body);

@@ -255,7 +255,7 @@ class CesenaRemembersApp extends StatelessWidget {
     return ListenableBuilder(
       listenable: Listenable.merge([themeCtrl, localeNotifier]),
       builder: (context, _) {
-        final isDark = themeCtrl.themeMode == ThemeMode.dark;
+        final isDark = themeCtrl.isDarkModeEffective;
 
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(

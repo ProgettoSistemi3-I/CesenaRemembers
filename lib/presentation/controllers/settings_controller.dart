@@ -71,8 +71,14 @@ class SettingsController extends ChangeNotifier {
       final profile = await _profileUseCases.getUserProfile(_currentUid);
 
       notifiche = profile.notificheEnabled;
-      modalitaNotte = profile.darkModeEnabled;
       diagnostica = profile.crashlyticsEnabled;
+      if (profile.hasThemePreference) {
+        modalitaNotte = profile.darkModeEnabled;
+        _themeController.toggleTheme(modalitaNotte);
+      } else {
+        _themeController.useSystemTheme();
+        modalitaNotte = _themeController.isDarkModeEffective;
+      }
 
       // Il toggle rappresenta la preferenza scelta/salvata dall'utente,
       // non lo stato momentaneo del permesso Android. All'avvio Android può
@@ -161,10 +167,15 @@ class SettingsController extends ChangeNotifier {
       try {
         final profile = await _profileUseCases.getUserProfile(_currentUid);
         notifiche = profile.notificheEnabled;
-        modalitaNotte = profile.darkModeEnabled;
         posizione = profile.gpsEnabled;
         diagnostica = profile.crashlyticsEnabled;
-        _themeController.toggleTheme(modalitaNotte);
+        if (profile.hasThemePreference) {
+          modalitaNotte = profile.darkModeEnabled;
+          _themeController.toggleTheme(modalitaNotte);
+        } else {
+          _themeController.useSystemTheme();
+          modalitaNotte = _themeController.isDarkModeEffective;
+        }
         LocationPreferenceStore.setGpsEnabled(posizione);
       } catch (rollbackError, rollbackStackTrace) {
         AppLogger.error(

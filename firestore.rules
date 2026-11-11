@@ -71,7 +71,7 @@ service cloud.firestore {
           'notifiche', 'notificheConsenso', 'notificheConsensoAt',
           'permissionsSetupCompleted', 'crashlyticsEnabled',
           'crashlyticsConsentAt', 'posizioneGpsConsensoAt',
-          'modalitaNotte', 'posizioneGps', 'languageCode'
+          'modalitaNotte', 'themePreferenceSetAt', 'posizioneGps', 'languageCode'
         ]) &&
         (!('notifiche' in prefs) || prefs.notifiche is bool) &&
         (!('notificheConsenso' in prefs) || prefs.notificheConsenso is bool) &&
@@ -91,6 +91,8 @@ service cloud.firestore {
         (!prefs.get('crashlyticsEnabled', false) ||
           prefs.get('crashlyticsConsentAt', null) is timestamp) &&
         (!('modalitaNotte' in prefs) || prefs.modalitaNotte is bool) &&
+        (!('themePreferenceSetAt' in prefs) ||
+          prefs.themePreferenceSetAt is timestamp) &&
         (!('posizioneGps' in prefs) || prefs.posizioneGps is bool) &&
         (!('languageCode' in prefs) ||
           (prefs.languageCode is string &&

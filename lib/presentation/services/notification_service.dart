@@ -15,13 +15,28 @@ class NotificationService {
     if (_pluginInitialized) return;
     const initializationSettings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/launcher_icon'),
-      iOS: DarwinInitializationSettings(),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      ),
     );
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (_) {},
     );
     _pluginInitialized = true;
+  }
+
+  /// Requests the Android 13+ runtime permission from the user's consent action.
+  /// Returns null on platforms where the Android implementation is unavailable.
+  Future<bool?> requestAndroidNotificationPermission() async {
+    await init();
+    final androidImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return androidImplementation?.requestNotificationsPermission();
   }
 
   Future<void> showLocalNotification(String title, String body) async {
