@@ -84,16 +84,24 @@ class PushNotificationService {
       // Use the Android runtime API directly during the user's explicit opt-in.
       final isAndroid =
           !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-      if (isAndroid && requestPermissionIfNeeded) {
-        final androidPermission =
-            await NotificationService().requestAndroidNotificationPermission();
-        if (androidPermission == false) {
+      if (isAndroid) {
+        final notificationService = NotificationService();
+        var notificationsEnabled =
+            await notificationService.areAndroidNotificationsEnabled();
+
+        if (notificationsEnabled == false && requestPermissionIfNeeded) {
+          notificationsEnabled =
+              await notificationService.requestAndroidNotificationPermission();
+        }
+
+        if (notificationsEnabled == false) {
           await messaging.setAutoInitEnabled(false);
           await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
           _setupNotificationListeners();
           return;
         }
-        if (androidPermission == true) {
+
+        if (notificationsEnabled == true) {
           authorizationStatus = AuthorizationStatus.authorized;
         }
       }

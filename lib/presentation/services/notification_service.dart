@@ -28,6 +28,16 @@ class NotificationService {
     _pluginInitialized = true;
   }
 
+  /// Returns whether Android currently allows this app to post notifications.
+  Future<bool?> areAndroidNotificationsEnabled() async {
+    await init();
+    final androidImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return androidImplementation?.areNotificationsEnabled();
+  }
+
   /// Requests the Android 13+ runtime permission from the user's consent action.
   /// Returns null on platforms where the Android implementation is unavailable.
   Future<bool?> requestAndroidNotificationPermission() async {
