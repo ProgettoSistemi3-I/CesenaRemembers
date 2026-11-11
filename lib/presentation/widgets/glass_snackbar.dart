@@ -26,9 +26,11 @@ void showGlassSnackBar(
   IconData? icon,
   Duration duration = const Duration(seconds: 4),
   VoidCallback? onTap,
+  OverlayState? overlayState,
 }) {
-  final overlay = Overlay.maybeOf(context, rootOverlay: true);
-  if (overlay == null) return;
+  final targetOverlay =
+      overlayState ?? Overlay.maybeOf(context, rootOverlay: true);
+  if (targetOverlay == null) return;
 
   _removeActiveGlassBanner();
 
@@ -85,7 +87,7 @@ void showGlassSnackBar(
   );
 
   _activeGlassBanner = entry;
-  overlay.insert(entry);
+  targetOverlay.insert(entry);
   _glassBannerTimer = Timer(duration, () => _removeGlassBanner(entry));
 }
 

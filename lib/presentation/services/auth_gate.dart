@@ -232,13 +232,10 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
             final currentPending = profile.pendingAchievements.length;
             if (_previousPendingAchievementsCount != -1 &&
                 currentPending > _previousPendingAchievementsCount) {
-              final ctx =
-                  PushNotificationService.navigatorKey.currentContext ??
-                  context;
-              if (ctx.mounted) {
+              if (context.mounted) {
                 showGlassSnackBar(
-                  ctx,
-                  title: AppLocalizations.of(ctx)!.achievementUnlockedSnack,
+                  context,
+                  title: AppLocalizations.of(context)!.achievementUnlockedSnack,
                   message: '',
                   type: GlassSnackType.achievement,
                   icon: Icons.emoji_events_rounded,

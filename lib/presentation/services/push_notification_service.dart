@@ -265,6 +265,7 @@ class PushNotificationService {
     String body,
   ) async {
     final context = navigatorKey.currentContext;
+    final overlay = navigatorKey.currentState?.overlay;
     if (context != null && context.mounted) {
       final notificationType = message.data['type'] as String?;
       final isFriendNotification =
@@ -282,6 +283,7 @@ class PushNotificationService {
                 ? Icons.people_alt_rounded
                 : Icons.notifications_active_rounded,
         duration: const Duration(seconds: 7),
+        overlayState: overlay,
         onTap: isFriendNotification
             ? () => _handleNotificationClick(message.data)
             : null,
