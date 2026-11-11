@@ -266,7 +266,7 @@ class PushNotificationService {
   ) async {
     final context = navigatorKey.currentContext;
     final overlay = navigatorKey.currentState?.overlay;
-    if (context != null && context.mounted) {
+    if (context != null && context.mounted && overlay != null) {
       final notificationType = message.data['type'] as String?;
       final isFriendNotification =
           notificationType == 'friend_request' ||
