@@ -5,7 +5,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'package:cesena_remembers/l10n/app_localizations.dart';
@@ -34,6 +34,7 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
       FlutterError.onError = (details) {
         FlutterError.presentError(details);
@@ -119,8 +120,8 @@ class AppBootstrap {
       // Debug/Profile: Debug provider.
       // Release: Play Integrity.
       final appCheckProvider = kReleaseMode
-          ? AndroidProvider.playIntegrity
-          : AndroidProvider.debug;
+          ? const AndroidPlayIntegrityProvider()
+          : const AndroidDebugProvider();
 
       debugPrint(
         '[AppCheck] Inizializzazione provider: '
@@ -128,7 +129,7 @@ class AppBootstrap {
       );
 
       await FirebaseAppCheck.instance.activate(
-        androidProvider: appCheckProvider,
+        providerAndroid: appCheckProvider,
       );
 
       debugPrint('[AppCheck] Provider attivato correttamente.');
@@ -259,7 +260,6 @@ class CesenaRemembersApp extends StatelessWidget {
 
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
             statusBarIconBrightness: isDark
                 ? Brightness.light
                 : Brightness.dark,

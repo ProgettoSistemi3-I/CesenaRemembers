@@ -40,7 +40,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: "3.50.0"
           cache: true
 
       - name: Resolve Flutter dependencies
@@ -48,6 +48,9 @@ jobs:
 
       - name: Regenerate localizations
         run: flutter gen-l10n
+
+      - name: Migrate Flutter design package deprecations
+        run: dart fix --apply --code=migrate_design_widgets
 
       - name: Commit generated files on review branches
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/fix/')
@@ -90,7 +93,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: "3.50.0"
           cache: true
 
       - name: Prepare signing credentials

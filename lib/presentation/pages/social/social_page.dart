@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../controllers/social_controller.dart';

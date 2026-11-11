@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../core/logging/crashlytics_reporter.dart';
 import '../../../domain/usecases/user_preferences_use_cases.dart';
