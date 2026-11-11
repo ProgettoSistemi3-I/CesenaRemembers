@@ -90,10 +90,15 @@ jobs:
             git push
           fi
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
       - name: Verify Android runtime dependencies do not include SafetyNet
         run: |
           cd android
-          ./gradlew :app:dependencies --configuration debugRuntimeClasspath > ../android-dependencies.txt
+          gradle :app:dependencies --configuration debugRuntimeClasspath > ../android-dependencies.txt
           if grep -qi "play-services-safetynet" ../android-dependencies.txt; then
             echo "::error::Deprecated SafetyNet dependency is still present in the Android runtime graph."
             grep -i "play-services-safetynet" ../android-dependencies.txt
