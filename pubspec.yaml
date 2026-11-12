@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 1.0.0+2
 
 environment:
-  sdk: ^3.10.4
+  sdk: ^3.13.0
 
 dependencies:
   flutter:
@@ -40,6 +40,11 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   package_info_plus: ^10.2.2
   firebase_app_check: ^0.4.9
+
+# Keep the endorsed Android implementation compatible with AGP 9 built-in Kotlin.
+# shared_preferences_android 2.4.24 is the first release with built-in Kotlin support.
+dependency_overrides:
+  shared_preferences_android: ^2.4.24
 
 dev_dependencies:
   flutter_test:
