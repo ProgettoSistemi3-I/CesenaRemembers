@@ -7,8 +7,7 @@ import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
 
 class UserProfileDataSource {
-  UserProfileDataSource({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+  UserProfileDataSource({required this._firestore});
 
   final FirebaseFirestore _firestore;
 

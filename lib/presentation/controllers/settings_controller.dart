@@ -33,17 +33,12 @@ class SettingsController extends ChangeNotifier {
   String? errorMessage;
 
   SettingsController({
-    required SignOutUseCase signOutUseCase,
-    required DeleteCurrentUserUseCase deleteCurrentUserUseCase,
-    required UserProfileUseCases profileUseCases,
-    required UserPreferencesUseCases preferencesUseCases,
-    required ThemeController themeController,
-  }) : _signOutUseCase = signOutUseCase,
-       _deleteCurrentUserUseCase = deleteCurrentUserUseCase,
-       _profileUseCases = profileUseCases,
-       _preferencesUseCases = preferencesUseCases,
-       _themeController = themeController,
-       _locationService = const LocationPermissionService() {
+    required this._signOutUseCase,
+    required this._deleteCurrentUserUseCase,
+    required this._profileUseCases,
+    required this._preferencesUseCases,
+    required this._themeController,
+  }) : _locationService = const LocationPermissionService() {
     loadUserPreferences();
   }
 

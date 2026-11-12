@@ -21,8 +21,7 @@ class ThemeController extends ChangeNotifier {
     }
   }
 
-  ThemeController({required UserProfileUseCases profileUseCases})
-    : _profileUseCases = profileUseCases;
+  ThemeController({required this._profileUseCases});
 
   Future<void> initTheme() async {
     await _loadThemeFromFirebase();

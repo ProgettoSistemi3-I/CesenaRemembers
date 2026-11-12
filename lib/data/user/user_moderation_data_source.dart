@@ -9,10 +9,9 @@ import 'user_social_data_source.dart';
 /// cleanup write fails and needs to be retried.
 class UserModerationDataSource {
   UserModerationDataSource({
-    required FirebaseFirestore firestore,
-    required UserSocialDataSource social,
-  }) : _firestore = firestore,
-       _social = social;
+    required this._firestore,
+    required this._social,
+  });
 
   final FirebaseFirestore _firestore;
   final UserSocialDataSource _social;

@@ -6,8 +6,7 @@ import '../../core/logging/app_logger.dart';
 import '../../domain/services/achievement_service.dart';
 
 class UserProgressDataSource {
-  UserProgressDataSource({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+  UserProgressDataSource({required this._firestore});
 
   final FirebaseFirestore _firestore;
 
