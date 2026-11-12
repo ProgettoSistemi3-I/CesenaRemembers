@@ -79,15 +79,20 @@ jobs:
       - name: Migrate Flutter design package deprecations
         run: dart fix --apply --code=migrate_design_widgets
 
-      - name: Commit generated files on review branches
+      - name: Apply Dart analyzer quick fixes
+        run: dart fix --apply
+
+      - name: Commit generated files and analyzer fixes on review branches
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/fix/')
         run: |
-          if ! git diff --quiet -- pubspec.lock lib/l10n/app_localizations.dart lib/l10n/app_localizations_en.dart lib/l10n/app_localizations_it.dart; then
+          if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add pubspec.lock lib/l10n/app_localizations.dart lib/l10n/app_localizations_en.dart lib/l10n/app_localizations_it.dart
-            git commit -m "chore: regenerate Flutter localizations"
-            git push
+            git add -u
+            if ! git diff --cached --quiet; then
+              git commit -m "chore: apply Dart analyzer fixes"
+              git push
+            fi
           fi
 
       - name: Set up Gradle
