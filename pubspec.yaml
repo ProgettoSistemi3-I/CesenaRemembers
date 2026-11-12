@@ -45,6 +45,7 @@ dependencies:
 # shared_preferences_android 2.4.24 is the first release with built-in Kotlin support.
 dependency_overrides:
   shared_preferences_android: ^2.4.24
+  url_launcher_android: ^6.3.31
 
 dev_dependencies:
   flutter_test:
