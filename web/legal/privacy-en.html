@@ -18,7 +18,7 @@
 </head>
 <body>
 <main>
-  <p>Updated 6 November 2026 · <a href="privacy.html">Versione italiana</a></p>
+  <p>Updated 14 November 2026 · <a href="privacy.html">Versione italiana</a></p>
   <h1>Privacy Notice</h1>
   <p>Information under Articles 12 and 13 of Regulation (EU) 2016/679 (GDPR).</p>
 
@@ -70,7 +70,7 @@
   <p>Firebase Authentication manages sign-in through Google Sign-In. Cloud Firestore stores accounts, profiles, usernames, social relationships, progress and statistics. Firebase Cloud Messaging (FCM) delivers optional push notifications. Notifications are off by default: they are enabled only after the user expressly turns on the in-app notification option and grants the operating-system permission. The app records the consent state and a server-side timestamp. Legacy accounts without that consent record remain opted out. When the user withdraws consent or disables notifications, the app removes the token from the profile and deletes the local FCM token. The notification microservice listens in real time to the <code>users</code> collection without a field projection. Firestore therefore delivers complete document snapshots, which may include email addresses and other profile data. The service code uses only friend-request/friendship UIDs, FCM tokens and notification preferences for its notification logic; email is not included in push messages or used to decide whether to send them, but the complete document is still received and loaded in the microservice process. Invalid or unregistered FCM tokens are removed.</p>
 
   <h3>7.2 Firebase Crashlytics</h3>
-  <p>Crashlytics collection is disabled by default and is activated only after the user expressly chooses to share technical reports in the initial consent screens or in Settings. The choice and its timestamp are stored in the private profile. If the user declines or withdraws consent, collection is disabled and unsent local reports are deleted. When enabled, Crashlytics may receive stack traces, exception type, Crashlytics Installation UUID, Firebase Installation ID and device information. The app's reporter redacts the original exception message before recording it. Diagnostics are optional and are not required to use the app. Google states a 90-day retention period for stack traces and associated identifiers before removal from active systems and backups. The controllers must verify the applicable ePrivacy requirements and the final legal basis before publication.</p>
+  <p>Crashlytics collection is disabled by default and is activated only after the user expressly chooses to share technical reports in the initial consent screens or in Settings. The choice and its timestamp are stored in the private profile. If the user declines or withdraws consent, collection is disabled and unsent local reports are deleted. When enabled, Crashlytics may receive stack traces, exception type, Crashlytics Installation UUID, Firebase Installation ID and device information. The app's reporter redacts the original exception message before recording it. Diagnostics are optional and are not required to use the app. Google states a 90-day retention period for stack traces and associated identifiers before removal from active systems and backups.</p>
 
   <h3>7.3 Firebase App Check and Google Play Integrity</h3>
   <p>App Check helps verify that requests to configured Firebase services originate from an authorised app/device. Development builds use the Debug provider; Android Release builds use Play Integrity. Attestation material is sent to the relevant attestation provider and an App Check token accompanies requests to services where App Check is configured. App Check states that it does not retain the attestation material. Tokens have a configurable time to live of up to seven days and, without replay protection, are not retained by Firebase services after use. The Play Integrity provider applies its own terms and privacy information.</p>
@@ -138,7 +138,7 @@
   <p>The project uses Firebase Authentication, Firestore security rules, App Check for configured Firebase services, Play Integrity in Android Release builds and HTTPS. The quiz backend uses HTTPS/TLS on port 8000; containers communicate over a private Docker network. The website is hosted through Cloudflare Pages and does not use traffic analytics or behavioural advertising tools. The homepage uses Manrope and Outfit font files hosted as static assets on the website's own domain; the browser retrieves them from the website hosting service without requesting fonts from an external font provider. XP, progress and quiz generation do not make decisions with legal or similarly significant effects under Article 22 GDPR. This notice may be updated when the app, providers, purposes or applicable law change.</p>
 
   <footer>
-    <p>Last updated: 8 November 2026 · <a href="privacy.html">Italian</a> · <a href="terms-en.html">Terms of Use</a> · <a href="delete-account-en.html">Account deletion</a></p>
+    <p>Last updated: 14 November 2026 · <a href="privacy.html">Italian</a> · <a href="terms-en.html">Terms of Use</a> · <a href="delete-account-en.html">Account deletion</a></p>
   </footer>
 </main>
 </body>
