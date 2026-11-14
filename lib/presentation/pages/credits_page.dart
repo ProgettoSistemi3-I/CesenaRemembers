@@ -111,7 +111,7 @@ class CreditsPage extends StatelessWidget {
               const _ThinDivider(),
               _CreditRow(
                 icon: Icons.groups_outlined,
-                title: 'Classe 3I',
+                title: 'Classe 4I',
                 subtitle: AppLocalizations.of(context)!.creditRoleClass,
                 accent: AppPalette.tan,
                 isStatic: true,
@@ -211,7 +211,7 @@ class CreditsPage extends StatelessWidget {
                 subtitle: AppLocalizations.of(context)!.mapLicenseSatelliteSubtitle,
                 accent: AppPalette.moss,
                 onTap: () => launchUrl(
-                  Uri.parse('https://stadiamaps.com/attribution/'),
+                  Uri.parse('https://docs.mapbox.com/help/dive-deeper/attribution/'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),
