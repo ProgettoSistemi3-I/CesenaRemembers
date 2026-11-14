@@ -31,7 +31,7 @@ void main() {
       expect(controller.orderedStops, isEmpty);
     });
 
-    test('keeps the active stop fixed while allowing upcoming stops to be reordered', () async {
+    test('allows the first upcoming stop to be reordered', () async {
       final controller = TourSessionController(
         availableStops: [
           stop('A', 44.01),
@@ -48,11 +48,16 @@ void main() {
       expect(controller.currentStop?.id, 'A');
 
       controller.reorderUpcomingStops(oldRelativeIndex: 0, newRelativeIndex: 2);
-      expect(controller.orderedStops.map((item) => item.id), ['A', 'B', 'C']);
+      expect(controller.orderedStops.map((item) => item.id), ['B', 'C', 'A']);
+      expect(controller.currentStop?.id, 'B');
 
       controller.reorderUpcomingStops(oldRelativeIndex: 1, newRelativeIndex: 2);
-      expect(controller.orderedStops.map((item) => item.id), ['A', 'C', 'B']);
-      expect(controller.currentStop?.id, 'A');
+      expect(controller.orderedStops.map((item) => item.id), ['B', 'A', 'C']);
+      expect(controller.currentStop?.id, 'B');
+
+      controller.reorderUpcomingStops(oldRelativeIndex: 2, newRelativeIndex: 0);
+      expect(controller.orderedStops.map((item) => item.id), ['C', 'B', 'A']);
+      expect(controller.currentStop?.id, 'C');
 
       controller.stopTour();
       expect(controller.status, TourStatus.idle);
