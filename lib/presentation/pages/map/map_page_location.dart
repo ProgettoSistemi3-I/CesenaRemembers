@@ -91,6 +91,28 @@ extension _MapPageLocationLogic on _MapPageState {
     ShellNavigationStore.openSettingsAndFocusGpsToggle();
   }
 
+  Future<LatLng?> _getCurrentDeviceLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 6),
+        ),
+      );
+      return LatLng(position.latitude, position.longitude);
+    } catch (_) {
+      try {
+        final lastKnown = await Geolocator.getLastKnownPosition();
+        if (lastKnown != null) {
+          return LatLng(lastKnown.latitude, lastKnown.longitude);
+        }
+      } catch (_) {
+        // A missing or stale position must not be replaced with Cesena's center.
+      }
+      return null;
+    }
+  }
+
   Future<void> _centerOnUserLocation() async {
     if (_isCenteringOnUser) return;
 
@@ -99,10 +121,7 @@ extension _MapPageLocationLogic on _MapPageState {
       return;
     }
 
-    _updateMapState(() {
-      _isCenteringOnUser = true;
-      _alignPositionOnUpdate = AlignOnUpdate.always;
-    });
+    _updateMapState(() => _isCenteringOnUser = true);
 
     try {
       await _verifyLocationState(requestPerms: true);
@@ -110,24 +129,22 @@ extension _MapPageLocationLogic on _MapPageState {
           _isGpsEnabled && _hasPermissions && _isGpsPreferenceEnabled;
       if (!canUseLocation) return;
 
-      Position? position;
-      try {
-        position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 6),
-          ),
-        );
-      } catch (_) {
-        position = await Geolocator.getLastKnownPosition();
+      final position = await _getCurrentDeviceLocation();
+      if (!mounted || position == null) return;
+
+      if (!_MapPageState._cesenaBounds.contains(position)) {
+        _updateMapState(() => _isOutsideCesena = true);
+        return;
       }
 
-      if (position != null && mounted) {
-        _mapController.move(
-          LatLng(position.latitude, position.longitude),
-          math.max(_mapController.camera.zoom, 16.5),
-        );
-      }
+      _updateMapState(() {
+        _isOutsideCesena = false;
+        _alignPositionOnUpdate = AlignOnUpdate.always;
+      });
+      _mapController.move(
+        position,
+        math.max(_mapController.camera.zoom, 16.5),
+      );
     } finally {
       if (mounted) {
         _updateMapState(() => _isCenteringOnUser = false);
