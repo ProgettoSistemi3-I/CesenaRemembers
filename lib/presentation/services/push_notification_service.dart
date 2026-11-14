@@ -98,7 +98,7 @@ class PushNotificationService {
           await messaging.setAutoInitEnabled(false);
           await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
           _setupNotificationListeners();
-          return;
+          return false;
         }
 
         if (notificationsEnabled == true) {
