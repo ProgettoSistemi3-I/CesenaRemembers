@@ -32,7 +32,7 @@
 <body>
 <main>
   <header>
-    <p class="meta">Cesena Remembers · Informativa aggiornata all'8 novembre 2026</p>
+    <p class="meta">Cesena Remembers · Informativa aggiornata al 14 novembre 2026</p>
     <h1>Informativa sulla privacy</h1>
     <p class="meta">Informativa ai sensi degli artt. 12, 13 e 14 del Regolamento (UE) 2016/679 (GDPR).</p>
   </header>
@@ -160,7 +160,7 @@
     <h3>8.1 Firebase Authentication, Firestore e Cloud Messaging</h3>
     <p>Firebase Authentication gestisce l'identità e l'accesso tramite Google Sign-In. Cloud Firestore conserva account, profili, username, relazioni social, progressi e statistiche. Firebase Cloud Messaging (FCM) gestisce la consegna delle notifiche push facoltative. Le notifiche sono disattivate per impostazione predefinita: vengono attivate soltanto quando l'utente abilita espressamente l'opzione nell'app e concede il permesso richiesto dal sistema operativo. L'app registra il consenso con un timestamp; gli account legacy privi di tale registrazione restano disattivati. Quando l'utente revoca il consenso o disattiva l'opzione, l'app rimuove il token dal profilo e lo elimina dal servizio FCM. Il microservizio notifiche ascolta in tempo reale la collection <code>users</code> senza una proiezione dei campi: Firestore gli consegna quindi documenti completi, che possono includere anche l'email e altri dati del profilo. Il codice usa per la logica delle notifiche soltanto gli UID delle richieste/amicizie, i token FCM e le preferenze; non inserisce l'email nei messaggi push né la usa per decidere gli invii, ma il documento completo è comunque ricevuto e caricato nel processo del microservizio. I token che FCM segnala come non validi o non più registrati vengono rimossi.</p>
     <h3>8.2 Firebase Crashlytics</h3>
-    <p>Crashlytics è disattivato per impostazione predefinita e viene abilitato soltanto dopo una scelta esplicita e separata dell'utente. La scelta è registrata con timestamp nel profilo privato; in caso di rifiuto o revoca, la raccolta viene disattivata e i report non ancora inviati vengono eliminati dal dispositivo. Se l'utente acconsente, il servizio può ricevere stack trace, tipo di eccezione, Crashlytics Installation UUID, Firebase Installation ID e informazioni tecniche del dispositivo. L'app redige il messaggio originale dell'eccezione prima della registrazione. Il consenso è revocabile dalle Impostazioni e non è necessario per usare l'app. Google indica una conservazione di 90 giorni per stack trace e identificativi associati, prima della rimozione da sistemi attivi e backup. L'applicazione concreta della disciplina ePrivacy e l'informativa devono essere verificate dai titolari prima della pubblicazione.</p>
+    <p>Crashlytics è disattivato per impostazione predefinita e viene abilitato soltanto dopo una scelta esplicita e separata dell'utente. La scelta è registrata con timestamp nel profilo privato; in caso di rifiuto o revoca, la raccolta viene disattivata e i report non ancora inviati vengono eliminati dal dispositivo. Se l'utente acconsente, il servizio può ricevere stack trace, tipo di eccezione, Crashlytics Installation UUID, Firebase Installation ID e informazioni tecniche del dispositivo. L'app redige il messaggio originale dell'eccezione prima della registrazione. Il consenso è revocabile dalle Impostazioni e non è necessario per usare l'app. Google indica una conservazione di 90 giorni per stack trace e identificativi associati, prima della rimozione da sistemi attivi e backup.</p>
     <h3>8.3 Firebase App Check e Play Integrity</h3>
     <p>App Check serve a verificare che le richieste ai servizi protetti provengano da un'app/dispositivo autorizzato. Nelle build di sviluppo il progetto usa il provider Debug; nelle build Release Android usa Play Integrity. Il materiale di attestazione è inviato al provider di attestazione per la verifica e il token App Check accompagna le richieste ai servizi per i quali App Check è configurato. App Check dichiara di non conservare il materiale di attestazione; i token hanno una durata configurabile (massimo 7 giorni) e, senza la funzione di replay protection, non sono conservati dai servizi Firebase dopo l'uso. Il provider Play Integrity tratta i dati di attestazione secondo le proprie condizioni.</p>
     <p>App Check è applicato ai servizi Firebase per i quali è stato configurato e non costituisce l'autenticazione dell'utente. Il backend quiz è un servizio distinto: il controllo di accesso è effettuato tramite Firebase Authentication ID token nell'header Bearer, verificato dal server anche rispetto alla revoca del token e alla disabilitazione dell'account. Il server applica inoltre limiti per IP e per UID. App Check non è il meccanismo di autenticazione o di controllo di accesso del backend quiz.</p>
@@ -263,7 +263,7 @@
 
   <footer>
     <p>© 2026 Cesena Remembers · <a href="privacy-en.html">English</a> · <a href="terms.html">Termini di utilizzo</a> · <a href="delete-account.html">Cancellazione account</a></p>
-    <p>Ultimo aggiornamento: 8 novembre 2026.</p>
+    <p>Ultimo aggiornamento: 14 novembre 2026.</p>
   </footer>
 </main>
 </body>
