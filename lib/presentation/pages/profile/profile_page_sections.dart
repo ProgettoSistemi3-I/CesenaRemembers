@@ -480,7 +480,7 @@ class _StatCard extends StatelessWidget {
 class _AchievementsGrid extends StatelessWidget {
   final List<String> unlockedIds;
   final List<String> pendingIds;
-  final Function(String) onUnlock;
+  final Future<void> Function(String) onUnlock;
 
   const _AchievementsGrid({
     required this.unlockedIds,
@@ -522,7 +522,7 @@ class _AchievementTile extends StatefulWidget {
   final AchievementDefinition achievement;
   final bool isUnlocked;
   final bool isPending;
-  final VoidCallback onUnlock;
+  final Future<void> Function() onUnlock;
 
   const _AchievementTile({
     required this.achievement,
@@ -586,18 +586,25 @@ class _AchievementTileState extends State<_AchievementTile>
     super.dispose();
   }
 
-  void _handleTap() async {
+  Future<void> _handleTap() async {
     final canUnlock = widget.isPending && !_justUnlocked;
 
     if (canUnlock && !_isAnimating) {
       setState(() => _isAnimating = true);
-      await _animCtrl.forward();
-      widget.onUnlock();
-      setState(() {
-        _isAnimating = false;
-        _justUnlocked = true;
-      });
-      _animCtrl.reset();
+      try {
+        await _animCtrl.forward();
+        if (!mounted) return;
+
+        await widget.onUnlock();
+        if (!mounted) return;
+
+        setState(() => _justUnlocked = true);
+      } finally {
+        if (mounted) {
+          setState(() => _isAnimating = false);
+          _animCtrl.reset();
+        }
+      }
     } else {
       _showDetailsDialog();
     }
