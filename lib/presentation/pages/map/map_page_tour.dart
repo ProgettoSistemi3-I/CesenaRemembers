@@ -17,7 +17,23 @@ extension _MapPageTourActions on _MapPageState {
       return;
     }
 
-    final hasStarted = await _tourController.startTour();
+    final origin = await _getCurrentDeviceLocation();
+    if (!mounted) return;
+    if (origin == null) {
+      showGlassSnackBar(
+        context,
+        message: AppLocalizations.of(context)!.tourStartGpsRequired,
+        type: GlassSnackType.error,
+      );
+      return;
+    }
+    if (!_MapPageState._cesenaBounds.contains(origin)) {
+      _updateMapState(() => _isOutsideCesena = true);
+      return;
+    }
+    _updateMapState(() => _isOutsideCesena = false);
+
+    final hasStarted = await _tourController.startTour(origin: origin);
     if (hasStarted) {
       _tourXpEarned = 0;
       _tourCorrectAnswers = 0;
