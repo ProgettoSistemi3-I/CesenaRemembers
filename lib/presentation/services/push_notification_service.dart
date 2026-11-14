@@ -49,12 +49,12 @@ class PushNotificationService {
   static StreamSubscription<RemoteMessage>? _openedSubscription;
   static StreamSubscription<RemoteMessage>? _foregroundSubscription;
 
-  static Future<void> initializeAndSaveToken({
+  static Future<bool?> initializeAndSaveToken({
     bool requestPermissionIfNeeded = true,
   }) async {
     final profiles = sl<UserProfileUseCases>();
     final uid = profiles.getCurrentUserUid();
-    if (uid == null || uid.isEmpty) return;
+    if (uid == null || uid.isEmpty) return null;
 
     final messaging = FirebaseMessaging.instance;
 
@@ -75,7 +75,7 @@ class PushNotificationService {
         await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
-        return;
+        return false;
       }
       var authorizationStatus =
           (await messaging.getNotificationSettings()).authorizationStatus;
@@ -119,7 +119,7 @@ class PushNotificationService {
         await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
-        return;
+        return false;
       }
 
       // Re-enable FCM registration only after explicit in-app consent and
@@ -152,6 +152,7 @@ class PushNotificationService {
         }
       });
       _setupNotificationListeners();
+      return true;
     } catch (error, stackTrace) {
       AppLogger.error(
         'FCM initialization failed; app remains usable without push',
@@ -159,6 +160,7 @@ class PushNotificationService {
         stackTrace: stackTrace,
         name: 'PushNotificationService',
       );
+      return null;
     }
   }
 
