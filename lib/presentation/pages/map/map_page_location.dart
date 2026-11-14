@@ -104,7 +104,12 @@ extension _MapPageLocationLogic on _MapPageState {
       try {
         final lastKnown = await Geolocator.getLastKnownPosition();
         if (lastKnown != null) {
-          return LatLng(lastKnown.latitude, lastKnown.longitude);
+          final age = DateTime.now().difference(lastKnown.timestamp);
+          // A stale cached fix could otherwise let someone start a tour after
+          // leaving Cesena. Only accept a recent fallback position.
+          if (age >= Duration.zero && age <= const Duration(seconds: 30)) {
+            return LatLng(lastKnown.latitude, lastKnown.longitude);
+          }
         }
       } catch (_) {
         // A missing or stale position must not be replaced with Cesena's center.
