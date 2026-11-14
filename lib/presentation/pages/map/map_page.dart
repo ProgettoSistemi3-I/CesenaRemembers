@@ -120,7 +120,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       _outsideCesenaRemoveTimer = Timer(
         const Duration(milliseconds: 240),
         () {
-          if (entry.mounted) entry.remove();
+          entry.remove();
           if (identical(_outsideCesenaOverlay, entry)) {
             _outsideCesenaOverlay = null;
           }
@@ -134,7 +134,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     _outsideCesenaRemoveTimer?.cancel();
     final entry = _outsideCesenaOverlay;
     _outsideCesenaOverlay = null;
-    if (entry?.mounted ?? false) entry!.remove();
+    entry?.remove();
   }
 
   late TourSessionController _tourController;
