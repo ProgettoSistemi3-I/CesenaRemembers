@@ -100,6 +100,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   bool _isGpsPreferenceEnabled = LocationPreferenceStore.gpsEnabled.value;
   bool _isCheckingLocation = true;
   bool _isCenteringOnUser = false;
+  bool _isOutsideCesena = false;
   bool _isSavingQuizResult = false;
   int _tourXpEarned = 0;
   int _tourCorrectAnswers = 0;
