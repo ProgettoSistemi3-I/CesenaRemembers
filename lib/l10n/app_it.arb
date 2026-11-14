@@ -107,6 +107,8 @@
   "tourConfirmStopBody": "Il tour verrà terminato e perderai l'ordine attuale delle tappe.",
   "buttonStop": "Interrompi",
   "tourStartGpsRequired": "Per iniziare il tour attiva GPS, permessi posizione e opzione nell'app.",
+  "mapOutsideCesenaTitle": "Sei fuori dall'area della mappa",
+  "mapOutsideCesenaMessage": "Per centrare la posizione o avviare un tour devi trovarti a Cesena, all'interno dell'area visualizzata.",
   "tourCompleted": "🎉 Tour completato! Ottimo lavoro.",
   "tourStopButton": "Interrompi tour",
   "tourOrderButton": "Ordina tappe",
