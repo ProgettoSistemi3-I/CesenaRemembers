@@ -42,12 +42,10 @@ class LeaderboardEntry {
 
 class SocialController extends ChangeNotifier {
   SocialController({
-    required UserProfileUseCases profileUseCases,
-    required UserProgressUseCases progressUseCases,
-    required UserSocialUseCases socialUseCases,
-  }) : _profileUseCases = profileUseCases,
-       _progressUseCases = progressUseCases,
-       _socialUseCases = socialUseCases {
+    required this._profileUseCases,
+    required this._progressUseCases,
+    required this._socialUseCases,
+  }) {
     _authSub = FirebaseAuth.instance.authStateChanges().listen(_onAuthChanged);
   }
 

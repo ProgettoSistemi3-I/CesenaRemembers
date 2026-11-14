@@ -7,8 +7,7 @@ import '../../domain/entities/userprofile.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 
 class ProfileController extends ChangeNotifier {
-  ProfileController({required UserProfileUseCases profileUseCases})
-    : _profileUseCases = profileUseCases {
+  ProfileController({required this._profileUseCases}) {
     _startProfileListener();
   }
 

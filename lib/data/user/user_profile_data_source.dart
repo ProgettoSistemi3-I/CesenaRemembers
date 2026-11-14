@@ -7,8 +7,7 @@ import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
 
 class UserProfileDataSource {
-  UserProfileDataSource({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+  UserProfileDataSource({required this._firestore});
 
   final FirebaseFirestore _firestore;
 
@@ -360,7 +359,10 @@ class UserProfileDataSource {
           'posizioneGpsConsensoAt': existingPrefs['posizioneGpsConsensoAt'],
         if (existingPrefs['notificheConsensoAt'] is Timestamp)
           'notificheConsensoAt': existingPrefs['notificheConsensoAt'],
-        'modalitaNotte': existingPrefs['modalitaNotte'] ?? false,
+        if (existingPrefs['modalitaNotte'] is bool)
+          'modalitaNotte': existingPrefs['modalitaNotte'],
+        if (existingPrefs['themePreferenceSetAt'] is Timestamp)
+          'themePreferenceSetAt': existingPrefs['themePreferenceSetAt'],
         'posizioneGps': existingPrefs['posizioneGps'] ?? true,
         'languageCode': existingLanguage == 'en' || existingLanguage == 'it'
             ? existingLanguage
@@ -434,7 +436,10 @@ class UserProfileDataSource {
           ? FieldValue.serverTimestamp()
           : FieldValue.delete();
     }
-    if (darkMode != null) updates['preferences.modalitaNotte'] = darkMode;
+    if (darkMode != null) {
+      updates['preferences.modalitaNotte'] = darkMode;
+      updates['preferences.themePreferenceSetAt'] = FieldValue.serverTimestamp();
+    }
     if (gps != null) {
       updates['preferences.posizioneGps'] = gps;
       updates['preferences.posizioneGpsConsensoAt'] = gps

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../core/logging/app_logger.dart';
 
@@ -9,11 +9,9 @@ import '../../domain/usecases/user_profile_use_cases.dart';
 class SettingsUiController extends ChangeNotifier {
   SettingsUiController(
     this._localeNotifier, {
-    required UserPreferencesUseCases preferencesUseCases,
-    required UserProfileUseCases profileUseCases,
-  }) : _preferencesUseCases = preferencesUseCases,
-       _profileUseCases = profileUseCases,
-       selectedLanguage = _localeNotifier.value.languageCode == 'en'
+    required this._preferencesUseCases,
+    required this._profileUseCases,
+  }) : selectedLanguage = _localeNotifier.value.languageCode == 'en'
            ? 'English'
            : 'Italiano';
 

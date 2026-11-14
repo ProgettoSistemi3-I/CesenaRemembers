@@ -1,14 +1,27 @@
-import 'package:flutter/material.dart';
-import '../../domain/usecases/user_profile_use_cases.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../core/logging/app_logger.dart';
+import '../../domain/usecases/user_profile_use_cases.dart';
 
 class ThemeController extends ChangeNotifier {
   final UserProfileUseCases _profileUseCases;
-  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode _themeMode = ThemeMode.system;
+
   ThemeMode get themeMode => _themeMode;
 
-  ThemeController({required UserProfileUseCases profileUseCases})
-    : _profileUseCases = profileUseCases;
+  bool get isDarkModeEffective {
+    switch (_themeMode) {
+      case ThemeMode.dark:
+        return true;
+      case ThemeMode.light:
+        return false;
+      case ThemeMode.system:
+        return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.dark;
+    }
+  }
+
+  ThemeController({required this._profileUseCases});
 
   Future<void> initTheme() async {
     await _loadThemeFromFirebase();
@@ -22,21 +35,31 @@ class ThemeController extends ChangeNotifier {
   Future<void> _loadThemeFromFirebase() async {
     final uid = _profileUseCases.getCurrentUserUid();
     if (uid == null) {
-      _themeMode = ThemeMode.light;
+      _themeMode = ThemeMode.system;
       return;
     }
+
     try {
       final profile = await _profileUseCases.getUserProfile(uid);
-      _themeMode = profile.darkModeEnabled ? ThemeMode.dark : ThemeMode.light;
-    } catch (e, stackTrace) {
+      _themeMode = !profile.hasThemePreference
+          ? ThemeMode.system
+          : profile.darkModeEnabled
+              ? ThemeMode.dark
+              : ThemeMode.light;
+    } catch (error, stackTrace) {
       AppLogger.error(
         'Error loading theme from profile',
-        error: e,
+        error: error,
         stackTrace: stackTrace,
         name: 'ThemeController',
       );
-      _themeMode = ThemeMode.light;
+      _themeMode = ThemeMode.system;
     }
+  }
+
+  void useSystemTheme() {
+    _themeMode = ThemeMode.system;
+    notifyListeners();
   }
 
   void toggleTheme(bool isDark) {

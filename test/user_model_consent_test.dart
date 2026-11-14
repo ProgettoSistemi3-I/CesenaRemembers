@@ -20,6 +20,55 @@ void main() {
       expect(profile.crashlyticsEnabled, isFalse);
     });
 
+    test('new profiles do not treat the default light value as an explicit choice', () {
+      final profile = UserModel.fromJson(
+        {
+          'email': 'test@example.invalid',
+          'displayName': 'Tester',
+          'preferences': const <String, dynamic>{
+            'modalitaNotte': false,
+          },
+        },
+        'test-uid',
+      );
+
+      expect(profile.darkModeEnabled, isFalse);
+      expect(profile.hasThemePreference, isFalse);
+    });
+
+    test('restores an explicit light-mode choice using its marker', () {
+      final profile = UserModel.fromJson(
+        {
+          'email': 'test@example.invalid',
+          'displayName': 'Tester',
+          'preferences': {
+            'modalitaNotte': false,
+            'themePreferenceSetAt': DateTime.utc(2026, 11, 11),
+          },
+        },
+        'test-uid',
+      );
+
+      expect(profile.darkModeEnabled, isFalse);
+      expect(profile.hasThemePreference, isTrue);
+    });
+
+    test('restores an older explicit dark-mode choice', () {
+      final profile = UserModel.fromJson(
+        {
+          'email': 'test@example.invalid',
+          'displayName': 'Tester',
+          'preferences': const <String, dynamic>{
+            'modalitaNotte': true,
+          },
+        },
+        'test-uid',
+      );
+
+      expect(profile.darkModeEnabled, isTrue);
+      expect(profile.hasThemePreference, isTrue);
+    });
+
     test('restores an explicit Crashlytics choice with its timestamp', () {
       final profile = UserModel.fromJson(
         {

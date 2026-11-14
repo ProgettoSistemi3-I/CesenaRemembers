@@ -9,8 +9,7 @@ class PoiQuizController extends ChangeNotifier {
   final GetPoiQuizUseCase _getQuizUseCase;
   bool _isDisposed = false;
 
-  PoiQuizController({required GetPoiQuizUseCase getQuizUseCase})
-    : _getQuizUseCase = getQuizUseCase;
+  PoiQuizController({required this._getQuizUseCase});
 
   List<QuizQuestion> _questions = [];
   int? _selectedAnswer;

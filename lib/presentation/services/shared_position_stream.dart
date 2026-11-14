@@ -6,13 +6,11 @@ import 'package:geolocator/geolocator.dart';
 /// and after the platform position stream ends or emits an error.
 class RecoveringPositionStream {
   RecoveringPositionStream({
-    required Future<bool> Function() isLocationServiceEnabled,
-    required Future<LocationPermission> Function() checkPermission,
-    required Stream<Position> Function() openPositionStream,
+    required this._isLocationServiceEnabled,
+    required this._checkPermission,
+    required this._openPositionStream,
     this.retryDelay = const Duration(seconds: 5),
-  }) : _isLocationServiceEnabled = isLocationServiceEnabled,
-       _checkPermission = checkPermission,
-       _openPositionStream = openPositionStream {
+  }) {
     _controller = StreamController<Position>.broadcast(
       onListen: _start,
       onCancel: _stop,

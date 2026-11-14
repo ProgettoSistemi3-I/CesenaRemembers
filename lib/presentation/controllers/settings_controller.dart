@@ -33,17 +33,12 @@ class SettingsController extends ChangeNotifier {
   String? errorMessage;
 
   SettingsController({
-    required SignOutUseCase signOutUseCase,
-    required DeleteCurrentUserUseCase deleteCurrentUserUseCase,
-    required UserProfileUseCases profileUseCases,
-    required UserPreferencesUseCases preferencesUseCases,
-    required ThemeController themeController,
-  }) : _signOutUseCase = signOutUseCase,
-       _deleteCurrentUserUseCase = deleteCurrentUserUseCase,
-       _profileUseCases = profileUseCases,
-       _preferencesUseCases = preferencesUseCases,
-       _themeController = themeController,
-       _locationService = const LocationPermissionService() {
+    required this._signOutUseCase,
+    required this._deleteCurrentUserUseCase,
+    required this._profileUseCases,
+    required this._preferencesUseCases,
+    required this._themeController,
+  }) : _locationService = const LocationPermissionService() {
     loadUserPreferences();
   }
 
@@ -71,8 +66,14 @@ class SettingsController extends ChangeNotifier {
       final profile = await _profileUseCases.getUserProfile(_currentUid);
 
       notifiche = profile.notificheEnabled;
-      modalitaNotte = profile.darkModeEnabled;
       diagnostica = profile.crashlyticsEnabled;
+      if (profile.hasThemePreference) {
+        modalitaNotte = profile.darkModeEnabled;
+        _themeController.toggleTheme(modalitaNotte);
+      } else {
+        _themeController.useSystemTheme();
+        modalitaNotte = _themeController.isDarkModeEffective;
+      }
 
       // Il toggle rappresenta la preferenza scelta/salvata dall'utente,
       // non lo stato momentaneo del permesso Android. All'avvio Android può
@@ -84,7 +85,6 @@ class SettingsController extends ChangeNotifier {
 
       errorMessage = null;
 
-      _themeController.toggleTheme(modalitaNotte);
     } catch (e, stackTrace) {
       AppLogger.error(
         'Unable to load account preferences',
@@ -161,10 +161,15 @@ class SettingsController extends ChangeNotifier {
       try {
         final profile = await _profileUseCases.getUserProfile(_currentUid);
         notifiche = profile.notificheEnabled;
-        modalitaNotte = profile.darkModeEnabled;
         posizione = profile.gpsEnabled;
         diagnostica = profile.crashlyticsEnabled;
-        _themeController.toggleTheme(modalitaNotte);
+        if (profile.hasThemePreference) {
+          modalitaNotte = profile.darkModeEnabled;
+          _themeController.toggleTheme(modalitaNotte);
+        } else {
+          _themeController.useSystemTheme();
+          modalitaNotte = _themeController.isDarkModeEffective;
+        }
         LocationPreferenceStore.setGpsEnabled(posizione);
       } catch (rollbackError, rollbackStackTrace) {
         AppLogger.error(

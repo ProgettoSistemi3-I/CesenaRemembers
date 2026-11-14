@@ -15,10 +15,9 @@ typedef FirebaseIdTokenProvider = Future<String?> Function();
 
 class QuizRepositoryImpl implements IQuizRepository {
   QuizRepositoryImpl({
-    http.Client? httpClient,
+    this._httpClient,
     FirebaseIdTokenProvider? idTokenProvider,
-  }) : _httpClient = httpClient,
-       _idTokenProvider = idTokenProvider ?? _getCurrentFirebaseIdToken;
+  }) : _idTokenProvider = idTokenProvider ?? _getCurrentFirebaseIdToken;
 
   http.Client? _httpClient;
   final FirebaseIdTokenProvider _idTokenProvider;

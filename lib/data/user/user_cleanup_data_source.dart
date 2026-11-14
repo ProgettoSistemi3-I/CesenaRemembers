@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserCleanupDataSource {
-  UserCleanupDataSource({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+  UserCleanupDataSource({required this._firestore});
 
   final FirebaseFirestore _firestore;
 

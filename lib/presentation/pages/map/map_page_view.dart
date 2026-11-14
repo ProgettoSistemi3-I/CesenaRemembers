@@ -59,6 +59,14 @@ extension _MapPageView on _MapPageState {
             markers: _markers,
             routeLinePoints: _routeLinePoints,
             scaffoldBackgroundColor: data.theme.scaffoldBackgroundColor,
+            attributionPopupBackgroundColor:
+                data.theme.brightness == Brightness.dark
+                ? Colors.black
+                : Colors.white,
+            attributionPopupTextColor:
+                data.theme.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
             onMapTap: _clearSelectedPoi,
           ),
           _buildOverlay(data),
@@ -303,6 +311,8 @@ class _MapCanvas extends StatefulWidget {
     required this.markers,
     required this.routeLinePoints,
     required this.scaffoldBackgroundColor,
+    required this.attributionPopupBackgroundColor,
+    required this.attributionPopupTextColor,
     required this.onMapTap,
   });
 
@@ -324,6 +334,8 @@ class _MapCanvas extends StatefulWidget {
   final List<Marker> markers;
   final List<LatLng> routeLinePoints;
   final Color scaffoldBackgroundColor;
+  final Color attributionPopupBackgroundColor;
+  final Color attributionPopupTextColor;
   final VoidCallback onMapTap;
 
   @override
@@ -498,12 +510,17 @@ class _MapCanvasState extends State<_MapCanvas> {
                   -(widget.attributionVerticalOffset +
                       MediaQuery.of(context).padding.bottom),
                 ),
-                child: RichAttributionWidget(
-                  alignment: widget.selectedMapStyle == MapStyle.satellite
-                      ? AttributionAlignment.bottomRight
-                      : AttributionAlignment.bottomLeft,
-                  showFlutterMapAttribution: false,
-                  attributions: _mapAttributions(),
+                child: DefaultTextStyle.merge(
+                  style: TextStyle(color: widget.attributionPopupTextColor),
+                  child: RichAttributionWidget(
+                    alignment: widget.selectedMapStyle == MapStyle.satellite
+                        ? AttributionAlignment.bottomRight
+                        : AttributionAlignment.bottomLeft,
+                    showFlutterMapAttribution: false,
+                    popupBackgroundColor:
+                        widget.attributionPopupBackgroundColor,
+                    attributions: _mapAttributions(),
+                  ),
                 ),
               ),
           ],

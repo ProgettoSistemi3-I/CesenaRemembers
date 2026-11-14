@@ -15,6 +15,7 @@ class UserProfile {
   final List<String> pendingAchievements;
   final bool notificheEnabled;
   final bool darkModeEnabled;
+  final bool hasThemePreference;
   final bool gpsEnabled;
   final int maxQuizScore;
   final int totalQuizCompleted;
@@ -44,6 +45,7 @@ class UserProfile {
     this.pendingAchievements = const [],
     this.notificheEnabled = false,
     this.darkModeEnabled = false,
+    this.hasThemePreference = false,
     this.gpsEnabled = true,
     this.maxQuizScore = 0,
     this.totalQuizCompleted = 0,
@@ -80,6 +82,7 @@ class UserProfile {
     List<String>? pendingAchievements,
     bool? notificheEnabled,
     bool? darkModeEnabled,
+    bool? hasThemePreference,
     bool? gpsEnabled,
     int? maxQuizScore,
     int? totalQuizCompleted,
@@ -110,6 +113,7 @@ class UserProfile {
       pendingAchievements: pendingAchievements ?? this.pendingAchievements,
       notificheEnabled: notificheEnabled ?? this.notificheEnabled,
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
+      hasThemePreference: hasThemePreference ?? this.hasThemePreference,
       gpsEnabled: gpsEnabled ?? this.gpsEnabled,
       maxQuizScore: maxQuizScore ?? this.maxQuizScore,
       totalQuizCompleted: totalQuizCompleted ?? this.totalQuizCompleted,

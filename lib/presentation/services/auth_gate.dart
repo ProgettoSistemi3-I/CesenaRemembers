@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../core/logging/app_logger.dart';
 import '../../core/logging/crashlytics_reporter.dart';
@@ -195,6 +195,11 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     }
 
     unawaited(sl<ThemeController>().refreshFromProfile().catchError((_) {}));
+    unawaited(
+      PushNotificationService.initializeAndSaveToken(
+        requestPermissionIfNeeded: false,
+      ),
+    );
     _startNotifications();
   }
 
@@ -227,24 +232,14 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
             final currentPending = profile.pendingAchievements.length;
             if (_previousPendingAchievementsCount != -1 &&
                 currentPending > _previousPendingAchievementsCount) {
-              final messenger =
-                  PushNotificationService.scaffoldMessengerKey.currentState;
-              final ctx =
-                  PushNotificationService.navigatorKey.currentContext ??
-                  context;
-              if (messenger != null && ctx.mounted) {
-                final topMargin = MediaQuery.of(ctx).size.height - 150;
+              if (context.mounted) {
                 showGlassSnackBar(
-                  ctx,
-                  message: AppLocalizations.of(ctx)!.achievementUnlockedSnack,
-                  type: GlassSnackType.success,
-                  icon: Icons.emoji_events,
-                  duration: const Duration(seconds: 10),
-                  margin: EdgeInsets.only(
-                    bottom: topMargin > 0 ? topMargin : 600,
-                    left: 16,
-                    right: 16,
-                  ),
+                  context,
+                  title: AppLocalizations.of(context)!.achievementUnlockedSnack,
+                  message: '',
+                  type: GlassSnackType.achievement,
+                  icon: Icons.emoji_events_rounded,
+                  duration: const Duration(seconds: 8),
                   onTap: () => ShellNavigationStore.goToTab(2),
                 );
               }

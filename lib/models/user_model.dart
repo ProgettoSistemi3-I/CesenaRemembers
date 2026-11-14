@@ -18,6 +18,7 @@ class UserModel extends UserProfile {
     super.pendingAchievements,
     super.notificheEnabled,
     super.darkModeEnabled,
+    super.hasThemePreference,
     super.gpsEnabled,
     super.maxQuizScore,
     super.totalQuizCompleted,
@@ -33,6 +34,12 @@ class UserModel extends UserProfile {
 
   factory UserModel.fromJson(Map<String, dynamic> json, String documentId) {
     final friends = List<String>.from(json['friends'] ?? []);
+    final preferences = Map<String, dynamic>.from(
+      json['preferences'] as Map? ?? const <String, dynamic>{},
+    );
+    final storedTheme =
+        preferences['modalitaNotte'] ?? preferences['modalità notte'];
+    final themePreferenceSetAt = preferences['themePreferenceSetAt'];
     return UserModel(
       uid: documentId,
       email: json['email'] ?? '',
@@ -58,10 +65,8 @@ class UserModel extends UserProfile {
       notificheEnabled: json['preferences']?['notifiche'] == true &&
           json['preferences']?['notificheConsenso'] == true &&
           json['preferences']?['notificheConsensoAt'] != null,
-      darkModeEnabled:
-          json['preferences']?['modalitaNotte'] ??
-          json['preferences']?['modalità notte'] ??
-          false,
+      darkModeEnabled: storedTheme == true,
+      hasThemePreference: storedTheme == true || themePreferenceSetAt != null,
       gpsEnabled: json['preferences']?['posizioneGps'] ?? true,
       maxQuizScore: json['maxQuizScore'] ?? 0,
       totalQuizCompleted: json['totalQuizCompleted'] ?? 0,
@@ -104,7 +109,8 @@ class UserModel extends UserProfile {
         'notifiche': notificheEnabled,
         'permissionsSetupCompleted': permissionsSetupCompleted,
         'crashlyticsEnabled': crashlyticsEnabled,
-        'modalitaNotte': darkModeEnabled,
+        if (hasThemePreference) 'modalitaNotte': darkModeEnabled,
+        if (hasThemePreference) 'themePreferenceSetAt': DateTime.now(),
         'posizioneGps': gpsEnabled,
       },
     };

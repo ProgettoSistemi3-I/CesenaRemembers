@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import 'package:cesena_remembers/l10n/l10n_extensions.dart';
 import 'package:flutter_map/flutter_map.dart';

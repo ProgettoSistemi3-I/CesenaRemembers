@@ -15,15 +15,11 @@ enum TourStatus { idle, running, arrived }
 class TourSessionController {
   TourSessionController({
     required List<TourStop> availableStops,
-    TourRoutePlanner routePlanner = const TourRoutePlanner(),
-    double arrivedThresholdMeters = defaultArrivedThresholdMeters,
-    Future<LatLng> Function()? originResolver,
-    Stream<Position> Function()? positionStreamFactory,
-  }) : _availableStops = List.unmodifiable(availableStops),
-       _routePlanner = routePlanner,
-       _arrivedThresholdMeters = arrivedThresholdMeters,
-       _originResolver = originResolver,
-       _positionStreamFactory = positionStreamFactory;
+    this._routePlanner = const TourRoutePlanner(),
+    this._arrivedThresholdMeters = defaultArrivedThresholdMeters,
+    this._originResolver,
+    this._positionStreamFactory,
+  }) : _availableStops = List.unmodifiable(availableStops);
 
   final List<TourStop> _availableStops;
   final TourRoutePlanner _routePlanner;
