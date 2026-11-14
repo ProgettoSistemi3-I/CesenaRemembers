@@ -85,7 +85,6 @@ class SettingsController extends ChangeNotifier {
 
       errorMessage = null;
 
-      _themeController.toggleTheme(modalitaNotte);
     } catch (e, stackTrace) {
       AppLogger.error(
         'Unable to load account preferences',
