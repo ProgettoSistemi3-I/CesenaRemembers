@@ -80,6 +80,63 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     if (mounted) _verifyLocationState(requestPerms: false);
   }
 
+  void _showOutsideCesenaNotification() {
+    if (!mounted) return;
+
+    _outsideCesenaDismissTimer?.cancel();
+    _outsideCesenaRemoveTimer?.cancel();
+    _outsideCesenaOverlay?.remove();
+    _outsideCesenaOverlay = null;
+
+    var isVisible = true;
+    final overlay = Overlay.of(context, rootOverlay: true);
+    final entry = OverlayEntry(
+      builder: (overlayContext) => Positioned(
+        top: MediaQuery.of(overlayContext).padding.top + 16,
+        left: 16,
+        right: 16,
+        child: IgnorePointer(
+          child: AnimatedSlide(
+            offset: isVisible ? Offset.zero : const Offset(0, -0.15),
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeIn,
+            child: AnimatedOpacity(
+              opacity: isVisible ? 1 : 0,
+              duration: const Duration(milliseconds: 220),
+              child: const OutsideCesenaBanner(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    _outsideCesenaOverlay = entry;
+    overlay.insert(entry);
+
+    _outsideCesenaDismissTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted || !entry.mounted) return;
+      isVisible = false;
+      entry.markNeedsBuild();
+      _outsideCesenaRemoveTimer = Timer(
+        const Duration(milliseconds: 240),
+        () {
+          if (entry.mounted) entry.remove();
+          if (identical(_outsideCesenaOverlay, entry)) {
+            _outsideCesenaOverlay = null;
+          }
+        },
+      );
+    });
+  }
+
+  void _removeOutsideCesenaNotification() {
+    _outsideCesenaDismissTimer?.cancel();
+    _outsideCesenaRemoveTimer?.cancel();
+    final entry = _outsideCesenaOverlay;
+    _outsideCesenaOverlay = null;
+    if (entry?.mounted ?? false) entry!.remove();
+  }
+
   late TourSessionController _tourController;
   StreamSubscription<ServiceStatus>? _serviceStatusSub;
   StreamSubscription<void>? _tourUpdatesSub;
@@ -100,7 +157,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   bool _isGpsPreferenceEnabled = LocationPreferenceStore.gpsEnabled.value;
   bool _isCheckingLocation = true;
   bool _isCenteringOnUser = false;
-  bool _isOutsideCesena = false;
+  OverlayEntry? _outsideCesenaOverlay;
+  Timer? _outsideCesenaDismissTimer;
+  Timer? _outsideCesenaRemoveTimer;
   bool _isSavingQuizResult = false;
   int _tourXpEarned = 0;
   int _tourCorrectAnswers = 0;
@@ -181,6 +240,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     );
     WidgetsBinding.instance.removeObserver(this);
     _serviceStatusSub?.cancel();
+    _removeOutsideCesenaNotification();
     _tourUpdatesSub?.cancel();
     LocationPreferenceStore.gpsEnabled.removeListener(_onGpsPreferenceChanged);
     sl<ValueNotifier<Locale>>().removeListener(_onLocaleChanged);
