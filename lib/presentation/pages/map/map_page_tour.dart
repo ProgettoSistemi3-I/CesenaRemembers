@@ -28,10 +28,10 @@ extension _MapPageTourActions on _MapPageState {
       return;
     }
     if (!_MapPageState._cesenaBounds.contains(origin)) {
-      _updateMapState(() => _isOutsideCesena = true);
+      _showOutsideCesenaNotification();
       return;
     }
-    _updateMapState(() => _isOutsideCesena = false);
+    _removeOutsideCesenaNotification();
 
     final hasStarted = await _tourController.startTour(origin: origin);
     if (hasStarted) {
