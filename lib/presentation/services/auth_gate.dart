@@ -198,7 +198,7 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     unawaited(
       PushNotificationService.initializeAndSaveToken(
         requestPermissionIfNeeded: false,
-      ),
+      ).then<void>((_) {}),
     );
     _startNotifications();
   }

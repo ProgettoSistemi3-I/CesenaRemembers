@@ -78,10 +78,12 @@ class _MainShellState extends State<MainShell> {
     // Serializza la richiesta FCM dopo quella GPS: Android non deve gestire
     // due richieste di autorizzazione runtime contemporaneamente.
     try {
-      // The first-launch consent flow already requested Android permission.
-      // On app startup, only register when the OS permission is already granted.
+      // Re-check the OS permission on every installation. Reinstalling the app
+      // can reset Android's permission while the account-level consent remains
+      // enabled. PushNotificationService skips the request when the user opted
+      // out in the app, and asks only after that explicit consent.
       await PushNotificationService.initializeAndSaveToken(
-        requestPermissionIfNeeded: false,
+        requestPermissionIfNeeded: true,
       );
     } catch (error, stackTrace) {
       AppLogger.error(

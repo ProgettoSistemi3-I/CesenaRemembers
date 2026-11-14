@@ -608,6 +608,18 @@ abstract class AppLocalizations {
   /// **'To start the tour, enable GPS, location permission and the in-app option.'**
   String get tourStartGpsRequired;
 
+  /// No description provided for @mapOutsideCesenaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are outside the map area'**
+  String get mapOutsideCesenaTitle;
+
+  /// No description provided for @mapOutsideCesenaMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'To center your location or start a tour, you must be in Cesena, within the displayed map area.'**
+  String get mapOutsideCesenaMessage;
+
   /// No description provided for @tourCompleted.
   ///
   /// In en, this message translates to:

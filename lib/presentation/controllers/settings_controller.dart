@@ -146,7 +146,16 @@ class SettingsController extends ChangeNotifier {
         );
       }
       if (newNotifiche != null) {
-        await PushNotificationService.initializeAndSaveToken();
+        final permissionGranted =
+            await PushNotificationService.initializeAndSaveToken();
+        if (newNotifiche == true && permissionGranted == false) {
+          await _preferencesUseCases.updatePreferences(
+            uid: _currentUid,
+            notifiche: false,
+          );
+          notifiche = false;
+          _safeNotifyListeners();
+        }
       }
     } catch (e, stackTrace) {
       AppLogger.error(

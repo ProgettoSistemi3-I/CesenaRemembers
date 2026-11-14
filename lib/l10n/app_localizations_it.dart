@@ -273,6 +273,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tourStartGpsRequired => 'Per iniziare il tour attiva GPS, permessi posizione e opzione nell\'app.';
 
   @override
+  String get mapOutsideCesenaTitle => 'Sei fuori dall\'area della mappa';
+
+  @override
+  String get mapOutsideCesenaMessage => 'Per centrare la posizione o avviare un tour devi trovarti a Cesena, all\'interno dell\'area visualizzata.';
+
+  @override
   String get tourCompleted => '🎉 Tour completato! Ottimo lavoro.';
 
   @override

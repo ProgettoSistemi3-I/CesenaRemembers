@@ -89,7 +89,7 @@ class TourSessionController {
 
   bool get hasStops => _availableStops.isNotEmpty;
 
-  Future<bool> startTour() async {
+  Future<bool> startTour({LatLng? origin}) async {
     if (_availableStops.isEmpty) {
       _status = TourStatus.idle;
       _orderedStops = [];
@@ -100,10 +100,14 @@ class TourSessionController {
       return false;
     }
 
-    final origin = await _resolveOrigin();
+    final startOrigin = origin ?? await _resolveOrigin();
+    if (origin != null) {
+      _userPosition = origin;
+      _hasRealUserPosition = true;
+    }
 
     _orderedStops = _routePlanner.sortNearestNeighbor(
-      origin: GeoPoint(latitude: origin.latitude, longitude: origin.longitude),
+      origin: GeoPoint(latitude: startOrigin.latitude, longitude: startOrigin.longitude),
       stops: _availableStops,
     );
     _currentStopIndex = 0;
@@ -155,14 +159,18 @@ class TourSessionController {
     if (upcomingLength < 2) return;
     if (oldRelativeIndex < 0 || oldRelativeIndex >= upcomingLength) return;
     if (newRelativeIndex < 0 || newRelativeIndex >= upcomingLength) return;
-    // L'indice relativo 0 è la tappa già attiva: non deve essere spostata.
-    if (oldRelativeIndex == 0 || newRelativeIndex == 0) return;
-
     final absoluteOldIndex = _currentStopIndex + oldRelativeIndex;
     final absoluteNewIndex = _currentStopIndex + newRelativeIndex;
 
     final movedStop = _orderedStops.removeAt(absoluteOldIndex);
     _orderedStops.insert(absoluteNewIndex, movedStop);
+
+    if (oldRelativeIndex == 0 || newRelativeIndex == 0) {
+      // Moving the first upcoming stop also changes the active tour stop.
+      _elapsedSeconds = 0;
+      if (_status == TourStatus.arrived) _status = TourStatus.running;
+      _checkCurrentStopArrival();
+    }
 
     _emit();
   }

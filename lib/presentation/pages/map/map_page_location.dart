@@ -31,7 +31,8 @@ extension _MapPageLocationLogic on _MapPageState {
   }
 
   Future<void> _verifyLocationState({required bool requestPerms}) async {
-    if (mounted) _updateMapState(() => _isCheckingLocation = true);
+    // Keep the existing map mounted during permission re-checks. The flag is
+    // initialized to true and is cleared by the first completed verification.
 
     try {
       if (kIsWeb) {
@@ -91,6 +92,33 @@ extension _MapPageLocationLogic on _MapPageState {
     ShellNavigationStore.openSettingsAndFocusGpsToggle();
   }
 
+  Future<LatLng?> _getCurrentDeviceLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 6),
+        ),
+      );
+      return LatLng(position.latitude, position.longitude);
+    } catch (_) {
+      try {
+        final lastKnown = await Geolocator.getLastKnownPosition();
+        if (lastKnown != null) {
+          final age = DateTime.now().difference(lastKnown.timestamp);
+          // A stale cached fix could otherwise let someone start a tour after
+          // leaving Cesena. Only accept a recent fallback position.
+          if (age >= Duration.zero && age <= const Duration(seconds: 30)) {
+            return LatLng(lastKnown.latitude, lastKnown.longitude);
+          }
+        }
+      } catch (_) {
+        // A missing or stale position must not be replaced with Cesena's center.
+      }
+      return null;
+    }
+  }
+
   Future<void> _centerOnUserLocation() async {
     if (_isCenteringOnUser) return;
 
@@ -99,10 +127,7 @@ extension _MapPageLocationLogic on _MapPageState {
       return;
     }
 
-    _updateMapState(() {
-      _isCenteringOnUser = true;
-      _alignPositionOnUpdate = AlignOnUpdate.always;
-    });
+    _updateMapState(() => _isCenteringOnUser = true);
 
     try {
       await _verifyLocationState(requestPerms: true);
@@ -110,24 +135,22 @@ extension _MapPageLocationLogic on _MapPageState {
           _isGpsEnabled && _hasPermissions && _isGpsPreferenceEnabled;
       if (!canUseLocation) return;
 
-      Position? position;
-      try {
-        position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 6),
-          ),
-        );
-      } catch (_) {
-        position = await Geolocator.getLastKnownPosition();
+      final position = await _getCurrentDeviceLocation();
+      if (!mounted || position == null) return;
+
+      if (!_MapPageState._cesenaBounds.contains(position)) {
+        _showOutsideCesenaNotification();
+        return;
       }
 
-      if (position != null && mounted) {
-        _mapController.move(
-          LatLng(position.latitude, position.longitude),
-          math.max(_mapController.camera.zoom, 16.5),
-        );
-      }
+      _removeOutsideCesenaNotification();
+      _updateMapState(() {
+        _alignPositionOnUpdate = AlignOnUpdate.always;
+      });
+      _mapController.move(
+        position,
+        math.max(_mapController.camera.zoom, 16.5),
+      );
     } finally {
       if (mounted) {
         _updateMapState(() => _isCenteringOnUser = false);

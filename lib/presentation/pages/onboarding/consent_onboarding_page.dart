@@ -42,7 +42,14 @@ class _ConsentOnboardingPageState extends State<ConsentOnboardingPage> {
             uid: widget.uid,
             notifiche: enabled,
           );
-          await PushNotificationService.initializeAndSaveToken();
+          final permissionGranted =
+              await PushNotificationService.initializeAndSaveToken();
+          if (permissionGranted == false) {
+            await preferences.updatePreferences(
+              uid: widget.uid,
+              notifiche: false,
+            );
+          }
           break;
 
         case 1:

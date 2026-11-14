@@ -40,45 +40,70 @@ class PoiPreviewSheet extends StatelessWidget {
           top: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withValues(
-                        alpha: 0.10,
-                      ),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.78,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        l10n.getPoiName(poi.id),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: theme.colorScheme.onSurface,
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.10,
+                          ),
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    _CloseButton(onClose: onClose),
+                    const SizedBox(height: 14),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.getPoiName(poi.id),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        _CloseButton(onClose: onClose),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _PoiImage(imagePath: poi.imagePath),
+                    const SizedBox(height: 18),
+                    Text(
+                      l10n.poiSectionHistory,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.getPoiDescription(poi.id),
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                _PoiImage(imagePath: poi.imagePath),
-              ],
+              ),
             ),
           ),
         ),
