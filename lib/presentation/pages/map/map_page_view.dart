@@ -95,20 +95,9 @@ extension _MapPageView on _MapPageState {
                 onResolve: _resolveLocationIssues,
               ),
             ),
-          if (_isOutsideCesena)
-            Positioned(
-              top: data.isLocationBannerVisible ? 112 : 16,
-              left: 16,
-              right: 16,
-              child: const OutsideCesenaBanner(),
-            ),
           if (_routeUsesMapboxDirections && _routeLinePoints.length >= 2)
             Positioned(
-              top: data.isLocationBannerVisible && _isOutsideCesena
-                  ? 212
-                  : (data.isLocationBannerVisible || _isOutsideCesena)
-                  ? 112
-                  : 16,
+              top: data.isLocationBannerVisible ? 112 : 16,
               right: 16,
               child: Material(
                 color: data.theme.colorScheme.surface.withValues(alpha: 0.96),
@@ -192,11 +181,7 @@ extension _MapPageView on _MapPageState {
           if (data.isTourActive)
             Positioned(
               left: 16,
-              top: data.isLocationBannerVisible && _isOutsideCesena
-                  ? 212
-                  : (data.isLocationBannerVisible || _isOutsideCesena)
-                  ? 112
-                  : 16,
+              top: data.isLocationBannerVisible ? 112 : 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
