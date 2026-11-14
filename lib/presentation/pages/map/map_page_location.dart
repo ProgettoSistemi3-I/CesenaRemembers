@@ -31,7 +31,8 @@ extension _MapPageLocationLogic on _MapPageState {
   }
 
   Future<void> _verifyLocationState({required bool requestPerms}) async {
-    if (mounted) _updateMapState(() => _isCheckingLocation = true);
+    // Keep the existing map mounted during permission re-checks. The flag is
+    // initialized to true and is cleared by the first completed verification.
 
     try {
       if (kIsWeb) {
@@ -138,12 +139,12 @@ extension _MapPageLocationLogic on _MapPageState {
       if (!mounted || position == null) return;
 
       if (!_MapPageState._cesenaBounds.contains(position)) {
-        _updateMapState(() => _isOutsideCesena = true);
+        _showOutsideCesenaNotification();
         return;
       }
 
+      _removeOutsideCesenaNotification();
       _updateMapState(() {
-        _isOutsideCesena = false;
         _alignPositionOnUpdate = AlignOnUpdate.always;
       });
       _mapController.move(
