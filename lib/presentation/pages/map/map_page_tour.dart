@@ -69,7 +69,7 @@ extension _MapPageTourActions on _MapPageState {
       if (_tourController.currentStop != null) {
         _centerOnStop(_toLatLng(_tourController.currentStop!.position));
       }
-      await _syncTourForegroundService(force: true, showError: true);
+      await _syncTourForegroundService(showError: true);
     }
   }
 
@@ -309,7 +309,6 @@ extension _MapPageTourActions on _MapPageState {
                     xpGained: _tourXpEarned,
                     onDismiss: () {
                       Navigator.of(dialogContext).pop();
-                      unawaited(_tourSessionStore.clearResults());
                     },
                   ),
                 );
