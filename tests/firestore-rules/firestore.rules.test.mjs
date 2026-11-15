@@ -25,7 +25,7 @@ import { readFileSync } from 'node:fs';
 
 const PROJECT_ID = 'demo-cesenaremembers';
 const RULES = readFileSync(new URL('../../firestore.rules', import.meta.url), 'utf8');
-const NOW = Timestamp.fromDate(new Date('2026-11-14T12:00:00.000Z'));
+const NOW = Timestamp.fromDate(new Date('2026-11-15T12:00:00.000Z'));
 
 let testEnv;
 
@@ -55,9 +55,9 @@ function makeUser(uid, overrides = {}) {
     createdAt: NOW,
     updatedAt: NOW,
     termsAcceptedAt: NOW,
-    termsVersionAccepted: '2026-11-14',
+    termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: NOW,
-    privacyNoticeVersionAcknowledged: '2026-11-14',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: NOW,
     agePolicyVersionConfirmed: '14-plus-v1',
     profileCompletedAt: NOW,
@@ -214,16 +214,16 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: '2026-11-14',
+    termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2026-11-14',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: serverTimestamp(),
     agePolicyVersionConfirmed: '14-plus-v1',
   }));
 
   const saved = await getDoc(userRef);
-  assert.equal(saved.data().termsVersionAccepted, '2026-11-14');
-  assert.equal(saved.data().privacyNoticeVersionAcknowledged, '2026-11-14');
+  assert.equal(saved.data().termsVersionAccepted, '2026-11-15');
+  assert.equal(saved.data().privacyNoticeVersionAcknowledged, '2026-11-15');
   assert.equal(saved.data().agePolicyVersionConfirmed, '14-plus-v1');
   assert.ok(saved.data().termsAcceptedAt instanceof Timestamp);
   assert.ok(saved.data().privacyNoticeAcknowledgedAt instanceof Timestamp);
@@ -234,9 +234,9 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
     createdAt: NOW,
     updatedAt: NOW,
     termsAcceptedAt: NOW,
-    termsVersionAccepted: '2026-11-14',
+    termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: NOW,
-    privacyNoticeVersionAcknowledged: '2026-11-14',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: NOW,
     agePolicyVersionConfirmed: '14-plus-v1',
   }));
@@ -249,9 +249,9 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
 
   await assertSucceeds(updateDoc(userRef, {
     termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: '2026-11-14',
+    termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2026-11-14',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: serverTimestamp(),
     agePolicyVersionConfirmed: '14-plus-v1',
     updatedAt: serverTimestamp(),
@@ -261,7 +261,7 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
     termsAcceptedAt: serverTimestamp(),
     termsVersionAccepted: 'unknown-version',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2026-11-14',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: serverTimestamp(),
     agePolicyVersionConfirmed: '14-plus-v1',
     updatedAt: serverTimestamp(),
@@ -271,9 +271,9 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
     doc(authenticatedDb('bob'), 'users', 'alice'),
     {
       termsAcceptedAt: serverTimestamp(),
-      termsVersionAccepted: '2026-11-14',
+      termsVersionAccepted: '2026-11-15',
       privacyNoticeAcknowledgedAt: serverTimestamp(),
-      privacyNoticeVersionAcknowledged: '2026-11-14',
+      privacyNoticeVersionAcknowledged: '2026-11-15',
       ageConfirmedAt: serverTimestamp(),
       agePolicyVersionConfirmed: '14-plus-v1',
       updatedAt: serverTimestamp(),
