@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.widget.RemoteViews
 import java.util.Locale
 
 /**
@@ -199,18 +200,22 @@ class TourTrackingService : Service() {
         val elapsedText = formatElapsed(elapsedSeconds)
         val distanceText = currentDistanceText(preferences)
 
-        val body = buildString {
-            append(nextStopLabel)
-            append(": ")
-            append(if (stopName.isBlank()) "—" else stopName)
-            append("  ·  ")
-            append(elapsedLabel)
-            append(": ")
-            append(elapsedText)
-            append("  ·  ")
-            append(distanceLabel)
-            append(": ")
-            append(distanceText)
+        val displayedStopName = if (stopName.isBlank()) "—" else stopName
+        val compactContent = RemoteViews(packageName, R.layout.notification_tour_compact).apply {
+            setTextViewText(R.id.tour_notification_brand, title)
+            setTextViewText(R.id.tour_notification_elapsed, elapsedText)
+            setTextViewText(R.id.tour_notification_next_label, nextStopLabel.uppercase(Locale.getDefault()))
+            setTextViewText(R.id.tour_notification_stop, displayedStopName)
+            setTextViewText(R.id.tour_notification_distance, "$distanceLabel · $distanceText")
+        }
+        val expandedContent = RemoteViews(packageName, R.layout.notification_tour_expanded).apply {
+            setTextViewText(R.id.tour_notification_brand, title)
+            setTextViewText(R.id.tour_notification_next_label, nextStopLabel.uppercase(Locale.getDefault()))
+            setTextViewText(R.id.tour_notification_stop, displayedStopName)
+            setTextViewText(R.id.tour_notification_elapsed_label, elapsedLabel.uppercase(Locale.getDefault()))
+            setTextViewText(R.id.tour_notification_elapsed, elapsedText)
+            setTextViewText(R.id.tour_notification_distance_label, distanceLabel.uppercase(Locale.getDefault()))
+            setTextViewText(R.id.tour_notification_distance, distanceText)
         }
 
         val openAppIntent = packageManager.getLaunchIntentForPackage(packageName)
@@ -236,13 +241,23 @@ class TourTrackingService : Service() {
         builder
             .setSmallIcon(R.drawable.ic_stat_notification)
             .setContentTitle(title)
-            .setContentText(body)
-            .setStyle(Notification.BigTextStyle().bigText(body))
+            .setContentText("$nextStopLabel: $displayedStopName")
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
             .setVisibility(Notification.VISIBILITY_PRIVATE)
+            .setCustomBigContentView(expandedContent)
+            .setCustomHeadsUpContentView(compactContent)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            builder
+                .setCustomContentView(compactContent)
+                .setStyle(Notification.DecoratedCustomViewStyle())
+        } else {
+            @Suppress("DEPRECATION")
+            builder.setContent(compactContent)
+        }
 
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)
