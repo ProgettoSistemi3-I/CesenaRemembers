@@ -116,6 +116,7 @@ extension _MapPageTourActions on _MapPageState {
         nextStopLabel: l10n.tourNotificationNextStop,
         elapsedLabel: l10n.tourNotificationElapsed,
         distanceLabel: l10n.tourNotificationDistance,
+        openMapLabel: l10n.notificationOpenAction,
         stopName: l10n.getPoiName(currentStop.id),
         latitude: currentStop.position.latitude,
         longitude: currentStop.position.longitude,
