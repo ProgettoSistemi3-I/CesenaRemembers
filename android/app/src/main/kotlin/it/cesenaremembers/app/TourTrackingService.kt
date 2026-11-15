@@ -103,7 +103,7 @@ class TourTrackingService : Service() {
         handler.removeCallbacks(notificationTicker)
         stopLocationUpdates()
         if (isForeground) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
+            removeForegroundNotification()
             isForeground = false
         }
         super.onDestroy()
@@ -375,8 +375,17 @@ class TourTrackingService : Service() {
         stopLocationUpdates()
         notificationManager.cancel(NOTIFICATION_ID)
         if (isForeground) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
+            removeForegroundNotification()
             isForeground = false
+        }
+    }
+
+    private fun removeForegroundNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
         }
     }
 
