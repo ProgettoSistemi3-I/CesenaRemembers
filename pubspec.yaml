@@ -2,7 +2,7 @@ name: cesena_remembers
 description: "Tour storici interattivi e quiz per Cesena Remembers."
 publish_to: 'none'
 
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.14.0

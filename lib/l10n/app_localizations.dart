@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
@@ -61,7 +63,8 @@ import 'app_localizations_it.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -69,7 +72,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -81,15 +85,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    ...GlobalMaterialLocalizations.delegates,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('it')
+    Locale('it'),
   ];
 
   /// No description provided for @appTitle.
@@ -607,6 +614,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To start the tour, enable GPS, location permission and the in-app option.'**
   String get tourStartGpsRequired;
+
+  /// No description provided for @tourNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cesena Remembers · Tour in progress'**
+  String get tourNotificationTitle;
+
+  /// No description provided for @tourNotificationChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active tour'**
+  String get tourNotificationChannel;
+
+  /// No description provided for @tourNotificationNextStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Next stop'**
+  String get tourNotificationNextStop;
+
+  /// No description provided for @tourNotificationElapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get tourNotificationElapsed;
+
+  /// No description provided for @tourNotificationDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get tourNotificationDistance;
+
+  /// No description provided for @tourNotificationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'The tour will continue, but the ongoing notification will not be visible until notification permission is granted.'**
+  String get tourNotificationPermissionDenied;
+
+  /// No description provided for @tourBackgroundServiceError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to start background tracking. Check location and notification permissions.'**
+  String get tourBackgroundServiceError;
 
   /// No description provided for @mapOutsideCesenaTitle.
   ///
@@ -2911,30 +2960,10 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route powered by Mapbox'**
   String get mapLicenseDirectionsAttribution;
-
-  /// Title shown by the ongoing tour notification.
-  String get tourNotificationTitle;
-
-  /// Notification channel used for an active tour.
-  String get tourNotificationChannel;
-
-  /// Label for the destination in the ongoing tour notification.
-  String get tourNotificationNextStop;
-
-  /// Label for elapsed tour time in the ongoing notification.
-  String get tourNotificationElapsed;
-
-  /// Label for distance to the current stop in the ongoing notification.
-  String get tourNotificationDistance;
-
-  /// Message shown when notification permission is denied.
-  String get tourNotificationPermissionDenied;
-
-  /// Message shown when the Android foreground tracking service cannot start.
-  String get tourBackgroundServiceError;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2943,25 +2972,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'it'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'it'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'it': return AppLocalizationsIt();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'it':
+      return AppLocalizationsIt();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

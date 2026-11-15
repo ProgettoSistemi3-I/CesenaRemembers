@@ -273,6 +273,27 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tourStartGpsRequired => 'Per iniziare il tour attiva GPS, permessi posizione e opzione nell\'app.';
 
   @override
+  String get tourNotificationTitle => 'Cesena Remembers · Tour in corso';
+
+  @override
+  String get tourNotificationChannel => 'Tour in corso';
+
+  @override
+  String get tourNotificationNextStop => 'Prossima tappa';
+
+  @override
+  String get tourNotificationElapsed => 'Tempo';
+
+  @override
+  String get tourNotificationDistance => 'Distanza';
+
+  @override
+  String get tourNotificationPermissionDenied => 'Il tour continua, ma la notifica permanente non sarà visibile finché non concedi il permesso notifiche.';
+
+  @override
+  String get tourBackgroundServiceError => 'Impossibile avviare il tracciamento in background. Controlla i permessi di posizione e notifiche.';
+
+  @override
   String get mapOutsideCesenaTitle => 'Sei fuori dall\'area della mappa';
 
   @override
@@ -1451,26 +1472,4 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get mapLicenseDirectionsAttribution => 'Percorso fornito da Mapbox';
-
-
-  @override
-  String get tourNotificationTitle => 'Cesena Remembers · Tour in corso';
-
-  @override
-  String get tourNotificationChannel => 'Tour in corso';
-
-  @override
-  String get tourNotificationNextStop => 'Prossima tappa';
-
-  @override
-  String get tourNotificationElapsed => 'Tempo';
-
-  @override
-  String get tourNotificationDistance => 'Distanza';
-
-  @override
-  String get tourNotificationPermissionDenied => 'Il tour continua, ma la notifica permanente non sarà visibile finché non concedi il permesso notifiche.';
-
-  @override
-  String get tourBackgroundServiceError => 'Impossibile avviare il tracciamento in background. Controlla i permessi di posizione e notifiche.';
 }
