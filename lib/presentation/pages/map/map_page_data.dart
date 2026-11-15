@@ -7,6 +7,9 @@ extension _MapPageDataLogic on _MapPageState {
 
     if (!restored) {
       await _tourSessionStore.clearResults();
+      await TourForegroundService.stop();
+      _foregroundServiceStarted = false;
+      _lastForegroundStopId = null;
       return;
     }
 
