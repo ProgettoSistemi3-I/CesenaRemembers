@@ -79,6 +79,17 @@ extension _MapPageTourActions on _MapPageState {
     bool force = false,
     bool showError = false,
   }) {
+    final scheduledStop = _tourController.currentStop;
+    if (!force &&
+        _tourController.isActive &&
+        _foregroundServiceStarted &&
+        _lastForegroundStopId == scheduledStop?.id) {
+      return _foregroundServiceQueue;
+    }
+    if (!force && !_tourController.isActive && !_foregroundServiceStarted) {
+      return _foregroundServiceQueue;
+    }
+
     final operation = _foregroundServiceQueue.then((_) async {
       if (!mounted) return;
 
