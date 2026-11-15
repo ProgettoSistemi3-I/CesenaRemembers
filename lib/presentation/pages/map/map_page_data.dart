@@ -1,12 +1,36 @@
 part of 'map_page.dart';
 
 extension _MapPageDataLogic on _MapPageState {
+  Future<void> _restoreSavedTour() async {
+    final restored = await _tourController.restoreSession();
+    if (!mounted) return;
+
+    if (!restored) {
+      await _tourSessionStore.clearResults();
+      return;
+    }
+
+    final results = await _tourSessionStore.loadResults();
+    if (!mounted) return;
+    _tourXpEarned = results?.xpEarned ?? 0;
+    _tourCorrectAnswers = results?.correctAnswers ?? 0;
+    _tourTotalQuestions = results?.totalQuestions ?? 0;
+    _updateMapState(() {});
+
+    final currentStop = _tourController.currentStop;
+    if (currentStop != null) {
+      _centerOnStop(_toLatLng(currentStop.position));
+    }
+    await _syncTourForegroundService(force: true);
+  }
+
   Future<void> _loadPois() async {
     if (_MapPageState._cachedPois != null &&
         _MapPageState._cachedStops != null) {
       _tourController.dispose();
       _tourController = TourSessionController(
         availableStops: _MapPageState._cachedStops!,
+        sessionStore: _tourSessionStore,
       );
       _bindTourUpdates();
       _updateMapState(() {
@@ -15,6 +39,7 @@ extension _MapPageDataLogic on _MapPageState {
         _loadError = null;
         _markers = _buildMarkers(_pois);
       });
+      await _restoreSavedTour();
       return;
     }
 
@@ -28,7 +53,10 @@ extension _MapPageDataLogic on _MapPageState {
       _MapPageState._cachedPois = pois;
 
       _tourController.dispose();
-      _tourController = TourSessionController(availableStops: stops);
+      _tourController = TourSessionController(
+        availableStops: stops,
+        sessionStore: _tourSessionStore,
+      );
       _bindTourUpdates();
 
       _updateMapState(() {
@@ -37,6 +65,7 @@ extension _MapPageDataLogic on _MapPageState {
         _loadError = null;
         _isLoading = false;
       });
+      await _restoreSavedTour();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Unable to load points of interest',
