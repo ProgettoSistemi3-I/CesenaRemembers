@@ -208,12 +208,8 @@ class TourTrackingService : Service() {
 
         val displayedStopName = if (stopName.isBlank()) "—" else stopName
         val compactContent = RemoteViews(packageName, R.layout.notification_tour_compact).apply {
-            setTextViewText(R.id.tour_notification_brand, title)
+            setTextViewText(R.id.tour_notification_stop, "$nextStopLabel: $displayedStopName")
             setTextViewText(R.id.tour_notification_elapsed, elapsedText)
-            setTextViewText(R.id.tour_notification_next_label, nextStopLabel.uppercase(Locale.getDefault()))
-            setTextViewText(R.id.tour_notification_stop, displayedStopName)
-            setTextViewText(R.id.tour_notification_distance, "$distanceLabel · $distanceText")
-            setTextViewText(R.id.tour_notification_open, openLabel.uppercase(Locale.getDefault()))
         }
         val expandedContent = RemoteViews(packageName, R.layout.notification_tour_expanded).apply {
             setTextViewText(R.id.tour_notification_brand, title)
@@ -255,16 +251,19 @@ class TourTrackingService : Service() {
             .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
             .setVisibility(Notification.VISIBILITY_PRIVATE)
-            .setCustomBigContentView(expandedContent)
-            .setCustomHeadsUpContentView(compactContent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             builder
                 .setCustomContentView(compactContent)
+                .setCustomBigContentView(expandedContent)
+                .setCustomHeadsUpContentView(compactContent)
                 .setStyle(Notification.DecoratedCustomViewStyle())
         } else {
             @Suppress("DEPRECATION")
-            builder.setContent(compactContent)
+            builder
+                .setContent(compactContent)
+                .setBigContentView(expandedContent)
+                .setHeadsUpContentView(compactContent)
         }
 
         if (contentIntent != null) {
