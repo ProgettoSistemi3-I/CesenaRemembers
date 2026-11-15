@@ -49,6 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:id="@+id/tour_notification_next_label"
         android:text="PROSSIMA TAPPA"
         android:textColor="#A9D8C2"
         android:textSize="9sp"
