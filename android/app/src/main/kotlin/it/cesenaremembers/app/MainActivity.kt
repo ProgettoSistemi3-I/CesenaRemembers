@@ -42,6 +42,10 @@ class MainActivity : FlutterActivity() {
                                 arguments["distanceLabel"] as? String,
                             )
                             putExtra(
+                                TourTrackingService.EXTRA_OPEN_LABEL,
+                                arguments["openMapLabel"] as? String,
+                            )
+                            putExtra(
                                 TourTrackingService.EXTRA_STOP_NAME,
                                 arguments["stopName"] as? String,
                             )
