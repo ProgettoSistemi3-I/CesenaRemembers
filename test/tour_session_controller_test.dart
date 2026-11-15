@@ -1,11 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cesena_remembers/domain/entities/tour_stop.dart';
 import 'package:cesena_remembers/presentation/controllers/tour_session_controller.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   group('TourSessionController elapsed time', () {
     TourStop makeStop(String id, double latitude) => TourStop(
       id: id,
