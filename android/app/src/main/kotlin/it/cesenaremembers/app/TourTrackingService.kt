@@ -67,7 +67,6 @@ class TourTrackingService : Service() {
         notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        createNotificationChannel()
         lastLocation = restoreLastLocation()
     }
 
@@ -87,6 +86,8 @@ class TourTrackingService : Service() {
             return START_NOT_STICKY
         }
 
+        // The localized channel name arrives with the first start/update request.
+        createNotificationChannel()
         startOrUpdateForegroundNotification()
         requestLocationUpdates()
         handler.removeCallbacks(notificationTicker)
