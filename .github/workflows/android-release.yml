@@ -54,27 +54,8 @@ jobs:
       - name: Regenerate localizations
         run: flutter gen-l10n
 
-      - name: Migrate generated localization delegates
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("lib/l10n/app_localizations.dart")
-          source = path.read_text(encoding="utf-8")
-          source = source.replace(
-              "import 'package:flutter_localizations/flutter_localizations.dart';",
-              "import 'package:material_ui/material_ui.dart';",
-          )
-          old_delegates = """    delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,"""
-          new_delegates = """    delegate,
-              ...GlobalMaterialLocalizations.delegates,"""
-          if old_delegates not in source:
-              raise SystemExit("Unexpected generated Flutter localization delegate block")
-          path.write_text(source.replace(old_delegates, new_delegates, 1), encoding="utf-8")
-          PY
+      - name: Normalize generated localization delegates
+        run: python scripts/normalize_flutter_localizations.py
 
       - name: Validate generated tour notification localizations
         run: |
