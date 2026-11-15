@@ -133,6 +133,9 @@ class TourTrackingService : Service() {
         intent.getStringExtra(EXTRA_DISTANCE_LABEL)?.let {
             editor.putString(KEY_DISTANCE_LABEL, it)
         }
+        intent.getStringExtra(EXTRA_OPEN_LABEL)?.let {
+            editor.putString(KEY_OPEN_LABEL, it)
+        }
         intent.getStringExtra(EXTRA_STOP_NAME)?.let {
             editor.putString(KEY_STOP_NAME, it)
         }
@@ -193,6 +196,9 @@ class TourTrackingService : Service() {
         val distanceLabel =
             preferences.getString(KEY_DISTANCE_LABEL, DEFAULT_DISTANCE_LABEL)
                 ?: DEFAULT_DISTANCE_LABEL
+        val openLabel =
+            preferences.getString(KEY_OPEN_LABEL, DEFAULT_OPEN_LABEL)
+                ?: DEFAULT_OPEN_LABEL
         val stopName = preferences.getString(KEY_STOP_NAME, "") ?: ""
         val startedAt = preferences.getLong(KEY_STARTED_AT, System.currentTimeMillis())
         val elapsedSeconds = ((System.currentTimeMillis() - startedAt) / 1000L)
@@ -207,6 +213,7 @@ class TourTrackingService : Service() {
             setTextViewText(R.id.tour_notification_next_label, nextStopLabel.uppercase(Locale.getDefault()))
             setTextViewText(R.id.tour_notification_stop, displayedStopName)
             setTextViewText(R.id.tour_notification_distance, "$distanceLabel · $distanceText")
+            setTextViewText(R.id.tour_notification_open, openLabel.uppercase(Locale.getDefault()))
         }
         val expandedContent = RemoteViews(packageName, R.layout.notification_tour_expanded).apply {
             setTextViewText(R.id.tour_notification_brand, title)
@@ -216,6 +223,7 @@ class TourTrackingService : Service() {
             setTextViewText(R.id.tour_notification_elapsed, elapsedText)
             setTextViewText(R.id.tour_notification_distance_label, distanceLabel.uppercase(Locale.getDefault()))
             setTextViewText(R.id.tour_notification_distance, distanceText)
+            setTextViewText(R.id.tour_notification_open, openLabel.uppercase(Locale.getDefault()))
         }
 
         val openAppIntent = packageManager.getLaunchIntentForPackage(packageName)
@@ -438,6 +446,7 @@ class TourTrackingService : Service() {
         const val EXTRA_NEXT_STOP_LABEL = "nextStopLabel"
         const val EXTRA_ELAPSED_LABEL = "elapsedLabel"
         const val EXTRA_DISTANCE_LABEL = "distanceLabel"
+        const val EXTRA_OPEN_LABEL = "openMapLabel"
         const val EXTRA_STOP_NAME = "stopName"
         const val EXTRA_STOP_LATITUDE = "latitude"
         const val EXTRA_STOP_LONGITUDE = "longitude"
@@ -449,6 +458,7 @@ class TourTrackingService : Service() {
         private const val KEY_NEXT_STOP_LABEL = "nextStopLabel"
         private const val KEY_ELAPSED_LABEL = "elapsedLabel"
         private const val KEY_DISTANCE_LABEL = "distanceLabel"
+        private const val KEY_OPEN_LABEL = "openMapLabel"
         private const val KEY_STOP_NAME = "stopName"
         private const val KEY_STOP_LATITUDE = "stopLatitude"
         private const val KEY_STOP_LONGITUDE = "stopLongitude"
@@ -465,6 +475,7 @@ class TourTrackingService : Service() {
         private const val DEFAULT_NEXT_STOP_LABEL = "Prossima tappa"
         private const val DEFAULT_ELAPSED_LABEL = "Tempo"
         private const val DEFAULT_DISTANCE_LABEL = "Distanza"
+        private const val DEFAULT_OPEN_LABEL = "Apri"
 
         private const val NOTIFICATION_ID = 1945
         private const val REQUEST_CODE_OPEN_APP = 1946
