@@ -46,6 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
+        android:id="@+id/tour_notification_next_label"
         android:text="PROSSIMA TAPPA"
         android:textColor="#A9D8C2"
         android:textSize="10sp"
@@ -84,6 +85,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/tour_notification_elapsed_label"
                 android:text="TEMPO TRASCORSO"
                 android:textColor="#A9D8C2"
                 android:textSize="9sp"
@@ -116,6 +118,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/tour_notification_distance_label"
                 android:text="DISTANZA DALLA TAPPA"
                 android:textColor="#A9D8C2"
                 android:textSize="9sp"
