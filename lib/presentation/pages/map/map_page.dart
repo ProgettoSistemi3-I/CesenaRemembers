@@ -255,6 +255,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     sl<ValueNotifier<Locale>>().removeListener(_onLocaleChanged);
     if (_profileUseCases.getCurrentUserUid() == null) {
       unawaited(TourForegroundService.stop());
+      unawaited(_tourSessionStore.clearSession());
+      unawaited(_tourSessionStore.clearResults());
     }
     _tourController.dispose();
     _mapController.dispose();
