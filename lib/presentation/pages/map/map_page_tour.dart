@@ -184,21 +184,41 @@ extension _MapPageTourActions on _MapPageState {
         },
         onNextStop: () async {
           // Evita doppi pop se il pulsante viene premuto più volte mentre il
-          // salvataggio del quiz è ancora in corso.
+          // salvataggio del quiz è ancora in corso o la modale sta chiudendo.
           if (isAdvancingToNextStop) return;
           isAdvancingToNextStop = true;
+
           try {
             // La registrazione del quiz è asincrona: il popup finale deve attendere
             // il salvataggio dell'ultima tappa per mostrare l'XP corretto.
             await _pendingQuizSave;
-            if (!mounted || !sheetContext.mounted) return;
-            // Chiudi esplicitamente la route del bottom sheet, non la pagina mappa.
-            Navigator.of(sheetContext).pop();
-            if (_tourController.advanceToNextStop()) {
-              if (_tourController.currentStop != null) {
-                _centerOnStop(_toLatLng(_tourController.currentStop!.position));
-              }
-            } else {
+          } catch (error, stackTrace) {
+            isAdvancingToNextStop = false;
+            AppLogger.error(
+              'Unable to save quiz before advancing to the next stop',
+              error: error,
+              stackTrace: stackTrace,
+              name: 'MapPageTour',
+            );
+            if (mounted) {
+              showGlassSnackBar(
+                context,
+                message: AppLocalizations.of(context)!.errorSaveScore,
+                type: GlassSnackType.error,
+              );
+            }
+            return;
+          }
+
+          if (!mounted || !sheetContext.mounted) return;
+
+          // Chiudi esplicitamente la route del bottom sheet, non la pagina mappa.
+          Navigator.of(sheetContext).pop();
+          if (_tourController.advanceToNextStop()) {
+            if (_tourController.currentStop != null) {
+              _centerOnStop(_toLatLng(_tourController.currentStop!.position));
+            }
+          } else {
             showGeneralDialog(
               context: context,
               barrierDismissible: false,
@@ -214,9 +234,6 @@ extension _MapPageTourActions on _MapPageState {
                 );
               },
             );
-            }
-          } finally {
-            isAdvancingToNextStop = false;
           }
         },
         onQuizCompleted: (result) {
