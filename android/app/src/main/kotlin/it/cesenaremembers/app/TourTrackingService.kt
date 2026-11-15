@@ -103,6 +103,11 @@ class TourTrackingService : Service() {
     override fun onDestroy() {
         handler.removeCallbacks(notificationTicker)
         stopLocationUpdates()
+        if (!isTrackingActive()) {
+            // An explicit stop/completion clears the cached coordinates too.
+            trackingPreferences().edit().clear().apply()
+            notificationManager.cancel(NOTIFICATION_ID)
+        }
         if (isForeground) {
             removeForegroundNotification()
             isForeground = false
