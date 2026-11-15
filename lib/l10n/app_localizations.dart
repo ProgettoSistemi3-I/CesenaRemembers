@@ -2911,6 +2911,27 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route powered by Mapbox'**
   String get mapLicenseDirectionsAttribution;
+
+  /// Title shown by the ongoing tour notification.
+  String get tourNotificationTitle;
+
+  /// Notification channel used for an active tour.
+  String get tourNotificationChannel;
+
+  /// Label for the destination in the ongoing tour notification.
+  String get tourNotificationNextStop;
+
+  /// Label for elapsed tour time in the ongoing notification.
+  String get tourNotificationElapsed;
+
+  /// Label for distance to the current stop in the ongoing notification.
+  String get tourNotificationDistance;
+
+  /// Message shown when notification permission is denied.
+  String get tourNotificationPermissionDenied;
+
+  /// Message shown when the Android foreground tracking service cannot start.
+  String get tourBackgroundServiceError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
