@@ -141,7 +141,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:gravity="end"
-        android:text="TOCCA PER TORNARE ALLA MAPPA  ›"
+        android:id="@+id/tour_notification_open"
+        android:text="APRI"
         android:textColor="#A9D8C2"
         android:textSize="10sp"
         android:textStyle="bold" />
