@@ -24,9 +24,9 @@ if material_import not in source:
 # The material_ui delegates are supplied as a runtime list, not a const list.
 # Its combined list includes Material, Cupertino and Widgets localizations.
 pattern = re.compile(
-    r"static\\s+(?:const|final)\\s+"
-    r"List<LocalizationsDelegate<dynamic>>\\s+localizationsDelegates"
-    r"\\s*=\\s*<LocalizationsDelegate<dynamic>>\\s*\\[.*?\\];",
+    r"static\s+(?:const|final)\s+"
+    r"List<LocalizationsDelegate<dynamic>>\s+localizationsDelegates"
+    r"\s*=\s*<LocalizationsDelegate<dynamic>>\s*\[.*?\];",
     re.DOTALL,
 )
 replacement = """static final List<LocalizationsDelegate<dynamic>> localizationsDelegates =
