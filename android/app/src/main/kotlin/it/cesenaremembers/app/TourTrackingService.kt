@@ -269,22 +269,33 @@ class TourTrackingService : Service() {
     }
 
     private fun formatElapsed(seconds: Long): String {
-        val totalMinutes = seconds / 60L
+        val hours = seconds / 3600L
+        val minutes = (seconds % 3600L) / 60L
         val remainingSeconds = seconds % 60L
-        return String.format(
-            Locale.getDefault(),
-            "%02d:%02d",
-            totalMinutes,
-            remainingSeconds,
-        )
+        return if (hours > 0L) {
+            String.format(
+                Locale.getDefault(),
+                "%d:%02d:%02d",
+                hours,
+                minutes,
+                remainingSeconds,
+            )
+        } else {
+            String.format(
+                Locale.getDefault(),
+                "%02d:%02d",
+                minutes,
+                remainingSeconds,
+            )
+        }
     }
 
     private fun requestLocationUpdates() {
         if (locationUpdatesRequested) return
 
-        val hasFinePermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
+        val hasFinePermission = checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
-        val hasCoarsePermission = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) ==
+        val hasCoarsePermission = checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         if (!hasFinePermission && !hasCoarsePermission) return
 
