@@ -157,6 +157,7 @@ extension _MapPageTourActions on _MapPageState {
     final isLastStop =
         _tourController.currentStopIndex ==
         _tourController.orderedStops.length - 1;
+    var isAdvancingToNextStop = false;
 
     showModalBottomSheet(
       context: context,
@@ -167,7 +168,7 @@ extension _MapPageTourActions on _MapPageState {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => PoiBottomSheet(
+      builder: (sheetContext) => PoiBottomSheet(
         stop: currentStop,
         icon: visual.icon,
         iconBackground: visual.iconBackground,
@@ -177,21 +178,27 @@ extension _MapPageTourActions on _MapPageState {
           // La tappa è modale durante il quiz: per evitare un blocco, il tasto
           // chiudi chiede conferma e termina il tour solo se l'utente conferma.
           await _confirmStopTour();
-          if (mounted && !_tourController.isActive) {
-            Navigator.of(context).pop();
+          if (mounted && sheetContext.mounted && !_tourController.isActive) {
+            Navigator.of(sheetContext).pop();
           }
         },
         onNextStop: () async {
-          // La registrazione del quiz è asincrona: il popup finale deve attendere
-          // il salvataggio dell'ultima tappa per mostrare l'XP corretto.
-          await _pendingQuizSave;
-          if (!mounted) return;
-          Navigator.pop(context);
-          if (_tourController.advanceToNextStop()) {
-            if (_tourController.currentStop != null) {
-              _centerOnStop(_toLatLng(_tourController.currentStop!.position));
-            }
-          } else {
+          // Evita doppi pop se il pulsante viene premuto più volte mentre il
+          // salvataggio del quiz è ancora in corso.
+          if (isAdvancingToNextStop) return;
+          isAdvancingToNextStop = true;
+          try {
+            // La registrazione del quiz è asincrona: il popup finale deve attendere
+            // il salvataggio dell'ultima tappa per mostrare l'XP corretto.
+            await _pendingQuizSave;
+            if (!mounted || !sheetContext.mounted) return;
+            // Chiudi esplicitamente la route del bottom sheet, non la pagina mappa.
+            Navigator.of(sheetContext).pop();
+            if (_tourController.advanceToNextStop()) {
+              if (_tourController.currentStop != null) {
+                _centerOnStop(_toLatLng(_tourController.currentStop!.position));
+              }
+            } else {
             showGeneralDialog(
               context: context,
               barrierDismissible: false,
@@ -207,6 +214,9 @@ extension _MapPageTourActions on _MapPageState {
                 );
               },
             );
+            }
+          } finally {
+            isAdvancingToNextStop = false;
           }
         },
         onQuizCompleted: (result) {
