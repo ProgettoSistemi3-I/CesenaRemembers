@@ -76,6 +76,32 @@ jobs:
           path.write_text(source.replace(old_delegates, new_delegates, 1), encoding="utf-8")
           PY
 
+      - name: Validate generated tour notification localizations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          required = (
+              "tourNotificationTitle",
+              "tourNotificationChannel",
+              "tourNotificationNextStop",
+              "tourNotificationElapsed",
+              "tourNotificationDistance",
+              "tourNotificationPermissionDenied",
+              "tourBackgroundServiceError",
+          )
+          files = (
+              Path("lib/l10n/app_localizations.dart"),
+              Path("lib/l10n/app_localizations_it.dart"),
+              Path("lib/l10n/app_localizations_en.dart"),
+          )
+          for path in files:
+              source = path.read_text(encoding="utf-8")
+              missing = [key for key in required if key not in source]
+              if missing:
+                  raise SystemExit(f"{path} is missing generated localization keys: {missing}")
+          PY
+
       - name: Migrate Flutter design package deprecations
         run: dart fix --apply --code=migrate_design_widgets
 
