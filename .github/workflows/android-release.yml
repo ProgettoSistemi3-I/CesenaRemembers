@@ -116,6 +116,11 @@ jobs:
       - name: Run Flutter tests
         run: flutter test
 
+      # Compile the Android host application on PRs as well, so native Kotlin
+      # services and manifest declarations are validated before merge.
+      - name: Build Android debug APK
+        run: flutter build apk --debug
+
       - name: Validate notifier JavaScript syntax
         run: |
           node --check server_docker/notifier-service/index.js
