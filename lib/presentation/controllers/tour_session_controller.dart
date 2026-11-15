@@ -42,6 +42,7 @@ class TourSessionController {
   int _currentStopIndex = 0;
   LatLng? _userPosition;
   bool _hasRealUserPosition = false;
+  int? _userPositionAtEpochMs;
   int _elapsedSeconds = 0;
   int _totalElapsedSeconds = 0;
   int _tourStartedAtEpochMs = 0;
@@ -138,7 +139,7 @@ class TourSessionController {
     final elapsedWhileClosed = math.max(
       0,
       (now - snapshot.savedAtEpochMs) ~/ 1000,
-    );
+    ).toInt();
 
     _orderedStops = List.unmodifiable(restoredStops);
     _currentStopIndex = snapshot.currentStopIndex;
@@ -158,8 +159,12 @@ class TourSessionController {
       final positionAge = snapshot.userPositionAtEpochMs == null
           ? null
           : now - snapshot.userPositionAtEpochMs!;
+      _userPositionAtEpochMs = snapshot.userPositionAtEpochMs;
       _hasRealUserPosition =
           positionAge != null && positionAge >= 0 && positionAge <= 30000;
+    } else {
+      _userPositionAtEpochMs = null;
+      _hasRealUserPosition = false;
     }
 
     _startPositionTracking();
@@ -184,6 +189,7 @@ class TourSessionController {
     if (origin != null) {
       _userPosition = origin;
       _hasRealUserPosition = true;
+      _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
     }
 
     _orderedStops = _routePlanner.sortNearestNeighbor(
@@ -233,6 +239,7 @@ class TourSessionController {
     _elapsedSeconds = 0;
     _totalElapsedSeconds = 0;
     _tourStartedAtEpochMs = 0;
+    _userPositionAtEpochMs = null;
     _lastTimerTickEpochMs = 0;
     _lastPersistenceAtEpochMs = 0;
     _queueClearPersistedSession(clearResults: clearResults);
@@ -283,6 +290,7 @@ class TourSessionController {
       final origin = await resolver();
       _userPosition = origin;
       _hasRealUserPosition = true;
+      _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
       return origin;
     }
 
@@ -292,9 +300,11 @@ class TourSessionController {
       ).timeout(const Duration(seconds: 4));
       _userPosition = LatLng(pos.latitude, pos.longitude);
       _hasRealUserPosition = true;
+      _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
       return _userPosition!;
     } catch (_) {
       _hasRealUserPosition = false;
+      _userPositionAtEpochMs = null;
       _userPosition = defaultCesenaCenter;
       return defaultCesenaCenter;
     }
@@ -308,6 +318,7 @@ class TourSessionController {
       (position) {
         _userPosition = LatLng(position.latitude, position.longitude);
         _hasRealUserPosition = true;
+        _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
         _checkCurrentStopArrival();
         if (_status != TourStatus.arrived) _emit();
 
@@ -347,7 +358,7 @@ class TourSessionController {
       final elapsedTicks = math.max(
         0,
         (now - _lastTimerTickEpochMs) ~/ 1000,
-      );
+      ).toInt();
       if (elapsedTicks == 0) return;
 
       _totalElapsedSeconds += elapsedTicks;
@@ -393,7 +404,7 @@ class TourSessionController {
       startedAtEpochMs: _tourStartedAtEpochMs,
       userLatitude: _userPosition?.latitude,
       userLongitude: _userPosition?.longitude,
-      userPositionAtEpochMs: _userPosition == null ? null : now,
+      userPositionAtEpochMs: _userPositionAtEpochMs,
     );
     _lastPersistenceAtEpochMs = now;
 
