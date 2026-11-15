@@ -126,6 +126,7 @@ extension _MapPageDataLogic on _MapPageState {
       if (mounted) {
         _updateMapState(() {});
         unawaited(_refreshRouteLine());
+        unawaited(_syncTourForegroundService());
       }
     });
   }
