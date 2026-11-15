@@ -20,6 +20,7 @@ class LocationIssueBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final baseTextStyle = theme.textTheme.bodyMedium ?? const TextStyle();
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -67,10 +68,11 @@ class LocationIssueBanner extends StatelessWidget {
                                 ? AppLocalizations.of(context)!.locationBannerMissingPermission
                                 : AppLocalizations.of(context)!.locationDisabled)
                           : AppLocalizations.of(context)!.locationBannerGpsOff,
-                      style: TextStyle(
+                      style: baseTextStyle.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: theme.colorScheme.onSurface,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -78,10 +80,11 @@ class LocationIssueBanner extends StatelessWidget {
                       isGpsPreferenceEnabled
                           ? AppLocalizations.of(context)!.locationBannerEnableLocation
                           : AppLocalizations.of(context)!.locationBannerReEnableLocation,
-                      style: TextStyle(
+                      style: baseTextStyle.copyWith(
                         fontSize: 12,
                         height: 1.3,
                         color: theme.colorScheme.onSurfaceVariant,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                   ],
@@ -117,6 +120,7 @@ class OutsideCesenaBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final baseTextStyle = theme.textTheme.bodyMedium ?? const TextStyle();
     final l10n = AppLocalizations.of(context)!;
 
     return ClipRRect(
@@ -162,19 +166,21 @@ class OutsideCesenaBanner extends StatelessWidget {
                   children: [
                     Text(
                       l10n.mapOutsideCesenaTitle,
-                      style: TextStyle(
+                      style: baseTextStyle.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: theme.colorScheme.onSurface,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.mapOutsideCesenaMessage,
-                      style: TextStyle(
+                      style: baseTextStyle.copyWith(
                         fontSize: 12,
                         height: 1.3,
                         color: theme.colorScheme.onSurfaceVariant,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                   ],
