@@ -615,6 +615,12 @@ abstract class AppLocalizations {
   /// **'To start the tour, enable GPS, location permission and the in-app option.'**
   String get tourStartGpsRequired;
 
+  /// No description provided for @tourStartLocationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS is enabled, but your current location is not available yet. Wait a moment in an open area and try again.'**
+  String get tourStartLocationUnavailable;
+
   /// No description provided for @tourNotificationTitle.
   ///
   /// In en, this message translates to:
