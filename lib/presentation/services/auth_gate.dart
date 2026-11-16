@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/logging/app_logger.dart';
@@ -119,6 +120,41 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     _startProfileTimeout();
   }
 
+  Future<T> _retryTransientFirestoreOperation<T>(
+    String operationName,
+    Future<T> Function() operation,
+  ) async {
+    const retryableCodes = {
+      'unavailable',
+      'deadline-exceeded',
+      'network-request-failed',
+      'aborted',
+      'cancelled',
+    };
+
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        return await operation();
+      } on FirebaseException catch (error, stackTrace) {
+        final canRetry =
+            retryableCodes.contains(error.code) && attempt < 2;
+        if (!canRetry) rethrow;
+
+        AppLogger.error(
+          '$operationName temporarily failed; retry ${attempt + 1}/2',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'AuthGate',
+        );
+        await Future.delayed(
+          Duration(milliseconds: 400 * (attempt + 1)),
+        );
+      }
+    }
+
+    throw StateError('$operationName exhausted its retry attempts');
+  }
+
   Future<void> _checkBanAndInit() async {
     // Offline il controllo ban "fallisce aperto": le Security Rules restano
     // la protezione reale lato server.
@@ -147,9 +183,12 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     // il form: il completamento del profilo richiede questo documento oppure
     // usa il percorso atomico di create previsto dalle Firestore Rules.
     try {
-      await _profileUseCases.ensureUserDocument(
-        uid: widget.appUser.id,
-        email: widget.appUser.email,
+      await _retryTransientFirestoreOperation(
+        'ensureUserDocument',
+        () => _profileUseCases.ensureUserDocument(
+          uid: widget.appUser.id,
+          email: widget.appUser.email,
+        ),
       );
     } catch (e, st) {
       AppLogger.error(
@@ -165,13 +204,19 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     // evidence. Give the sign-in callback a short window to finish its write;
     // if the current versions are still missing, return the user to the
     // checkbox-gated login screen rather than granting access silently.
-    var hasLegalAcceptance = await _profileUseCases.hasCurrentLegalAcceptance(
-      widget.appUser.id,
-    );
-    for (var attempt = 0; !hasLegalAcceptance && attempt < 3; attempt++) {
+    var hasLegalAcceptance =
+        await _retryTransientFirestoreOperation(
+          'hasCurrentLegalAcceptance',
+          () => _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id),
+        );
+    // The auth stream can reach this gate while LoginPage is still finishing
+    // the legal-acceptance write. Allow that write a little more time to land.
+    for (var attempt = 0; !hasLegalAcceptance && attempt < 6; attempt++) {
       await Future.delayed(const Duration(milliseconds: 500));
-      hasLegalAcceptance =
-          await _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id);
+      hasLegalAcceptance = await _retryTransientFirestoreOperation(
+        'hasCurrentLegalAcceptance',
+        () => _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id),
+      );
     }
     if (!hasLegalAcceptance) {
       await _authRepository.signOut();
