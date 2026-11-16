@@ -107,6 +107,7 @@
   "tourConfirmStopBody": "Il tour verrà terminato e perderai l'ordine attuale delle tappe.",
   "buttonStop": "Interrompi",
   "tourStartGpsRequired": "Per iniziare il tour attiva GPS, permessi posizione e opzione nell'app.",
+  "tourStartLocationUnavailable": "GPS attivo, ma la posizione attuale non è ancora disponibile. Attendi qualche secondo in un luogo aperto e riprova.",
   "tourNotificationTitle": "Cesena Remembers · Tour in corso",
   "tourNotificationChannel": "Tour in corso",
   "tourNotificationNextStop": "Prossima tappa",
