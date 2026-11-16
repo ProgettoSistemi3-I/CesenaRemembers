@@ -34,26 +34,23 @@ extension _MapPageTourActions on _MapPageState {
     }
     _removeOutsideCesenaNotification();
 
-    // Il tour è stato avviato esplicitamente dall'utente: chiedi il permesso
-    // Android per rendere visibile la notifica persistente.
+    // Notification permission is requested during consent onboarding, not
+    // after the user starts a tour. If Android still blocks notifications,
+    // explain the limitation but do not interrupt the tour with a late prompt.
     try {
-      final notificationService = NotificationService();
-      final enabled = await notificationService.areAndroidNotificationsEnabled();
-      if (enabled == false) {
-        final granted =
-            await notificationService.requestAndroidNotificationPermission();
-        if (granted == false && mounted) {
-          showGlassSnackBar(
-            context,
-            message: AppLocalizations.of(context)!.tourNotificationPermissionDenied,
-            type: GlassSnackType.info,
-            duration: const Duration(seconds: 6),
-          );
-        }
+      final notificationsEnabled =
+          await NotificationService().areAndroidNotificationsEnabled();
+      if (notificationsEnabled == false && mounted) {
+        showGlassSnackBar(
+          context,
+          message: AppLocalizations.of(context)!.tourNotificationPermissionDenied,
+          type: GlassSnackType.info,
+          duration: const Duration(seconds: 6),
+        );
       }
     } catch (error, stackTrace) {
       AppLogger.error(
-        'Unable to request tour notification permission',
+        'Unable to check tour notification permission',
         error: error,
         stackTrace: stackTrace,
         name: 'MapPageTour',
