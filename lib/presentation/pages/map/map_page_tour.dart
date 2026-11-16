@@ -63,7 +63,6 @@ extension _MapPageTourActions on _MapPageState {
       _tourXpEarned = 0;
       _tourCorrectAnswers = 0;
       _tourTotalQuestions = 0;
-      _cachedUserXp ??= 0;
       if (_tourController.currentStop != null) {
         _centerOnStop(_toLatLng(_tourController.currentStop!.position));
       }
