@@ -8,6 +8,7 @@ import '../../core/logging/crashlytics_reporter.dart';
 import '../theme/theme_controller.dart';
 import '../services/location_permission_service.dart';
 import '../services/location_preference_store.dart';
+import '../services/notification_service.dart';
 import '../services/push_notification_service.dart';
 import '../services/shell_navigation_store.dart';
 
@@ -131,6 +132,21 @@ class SettingsController extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
+      // Ask Android directly from the user's explicit settings action.
+      // Do not let an FCM/profile read failure silently undo the in-app choice.
+      if (newNotifiche == true) {
+        try {
+          await NotificationService().requestAndroidNotificationPermission();
+        } catch (error, stackTrace) {
+          AppLogger.error(
+            'Unable to request Android notification permission from settings',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'SettingsController',
+          );
+        }
+      }
+
       // 2) Persistenza remota
       await _preferencesUseCases.updatePreferences(
         uid: _currentUid,
@@ -146,16 +162,9 @@ class SettingsController extends ChangeNotifier {
         );
       }
       if (newNotifiche != null) {
-        final permissionGranted =
-            await PushNotificationService.initializeAndSaveToken();
-        if (newNotifiche == true && permissionGranted == false) {
-          await _preferencesUseCases.updatePreferences(
-            uid: _currentUid,
-            notifiche: false,
-          );
-          notifiche = false;
-          _safeNotifyListeners();
-        }
+        await PushNotificationService.initializeAndSaveToken(
+          requestPermissionIfNeeded: false,
+        );
       }
     } catch (e, stackTrace) {
       AppLogger.error(
