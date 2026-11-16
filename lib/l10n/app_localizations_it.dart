@@ -273,6 +273,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tourStartGpsRequired => 'Per iniziare il tour attiva GPS, permessi posizione e opzione nell\'app.';
 
   @override
+  String get tourStartLocationUnavailable => 'GPS attivo, ma la posizione attuale non è ancora disponibile. Attendi qualche secondo in un luogo aperto e riprova.';
+
+  @override
   String get tourNotificationTitle => 'Cesena Remembers · Tour in corso';
 
   @override
