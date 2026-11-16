@@ -6,6 +6,7 @@ import '../../../injection_container.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../services/location_permission_service.dart';
 import '../../services/location_preference_store.dart';
+import '../../services/notification_service.dart';
 import '../../services/push_notification_service.dart';
 import '../../theme/app_palette.dart';
 
@@ -37,19 +38,26 @@ class _ConsentOnboardingPageState extends State<ConsentOnboardingPage> {
 
       switch (_step) {
         case 0:
-          // Save the in-app choice first. FCM asks Android only when enabled.
+          // Ask Android immediately after the user's explicit opt-in, while
+          // they are still in the permission onboarding step.
+          if (enabled) {
+            try {
+              await NotificationService().requestAndroidNotificationPermission();
+            } catch (_) {
+              // A platform prompt failure must not block the rest of onboarding.
+            }
+          }
+
+          // Keep the in-app choice independent from the Android runtime grant.
+          // Android may block delivery, but that must not silently reset the
+          // user's preference; the system permission can be changed in Settings.
           await preferences.updatePreferences(
             uid: widget.uid,
             notifiche: enabled,
           );
-          final permissionGranted =
-              await PushNotificationService.initializeAndSaveToken();
-          if (permissionGranted == false) {
-            await preferences.updatePreferences(
-              uid: widget.uid,
-              notifiche: false,
-            );
-          }
+          await PushNotificationService.initializeAndSaveToken(
+            requestPermissionIfNeeded: false,
+          );
           break;
 
         case 1:
