@@ -22,8 +22,9 @@ extension _MapPageTourActions on _MapPageState {
     if (origin == null) {
       showGlassSnackBar(
         context,
-        message: AppLocalizations.of(context)!.tourStartGpsRequired,
+        message: AppLocalizations.of(context)!.tourStartLocationUnavailable,
         type: GlassSnackType.error,
+        duration: const Duration(seconds: 6),
       );
       return;
     }
