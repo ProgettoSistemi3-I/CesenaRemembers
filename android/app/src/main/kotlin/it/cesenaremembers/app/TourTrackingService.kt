@@ -259,17 +259,24 @@ class TourTrackingService : Service() {
                 .setCustomHeadsUpContentView(compactContent)
                 .setStyle(Notification.DecoratedCustomViewStyle())
         } else {
+            // On API < 24, custom expanded and heads-up views are assigned
+            // to the built Notification rather than Notification.Builder.
             @Suppress("DEPRECATION")
-            builder
-                .setContent(compactContent)
-                .setBigContentView(expandedContent)
-                .setHeadsUpContentView(compactContent)
+            builder.setContent(compactContent)
         }
 
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)
         }
-        return builder.build()
+
+        val notification = builder.build()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            @Suppress("DEPRECATION")
+            notification.bigContentView = expandedContent
+            @Suppress("DEPRECATION")
+            notification.headsUpContentView = compactContent
+        }
+        return notification
     }
 
     private fun currentDistanceText(preferences: android.content.SharedPreferences): String {
