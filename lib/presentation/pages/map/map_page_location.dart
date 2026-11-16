@@ -92,7 +92,31 @@ extension _MapPageLocationLogic on _MapPageState {
     ShellNavigationStore.openSettingsAndFocusGpsToggle();
   }
 
+  Future<LatLng?> _getRecentLastKnownLocation() async {
+    try {
+      final lastKnown = await Geolocator.getLastKnownPosition();
+      if (lastKnown == null) return null;
+
+      final age = DateTime.now().difference(lastKnown.timestamp);
+      // A cached fix is useful for avoiding an unnecessary GPS cold-start
+      // delay, but must remain recent so it cannot start a tour far from the
+      // user's actual position.
+      if (age < Duration.zero || age > const Duration(seconds: 30)) {
+        return null;
+      }
+      return LatLng(lastKnown.latitude, lastKnown.longitude);
+    } catch (_) {
+      // Some providers do not expose a cached position.
+      return null;
+    }
+  }
+
   Future<LatLng?> _getCurrentDeviceLocation() async {
+    // Prefer a recent cached fix: getCurrentPosition may wait several seconds
+    // for a fresh GPS fix even when Android permissions and GPS are enabled.
+    final recentLastKnown = await _getRecentLastKnownLocation();
+    if (recentLastKnown != null) return recentLastKnown;
+
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
@@ -102,20 +126,7 @@ extension _MapPageLocationLogic on _MapPageState {
       );
       return LatLng(position.latitude, position.longitude);
     } catch (_) {
-      try {
-        final lastKnown = await Geolocator.getLastKnownPosition();
-        if (lastKnown != null) {
-          final age = DateTime.now().difference(lastKnown.timestamp);
-          // A stale cached fix could otherwise let someone start a tour after
-          // leaving Cesena. Only accept a recent fallback position.
-          if (age >= Duration.zero && age <= const Duration(seconds: 30)) {
-            return LatLng(lastKnown.latitude, lastKnown.longitude);
-          }
-        }
-      } catch (_) {
-        // A missing or stale position must not be replaced with Cesena's center.
-      }
-      return null;
+      return _getRecentLastKnownLocation();
     }
   }
 
