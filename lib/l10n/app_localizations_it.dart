@@ -285,7 +285,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get tourNotificationNextStop => 'Prossima tappa';
 
   @override
-  String get tourNotificationElapsed => 'Tempo';
+  String get tourNotificationElapsed => 'Tempo tappa';
 
   @override
   String get tourNotificationDistance => 'Distanza';
