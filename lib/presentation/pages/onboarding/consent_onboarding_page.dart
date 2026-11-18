@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/logging/app_logger.dart';
 import '../../../core/logging/crashlytics_reporter.dart';
 import '../../../domain/usecases/user_preferences_use_cases.dart';
 import '../../../injection_container.dart';
@@ -42,9 +43,22 @@ class _ConsentOnboardingPageState extends State<ConsentOnboardingPage> {
           // they are still in the permission onboarding step.
           if (enabled) {
             try {
-              await NotificationService().requestAndroidNotificationPermission();
-            } catch (_) {
+              final permissionGranted = await NotificationService()
+                  .requestAndroidNotificationPermission();
+              if (permissionGranted == false) {
+                AppLogger.error(
+                  'Android notification permission is still disabled after opt-in',
+                  name: 'ConsentOnboardingPage',
+                );
+              }
+            } catch (error, stackTrace) {
               // A platform prompt failure must not block the rest of onboarding.
+              AppLogger.error(
+                'Android notification permission request failed during onboarding',
+                error: error,
+                stackTrace: stackTrace,
+                name: 'ConsentOnboardingPage',
+              );
             }
           }
 
