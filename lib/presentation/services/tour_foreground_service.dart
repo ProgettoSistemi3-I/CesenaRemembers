@@ -11,7 +11,7 @@ class TourForegroundService {
   static bool get _isAndroid =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-  static Future<void> startOrUpdate({
+  static Future<bool> startOrUpdate({
     required String notificationTitle,
     required String notificationChannelName,
     required String nextStopLabel,
