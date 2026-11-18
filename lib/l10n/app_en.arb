@@ -111,7 +111,7 @@
   "tourNotificationTitle": "Cesena Remembers · Tour in progress",
   "tourNotificationChannel": "Active tour",
   "tourNotificationNextStop": "Next stop",
-  "tourNotificationElapsed": "Time",
+  "tourNotificationElapsed": "Stage time",
   "tourNotificationDistance": "Distance",
   "tourNotificationPermissionDenied": "The tour will continue, but the ongoing notification will not be visible until notification permission is granted.",
   "tourBackgroundServiceError": "Unable to start background tracking. Check location and notification permissions.",
