@@ -59,9 +59,17 @@ class MainActivity : FlutterActivity() {
                                 (arguments["longitude"] as? Number)?.toDouble() ?: 0.0,
                             )
                             putExtra(
-                                TourTrackingService.EXTRA_STARTED_AT,
-                                (arguments["startedAtEpochMs"] as? Number)?.toLong()
+                                TourTrackingService.EXTRA_LEG_STARTED_AT,
+                                (arguments["legStartedAtEpochMs"] as? Number)?.toLong()
                                     ?: System.currentTimeMillis(),
+                            )
+                            putExtra(
+                                TourTrackingService.EXTRA_ELAPSED_SECONDS,
+                                (arguments["elapsedSeconds"] as? Number)?.toLong() ?: 0L,
+                            )
+                            putExtra(
+                                TourTrackingService.EXTRA_ELAPSED_RUNNING,
+                                arguments["elapsedRunning"] as? Boolean ?: true,
                             )
                         }
 
