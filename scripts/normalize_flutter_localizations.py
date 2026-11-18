@@ -7,10 +7,14 @@ import re
 PATH = Path("lib/l10n/app_localizations.dart")
 source = PATH.read_text(encoding="utf-8")
 
-# gen-l10n still emits the legacy flutter_localizations import. Keeping it
-# beside material_ui makes GlobalMaterialLocalizations ambiguous.
+# gen-l10n still emits the legacy flutter_localizations and foundation imports.
+# material_ui/widgets already re-export the symbols used by the generated file.
 source = source.replace(
     "import 'package:flutter_localizations/flutter_localizations.dart';\n",
+    "",
+)
+source = source.replace(
+    "import 'package:flutter/foundation.dart';\n",
     "",
 )
 
