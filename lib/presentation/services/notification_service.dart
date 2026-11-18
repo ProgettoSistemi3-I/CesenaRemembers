@@ -1,5 +1,4 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/logging/app_logger.dart';
 
@@ -11,6 +10,7 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool _pluginInitialized = false;
+  static bool _permissionRequestAttemptedInProcess = false;
 
   Future<void> init() async {
     // Il token FCM è gestito da PushNotificationService, associato all'UID
@@ -43,9 +43,6 @@ class NotificationService {
 
   /// Requests the Android 13+ runtime permission from the user's consent action.
   /// Returns null on platforms where the Android implementation is unavailable.
-  static const _permissionRequestedKey =
-      'android_notification_permission_requested_v1';
-
   Future<bool?> requestAndroidNotificationPermission({
     bool allowRepeatRequest = false,
   }) async {
@@ -65,10 +62,9 @@ class NotificationService {
     // Do not expect Android to show a dialog when permission is already
     // granted. If it is blocked, request it and then verify the actual
     // NotificationManager state rather than trusting a nullable plugin result.
-    final preferences = await SharedPreferences.getInstance();
     final enabledBefore = await androidImplementation.areNotificationsEnabled();
     if (enabledBefore == true) {
-      await preferences.setBool(_permissionRequestedKey, true);
+      _permissionRequestAttemptedInProcess = true;
       AppLogger.info(
         'Android notifications are already enabled; no system prompt is needed',
         name: 'NotificationService',
@@ -76,11 +72,9 @@ class NotificationService {
       return true;
     }
 
-    final requestWasAlreadyShown =
-        preferences.getBool(_permissionRequestedKey) ?? false;
-    if (requestWasAlreadyShown && !allowRepeatRequest) {
+    if (_permissionRequestAttemptedInProcess && !allowRepeatRequest) {
       AppLogger.info(
-        'Skipping a repeated Android notification prompt; use Settings for an explicit retry',
+        'Skipping a duplicate Android notification prompt in the current app process',
         name: 'NotificationService',
       );
       return false;
@@ -88,7 +82,7 @@ class NotificationService {
 
     final requestResult =
         await androidImplementation.requestNotificationsPermission();
-    await preferences.setBool(_permissionRequestedKey, true);
+    _permissionRequestAttemptedInProcess = true;
     final enabledAfter = await androidImplementation.areNotificationsEnabled();
     AppLogger.info(
       'Android notification permission request completed: '
