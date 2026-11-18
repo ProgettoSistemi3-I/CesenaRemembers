@@ -72,6 +72,10 @@ class PushNotificationService {
       // Non chiedere il permesso di sistema quando l'utente ha disattivato
       // esplicitamente le notifiche nell'app.
       if (!profile.notificheEnabled) {
+        AppLogger.info(
+          'Skipping Android notification permission request: in-app notification consent is disabled',
+          name: 'PushNotificationService',
+        );
         await messaging.setAutoInitEnabled(false);
         await _unregisterTokenForUid(uid, profiles, deleteFcmToken: true);
         _setupNotificationListeners();
