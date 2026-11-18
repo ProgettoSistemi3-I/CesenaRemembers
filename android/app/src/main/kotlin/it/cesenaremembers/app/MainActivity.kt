@@ -2,6 +2,7 @@ package it.cesenaremembers.app
 
 import android.content.Intent
 import android.os.Build
+import android.app.NotificationManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -77,6 +78,38 @@ class MainActivity : FlutterActivity() {
                             null,
                         )
                     }
+                }
+
+                "getStatus" -> {
+                    val preferences = getSharedPreferences(
+                        TourTrackingService.PREFERENCES_NAME,
+                        MODE_PRIVATE,
+                    )
+                    val notificationsManager =
+                        getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                    val channelImportance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        notificationsManager.getNotificationChannel("tour_tracking_v2")?.importance
+                            ?: NotificationManager.IMPORTANCE_UNSPECIFIED
+                    } else {
+                        NotificationManager.IMPORTANCE_DEFAULT
+                    }
+                    val notificationsEnabled =
+                        notificationsManager.areNotificationsEnabled() &&
+                            channelImportance != NotificationManager.IMPORTANCE_NONE
+                    result.success(
+                        mapOf(
+                            "isForeground" to preferences.getBoolean(
+                                TourTrackingService.KEY_IS_FOREGROUND,
+                                false,
+                            ),
+                            "lastError" to preferences.getString(
+                                TourTrackingService.KEY_LAST_ERROR,
+                                "",
+                            ),
+                            "notificationsVisible" to notificationsEnabled,
+                            "channelImportance" to channelImportance,
+                        ),
+                    )
                 }
 
                 "stop" -> {
