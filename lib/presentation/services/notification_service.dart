@@ -46,7 +46,18 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-    return androidImplementation?.requestNotificationsPermission();
+    if (androidImplementation == null) return null;
+
+    // Do not expect Android to show a dialog when permission is already
+    // granted. If it is blocked, request it and then verify the actual
+    // NotificationManager state rather than trusting a nullable plugin result.
+    final enabledBefore = await androidImplementation.areNotificationsEnabled();
+    if (enabledBefore == true) return true;
+
+    final requestResult =
+        await androidImplementation.requestNotificationsPermission();
+    final enabledAfter = await androidImplementation.areNotificationsEnabled();
+    return enabledAfter ?? requestResult;
   }
 
   Future<void> showLocalNotification(String title, String body) async {
