@@ -268,8 +268,9 @@ class CesenaRemembersApp extends StatelessWidget {
         );
 
         return MaterialApp(
-          // Bridges widgets and dependencies still using the legacy
-          // Flutter Material library with the standalone material_ui package.
+          // Keep this compatibility bridge until the remaining legacy
+          // Material widgets have been migrated to material_ui.
+          // ignore: deprecated_member_use
           builder: (context, child) => MaterialUiCompatibilityBridge(
             child: child ?? const SizedBox.shrink(),
           ),
