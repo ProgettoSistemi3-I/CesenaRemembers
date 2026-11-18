@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.widget.RemoteViews
 import java.util.Locale
 
@@ -88,11 +89,30 @@ class TourTrackingService : Service() {
         }
 
         // The localized channel name arrives with the first start/update request.
-        createNotificationChannel()
-        startOrUpdateForegroundNotification()
-        requestLocationUpdates()
-        handler.removeCallbacks(notificationTicker)
-        handler.postDelayed(notificationTicker, NOTIFICATION_REFRESH_MS)
+        try {
+            createNotificationChannel()
+            startOrUpdateForegroundNotification()
+            requestLocationUpdates()
+            handler.removeCallbacks(notificationTicker)
+            handler.postDelayed(notificationTicker, NOTIFICATION_REFRESH_MS)
+            trackingPreferences().edit()
+                .putBoolean(KEY_IS_FOREGROUND, true)
+                .putString(KEY_LAST_ERROR, "")
+                .apply()
+            Log.i(
+                LOG_TAG,
+                "Tour foreground service started; notificationsEnabled=${notificationManager.areNotificationsEnabled()}, " +
+                    "channelImportance=${notificationChannelImportance()}",
+            )
+        } catch (error: Exception) {
+            trackingPreferences().edit()
+                .putBoolean(KEY_IS_FOREGROUND, false)
+                .putString(KEY_LAST_ERROR, error.message ?: error.javaClass.simpleName)
+                .apply()
+            Log.e(LOG_TAG, "Unable to enter foreground for active tour", error)
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         // Android may recreate this service after reclaiming the app process.
         // The notification and destination data are restored from native prefs.
@@ -113,6 +133,9 @@ class TourTrackingService : Service() {
             removeForegroundNotification()
             isForeground = false
         }
+        trackingPreferences().edit()
+            .putBoolean(KEY_IS_FOREGROUND, false)
+            .apply()
         super.onDestroy()
     }
 
@@ -391,6 +414,14 @@ class TourTrackingService : Service() {
         }
     }
 
+    private fun notificationChannelImportance(): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return NotificationManager.IMPORTANCE_DEFAULT
+        }
+        return notificationManager.getNotificationChannel(CHANNEL_ID)?.importance
+            ?: NotificationManager.IMPORTANCE_UNSPECIFIED
+    }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channelName = trackingPreferences().getString(
@@ -473,7 +504,12 @@ class TourTrackingService : Service() {
         private const val KEY_LAST_LATITUDE = "lastLatitude"
         private const val KEY_LAST_LONGITUDE = "lastLongitude"
 
-        private const val CHANNEL_ID = "tour_tracking"
+        // A fresh channel avoids inheriting a previously disabled/broken channel
+        // created by earlier test builds. Android preserves user settings per ID.
+        private const val CHANNEL_ID = "tour_tracking_v2"
+        const val KEY_IS_FOREGROUND = "isForeground"
+        const val KEY_LAST_ERROR = "lastStartError"
+        const val LOG_TAG = "TourTrackingService"
         private const val DEFAULT_TITLE = "Cesena Remembers · Tour"
         private const val DEFAULT_CHANNEL_NAME = "Tour in corso"
         private const val DEFAULT_CHANNEL_DESCRIPTION =
