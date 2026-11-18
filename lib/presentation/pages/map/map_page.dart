@@ -30,7 +30,6 @@ import '../../services/location_preference_store.dart';
 import '../../services/shared_position_stream.dart';
 import '../../services/tour_session_store.dart';
 import '../../services/tour_foreground_service.dart';
-import '../../services/notification_service.dart';
 import '../../services/poi_marker_factory.dart';
 import '../../services/shell_navigation_store.dart';
 import '../../services/tour_stop_mapper.dart';
