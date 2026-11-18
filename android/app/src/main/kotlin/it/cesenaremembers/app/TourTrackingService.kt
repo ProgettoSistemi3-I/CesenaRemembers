@@ -19,7 +19,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import android.widget.RemoteViews
 import java.util.Locale
 
 /**
@@ -219,31 +218,13 @@ class TourTrackingService : Service() {
         val distanceLabel =
             preferences.getString(KEY_DISTANCE_LABEL, DEFAULT_DISTANCE_LABEL)
                 ?: DEFAULT_DISTANCE_LABEL
-        val openLabel =
-            preferences.getString(KEY_OPEN_LABEL, DEFAULT_OPEN_LABEL)
-                ?: DEFAULT_OPEN_LABEL
         val stopName = preferences.getString(KEY_STOP_NAME, "") ?: ""
         val startedAt = preferences.getLong(KEY_STARTED_AT, System.currentTimeMillis())
         val elapsedSeconds = ((System.currentTimeMillis() - startedAt) / 1000L)
             .coerceAtLeast(0L)
         val elapsedText = formatElapsed(elapsedSeconds)
         val distanceText = currentDistanceText(preferences)
-
         val displayedStopName = if (stopName.isBlank()) "—" else stopName
-        val compactContent = RemoteViews(packageName, R.layout.notification_tour_compact).apply {
-            setTextViewText(R.id.tour_notification_stop, "$nextStopLabel: $displayedStopName")
-            setTextViewText(R.id.tour_notification_elapsed, elapsedText)
-        }
-        val expandedContent = RemoteViews(packageName, R.layout.notification_tour_expanded).apply {
-            setTextViewText(R.id.tour_notification_brand, title)
-            setTextViewText(R.id.tour_notification_next_label, nextStopLabel.uppercase(Locale.getDefault()))
-            setTextViewText(R.id.tour_notification_stop, displayedStopName)
-            setTextViewText(R.id.tour_notification_elapsed_label, elapsedLabel.uppercase(Locale.getDefault()))
-            setTextViewText(R.id.tour_notification_elapsed, elapsedText)
-            setTextViewText(R.id.tour_notification_distance_label, distanceLabel.uppercase(Locale.getDefault()))
-            setTextViewText(R.id.tour_notification_distance, distanceText)
-            setTextViewText(R.id.tour_notification_open, openLabel.uppercase(Locale.getDefault()))
-        }
 
         val openAppIntent = packageManager.getLaunchIntentForPackage(packageName)
             ?.apply {
@@ -265,41 +246,37 @@ class TourTrackingService : Service() {
             Notification.Builder(this)
         }
 
+        // Diagnostic fallback: use Android's standard notification template instead
+        // of RemoteViews to isolate MIUI rendering/ filtering issues.
+        val expandedText = "$nextStopLabel: $displayedStopName\n" +
+            "$elapsedLabel: $elapsedText\n" +
+            "$distanceLabel: $distanceText"
+
         builder
             .setSmallIcon(R.drawable.ic_stat_notification)
             .setContentTitle(title)
             .setContentText("$nextStopLabel: $displayedStopName")
+            .setStyle(Notification.BigTextStyle().bigText(expandedText))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
             .setVisibility(Notification.VISIBILITY_PRIVATE)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            builder
-                .setCustomContentView(compactContent)
-                .setCustomBigContentView(expandedContent)
-                .setCustomHeadsUpContentView(compactContent)
-                .setStyle(Notification.DecoratedCustomViewStyle())
-        } else {
-            // On API < 24, custom expanded and heads-up views are assigned
-            // to the built Notification rather than Notification.Builder.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(
+                Notification.FOREGROUND_SERVICE_IMMEDIATE,
+            )
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             @Suppress("DEPRECATION")
-            builder.setContent(compactContent)
+            builder.setPriority(Notification.PRIORITY_LOW)
         }
 
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)
         }
 
-        val notification = builder.build()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            @Suppress("DEPRECATION")
-            notification.bigContentView = expandedContent
-            @Suppress("DEPRECATION")
-            notification.headsUpContentView = compactContent
-        }
-        return notification
+        return builder.build()
     }
 
     private fun currentDistanceText(preferences: android.content.SharedPreferences): String {
