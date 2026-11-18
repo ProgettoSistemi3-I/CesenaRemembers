@@ -285,7 +285,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tourNotificationNextStop => 'Next stop';
 
   @override
-  String get tourNotificationElapsed => 'Time';
+  String get tourNotificationElapsed => 'Stage time';
 
   @override
   String get tourNotificationDistance => 'Distance';
