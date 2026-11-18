@@ -128,7 +128,7 @@ extension _MapPageLocationLogic on _MapPageState {
       );
       final result = LatLng(position.latitude, position.longitude);
       AppLogger.info(
-        'Current location acquired: lat=${result.latitude}, lon=${result.longitude}',
+        'Current device location acquired successfully',
         name: 'MapPage',
       );
       return result;
@@ -142,7 +142,7 @@ extension _MapPageLocationLogic on _MapPageState {
       final fallback = await _getRecentLastKnownLocation();
       if (fallback != null) {
         AppLogger.info(
-          'Using recent cached location: lat=${fallback.latitude}, lon=${fallback.longitude}',
+          'Using a recent cached device location',
           name: 'MapPage',
         );
       } else {
