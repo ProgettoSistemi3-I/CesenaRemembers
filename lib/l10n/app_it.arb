@@ -111,7 +111,7 @@
   "tourNotificationTitle": "Cesena Remembers · Tour in corso",
   "tourNotificationChannel": "Tour in corso",
   "tourNotificationNextStop": "Prossima tappa",
-  "tourNotificationElapsed": "Tempo",
+  "tourNotificationElapsed": "Tempo tappa",
   "tourNotificationDistance": "Distanza",
   "tourNotificationPermissionDenied": "Il tour continua, ma la notifica permanente non sarà visibile finché non concedi il permesso notifiche.",
   "tourBackgroundServiceError": "Impossibile avviare il tracciamento in background. Controlla i permessi di posizione e notifiche.",
