@@ -21,7 +21,9 @@ class TourForegroundService {
     required String stopName,
     required double latitude,
     required double longitude,
-    required int startedAtEpochMs,
+    required int elapsedSeconds,
+    required bool elapsedRunning,
+    required int legStartedAtEpochMs,
   }) async {
     if (!_isAndroid) return true;
 
@@ -35,7 +37,9 @@ class TourForegroundService {
       'stopName': stopName,
       'latitude': latitude,
       'longitude': longitude,
-      'startedAtEpochMs': startedAtEpochMs,
+      'elapsedSeconds': elapsedSeconds,
+      'elapsedRunning': elapsedRunning,
+      'legStartedAtEpochMs': legStartedAtEpochMs,
     });
 
     // startForegroundService() only confirms that Android accepted the
