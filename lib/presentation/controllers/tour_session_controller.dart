@@ -46,6 +46,7 @@ class TourSessionController {
   int _elapsedSeconds = 0;
   int _totalElapsedSeconds = 0;
   int _tourStartedAtEpochMs = 0;
+  int _currentLegStartedAtEpochMs = 0;
   int _lastTimerTickEpochMs = 0;
   int _lastPersistenceAtEpochMs = 0;
   Future<void> _persistenceQueue = Future<void>.value();
@@ -59,6 +60,7 @@ class TourSessionController {
   int get elapsedSeconds => _elapsedSeconds;
   int get totalElapsedSeconds => _totalElapsedSeconds;
   int get tourStartedAtEpochMs => _tourStartedAtEpochMs;
+  int get currentLegStartedAtEpochMs => _currentLegStartedAtEpochMs;
   List<TourStop> get orderedStops => List.unmodifiable(_orderedStops);
   int get currentStopIndex => _currentStopIndex;
   TourStop? get currentStop =>
@@ -148,6 +150,7 @@ class TourSessionController {
     _totalElapsedSeconds = snapshot.totalElapsedSeconds + elapsedWhileClosed;
     _elapsedSeconds = snapshot.elapsedSeconds +
         (restoredStatus == TourStatus.running ? elapsedWhileClosed : 0);
+    _currentLegStartedAtEpochMs = now - (_elapsedSeconds * 1000);
     _lastTimerTickEpochMs = now;
     _lastPersistenceAtEpochMs = now;
 
@@ -200,6 +203,7 @@ class TourSessionController {
     _elapsedSeconds = 0;
     _totalElapsedSeconds = 0;
     _tourStartedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
+    _currentLegStartedAtEpochMs = _tourStartedAtEpochMs;
     _lastTimerTickEpochMs = _tourStartedAtEpochMs;
     _lastPersistenceAtEpochMs = _tourStartedAtEpochMs;
     _status = TourStatus.running;
@@ -218,7 +222,9 @@ class TourSessionController {
       _currentStopIndex++;
       _status = TourStatus.running;
       _elapsedSeconds = 0;
-      _lastTimerTickEpochMs = DateTime.now().millisecondsSinceEpoch;
+      final legStartedAt = DateTime.now().millisecondsSinceEpoch;
+      _currentLegStartedAtEpochMs = legStartedAt;
+      _lastTimerTickEpochMs = legStartedAt;
       _emit();
       _checkCurrentStopArrival();
       _startTimer();
@@ -239,6 +245,7 @@ class TourSessionController {
     _elapsedSeconds = 0;
     _totalElapsedSeconds = 0;
     _tourStartedAtEpochMs = 0;
+    _currentLegStartedAtEpochMs = 0;
     _userPositionAtEpochMs = null;
     _lastTimerTickEpochMs = 0;
     _lastPersistenceAtEpochMs = 0;
@@ -264,7 +271,9 @@ class TourSessionController {
 
     if (oldRelativeIndex == 0 || newRelativeIndex == 0) {
       _elapsedSeconds = 0;
-      _lastTimerTickEpochMs = DateTime.now().millisecondsSinceEpoch;
+      final legStartedAt = DateTime.now().millisecondsSinceEpoch;
+      _currentLegStartedAtEpochMs = legStartedAt;
+      _lastTimerTickEpochMs = legStartedAt;
       if (_status == TourStatus.arrived) _status = TourStatus.running;
       _checkCurrentStopArrival();
       _startTimer();
