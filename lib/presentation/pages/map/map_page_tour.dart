@@ -71,10 +71,16 @@ extension _MapPageTourActions on _MapPageState {
     bool showError = false,
   }) {
     final scheduledStop = _tourController.currentStop;
+    final scheduledElapsedRunning =
+        _tourController.status == TourStatus.running;
+    final scheduledLegStartedAt =
+        _tourController.currentLegStartedAtEpochMs;
     if (!force &&
         _tourController.isActive &&
         _foregroundServiceStarted &&
-        _lastForegroundStopId == scheduledStop?.id) {
+        _lastForegroundStopId == scheduledStop?.id &&
+        _lastForegroundElapsedRunning == scheduledElapsedRunning &&
+        _lastForegroundLegStartedAtEpochMs == scheduledLegStartedAt) {
       return _foregroundServiceQueue;
     }
     if (!force && !_tourController.isActive && !_foregroundServiceStarted) {
@@ -91,12 +97,19 @@ extension _MapPageTourActions on _MapPageState {
         }
         _foregroundServiceStarted = false;
         _lastForegroundStopId = null;
+        _lastForegroundElapsedRunning = null;
+        _lastForegroundLegStartedAtEpochMs = null;
         return;
       }
 
+      final elapsedRunning = _tourController.status == TourStatus.running;
+      final legStartedAtEpochMs =
+          _tourController.currentLegStartedAtEpochMs;
       if (!force &&
           _foregroundServiceStarted &&
-          _lastForegroundStopId == currentStop.id) {
+          _lastForegroundStopId == currentStop.id &&
+          _lastForegroundElapsedRunning == elapsedRunning &&
+          _lastForegroundLegStartedAtEpochMs == legStartedAtEpochMs) {
         return;
       }
 
@@ -111,10 +124,14 @@ extension _MapPageTourActions on _MapPageState {
         stopName: l10n.getPoiName(currentStop.id),
         latitude: currentStop.position.latitude,
         longitude: currentStop.position.longitude,
-        startedAtEpochMs: _tourController.tourStartedAtEpochMs,
+        elapsedSeconds: _tourController.elapsedSeconds,
+        elapsedRunning: elapsedRunning,
+        legStartedAtEpochMs: legStartedAtEpochMs,
       );
       _foregroundServiceStarted = true;
       _lastForegroundStopId = currentStop.id;
+      _lastForegroundElapsedRunning = elapsedRunning;
+      _lastForegroundLegStartedAtEpochMs = legStartedAtEpochMs;
 
       if (!notificationVisible && showError && mounted) {
         showGlassSnackBar(
@@ -130,6 +147,8 @@ extension _MapPageTourActions on _MapPageState {
       (Object error, StackTrace stackTrace) {
         _foregroundServiceStarted = false;
         _lastForegroundStopId = null;
+        _lastForegroundElapsedRunning = null;
+        _lastForegroundLegStartedAtEpochMs = null;
         AppLogger.error(
           'Unable to synchronize the tour foreground service',
           error: error,
