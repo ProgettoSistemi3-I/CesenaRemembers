@@ -1,5 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../../core/logging/app_logger.dart';
+
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -46,17 +48,34 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-    if (androidImplementation == null) return null;
+    if (androidImplementation == null) {
+      AppLogger.error(
+        'Android notification plugin implementation is unavailable',
+        name: 'NotificationService',
+      );
+      return null;
+    }
 
     // Do not expect Android to show a dialog when permission is already
     // granted. If it is blocked, request it and then verify the actual
     // NotificationManager state rather than trusting a nullable plugin result.
     final enabledBefore = await androidImplementation.areNotificationsEnabled();
-    if (enabledBefore == true) return true;
+    if (enabledBefore == true) {
+      AppLogger.info(
+        'Android notifications are already enabled; no system prompt is needed',
+        name: 'NotificationService',
+      );
+      return true;
+    }
 
     final requestResult =
         await androidImplementation.requestNotificationsPermission();
     final enabledAfter = await androidImplementation.areNotificationsEnabled();
+    AppLogger.info(
+      'Android notification permission request completed: '
+      'requestResult=$requestResult, enabledAfter=$enabledAfter',
+      name: 'NotificationService',
+    );
     return enabledAfter ?? requestResult;
   }
 
