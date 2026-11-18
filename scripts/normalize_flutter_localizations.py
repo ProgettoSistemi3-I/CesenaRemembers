@@ -13,17 +13,18 @@ source = source.replace(
     "import 'package:flutter_localizations/flutter_localizations.dart';\n",
     "",
 )
+
+material_import = "import 'package:material_ui/material_ui.dart';"
+if material_import not in source:
+    anchor = "import 'package:flutter/widgets.dart';"
+    if anchor not in source:
+        raise SystemExit(f"Cannot find import insertion point in {PATH}")
+    source = source.replace(anchor, f"{material_import}\n{anchor}", 1)
+
 source = source.replace(
     "import 'package:flutter/foundation.dart';\n",
     "",
 )
-
-material_import = "import 'package:material_ui/material_ui.dart';"
-if material_import not in source:
-    anchor = "import 'package:flutter/foundation.dart';"
-    if anchor not in source:
-        raise SystemExit(f"Cannot find import insertion point in {PATH}")
-    source = source.replace(anchor, f"{anchor}\n{material_import}", 1)
 
 # The material_ui delegates are supplied as a runtime list, not a const list.
 # Its combined list includes Material, Cupertino and Widgets localizations.
