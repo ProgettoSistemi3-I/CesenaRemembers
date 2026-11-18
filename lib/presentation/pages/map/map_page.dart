@@ -171,6 +171,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   Future<void> _foregroundServiceQueue = Future<void>.value();
   bool _foregroundServiceStarted = false;
   String? _lastForegroundStopId;
+  bool? _lastForegroundElapsedRunning;
+  int? _lastForegroundLegStartedAtEpochMs;
   int? _cachedUserXp;
   Locale? _lastLocale;
   late VoidCallback _onLocaleChanged;
