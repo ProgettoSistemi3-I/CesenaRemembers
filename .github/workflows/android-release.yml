@@ -54,26 +54,33 @@ jobs:
       - name: Regenerate localizations
         run: flutter gen-l10n
 
-      - name: Migrate generated localization delegates
+      - name: Normalize generated localization delegates
+        run: python scripts/normalize_flutter_localizations.py
+
+      - name: Validate generated tour notification localizations
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          path = Path("lib/l10n/app_localizations.dart")
-          source = path.read_text(encoding="utf-8")
-          source = source.replace(
-              "import 'package:flutter_localizations/flutter_localizations.dart';",
-              "import 'package:material_ui/material_ui.dart';",
+          required = (
+              "tourNotificationTitle",
+              "tourNotificationChannel",
+              "tourNotificationNextStop",
+              "tourNotificationElapsed",
+              "tourNotificationDistance",
+              "tourNotificationPermissionDenied",
+              "tourBackgroundServiceError",
           )
-          old_delegates = """    delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,"""
-          new_delegates = """    delegate,
-              ...GlobalMaterialLocalizations.delegates,"""
-          if old_delegates not in source:
-              raise SystemExit("Unexpected generated Flutter localization delegate block")
-          path.write_text(source.replace(old_delegates, new_delegates, 1), encoding="utf-8")
+          files = (
+              Path("lib/l10n/app_localizations.dart"),
+              Path("lib/l10n/app_localizations_it.dart"),
+              Path("lib/l10n/app_localizations_en.dart"),
+          )
+          for path in files:
+              source = path.read_text(encoding="utf-8")
+              missing = [key for key in required if key not in source]
+              if missing:
+                  raise SystemExit(f"{path} is missing generated localization keys: {missing}")
           PY
 
       - name: Migrate Flutter design package deprecations
@@ -115,6 +122,11 @@ jobs:
 
       - name: Run Flutter tests
         run: flutter test
+
+      # Compile the Android host application on PRs as well, so native Kotlin
+      # services and manifest declarations are validated before merge.
+      - name: Build Android debug APK
+        run: flutter build apk --debug
 
       - name: Validate notifier JavaScript syntax
         run: |

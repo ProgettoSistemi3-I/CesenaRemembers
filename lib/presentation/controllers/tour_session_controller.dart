@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/shared_position_stream.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/entities/tour_stop.dart';
 import '../../domain/services/tour_route_planner.dart';
+import '../services/tour_session_store.dart';
 
 const double defaultArrivedThresholdMeters = 50.0;
 const LatLng defaultCesenaCenter = LatLng(44.143043, 12.253486);
@@ -19,13 +22,16 @@ class TourSessionController {
     this._arrivedThresholdMeters = defaultArrivedThresholdMeters,
     this._originResolver,
     this._positionStreamFactory,
-  }) : _availableStops = List.unmodifiable(availableStops);
+    TourSessionStore? sessionStore,
+  }) : _availableStops = List.unmodifiable(availableStops),
+       _sessionStore = sessionStore ?? TourSessionStore();
 
   final List<TourStop> _availableStops;
   final TourRoutePlanner _routePlanner;
   final double _arrivedThresholdMeters;
   final Future<LatLng> Function()? _originResolver;
   final Stream<Position> Function()? _positionStreamFactory;
+  final TourSessionStore _sessionStore;
 
   final StreamController<void> _updates = StreamController<void>.broadcast();
 
@@ -36,8 +42,14 @@ class TourSessionController {
   int _currentStopIndex = 0;
   LatLng? _userPosition;
   bool _hasRealUserPosition = false;
+  int? _userPositionAtEpochMs;
   int _elapsedSeconds = 0;
   int _totalElapsedSeconds = 0;
+  int _tourStartedAtEpochMs = 0;
+  int _currentLegStartedAtEpochMs = 0;
+  int _lastTimerTickEpochMs = 0;
+  int _lastPersistenceAtEpochMs = 0;
+  Future<void> _persistenceQueue = Future<void>.value();
 
   Timer? _timer;
   StreamSubscription<Position>? _positionSubscription;
@@ -47,6 +59,8 @@ class TourSessionController {
   bool get isArrived => _status == TourStatus.arrived;
   int get elapsedSeconds => _elapsedSeconds;
   int get totalElapsedSeconds => _totalElapsedSeconds;
+  int get tourStartedAtEpochMs => _tourStartedAtEpochMs;
+  int get currentLegStartedAtEpochMs => _currentLegStartedAtEpochMs;
   List<TourStop> get orderedStops => List.unmodifiable(_orderedStops);
   int get currentStopIndex => _currentStopIndex;
   TourStop? get currentStop =>
@@ -89,6 +103,80 @@ class TourSessionController {
 
   bool get hasStops => _availableStops.isNotEmpty;
 
+  /// Restores a saved tour after the Flutter activity or process is recreated.
+  /// The time elapsed while the process was unavailable is added from the
+  /// locally persisted timestamp.
+  Future<bool> restoreSession() async {
+    if (isActive || _availableStops.isEmpty) return false;
+
+    await _persistenceQueue;
+    final snapshot = await _sessionStore.loadSession();
+    if (snapshot == null) return false;
+
+    final stopsById = {for (final stop in _availableStops) stop.id: stop};
+    final restoredStops = <TourStop>[];
+    for (final stopId in snapshot.orderedStopIds) {
+      final stop = stopsById[stopId];
+      if (stop == null) {
+        await _sessionStore.clearSession();
+        await _sessionStore.clearResults();
+        return false;
+      }
+      restoredStops.add(stop);
+    }
+
+    if (restoredStops.isEmpty ||
+        snapshot.currentStopIndex < 0 ||
+        snapshot.currentStopIndex >= restoredStops.length ||
+        snapshot.startedAtEpochMs <= 0) {
+      await _sessionStore.clearSession();
+      await _sessionStore.clearResults();
+      return false;
+    }
+
+    final restoredStatus = snapshot.status == 'arrived'
+        ? TourStatus.arrived
+        : TourStatus.running;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final elapsedWhileClosed = math.max(
+      0,
+      (now - snapshot.savedAtEpochMs) ~/ 1000,
+    ).toInt();
+
+    _orderedStops = List.unmodifiable(restoredStops);
+    _currentStopIndex = snapshot.currentStopIndex;
+    _status = restoredStatus;
+    _tourStartedAtEpochMs = snapshot.startedAtEpochMs;
+    _totalElapsedSeconds = snapshot.totalElapsedSeconds + elapsedWhileClosed;
+    _elapsedSeconds = snapshot.elapsedSeconds +
+        (restoredStatus == TourStatus.running ? elapsedWhileClosed : 0);
+    _currentLegStartedAtEpochMs = now - (_elapsedSeconds * 1000);
+    _lastTimerTickEpochMs = now;
+    _lastPersistenceAtEpochMs = now;
+
+    if (snapshot.userLatitude != null && snapshot.userLongitude != null) {
+      _userPosition = LatLng(
+        snapshot.userLatitude!,
+        snapshot.userLongitude!,
+      );
+      final positionAge = snapshot.userPositionAtEpochMs == null
+          ? null
+          : now - snapshot.userPositionAtEpochMs!;
+      _userPositionAtEpochMs = snapshot.userPositionAtEpochMs;
+      _hasRealUserPosition =
+          positionAge != null && positionAge >= 0 && positionAge <= 30000;
+    } else {
+      _userPositionAtEpochMs = null;
+      _hasRealUserPosition = false;
+    }
+
+    _startPositionTracking();
+    _startTimer();
+    if (_status == TourStatus.running) _checkCurrentStopArrival();
+    _emit();
+    return true;
+  }
+
   Future<bool> startTour({LatLng? origin}) async {
     if (_availableStops.isEmpty) {
       _status = TourStatus.idle;
@@ -104,6 +192,7 @@ class TourSessionController {
     if (origin != null) {
       _userPosition = origin;
       _hasRealUserPosition = true;
+      _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
     }
 
     _orderedStops = _routePlanner.sortNearestNeighbor(
@@ -113,14 +202,18 @@ class TourSessionController {
     _currentStopIndex = 0;
     _elapsedSeconds = 0;
     _totalElapsedSeconds = 0;
+    _tourStartedAtEpochMs = DateTime.now().millisecondsSinceEpoch;
+    _currentLegStartedAtEpochMs = _tourStartedAtEpochMs;
+    _lastTimerTickEpochMs = _tourStartedAtEpochMs;
+    _lastPersistenceAtEpochMs = _tourStartedAtEpochMs;
     _status = TourStatus.running;
-    _emit();
 
+    await _sessionStore.clearResults();
     _startPositionTracking();
-    // Il cronometro totale parte anche se la prima tappa è già raggiunta:
-    // durante lo stato arrived deve continuare a contare il tempo dei quiz.
     _startTimer();
     _checkCurrentStopArrival();
+    await _enqueueSessionPersistence();
+    _emit();
     return true;
   }
 
@@ -129,23 +222,34 @@ class TourSessionController {
       _currentStopIndex++;
       _status = TourStatus.running;
       _elapsedSeconds = 0;
+      final legStartedAt = DateTime.now().millisecondsSinceEpoch;
+      _currentLegStartedAtEpochMs = legStartedAt;
+      _lastTimerTickEpochMs = legStartedAt;
       _emit();
       _checkCurrentStopArrival();
-      if (_status == TourStatus.running) _startTimer();
+      _startTimer();
+      _queueSessionPersistence();
       return true;
     }
 
-    stopTour();
+    // Keep the accumulated quiz results until the completion animation closes.
+    stopTour(clearResults: false);
     return false;
   }
 
-  void stopTour() {
+  void stopTour({bool clearResults = true}) {
     _stopTracking();
     _status = TourStatus.idle;
     _orderedStops = [];
     _currentStopIndex = 0;
     _elapsedSeconds = 0;
     _totalElapsedSeconds = 0;
+    _tourStartedAtEpochMs = 0;
+    _currentLegStartedAtEpochMs = 0;
+    _userPositionAtEpochMs = null;
+    _lastTimerTickEpochMs = 0;
+    _lastPersistenceAtEpochMs = 0;
+    _queueClearPersistedSession(clearResults: clearResults);
     _emit();
   }
 
@@ -166,13 +270,17 @@ class TourSessionController {
     _orderedStops.insert(absoluteNewIndex, movedStop);
 
     if (oldRelativeIndex == 0 || newRelativeIndex == 0) {
-      // Moving the first upcoming stop also changes the active tour stop.
       _elapsedSeconds = 0;
+      final legStartedAt = DateTime.now().millisecondsSinceEpoch;
+      _currentLegStartedAtEpochMs = legStartedAt;
+      _lastTimerTickEpochMs = legStartedAt;
       if (_status == TourStatus.arrived) _status = TourStatus.running;
       _checkCurrentStopArrival();
+      _startTimer();
     }
 
     _emit();
+    _queueSessionPersistence();
   }
 
   Future<void> refreshPermissionsState() async {
@@ -191,6 +299,7 @@ class TourSessionController {
       final origin = await resolver();
       _userPosition = origin;
       _hasRealUserPosition = true;
+      _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
       return origin;
     }
 
@@ -200,9 +309,11 @@ class TourSessionController {
       ).timeout(const Duration(seconds: 4));
       _userPosition = LatLng(pos.latitude, pos.longitude);
       _hasRealUserPosition = true;
+      _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
       return _userPosition!;
     } catch (_) {
       _hasRealUserPosition = false;
+      _userPositionAtEpochMs = null;
       _userPosition = defaultCesenaCenter;
       return defaultCesenaCenter;
     }
@@ -216,8 +327,14 @@ class TourSessionController {
       (position) {
         _userPosition = LatLng(position.latitude, position.longitude);
         _hasRealUserPosition = true;
+        _userPositionAtEpochMs = DateTime.now().millisecondsSinceEpoch;
         _checkCurrentStopArrival();
         if (_status != TourStatus.arrived) _emit();
+
+        final now = DateTime.now().millisecondsSinceEpoch;
+        if (isActive && now - _lastPersistenceAtEpochMs >= 15000) {
+          _queueSessionPersistence();
+        }
       },
       onError: (Object error, StackTrace stackTrace) {
         // Un errore del GPS non deve terminare silenziosamente il tour.
@@ -236,28 +353,85 @@ class TourSessionController {
 
   void _triggerArrival() {
     if (_status == TourStatus.arrived) return;
-    // Non annullare il timer: il totale comprende anche il tempo dei quiz.
-    // _startTimer incrementa elapsedSeconds soltanto mentre la tappa è running.
     _status = TourStatus.arrived;
     _emit();
+    _queueSessionPersistence();
   }
 
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_status == TourStatus.running || _status == TourStatus.arrived) {
-        // Il tempo totale misura l'intera esperienza, comprese le soste;
-        // il tempo della singola tappa continua a fermarsi all'arrivo.
-        if (_status == TourStatus.running) _elapsedSeconds++;
-        _totalElapsedSeconds++;
-        _emit();
+      if (!isActive) return;
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final elapsedTicks = math.max(
+        0,
+        (now - _lastTimerTickEpochMs) ~/ 1000,
+      ).toInt();
+      if (elapsedTicks == 0) return;
+
+      _totalElapsedSeconds += elapsedTicks;
+      if (_status == TourStatus.running) {
+        _elapsedSeconds += elapsedTicks;
       }
+      _lastTimerTickEpochMs += elapsedTicks * 1000;
+
+      if (now - _lastPersistenceAtEpochMs >= 10000) {
+        _queueSessionPersistence();
+      }
+      _emit();
     });
   }
 
   void _stopTracking() {
     _timer?.cancel();
+    _timer = null;
     _positionSubscription?.cancel();
+    _positionSubscription = null;
+  }
+
+  void _queueSessionPersistence() {
+    if (!isActive || _orderedStops.isEmpty || _tourStartedAtEpochMs <= 0) {
+      return;
+    }
+    unawaited(_enqueueSessionPersistence());
+  }
+
+  Future<void> _enqueueSessionPersistence() {
+    if (!isActive || _orderedStops.isEmpty || _tourStartedAtEpochMs <= 0) {
+      return Future<void>.value();
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final snapshot = TourSessionSnapshot(
+      orderedStopIds: _orderedStops.map((stop) => stop.id).toList(growable: false),
+      currentStopIndex: _currentStopIndex,
+      status: _status.name,
+      elapsedSeconds: _elapsedSeconds,
+      totalElapsedSeconds: _totalElapsedSeconds,
+      savedAtEpochMs: now,
+      startedAtEpochMs: _tourStartedAtEpochMs,
+      userLatitude: _userPosition?.latitude,
+      userLongitude: _userPosition?.longitude,
+      userPositionAtEpochMs: _userPositionAtEpochMs,
+    );
+    _lastPersistenceAtEpochMs = now;
+
+    _persistenceQueue = _persistenceQueue.then((_) async {
+      await _sessionStore.saveSession(snapshot);
+    }).catchError((Object error, StackTrace stackTrace) {
+      debugPrint('[TourSession] Persist failed: $error');
+    });
+    return _persistenceQueue;
+  }
+
+  void _queueClearPersistedSession({required bool clearResults}) {
+    _persistenceQueue = _persistenceQueue.then((_) async {
+      await _sessionStore.clearSession();
+      if (clearResults) await _sessionStore.clearResults();
+    }).catchError((Object error, StackTrace stackTrace) {
+      debugPrint('[TourSession] Clear persisted session failed: $error');
+    });
   }
 
   void _emit() {

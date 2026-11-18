@@ -273,6 +273,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tourStartGpsRequired => 'To start the tour, enable GPS, location permission and the in-app option.';
 
   @override
+  String get tourStartLocationUnavailable => 'GPS is enabled, but your current location is not available yet. Wait a moment in an open area and try again.';
+
+  @override
+  String get tourNotificationTitle => 'Cesena Remembers · Tour in progress';
+
+  @override
+  String get tourNotificationChannel => 'Active tour';
+
+  @override
+  String get tourNotificationNextStop => 'Next stop';
+
+  @override
+  String get tourNotificationElapsed => 'Stage time';
+
+  @override
+  String get tourNotificationDistance => 'Distance';
+
+  @override
+  String get tourNotificationPermissionDenied => 'The tour will continue, but the ongoing notification will not be visible until notification permission is granted.';
+
+  @override
+  String get tourBackgroundServiceError => 'Unable to start background tracking. Check location and notification permissions.';
+
+  @override
   String get mapOutsideCesenaTitle => 'You are outside the map area';
 
   @override

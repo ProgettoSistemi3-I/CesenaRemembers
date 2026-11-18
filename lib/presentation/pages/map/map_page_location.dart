@@ -92,30 +92,66 @@ extension _MapPageLocationLogic on _MapPageState {
     ShellNavigationStore.openSettingsAndFocusGpsToggle();
   }
 
+  Future<LatLng?> _getRecentLastKnownLocation() async {
+    try {
+      final lastKnown = await Geolocator.getLastKnownPosition();
+      if (lastKnown == null) return null;
+
+      final age = DateTime.now().difference(lastKnown.timestamp);
+      // A cached fix is useful for avoiding an unnecessary GPS cold-start
+      // delay, but must remain recent so it cannot start a tour far from the
+      // user's actual position.
+      if (age < Duration.zero || age > const Duration(seconds: 30)) {
+        return null;
+      }
+      return LatLng(lastKnown.latitude, lastKnown.longitude);
+    } catch (_) {
+      // Some providers do not expose a cached position.
+      return null;
+    }
+  }
+
   Future<LatLng?> _getCurrentDeviceLocation() async {
+    // Prefer a recent cached fix: getCurrentPosition may wait several seconds
+    // for a fresh GPS fix even when Android permissions and GPS are enabled.
+    final recentLastKnown = await _getRecentLastKnownLocation();
+    if (recentLastKnown != null) return recentLastKnown;
+
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 6),
+          // Six seconds was too short for a cold GPS fix, especially on
+          // emulators and devices that have just enabled location services.
+          timeLimit: Duration(seconds: 15),
         ),
       );
-      return LatLng(position.latitude, position.longitude);
-    } catch (_) {
-      try {
-        final lastKnown = await Geolocator.getLastKnownPosition();
-        if (lastKnown != null) {
-          final age = DateTime.now().difference(lastKnown.timestamp);
-          // A stale cached fix could otherwise let someone start a tour after
-          // leaving Cesena. Only accept a recent fallback position.
-          if (age >= Duration.zero && age <= const Duration(seconds: 30)) {
-            return LatLng(lastKnown.latitude, lastKnown.longitude);
-          }
-        }
-      } catch (_) {
-        // A missing or stale position must not be replaced with Cesena's center.
+      final result = LatLng(position.latitude, position.longitude);
+      AppLogger.info(
+        'Current device location acquired successfully',
+        name: 'MapPage',
+      );
+      return result;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to acquire a fresh device location; trying a recent cached fix',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPage',
+      );
+      final fallback = await _getRecentLastKnownLocation();
+      if (fallback != null) {
+        AppLogger.info(
+          'Using a recent cached device location',
+          name: 'MapPage',
+        );
+      } else {
+        AppLogger.error(
+          'No fresh or recent cached device location is available',
+          name: 'MapPage',
+        );
       }
-      return null;
+      return fallback;
     }
   }
 
@@ -136,7 +172,16 @@ extension _MapPageLocationLogic on _MapPageState {
       if (!canUseLocation) return;
 
       final position = await _getCurrentDeviceLocation();
-      if (!mounted || position == null) return;
+      if (!mounted) return;
+      if (position == null) {
+        showGlassSnackBar(
+          context,
+          message: AppLocalizations.of(context)!.tourStartLocationUnavailable,
+          type: GlassSnackType.error,
+          duration: const Duration(seconds: 6),
+        );
+        return;
+      }
 
       if (!_MapPageState._cesenaBounds.contains(position)) {
         _showOutsideCesenaNotification();

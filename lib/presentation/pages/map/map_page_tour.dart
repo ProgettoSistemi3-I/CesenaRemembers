@@ -3,11 +3,27 @@ part of 'map_page.dart';
 extension _MapPageTourActions on _MapPageState {
   Future<void> _startTour() async {
     if (!_tourController.hasStops) return;
-    await _verifyLocationState(requestPerms: true);
+    // Permission prompts are handled during onboarding or from Settings.
+    // Starting a tour must only inspect the current state: requesting again
+    // here caused a delayed, redundant Android location prompt.
+    await _verifyLocationState(requestPerms: false);
+    if (!mounted) return;
+
+    final appGpsPreferenceEnabled = LocationPreferenceStore.gpsEnabled.value;
     final canStartTour =
-        _isGpsPreferenceEnabled && _isGpsEnabled && _hasPermissions;
+        appGpsPreferenceEnabled && _isGpsEnabled && _hasPermissions;
+    if (_isGpsPreferenceEnabled != appGpsPreferenceEnabled) {
+      _updateMapState(
+        () => _isGpsPreferenceEnabled = appGpsPreferenceEnabled,
+      );
+    }
     if (!canStartTour) {
-      if (!mounted) return;
+      AppLogger.error(
+        'Tour start blocked by location state: '
+        'appPreference=$appGpsPreferenceEnabled, '
+        'gpsEnabled=$_isGpsEnabled, locationPermission=$_hasPermissions',
+        name: 'MapPageTour',
+      );
       showGlassSnackBar(
         context,
         message: AppLocalizations.of(context)!.tourStartGpsRequired,
@@ -22,8 +38,9 @@ extension _MapPageTourActions on _MapPageState {
     if (origin == null) {
       showGlassSnackBar(
         context,
-        message: AppLocalizations.of(context)!.tourStartGpsRequired,
+        message: AppLocalizations.of(context)!.tourStartLocationUnavailable,
         type: GlassSnackType.error,
+        duration: const Duration(seconds: 6),
       );
       return;
     }
@@ -33,16 +50,122 @@ extension _MapPageTourActions on _MapPageState {
     }
     _removeOutsideCesenaNotification();
 
+    if (!mounted) return;
+
     final hasStarted = await _tourController.startTour(origin: origin);
     if (hasStarted) {
       _tourXpEarned = 0;
       _tourCorrectAnswers = 0;
       _tourTotalQuestions = 0;
-      _pendingQuizSave = Future<void>.value();
+      if (_tourController.currentStop != null) {
+        _centerOnStop(_toLatLng(_tourController.currentStop!.position));
+      }
+      await _syncTourForegroundService(showError: true);
     }
-    if (hasStarted && mounted && _tourController.currentStop != null) {
-      _centerOnStop(_toLatLng(_tourController.currentStop!.position));
+  }
+
+  /// Serializes native service operations and always uses the latest controller
+  /// state. Repeated timer ticks do not restart the service for the same stop.
+  Future<void> _syncTourForegroundService({
+    bool force = false,
+    bool showError = false,
+  }) {
+    final scheduledStop = _tourController.currentStop;
+    final scheduledElapsedRunning =
+        _tourController.status == TourStatus.running;
+    final scheduledLegStartedAt =
+        _tourController.currentLegStartedAtEpochMs;
+    if (!force &&
+        _tourController.isActive &&
+        _foregroundServiceStarted &&
+        _lastForegroundStopId == scheduledStop?.id &&
+        _lastForegroundElapsedRunning == scheduledElapsedRunning &&
+        _lastForegroundLegStartedAtEpochMs == scheduledLegStartedAt) {
+      return _foregroundServiceQueue;
     }
+    if (!force && !_tourController.isActive && !_foregroundServiceStarted) {
+      return _foregroundServiceQueue;
+    }
+
+    final operation = _foregroundServiceQueue.then((_) async {
+      if (!mounted) return;
+
+      final currentStop = _tourController.currentStop;
+      if (!_tourController.isActive || currentStop == null) {
+        if (_foregroundServiceStarted) {
+          await TourForegroundService.stop();
+        }
+        _foregroundServiceStarted = false;
+        _lastForegroundStopId = null;
+        _lastForegroundElapsedRunning = null;
+        _lastForegroundLegStartedAtEpochMs = null;
+        return;
+      }
+
+      final elapsedRunning = _tourController.status == TourStatus.running;
+      final legStartedAtEpochMs =
+          _tourController.currentLegStartedAtEpochMs;
+      if (!force &&
+          _foregroundServiceStarted &&
+          _lastForegroundStopId == currentStop.id &&
+          _lastForegroundElapsedRunning == elapsedRunning &&
+          _lastForegroundLegStartedAtEpochMs == legStartedAtEpochMs) {
+        return;
+      }
+
+      final l10n = AppLocalizations.of(context)!;
+      final notificationVisible = await TourForegroundService.startOrUpdate(
+        notificationTitle: l10n.tourNotificationTitle,
+        notificationChannelName: l10n.tourNotificationChannel,
+        nextStopLabel: l10n.tourNotificationNextStop,
+        elapsedLabel: l10n.tourNotificationElapsed,
+        distanceLabel: l10n.tourNotificationDistance,
+        openMapLabel: l10n.notificationOpenAction,
+        stopName: l10n.getPoiName(currentStop.id),
+        latitude: currentStop.position.latitude,
+        longitude: currentStop.position.longitude,
+        elapsedSeconds: _tourController.elapsedSeconds,
+        elapsedRunning: elapsedRunning,
+        legStartedAtEpochMs: legStartedAtEpochMs,
+      );
+      _foregroundServiceStarted = true;
+      _lastForegroundStopId = currentStop.id;
+      _lastForegroundElapsedRunning = elapsedRunning;
+      _lastForegroundLegStartedAtEpochMs = legStartedAtEpochMs;
+
+      if (!notificationVisible && showError && mounted) {
+        showGlassSnackBar(
+          context,
+          message: l10n.tourNotificationPermissionDenied,
+          type: GlassSnackType.info,
+          duration: const Duration(seconds: 8),
+        );
+      }
+    });
+
+    _foregroundServiceQueue = operation.catchError(
+      (Object error, StackTrace stackTrace) {
+        _foregroundServiceStarted = false;
+        _lastForegroundStopId = null;
+        _lastForegroundElapsedRunning = null;
+        _lastForegroundLegStartedAtEpochMs = null;
+        AppLogger.error(
+          'Unable to synchronize the tour foreground service',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'MapPageTour',
+        );
+        if (showError && mounted) {
+          showGlassSnackBar(
+            context,
+            message: AppLocalizations.of(context)!.tourBackgroundServiceError,
+            type: GlassSnackType.error,
+            duration: const Duration(seconds: 8),
+          );
+        }
+      },
+    );
+    return _foregroundServiceQueue;
   }
 
   Future<void> _confirmStopTour() async {
@@ -175,48 +298,23 @@ extension _MapPageTourActions on _MapPageState {
         elapsedSeconds: _tourController.elapsedSeconds,
         userXp: userXp,
         onClose: () async {
-          // La tappa è modale durante il quiz: per evitare un blocco, il tasto
-          // chiudi chiede conferma e termina il tour solo se l'utente conferma.
           await _confirmStopTour();
           if (mounted && sheetContext.mounted && !_tourController.isActive) {
             Navigator.of(sheetContext).pop();
           }
         },
-        onNextStop: () async {
-          // Evita doppi pop se il pulsante viene premuto più volte mentre il
-          // salvataggio del quiz è ancora in corso o la modale sta chiudendo.
+        onNextStop: () {
           if (isAdvancingToNextStop) return;
           isAdvancingToNextStop = true;
-
-          try {
-            // La registrazione del quiz è asincrona: il popup finale deve attendere
-            // il salvataggio dell'ultima tappa per mostrare l'XP corretto.
-            await _pendingQuizSave;
-          } catch (error, stackTrace) {
-            isAdvancingToNextStop = false;
-            AppLogger.error(
-              'Unable to save quiz before advancing to the next stop',
-              error: error,
-              stackTrace: stackTrace,
-              name: 'MapPageTour',
-            );
-            if (mounted) {
-              showGlassSnackBar(
-                context,
-                message: AppLocalizations.of(context)!.errorSaveScore,
-                type: GlassSnackType.error,
-              );
-            }
-            return;
-          }
-
           if (!mounted || !sheetContext.mounted) return;
 
-          // Chiudi esplicitamente la route del bottom sheet, non la pagina mappa.
+          // La navigazione non aspetta Firestore: il risultato è già stato
+          // acquisito localmente e il salvataggio remoto continua in coda.
           Navigator.of(sheetContext).pop();
           if (_tourController.advanceToNextStop()) {
-            if (_tourController.currentStop != null) {
-              _centerOnStop(_toLatLng(_tourController.currentStop!.position));
+            final nextStop = _tourController.currentStop;
+            if (nextStop != null) {
+              _centerOnStop(_toLatLng(nextStop.position));
             }
           } else {
             showGeneralDialog(
@@ -224,12 +322,14 @@ extension _MapPageTourActions on _MapPageState {
               barrierDismissible: false,
               barrierColor: Colors.transparent,
               transitionDuration: const Duration(milliseconds: 300),
-              pageBuilder: (context, animation, secondaryAnimation) {
+              pageBuilder: (dialogContext, animation, secondaryAnimation) {
                 return FadeTransition(
                   opacity: animation,
                   child: TourCompletionAnimation(
                     xpGained: _tourXpEarned,
-                    onDismiss: () => Navigator.of(context).pop(),
+                    onDismiss: () {
+                      Navigator.of(dialogContext).pop();
+                    },
                   ),
                 );
               },
@@ -237,10 +337,12 @@ extension _MapPageTourActions on _MapPageState {
           }
         },
         onQuizCompleted: (result) {
-          _pendingQuizSave = _registerQuizCompletion(
-            currentStop.id,
-            result,
-            isLastStop: isLastStop,
+          unawaited(
+            _registerQuizCompletion(
+              currentStop.id,
+              result,
+              isLastStop: isLastStop,
+            ),
           );
         },
       ),
@@ -251,13 +353,9 @@ extension _MapPageTourActions on _MapPageState {
     String poiId,
     QuizCompletionData result, {
     bool isLastStop = false,
-  }) async {
-    if (_isSavingQuizResult) return;
-
+  }) {
     final uid = _profileUseCases.getCurrentUserUid();
-    if (uid == null) return;
-
-    _isSavingQuizResult = true;
+    if (uid == null) return Future<void>.value();
 
     final score = _tourScoringService.calculate(
       correctAnswers: result.score,
@@ -266,59 +364,86 @@ extension _MapPageTourActions on _MapPageState {
     final nextTourXp = _tourXpEarned + score.totalXp;
     final nextTourCorrect = _tourCorrectAnswers + result.score;
     final nextTourQuestions = _tourTotalQuestions + result.totalQuestions;
+    final elapsedAtCompletion = _tourController.totalElapsedSeconds;
 
-    try {
-      await _progressUseCases.registerQuizCompletion(
-        uid: uid,
-        poiId: poiId,
-        xpGained: score.totalXp,
-        correctAnswers: result.score,
-        totalQuestions: result.totalQuestions,
-        tourElapsedSeconds: _tourController.totalElapsedSeconds,
-        isTourComplete: isLastStop,
-        tourTotalXp: nextTourXp,
-        tourCorrectAnswers: nextTourCorrect,
-        tourTotalQuestions: nextTourQuestions,
-      );
-      _cachedUserXp = (_cachedUserXp ?? 0) + score.totalXp;
-      _tourXpEarned = nextTourXp;
-      _tourCorrectAnswers = nextTourCorrect;
-      _tourTotalQuestions = nextTourQuestions;
-      if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
-      final xpText = l10n.tourXpEarned(score.totalXp);
-      showGlassSnackBar(
-        context,
-        message: score.tier == SpeedTier.none
-            ? xpText
-            : '$xpText · ${l10n.speedBonusLabel(score.tier, score.bonusPercent)}',
-        type: GlassSnackType.xp,
-        icon: Icons.bolt_rounded,
-        duration: const Duration(seconds: 4),
-      );
-    } catch (error, stackTrace) {
-      AppLogger.error(
-        'Salvataggio punteggio quiz fallito per tappa=$poiId '
-        '(xp=${score.totalXp}, risposte=${result.score}/${result.totalQuestions}, '
-        'tourCompleto=$isLastStop)',
-        error: error,
-        stackTrace: stackTrace,
-        name: 'MapPageTour',
-      );
-      if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
-      final debugDetails = kDebugMode
-          ? '\n${error.runtimeType}: $error'
-          : '';
-      showGlassSnackBar(
-        context,
-        message: '${l10n.errorSaveScore}$debugDetails',
-        type: GlassSnackType.error,
-        duration: const Duration(seconds: 8),
-      );
-    } finally {
-      _isSavingQuizResult = false;
+    // Update local state immediately so the next-stop button and completion
+    // animation never wait for a network round trip.
+    _tourXpEarned = nextTourXp;
+    _tourCorrectAnswers = nextTourCorrect;
+    _tourTotalQuestions = nextTourQuestions;
+    // Do not turn a failed profile read into a cached zero baseline.
+    // Leave the cache empty so the next POI popup can retry loading the real XP.
+    if (_cachedUserXp != null) {
+      _cachedUserXp = _cachedUserXp! + score.totalXp;
     }
+
+    unawaited(
+      _tourSessionStore.saveResults(
+        TourSessionResults(
+          xpEarned: nextTourXp,
+          correctAnswers: nextTourCorrect,
+          totalQuestions: nextTourQuestions,
+        ),
+      ).catchError((Object error, StackTrace stackTrace) {
+        AppLogger.error(
+          'Unable to persist local tour quiz results',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'MapPageTour',
+        );
+      }),
+    );
+
+    final l10n = AppLocalizations.of(context)!;
+    final xpText = l10n.tourXpEarned(score.totalXp);
+    showGlassSnackBar(
+      context,
+      message: score.tier == SpeedTier.none
+          ? xpText
+          : '$xpText · ${l10n.speedBonusLabel(score.tier, score.bonusPercent)}',
+      type: GlassSnackType.xp,
+      icon: Icons.bolt_rounded,
+      duration: const Duration(seconds: 4),
+    );
+
+    final queuedSave = _quizSaveQueue.then((_) async {
+      try {
+        await _progressUseCases.registerQuizCompletion(
+          uid: uid,
+          poiId: poiId,
+          xpGained: score.totalXp,
+          correctAnswers: result.score,
+          totalQuestions: result.totalQuestions,
+          tourElapsedSeconds: elapsedAtCompletion,
+          isTourComplete: isLastStop,
+          tourTotalXp: nextTourXp,
+          tourCorrectAnswers: nextTourCorrect,
+          tourTotalQuestions: nextTourQuestions,
+        );
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Salvataggio punteggio quiz fallito per tappa=$poiId '
+          '(xp=${score.totalXp}, risposte=${result.score}/${result.totalQuestions}, '
+          'tourCompleto=$isLastStop)',
+          error: error,
+          stackTrace: stackTrace,
+          name: 'MapPageTour',
+        );
+        if (!mounted) return;
+        final debugDetails = kDebugMode
+            ? '\n${error.runtimeType}: $error'
+            : '';
+        showGlassSnackBar(
+          context,
+          message: '${AppLocalizations.of(context)!.errorSaveScore}$debugDetails',
+          type: GlassSnackType.error,
+          duration: const Duration(seconds: 8),
+        );
+      }
+    });
+
+    _quizSaveQueue = queuedSave;
+    return queuedSave;
   }
 
   LatLng _toLatLng(GeoPoint point) => LatLng(point.latitude, point.longitude);

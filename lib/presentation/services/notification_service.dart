@@ -1,4 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/logging/app_logger.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -8,6 +11,8 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool _pluginInitialized = false;
+  static const _permissionRequestedKey =
+      'android_notification_permission_requested_v1';
 
   Future<void> init() async {
     // Il token FCM è gestito da PushNotificationService, associato all'UID
@@ -40,13 +45,56 @@ class NotificationService {
 
   /// Requests the Android 13+ runtime permission from the user's consent action.
   /// Returns null on platforms where the Android implementation is unavailable.
-  Future<bool?> requestAndroidNotificationPermission() async {
+  Future<bool?> requestAndroidNotificationPermission({
+    bool allowRepeatRequest = false,
+  }) async {
     await init();
     final androidImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-    return androidImplementation?.requestNotificationsPermission();
+    if (androidImplementation == null) {
+      AppLogger.error(
+        'Android notification plugin implementation is unavailable',
+        name: 'NotificationService',
+      );
+      return null;
+    }
+
+    // Do not expect Android to show a dialog when permission is already
+    // granted. If it is blocked, request it and then verify the actual
+    // NotificationManager state rather than trusting a nullable plugin result.
+    final preferences = await SharedPreferences.getInstance();
+    final enabledBefore = await androidImplementation.areNotificationsEnabled();
+    if (enabledBefore == true) {
+      await preferences.setBool(_permissionRequestedKey, true);
+      AppLogger.info(
+        'Android notifications are already enabled; no system prompt is needed',
+        name: 'NotificationService',
+      );
+      return true;
+    }
+
+    final requestWasAlreadyShown =
+        preferences.getBool(_permissionRequestedKey) ?? false;
+    if (requestWasAlreadyShown && !allowRepeatRequest) {
+      AppLogger.info(
+        'Skipping a repeated Android notification prompt; use Settings for an explicit retry',
+        name: 'NotificationService',
+      );
+      return false;
+    }
+
+    final requestResult =
+        await androidImplementation.requestNotificationsPermission();
+    await preferences.setBool(_permissionRequestedKey, true);
+    final enabledAfter = await androidImplementation.areNotificationsEnabled();
+    AppLogger.info(
+      'Android notification permission request completed: '
+      'requestResult=$requestResult, enabledAfter=$enabledAfter',
+      name: 'NotificationService',
+    );
+    return enabledAfter ?? requestResult;
   }
 
   Future<void> showLocalNotification(String title, String body) async {

@@ -28,6 +28,8 @@ import '../../../injection_container.dart';
 import '../../controllers/tour_session_controller.dart';
 import '../../services/location_preference_store.dart';
 import '../../services/shared_position_stream.dart';
+import '../../services/tour_session_store.dart';
+import '../../services/tour_foreground_service.dart';
 import '../../services/poi_marker_factory.dart';
 import '../../services/shell_navigation_store.dart';
 import '../../services/tour_stop_mapper.dart';
@@ -67,6 +69,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   final TourRoutePathService _routePathService = sl<TourRoutePathService>();
   final UserProfileUseCases _profileUseCases = sl<UserProfileUseCases>();
   final UserProgressUseCases _progressUseCases = sl<UserProgressUseCases>();
+  final TourSessionStore _tourSessionStore = TourSessionStore();
 
   static final LatLngBounds _cesenaBounds = LatLngBounds(
     const LatLng(44.1054, 12.2131),
@@ -160,11 +163,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   OverlayEntry? _outsideCesenaOverlay;
   Timer? _outsideCesenaDismissTimer;
   Timer? _outsideCesenaRemoveTimer;
-  bool _isSavingQuizResult = false;
   int _tourXpEarned = 0;
   int _tourCorrectAnswers = 0;
   int _tourTotalQuestions = 0;
-  Future<void> _pendingQuizSave = Future<void>.value();
+  Future<void> _quizSaveQueue = Future<void>.value();
+  Future<void> _foregroundServiceQueue = Future<void>.value();
+  bool _foregroundServiceStarted = false;
+  String? _lastForegroundStopId;
+  bool? _lastForegroundElapsedRunning;
+  int? _lastForegroundLegStartedAtEpochMs;
   int? _cachedUserXp;
   Locale? _lastLocale;
   late VoidCallback _onLocaleChanged;
@@ -213,7 +220,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tourController = TourSessionController(availableStops: const []);
+    _tourController = TourSessionController(
+      availableStops: const [],
+      sessionStore: _tourSessionStore,
+    );
     _bindTourUpdates();
     LocationPreferenceStore.gpsEnabled.addListener(_onGpsPreferenceChanged);
 
@@ -244,6 +254,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     _tourUpdatesSub?.cancel();
     LocationPreferenceStore.gpsEnabled.removeListener(_onGpsPreferenceChanged);
     sl<ValueNotifier<Locale>>().removeListener(_onLocaleChanged);
+    if (_profileUseCases.getCurrentUserUid() == null) {
+      unawaited(TourForegroundService.stop());
+      unawaited(_tourSessionStore.clearSession());
+      unawaited(_tourSessionStore.clearResults());
+    }
     _tourController.dispose();
     _mapController.dispose();
     super.dispose();
@@ -273,6 +288,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _verifyLocationState(requestPerms: false);
+      if (_tourController.isActive) {
+        unawaited(_syncTourForegroundService(force: true));
+      }
     }
   }
 
