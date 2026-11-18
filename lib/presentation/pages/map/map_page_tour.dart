@@ -123,7 +123,7 @@ extension _MapPageTourActions on _MapPageState {
       }
 
       final l10n = AppLocalizations.of(context)!;
-      await TourForegroundService.startOrUpdate(
+      final notificationVisible = await TourForegroundService.startOrUpdate(
         notificationTitle: l10n.tourNotificationTitle,
         notificationChannelName: l10n.tourNotificationChannel,
         nextStopLabel: l10n.tourNotificationNextStop,
@@ -137,6 +137,15 @@ extension _MapPageTourActions on _MapPageState {
       );
       _foregroundServiceStarted = true;
       _lastForegroundStopId = currentStop.id;
+
+      if (!notificationVisible && showError && mounted) {
+        showGlassSnackBar(
+          context,
+          message: l10n.tourNotificationPermissionDenied,
+          type: GlassSnackType.info,
+          duration: const Duration(seconds: 8),
+        );
+      }
     });
 
     _foregroundServiceQueue = operation.catchError(
