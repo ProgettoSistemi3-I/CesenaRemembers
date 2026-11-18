@@ -3,11 +3,27 @@ part of 'map_page.dart';
 extension _MapPageTourActions on _MapPageState {
   Future<void> _startTour() async {
     if (!_tourController.hasStops) return;
-    await _verifyLocationState(requestPerms: true);
+    // Permission prompts are handled during onboarding or from Settings.
+    // Starting a tour must only inspect the current state: requesting again
+    // here caused a delayed, redundant Android location prompt.
+    await _verifyLocationState(requestPerms: false);
+    if (!mounted) return;
+
+    final appGpsPreferenceEnabled = LocationPreferenceStore.gpsEnabled.value;
     final canStartTour =
-        _isGpsPreferenceEnabled && _isGpsEnabled && _hasPermissions;
+        appGpsPreferenceEnabled && _isGpsEnabled && _hasPermissions;
+    if (_isGpsPreferenceEnabled != appGpsPreferenceEnabled) {
+      _updateMapState(
+        () => _isGpsPreferenceEnabled = appGpsPreferenceEnabled,
+      );
+    }
     if (!canStartTour) {
-      if (!mounted) return;
+      AppLogger.error(
+        'Tour start blocked by location state: '
+        'appPreference=$appGpsPreferenceEnabled, '
+        'gpsEnabled=$_isGpsEnabled, locationPermission=$_hasPermissions',
+        name: 'MapPageTour',
+      );
       showGlassSnackBar(
         context,
         message: AppLocalizations.of(context)!.tourStartGpsRequired,
