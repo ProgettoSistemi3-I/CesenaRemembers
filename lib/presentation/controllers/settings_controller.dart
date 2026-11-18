@@ -136,7 +136,9 @@ class SettingsController extends ChangeNotifier {
       // Do not let an FCM/profile read failure silently undo the in-app choice.
       if (newNotifiche == true) {
         try {
-          await NotificationService().requestAndroidNotificationPermission();
+          await NotificationService().requestAndroidNotificationPermission(
+            allowRepeatRequest: true,
+          );
         } catch (error, stackTrace) {
           AppLogger.error(
             'Unable to request Android notification permission from settings',
