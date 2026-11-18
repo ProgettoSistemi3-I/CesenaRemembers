@@ -121,12 +121,37 @@ extension _MapPageLocationLogic on _MapPageState {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 6),
+          // Six seconds was too short for a cold GPS fix, especially on
+          // emulators and devices that have just enabled location services.
+          timeLimit: Duration(seconds: 15),
         ),
       );
-      return LatLng(position.latitude, position.longitude);
-    } catch (_) {
-      return _getRecentLastKnownLocation();
+      final result = LatLng(position.latitude, position.longitude);
+      AppLogger.info(
+        'Current location acquired: lat=${result.latitude}, lon=${result.longitude}',
+        name: 'MapPage',
+      );
+      return result;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to acquire a fresh device location; trying a recent cached fix',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPage',
+      );
+      final fallback = await _getRecentLastKnownLocation();
+      if (fallback != null) {
+        AppLogger.info(
+          'Using recent cached location: lat=${fallback.latitude}, lon=${fallback.longitude}',
+          name: 'MapPage',
+        );
+      } else {
+        AppLogger.error(
+          'No fresh or recent cached device location is available',
+          name: 'MapPage',
+        );
+      }
+      return fallback;
     }
   }
 
@@ -147,7 +172,16 @@ extension _MapPageLocationLogic on _MapPageState {
       if (!canUseLocation) return;
 
       final position = await _getCurrentDeviceLocation();
-      if (!mounted || position == null) return;
+      if (!mounted) return;
+      if (position == null) {
+        showGlassSnackBar(
+          context,
+          message: AppLocalizations.of(context)!.tourStartLocationUnavailable,
+          type: GlassSnackType.error,
+          duration: const Duration(seconds: 6),
+        );
+        return;
+      }
 
       if (!_MapPageState._cesenaBounds.contains(position)) {
         _showOutsideCesenaNotification();
