@@ -371,7 +371,11 @@ extension _MapPageTourActions on _MapPageState {
     _tourXpEarned = nextTourXp;
     _tourCorrectAnswers = nextTourCorrect;
     _tourTotalQuestions = nextTourQuestions;
-    _cachedUserXp = (_cachedUserXp ?? 0) + score.totalXp;
+    // Do not turn a failed profile read into a cached zero baseline.
+    // Leave the cache empty so the next POI popup can retry loading the real XP.
+    if (_cachedUserXp != null) {
+      _cachedUserXp = _cachedUserXp! + score.totalXp;
+    }
 
     unawaited(
       _tourSessionStore.saveResults(
