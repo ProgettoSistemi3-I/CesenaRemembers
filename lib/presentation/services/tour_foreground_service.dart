@@ -23,7 +23,7 @@ class TourForegroundService {
     required double longitude,
     required int startedAtEpochMs,
   }) async {
-    if (!_isAndroid) return;
+    if (!_isAndroid) return true;
 
     await _channel.invokeMethod<void>('startOrUpdate', {
       'notificationTitle': notificationTitle,
@@ -37,6 +37,30 @@ class TourForegroundService {
       'longitude': longitude,
       'startedAtEpochMs': startedAtEpochMs,
     });
+
+    // startForegroundService() only confirms that Android accepted the
+    // request. Wait for onStartCommand() to actually enter foreground and
+    // report whether the app/channel can display the notification.
+    for (var attempt = 0; attempt < 8; attempt++) {
+      await Future.delayed(const Duration(milliseconds: 250));
+      final status = await _channel.invokeMapMethod<String, dynamic>('getStatus');
+      if (status?['isForeground'] == true) {
+        return status?['notificationsVisible'] == true;
+      }
+
+      final error = status?['lastError'] as String?;
+      if (error != null && error.isNotEmpty) {
+        throw PlatformException(
+          code: 'TOUR_FOREGROUND_START_FAILED',
+          message: error,
+        );
+      }
+    }
+
+    throw PlatformException(
+      code: 'TOUR_FOREGROUND_START_TIMEOUT',
+      message: 'Android did not confirm that the tour service entered foreground',
+    );
   }
 
   static Future<void> stop() async {
