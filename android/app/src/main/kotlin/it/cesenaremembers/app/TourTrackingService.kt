@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.graphics.Typeface
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -18,6 +19,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.StyleSpan
 import android.util.Log
 import java.util.Locale
 
@@ -173,10 +177,22 @@ class TourTrackingService : Service() {
                 intent.getDoubleExtra(EXTRA_STOP_LONGITUDE, 0.0).toFloat(),
             )
         }
-        if (intent.hasExtra(EXTRA_STARTED_AT)) {
+        if (intent.hasExtra(EXTRA_LEG_STARTED_AT)) {
             editor.putLong(
-                KEY_STARTED_AT,
-                intent.getLongExtra(EXTRA_STARTED_AT, System.currentTimeMillis()),
+                KEY_LEG_STARTED_AT,
+                intent.getLongExtra(EXTRA_LEG_STARTED_AT, System.currentTimeMillis()),
+            )
+        }
+        if (intent.hasExtra(EXTRA_ELAPSED_SECONDS)) {
+            editor.putLong(
+                KEY_ELAPSED_SECONDS,
+                intent.getLongExtra(EXTRA_ELAPSED_SECONDS, 0L).coerceAtLeast(0L),
+            )
+        }
+        if (intent.hasExtra(EXTRA_ELAPSED_RUNNING)) {
+            editor.putBoolean(
+                KEY_ELAPSED_RUNNING,
+                intent.getBooleanExtra(EXTRA_ELAPSED_RUNNING, true),
             )
         }
         editor.apply()
@@ -208,7 +224,6 @@ class TourTrackingService : Service() {
 
     private fun buildNotification(): Notification {
         val preferences = trackingPreferences()
-        val title = preferences.getString(KEY_TITLE, DEFAULT_TITLE) ?: DEFAULT_TITLE
         val nextStopLabel =
             preferences.getString(KEY_NEXT_STOP_LABEL, DEFAULT_NEXT_STOP_LABEL)
                 ?: DEFAULT_NEXT_STOP_LABEL
@@ -219,12 +234,25 @@ class TourTrackingService : Service() {
             preferences.getString(KEY_DISTANCE_LABEL, DEFAULT_DISTANCE_LABEL)
                 ?: DEFAULT_DISTANCE_LABEL
         val stopName = preferences.getString(KEY_STOP_NAME, "") ?: ""
-        val startedAt = preferences.getLong(KEY_STARTED_AT, System.currentTimeMillis())
-        val elapsedSeconds = ((System.currentTimeMillis() - startedAt) / 1000L)
-            .coerceAtLeast(0L)
+        val displayedStopName = if (stopName.isBlank()) "—" else stopName
+        val legStartedAt = preferences.getLong(
+            KEY_LEG_STARTED_AT,
+            System.currentTimeMillis(),
+        )
+        val elapsedRunning = preferences.getBoolean(KEY_ELAPSED_RUNNING, true)
+        val elapsedSeconds = if (elapsedRunning) {
+            ((System.currentTimeMillis() - legStartedAt) / 1000L).coerceAtLeast(0L)
+        } else {
+            preferences.getLong(KEY_ELAPSED_SECONDS, 0L).coerceAtLeast(0L)
+        }
         val elapsedText = formatElapsed(elapsedSeconds)
         val distanceText = currentDistanceText(preferences)
-        val displayedStopName = if (stopName.isBlank()) "—" else stopName
+
+        val metrics = SpannableStringBuilder().apply {
+            appendBoldMetric(this, elapsedLabel, elapsedText)
+            append("\n")
+            appendBoldMetric(this, distanceLabel, distanceText)
+        }
 
         val openAppIntent = packageManager.getLaunchIntentForPackage(packageName)
             ?.apply {
@@ -246,17 +274,18 @@ class TourTrackingService : Service() {
             Notification.Builder(this)
         }
 
-        // Diagnostic fallback: use Android's standard notification template instead
-        // of RemoteViews to isolate MIUI rendering/ filtering issues.
-        val expandedText = "$nextStopLabel: $displayedStopName\n" +
-            "$elapsedLabel: $elapsedText\n" +
-            "$distanceLabel: $distanceText"
-
+        // Use the platform template: MIUI 14 reliably displays it, unlike the
+        // RemoteViews layout tested on this device. Android already shows the
+        // app name in the notification header, so the content is kept focused.
         builder
             .setSmallIcon(R.drawable.ic_stat_notification)
-            .setContentTitle(title)
-            .setContentText("$nextStopLabel: $displayedStopName")
-            .setStyle(Notification.BigTextStyle().bigText(expandedText))
+            .setContentTitle(nextStopLabel)
+            .setContentText(displayedStopName)
+            .setStyle(
+                Notification.BigTextStyle()
+                    .setBigContentTitle(displayedStopName)
+                    .bigText(metrics),
+            )
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
@@ -277,6 +306,22 @@ class TourTrackingService : Service() {
         }
 
         return builder.build()
+    }
+
+    private fun appendBoldMetric(
+        target: SpannableStringBuilder,
+        label: String,
+        value: String,
+    ) {
+        target.append(label).append(": ")
+        val valueStart = target.length
+        target.append(value)
+        target.setSpan(
+            StyleSpan(Typeface.BOLD),
+            valueStart,
+            target.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
+        )
     }
 
     private fun currentDistanceText(preferences: android.content.SharedPreferences): String {
@@ -464,7 +509,9 @@ class TourTrackingService : Service() {
         const val EXTRA_STOP_NAME = "stopName"
         const val EXTRA_STOP_LATITUDE = "latitude"
         const val EXTRA_STOP_LONGITUDE = "longitude"
-        const val EXTRA_STARTED_AT = "startedAtEpochMs"
+        const val EXTRA_LEG_STARTED_AT = "legStartedAtEpochMs"
+        const val EXTRA_ELAPSED_SECONDS = "elapsedSeconds"
+        const val EXTRA_ELAPSED_RUNNING = "elapsedRunning"
 
         const val KEY_ACTIVE = "active"
         private const val KEY_TITLE = "title"
@@ -476,7 +523,9 @@ class TourTrackingService : Service() {
         private const val KEY_STOP_NAME = "stopName"
         private const val KEY_STOP_LATITUDE = "stopLatitude"
         private const val KEY_STOP_LONGITUDE = "stopLongitude"
-        private const val KEY_STARTED_AT = "startedAt"
+        private const val KEY_LEG_STARTED_AT = "legStartedAt"
+        private const val KEY_ELAPSED_SECONDS = "elapsedSeconds"
+        private const val KEY_ELAPSED_RUNNING = "elapsedRunning"
         private const val KEY_HAS_LOCATION = "hasLocation"
         private const val KEY_LAST_LATITUDE = "lastLatitude"
         private const val KEY_LAST_LONGITUDE = "lastLongitude"
@@ -500,6 +549,6 @@ class TourTrackingService : Service() {
         private const val REQUEST_CODE_OPEN_APP = 1946
         private const val LOCATION_UPDATE_INTERVAL_MS = 5000L
         private const val LOCATION_UPDATE_DISTANCE_METERS = 10f
-        private const val NOTIFICATION_REFRESH_MS = 30000L
+        private const val NOTIFICATION_REFRESH_MS = 10000L
     }
 }
