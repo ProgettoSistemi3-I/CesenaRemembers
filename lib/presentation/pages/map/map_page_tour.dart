@@ -400,7 +400,7 @@ extension _MapPageTourActions on _MapPageState {
       context,
       message: score.tier == SpeedTier.none
           ? xpText
-          : '${xpText} · ${l10n.speedBonusLabel(score.tier, score.bonusPercent)}',
+          : '$xpText · ${l10n.speedBonusLabel(score.tier, score.bonusPercent)}',
       type: GlassSnackType.xp,
       icon: Icons.bolt_rounded,
       duration: const Duration(seconds: 4),
