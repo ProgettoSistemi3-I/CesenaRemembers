@@ -7,24 +7,24 @@ import re
 PATH = Path("lib/l10n/app_localizations.dart")
 source = PATH.read_text(encoding="utf-8")
 
-# gen-l10n still emits the legacy flutter_localizations and foundation imports.
-# material_ui/widgets already re-export the symbols used by the generated file.
+# gen-l10n emits legacy Flutter imports that overlap with the selected packages.
+# Keep foundation for SynchronousFuture, but remove the implicit async import and
+# the legacy localization import that conflicts with material_ui.
 source = source.replace(
     "import 'package:flutter_localizations/flutter_localizations.dart';\n",
+    "",
+)
+source = source.replace(
+    "import 'dart:async';\n",
     "",
 )
 
 material_import = "import 'package:material_ui/material_ui.dart';"
 if material_import not in source:
-    anchor = "import 'package:flutter/widgets.dart';"
+    anchor = "import 'package:flutter/foundation.dart';"
     if anchor not in source:
         raise SystemExit(f"Cannot find import insertion point in {PATH}")
-    source = source.replace(anchor, f"{material_import}\n{anchor}", 1)
-
-source = source.replace(
-    "import 'package:flutter/foundation.dart';\n",
-    "",
-)
+    source = source.replace(anchor, f"{anchor}\n{material_import}", 1)
 
 # The material_ui delegates are supplied as a runtime list, not a const list.
 # Its combined list includes Material, Cupertino and Widgets localizations.
