@@ -3,6 +3,6 @@
 /// document or eligibility policy changes.
 abstract final class LegalDocumentVersions {
   static const String termsAccepted = '2026-11-15';
-  static const String privacyNoticeAcknowledged = '2026-11-15';
+  static const String privacyNoticeAcknowledged = '2026-11-19';
   static const String minimumAgePolicyConfirmed = '14-plus-v1';
 }

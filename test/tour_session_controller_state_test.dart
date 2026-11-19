@@ -59,6 +59,8 @@ void main() {
         availableStops: availableStops,
         sessionStore: store,
         positionStreamFactory: () => const Stream<Position>.empty(),
+        locationPermissionChecker: () async => LocationPermission.whileInUse,
+        stopForegroundService: () async {},
       );
       addTearDown(restored.dispose);
 
@@ -72,6 +74,38 @@ void main() {
       expect(restored.totalElapsedSeconds, greaterThanOrEqualTo(0));
 
       restored.stopTour();
+    });
+
+    test('does not restore a saved tour when location permission was revoked', () async {
+      final availableStops = [stop('A', 44.01)];
+      final store = TourSessionStore();
+      final original = TourSessionController(
+        availableStops: availableStops,
+        sessionStore: store,
+        positionStreamFactory: () => const Stream<Position>.empty(),
+      );
+      expect(
+        await original.startTour(origin: const LatLng(44.0, 12.0)),
+        isTrue,
+      );
+      original.dispose();
+
+      var stopRequested = false;
+      final restored = TourSessionController(
+        availableStops: availableStops,
+        sessionStore: store,
+        positionStreamFactory: () => const Stream<Position>.empty(),
+        locationPermissionChecker: () async => LocationPermission.denied,
+        stopForegroundService: () async {
+          stopRequested = true;
+        },
+      );
+      addTearDown(restored.dispose);
+
+      expect(await restored.restoreSession(), isFalse);
+      expect(restored.isActive, isFalse);
+      expect(stopRequested, isTrue);
+      expect(await store.loadSession(), isNull);
     });
 
     test('allows the first upcoming stop to be reordered', () async {

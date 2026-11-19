@@ -6,6 +6,7 @@ on:
       - main
       - "test/**"
       - "feat/**"
+      - "fix/**"
   pull_request:
     branches:
       - main

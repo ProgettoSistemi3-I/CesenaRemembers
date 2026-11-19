@@ -22,6 +22,7 @@ class PoiQuizController extends ChangeNotifier {
   bool _usesPersonalizedQuestions = true;
   String? _fallbackNotice;
   String? _fallbackDifficultyLabel;
+  String? _poiId;
 
   int? get selectedAnswer => _selectedAnswer;
   int get questionIndex => _questionIndex;
@@ -46,6 +47,7 @@ class PoiQuizController extends ChangeNotifier {
     required String poiDescription,
   }) async {
     if (_isDisposed) return;
+    _poiId = poiId;
     _isLoading = true;
     _error = null;
     _fallbackNotice = null;
@@ -134,6 +136,10 @@ class PoiQuizController extends ChangeNotifier {
       return;
     }
     _quizDone = true;
+    final completedPoiId = _poiId;
+    if (completedPoiId != null) {
+      _getQuizUseCase.invalidateCacheForPoi(completedPoiId);
+    }
     notifyListeners();
   }
 }

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/shared_position_stream.dart';
+import '../services/tour_foreground_service.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/entities/tour_stop.dart';
@@ -22,9 +23,15 @@ class TourSessionController {
     this._arrivedThresholdMeters = defaultArrivedThresholdMeters,
     this._originResolver,
     this._positionStreamFactory,
+    Future<LocationPermission> Function()? locationPermissionChecker,
+    Future<void> Function()? stopForegroundService,
     TourSessionStore? sessionStore,
   }) : _availableStops = List.unmodifiable(availableStops),
-       _sessionStore = sessionStore ?? TourSessionStore();
+       _sessionStore = sessionStore ?? TourSessionStore(),
+       _locationPermissionChecker =
+           locationPermissionChecker ?? Geolocator.checkPermission,
+       _stopForegroundService =
+           stopForegroundService ?? TourForegroundService.stop;
 
   final List<TourStop> _availableStops;
   final TourRoutePlanner _routePlanner;
@@ -32,6 +39,8 @@ class TourSessionController {
   final Future<LatLng> Function()? _originResolver;
   final Stream<Position> Function()? _positionStreamFactory;
   final TourSessionStore _sessionStore;
+  final Future<LocationPermission> Function() _locationPermissionChecker;
+  final Future<void> Function() _stopForegroundService;
 
   final StreamController<void> _updates = StreamController<void>.broadcast();
 
@@ -112,6 +121,23 @@ class TourSessionController {
     await _persistenceQueue;
     final snapshot = await _sessionStore.loadSession();
     if (snapshot == null) return false;
+
+    final permission = await _locationPermissionChecker();
+    final hasLocationPermission =
+        permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always;
+    if (!hasLocationPermission) {
+      // An interrupted tour cannot safely resume without location access.
+      // Clear the persisted session and stop any sticky Android service.
+      await _sessionStore.clearSession();
+      await _sessionStore.clearResults();
+      try {
+        await _stopForegroundService();
+      } catch (error) {
+        debugPrint('[TourSession] Unable to stop foreground service: $error');
+      }
+      return false;
+    }
 
     final stopsById = {for (final stop in _availableStops) stop.id: stop};
     final restoredStops = <TourStop>[];

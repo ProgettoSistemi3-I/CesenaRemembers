@@ -5,8 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/logging/app_logger.dart';
 import '../../domain/services/achievement_service.dart';
 
+// The constructor intentionally keeps the public `firestore` parameter name.
+// ignore_for_file: prefer_initializing_formals
+
 class UserProgressDataSource {
-  UserProgressDataSource({required this._firestore});
+  UserProgressDataSource({required FirebaseFirestore firestore})
+    : _firestore = firestore;
 
   final FirebaseFirestore _firestore;
 

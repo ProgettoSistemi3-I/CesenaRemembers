@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:cesena_remembers/l10n/app_localizations.dart';
 
 import '../../../domain/entities/userprofile.dart';
 import '../../../domain/usecases/user_moderation_use_cases.dart';
@@ -20,11 +21,6 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
   String? _error;
   List<String> _blockedIds = const [];
   Map<String, UserProfile> _profiles = const {};
-
-  bool get _isEnglish =>
-      Localizations.localeOf(context).languageCode == 'en';
-
-  String _t(String it, String en) => _isEnglish ? en : it;
 
   @override
   void initState() {
@@ -70,32 +66,27 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = _t(
-          'Impossibile caricare gli utenti bloccati.',
-          'Unable to load blocked users.',
-        );
+        _error = AppLocalizations.of(context)!.blockedUsersLoadError;
       });
     }
   }
 
   Future<void> _unblock(String targetUid) async {
     if (_working) return;
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_t('Sbloccare utente?', 'Unblock user?')),
-        content: Text(_t(
-          'Lo sblocco non ripristina automaticamente amicizie o richieste precedenti.',
-          'Unblocking does not restore previous friendships or requests.',
-        )),
+        title: Text(l10n.blockedUsersUnblockTitle),
+        content: Text(l10n.blockedUsersUnblockBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(_t('Annulla', 'Cancel')),
+            child: Text(l10n.buttonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(_t('Sblocca', 'Unblock')),
+            child: Text(l10n.blockedUsersUnblock),
           ),
         ],
       ),
@@ -111,10 +102,7 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_t(
-            'Impossibile sbloccare questo utente.',
-            'Unable to unblock this user.',
-          )),
+          content: Text(l10n.unblockUserFailure),
           backgroundColor: AppPalette.danger,
         ),
       );
@@ -126,9 +114,10 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_t('Utenti bloccati', 'Blocked users')),
+        title: Text(l10n.blockedUsersTitle),
       ),
       body: _loading
           ? const Center(
@@ -145,7 +134,7 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
                         const SizedBox(height: 12),
                         FilledButton.tonal(
                           onPressed: _load,
-                          child: Text(_t('Riprova', 'Retry')),
+                          child: Text(l10n.buttonRetry),
                         ),
                       ],
                     ),
@@ -156,10 +145,7 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(24),
                         child: Text(
-                          _t(
-                            'Non hai bloccato nessun utente.',
-                            'You have not blocked anyone.',
-                          ),
+                          l10n.blockedUsersEmpty,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
@@ -185,7 +171,7 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
                           ),
                           title: Text(
                             profile?.displayName ??
-                                _t('Utente non disponibile', 'Unavailable user'),
+                                l10n.blockedUsersUnavailable,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -198,7 +184,7 @@ class _BlockedUsersPageState extends State<BlockedUsersPage> {
                           ),
                           trailing: TextButton(
                             onPressed: _working ? null : () => _unblock(uid),
-                            child: Text(_t('Sblocca', 'Unblock')),
+                            child: Text(l10n.blockedUsersUnblock),
                           ),
                         );
                       },

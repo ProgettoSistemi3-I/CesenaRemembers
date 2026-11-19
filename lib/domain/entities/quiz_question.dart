@@ -14,7 +14,7 @@ class QuizQuestion {
       question: json['question'] ?? '',
       // Mappiamo la lista generica dal JSON in una lista di Stringhe Dart
       options: List<String>.from(json['options'] ?? []),
-      correctIndex: json['correctIndex'] ?? 0,
+      correctIndex: (json['correctIndex'] as num?)?.toInt() ?? 0,
     );
   }
 }

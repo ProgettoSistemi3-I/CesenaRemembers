@@ -1,7 +1,6 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
@@ -61,8 +60,7 @@ import 'app_localizations_it.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,8 +68,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -92,7 +89,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('it'),
+    Locale('it')
   ];
 
   /// No description provided for @appTitle.
@@ -638,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @tourNotificationElapsed.
   ///
   /// In en, this message translates to:
-  /// **'Time'**
+  /// **'Stage time'**
   String get tourNotificationElapsed;
 
   /// No description provided for @tourNotificationDistance.
@@ -2962,10 +2959,47 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route powered by Mapbox'**
   String get mapLicenseDirectionsAttribution;
+  String get blockedUsersTitle;
+  String get blockedUsersLoadError;
+  String get blockedUsersUnblockTitle;
+  String get blockedUsersUnblockBody;
+  String get blockedUsersEmpty;
+  String get blockedUsersUnavailable;
+  String get blockedUsersUnblock;
+  String get settingsBlockedUsers;
+  String get settingsBlockedUsersSubtitle;
+  String get reportProfileTitle;
+  String get reportProfileQuestion;
+  String get reportFieldDisplayName;
+  String get reportFieldUsername;
+  String get reportReasonTitle;
+  String get reportReasonInappropriate;
+  String get reportReasonImpersonation;
+  String get reportReasonHarassment;
+  String get reportReasonSpam;
+  String get reportReasonOther;
+  String get reportDetails;
+  String get reportSubmit;
+  String get reportSuccess;
+  String get reportFailure;
+  String get blockUserTitle;
+  String get blockUserBody;
+  String get blockUserAction;
+  String get blockUserMenuAction;
+  String get blockUserSuccess;
+  String get blockUserPartialFailure;
+  String get blockUserFailure;
+  String get unblockUserAction;
+  String get unblockUserSuccess;
+  String get unblockUserFailure;
+  String get profileOptions;
+  String get profileBlockedBanner;
+  String get renderErrorMessage;
+  String get bootstrapErrorMessage;
+
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2974,26 +3008,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'it'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'it'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'it':
-      return AppLocalizationsIt();
+    case 'en': return AppLocalizationsEn();
+    case 'it': return AppLocalizationsIt();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

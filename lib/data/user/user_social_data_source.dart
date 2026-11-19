@@ -4,8 +4,12 @@ import '../../domain/entities/userprofile.dart';
 import '../../domain/services/achievement_service.dart';
 import '../../models/user_model.dart';
 
+// The constructor intentionally keeps the public `firestore` parameter name.
+// ignore_for_file: prefer_initializing_formals
+
 class UserSocialDataSource {
-  UserSocialDataSource({required this._firestore});
+  UserSocialDataSource({required FirebaseFirestore firestore})
+    : _firestore = firestore;
 
   final FirebaseFirestore _firestore;
   CollectionReference<Map<String, dynamic>> get _users => _firestore.collection('users');

@@ -8,7 +8,6 @@ import '../../../domain/entities/userprofile.dart';
 
 import '../../../domain/usecases/user_profile_use_cases.dart';
 import '../../../domain/usecases/user_moderation_use_cases.dart';
-import 'moderation_text.dart';
 
 import '../../../injection_container.dart';
 
@@ -219,21 +218,16 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
-          final isEnglish =
-              Localizations.localeOf(context).languageCode == 'en';
-          String t(String it, String en) => isEnglish ? en : it;
+          final l10n = AppLocalizations.of(context)!;
 
           return AlertDialog(
-            title: Text(t('Segnala profilo', 'Report profile')),
+            title: Text(l10n.reportProfileTitle),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(t(
-                    'Quale contenuto vuoi segnalare?',
-                    'Which profile content do you want to report?',
-                  )),
+                  Text(l10n.reportProfileQuestion),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     initialValue: reportedField,
@@ -244,11 +238,11 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     items: [
                       DropdownMenuItem(
                         value: 'displayName',
-                        child: Text(t('Nome visualizzato', 'Display name')),
+                        child: Text(l10n.reportFieldDisplayName),
                       ),
                       DropdownMenuItem(
                         value: 'username',
-                        child: Text(t('Username', 'Username')),
+                        child: Text(l10n.reportFieldUsername),
                       ),
                     ],
                     onChanged: (value) {
@@ -258,7 +252,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  Text(t('Motivo della segnalazione', 'Reason for reporting')),
+                  Text(l10n.reportReasonTitle),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     initialValue: reason,
@@ -269,23 +263,23 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     items: [
                       DropdownMenuItem(
                         value: 'inappropriate_name',
-                        child: Text(t('Nome o username inappropriato', 'Inappropriate name or username')),
+                        child: Text(l10n.reportReasonInappropriate),
                       ),
                       DropdownMenuItem(
                         value: 'impersonation',
-                        child: Text(t('Impersonificazione', 'Impersonation')),
+                        child: Text(l10n.reportReasonImpersonation),
                       ),
                       DropdownMenuItem(
                         value: 'harassment',
-                        child: Text(t('Molestie o bullismo', 'Harassment or bullying')),
+                        child: Text(l10n.reportReasonHarassment),
                       ),
                       DropdownMenuItem(
                         value: 'spam',
-                        child: Text(t('Spam', 'Spam')),
+                        child: Text(l10n.reportReasonSpam),
                       ),
                       DropdownMenuItem(
                         value: 'other',
-                        child: Text(t('Altro', 'Other')),
+                        child: Text(l10n.reportReasonOther),
                       ),
                     ],
                     onChanged: (value) {
@@ -297,10 +291,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                     maxLength: 500,
                     maxLines: 3,
                     decoration: InputDecoration(
-                      labelText: t(
-                        'Ulteriori dettagli (facoltativi)',
-                        'Additional details (optional)',
-                      ),
+                      labelText: l10n.reportDetails,
                       border: const OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),
@@ -312,12 +303,12 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text(t('Annulla', 'Cancel')),
+                child: Text(l10n.buttonCancel),
               ),
               FilledButton.icon(
                 onPressed: () => Navigator.pop(dialogContext, true),
                 icon: const Icon(Icons.flag_outlined, size: 18),
-                label: Text(t('Invia', 'Submit')),
+                label: Text(l10n.reportSubmit),
               ),
             ],
           );
@@ -336,12 +327,9 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         details: details,
       );
       if (!mounted) return;
-      final isEnglish = Localizations.localeOf(context).languageCode == 'en';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isEnglish
-              ? 'Report sent. Thank you.'
-              : 'Segnalazione inviata. Grazie.'),
+          content: Text(AppLocalizations.of(context)!.reportSuccess),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -353,12 +341,9 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         name: 'PublicProfilePage',
       );
       if (!mounted) return;
-      final isEnglish = Localizations.localeOf(context).languageCode == 'en';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isEnglish
-              ? 'Unable to send the report. Please try again.'
-              : 'Impossibile inviare la segnalazione. Riprova.'),
+          content: Text(AppLocalizations.of(context)!.reportFailure),
           backgroundColor: AppPalette.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -369,19 +354,17 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
   Future<void> _confirmAndBlock() async {
     final target = _targetProfile;
     if (target == null || _isModerationInProgress) return;
-    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+    final l10n = AppLocalizations.of(context)!;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(isEnglish ? 'Block user?' : 'Bloccare questo utente?'),
-        content: Text(isEnglish
-            ? 'They will no longer be able to send you friend requests. Any existing friendship or pending request will be removed. You can unblock them in Settings.'
-            : 'Non potrà più inviarti richieste di amicizia. Le amicizie e le richieste in sospeso verranno rimosse. Potrai sbloccarlo dalle Impostazioni.'),
+        title: Text(l10n.blockUserTitle),
+        content: Text(l10n.blockUserBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(isEnglish ? 'Cancel' : 'Annulla'),
+            child: Text(l10n.buttonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -389,7 +372,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(isEnglish ? 'Block' : 'Blocca'),
+            child: Text(l10n.blockUserAction),
           ),
         ],
       ),
@@ -406,7 +389,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isEnglish ? 'User blocked.' : 'Utente bloccato.'),
+          content: Text(l10n.blockUserSuccess),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -433,13 +416,11 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(blockWasCreated
-              ? (isEnglish
-                  ? 'The block is active, but some existing social data could not be cleaned up. Please retry later.'
-                  : 'Il blocco è attivo, ma non è stato possibile ripulire tutti i dati social. Riprova più tardi.')
-              : (isEnglish
-                  ? 'Unable to block this user. Please try again.'
-                  : 'Impossibile bloccare questo utente. Riprova.')),
+          content: Text(
+            blockWasCreated
+                ? l10n.blockUserPartialFailure
+                : l10n.blockUserFailure,
+          ),
           backgroundColor: AppPalette.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -453,7 +434,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
   Future<void> _unblockTarget() async {
     final target = _targetProfile;
     if (target == null || _isModerationInProgress) return;
-    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isModerationInProgress = true);
     try {
       await sl<UserModerationUseCases>().unblockUser(
@@ -464,7 +445,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       setState(() => _isBlockedByMe = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isEnglish ? 'User unblocked.' : 'Utente sbloccato.'),
+          content: Text(l10n.unblockUserSuccess),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -478,9 +459,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isEnglish
-              ? 'Unable to unblock this user.'
-              : 'Impossibile sbloccare questo utente.'),
+          content: Text(l10n.unblockUserFailure),
           backgroundColor: AppPalette.danger,
         ),
       );
@@ -814,11 +793,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
             : [
                 PopupMenuButton<String>(
                   enabled: !_isModerationInProgress,
-                  tooltip: ModerationText.of(
-                    context,
-                    it: 'Opzioni profilo',
-                    en: 'Profile options',
-                  ),
+                  tooltip: AppLocalizations.of(context)!.profileOptions,
                   onSelected: _handleModerationMenu,
                   itemBuilder: (context) => [
                     PopupMenuItem(
@@ -827,11 +802,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                         children: [
                           const Icon(Icons.flag_outlined, color: AppPalette.danger),
                           const SizedBox(width: 12),
-                          Text(ModerationText.of(
-                            context,
-                            it: 'Segnala profilo',
-                            en: 'Report profile',
-                          )),
+                          Text(AppLocalizations.of(context)!.reportProfileTitle),
                         ],
                       ),
                     ),
@@ -844,11 +815,11 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                             color: AppPalette.danger,
                           ),
                           const SizedBox(width: 12),
-                          Text(ModerationText.of(
-                            context,
-                            it: _isBlockedByMe ? 'Sblocca utente' : 'Blocca utente',
-                            en: _isBlockedByMe ? 'Unblock user' : 'Block user',
-                          )),
+                          Text(
+                            _isBlockedByMe
+                                ? AppLocalizations.of(context)!.unblockUserAction
+                                : AppLocalizations.of(context)!.blockUserMenuAction,
+                          ),
                         ],
                       ),
                     ),
@@ -953,11 +924,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
-                          ModerationText.of(
-                            context,
-                            it: 'Hai bloccato questo utente.',
-                            en: 'You have blocked this user.',
-                          ),
+                          AppLocalizations.of(context)!.profileBlockedBanner,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: theme.colorScheme.onSurfaceVariant,

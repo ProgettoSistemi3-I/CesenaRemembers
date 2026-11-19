@@ -43,6 +43,10 @@ class TourTrackingService : Service() {
     private val notificationTicker = object : Runnable {
         override fun run() {
             if (!isTrackingActive()) return
+            if (!hasLocationPermission()) {
+                stopForMissingLocationPermission()
+                return
+            }
             updateOngoingNotification()
             handler.postDelayed(this, NOTIFICATION_REFRESH_MS)
         }
@@ -79,6 +83,13 @@ class TourTrackingService : Service() {
         if (intent?.action == ACTION_STOP) {
             clearTrackingState()
             stopSelf()
+            return START_NOT_STICKY
+        }
+
+        // START_STICKY may restart this service with a null Intent. Always
+        // re-check permission before restoring a visible foreground session.
+        if (!hasLocationPermission()) {
+            stopForMissingLocationPermission()
             return START_NOT_STICKY
         }
 
@@ -370,14 +381,33 @@ class TourTrackingService : Service() {
         }
     }
 
+    private fun hasLocationPermission(): Boolean {
+        val hasFinePermission = checkCallingOrSelfPermission(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarsePermission = checkCallingOrSelfPermission(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        return hasFinePermission || hasCoarsePermission
+    }
+
+    private fun stopForMissingLocationPermission() {
+        Log.i(LOG_TAG, "Stopping tour service because location permission is unavailable")
+        clearTrackingState()
+        stopSelf()
+    }
+
     private fun requestLocationUpdates() {
         if (locationUpdatesRequested) return
+        if (!hasLocationPermission()) {
+            stopForMissingLocationPermission()
+            return
+        }
 
         val hasFinePermission = checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         val hasCoarsePermission = checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
-        if (!hasFinePermission && !hasCoarsePermission) return
 
         val providers = if (hasFinePermission) {
             listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)

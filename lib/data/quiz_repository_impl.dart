@@ -36,6 +36,11 @@ class QuizRepositoryImpl implements IQuizRepository {
       <String, QuizLoadResult>{};
 
   @override
+  void invalidateCacheForPoi(String poiId) {
+    _memoryCache.removeWhere((key, _) => key.startsWith('$poiId::'));
+  }
+
+  @override
   Future<QuizLoadResult> getQuizForPoi(
     String poiId,
     String poiName,
