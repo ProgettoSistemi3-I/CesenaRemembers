@@ -41,10 +41,14 @@ all-or-nothing privacy version:
 - **Privacy Notice** (privacyNoticeVersionAcknowledged): an acknowledgement
   that identifies the notice previously shown, not consent to every processing
   purpose. A new notice revision must not sign out existing users or make
-  normal Firestore operations fail. Existing non-empty historical acknowledg-
-  ments remain valid. A subsequent explicit sign-in records the then-current
-  notice version through recordLegalAcceptance(); do not bulk-overwrite old
-  timestamps or pretend users acknowledged a notice they have not seen.
+  normal Firestore operations fail. Existing non-empty historical
+  acknowledgements remain valid. A subsequent explicit sign-in records the
+  notice version embedded in that app build through recordLegalAcceptance();
+  an older binary continues to write its own identifier. If you need evidence
+  that an existing user has actually seen a newly published notice, show a
+  non-blocking in-app notice and record an acknowledgement only after the
+  user opens/acknowledges that revision. Do not bulk-overwrite old timestamps
+  or pretend users saw a notice they have not seen.
 
 If a Privacy Notice change introduces a genuinely new optional processing
 purpose, use a separate purpose-specific consent (for example, the existing
@@ -76,18 +80,30 @@ Firestore Rules in a way that strands old clients.
    emulator suite and Flutter CI pass, and check that the Rules changes do not
    remove a legacy write shape. Do not merge with a failing Rules job.
 5. If a release changes Rules or indexes, deploy the additive backend change
-   first, using the production project explicitly:
+   only after the PR checks pass, using the production project explicitly:
 
-       firebase deploy --only firestore:rules,firestore:indexes --project cesenaremembers1945
+       npx firebase-tools@15.34.1 deploy --only firestore:rules --project cesenaremembers1945
 
-   Deploy only the resources actually changed. Wait for required indexes to
-   finish building and verify the key existing flows with a production test
-   account before publishing the app update. If the release does not change
-   Rules/indexes, do not deploy them.
-6. Build the AAB from the reviewed commit, increment Android versionCode
-   (never reuse a code already uploaded to Play), and test the signed artifact
-   through an internal/closed Play track. Then use a staged production rollout
-   rather than immediately releasing to 100%.
+   Run the separate indexes deployment only when the index file changed:
+
+       npx firebase-tools@15.34.1 deploy --only firestore:indexes --project cesenaremembers1945
+
+   Wait for required indexes to finish building and verify the key existing
+   flows with a production test account before publishing the app update. If
+   the release does not change Rules/indexes, do not deploy them.
+6. Update the version in pubspec.yaml. The number after the plus sign is the
+   Android versionCode; it must be greater than the highest code already
+   uploaded to Play Console. For example, change 1.0.0+3 to 1.0.1+4 only if 4
+   is actually the next unused Play versionCode. Confirm that the release
+   signing file android/key.properties is present and valid, then build the
+   signed bundle from the reviewed commit:
+
+       flutter build appbundle --release --dart-define=GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID --dart-define=STADIA_MAPS_API_KEY=$STADIA_MAPS_API_KEY --dart-define=MAPBOX_ACCESS_TOKEN=$MAPBOX_ACCESS_TOKEN --dart-define=CARTO_API_KEY=$CARTO_API_KEY
+
+   The GitHub Android validation workflow builds a debug APK for CI; it does
+   not upload a signed AAB to Play. Test the signed AAB through an internal or
+   closed Play track, then use a staged production rollout rather than
+   immediately releasing to 100%.
 7. Monitor Crashlytics, authentication, Firestore permission-denied errors,
    onboarding, tour completion and social flows during rollout. Increase the
    rollout only after the new build and the previous live build both behave
