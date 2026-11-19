@@ -9,12 +9,12 @@ import '../../../injection_container.dart';
 import '../../controllers/settings_controller.dart';
 import '../../controllers/settings_ui_controller.dart';
 import '../../services/shell_navigation_store.dart';
+import '../../services/push_notification_service.dart';
 import '../../theme/app_palette.dart';
 import '../../theme/theme_controller.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import '../credits_page.dart';
 import '../social/blocked_users_page.dart';
-import '../social/moderation_text.dart';
 import 'settings_feedback.dart';
 
 // Dichiariamo che la parte visiva dei widget si trova in questo file separato
@@ -231,15 +231,13 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   Future<void> _deleteAccount() async {
+    final l10n = AppLocalizations.of(context)!;
     final deleted = await _controller.handleDeleteAccount();
-    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    PushNotificationService.scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
         content: Text(
-          deleted
-              ? AppLocalizations.of(context)!.settingsDeleteSuccess
-              : AppLocalizations.of(context)!.settingsDeleteError,
+          deleted ? l10n.settingsDeleteSuccess : l10n.settingsDeleteError,
         ),
         backgroundColor: deleted ? AppPalette.olive : AppPalette.danger,
         behavior: SnackBarBehavior.floating,
