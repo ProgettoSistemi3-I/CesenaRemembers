@@ -101,7 +101,13 @@ async def lifespan(app: FastAPI):
     await app.state.llm.aclose()
 
 
-app = FastAPI(title="Cesena Remembers - Quiz API", lifespan=lifespan)
+app = FastAPI(
+    title="Cesena Remembers - Quiz API",
+    lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
+)
 # L'app Flutter nativa non usa CORS. Se in futuro viene chiamata da un browser,
 # impostare QUIZ_CORS_ORIGINS con una lista esplicita di origini autorizzate.
 _cors_origins = [

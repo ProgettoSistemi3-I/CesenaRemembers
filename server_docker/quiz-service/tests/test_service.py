@@ -247,3 +247,10 @@ def test_health_exposes_only_non_sensitive_service_metadata():
         assert "model" not in h
         assert "keyConfigured" not in h
         assert c.get("/").status_code == 200
+
+def test_api_documentation_endpoints_are_disabled():
+    with make_client("fake-good") as c:
+        for path in ("/docs", "/redoc", "/openapi.json"):
+            response = c.get(path)
+            assert response.status_code == 404, (path, response.text)
+

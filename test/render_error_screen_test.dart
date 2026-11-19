@@ -3,20 +3,53 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cesena_remembers/presentation/widgets/render_error_screen.dart';
 
+const _supportedLocales = <Locale>[Locale('it'), Locale('en')];
+
 void main() {
-  testWidgets('render error screen shows a generic message and retry action', (
+  testWidgets('render error screen falls back to Italian without app localizations', (
     tester,
   ) async {
     await tester.pumpWidget(
       const MaterialApp(
+        locale: Locale('it'),
+        supportedLocales: _supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: RenderErrorScreen(),
       ),
     );
 
-    expect(find.textContaining('Si è verificato un problema'), findsOneWidget);
-    expect(find.text('Riprova / Try again'), findsOneWidget);
+    expect(
+      find.text(
+        'Si è verificato un problema durante la visualizzazione. '
+        'Torna alla schermata iniziale e riprova.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Riprova'), findsOneWidget);
     expect(find.textContaining('Stack trace'), findsNothing);
     expect(find.textContaining('FlutterErrorDetails'), findsNothing);
+  });
+
+  testWidgets('render error screen falls back to English without app localizations', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('en'),
+        supportedLocales: _supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        home: RenderErrorScreen(),
+      ),
+    );
+
+    expect(
+      find.text(
+        'An error occurred while displaying this screen. '
+        'Return to the home screen and try again.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Try again'), findsOneWidget);
   });
 
   testWidgets('retry action invokes the recovery callback', (tester) async {
@@ -24,13 +57,16 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('it'),
+        supportedLocales: _supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: RenderErrorScreen(
           onRetry: () => retryTriggered = true,
         ),
       ),
     );
 
-    await tester.tap(find.text('Riprova / Try again'));
+    await tester.tap(find.text('Riprova'));
     await tester.pump();
 
     expect(retryTriggered, isTrue);

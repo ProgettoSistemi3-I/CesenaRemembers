@@ -7,7 +7,14 @@ import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
 
 class UserProfileDataSource {
-  UserProfileDataSource({required this._firestore});
+  /// Preserves the public named argument while keeping the backing field
+  /// private and allowing the private constructor to use an initializing
+  /// formal (required by the Dart analyzer).
+  factory UserProfileDataSource({required FirebaseFirestore firestore}) {
+    return UserProfileDataSource._(firestore);
+  }
+
+  UserProfileDataSource._(this._firestore);
 
   final FirebaseFirestore _firestore;
 
@@ -138,9 +145,10 @@ class UserProfileDataSource {
     });
   }
 
-  /// Checks that a signed-in account has acknowledged the current legal
-  /// document versions. Legacy sessions without evidence must sign in again
-  /// through the explicit checkbox flow before they can use the app.
+  /// Checks that a signed-in account has acknowledged the current terms and
+  /// age policy. The previous privacy-notice acknowledgement remains valid
+  /// during rollout because it records notice, not consent; the next explicit
+  /// sign-in writes the latest notice version.
   Future<bool> hasCurrentLegalAcceptance(String uid) async {
     final snapshot = await _users.doc(uid).get();
     final data = snapshot.data();
@@ -149,8 +157,8 @@ class UserProfileDataSource {
     return data['termsAcceptedAt'] is Timestamp &&
         data['termsVersionAccepted'] == LegalDocumentVersions.termsAccepted &&
         data['privacyNoticeAcknowledgedAt'] is Timestamp &&
-        data['privacyNoticeVersionAcknowledged'] ==
-            LegalDocumentVersions.privacyNoticeAcknowledged &&
+        LegalDocumentVersions.supportedPrivacyNoticeAcknowledgementVersions
+            .contains(data['privacyNoticeVersionAcknowledged']) &&
         data['ageConfirmedAt'] is Timestamp &&
         data['agePolicyVersionConfirmed'] ==
             LegalDocumentVersions.minimumAgePolicyConfirmed;

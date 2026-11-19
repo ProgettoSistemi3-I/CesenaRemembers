@@ -216,18 +216,30 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
     termsAcceptedAt: serverTimestamp(),
     termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2026-11-15',
+    privacyNoticeVersionAcknowledged: '2026-11-19',
     ageConfirmedAt: serverTimestamp(),
     agePolicyVersionConfirmed: '14-plus-v1',
   }));
 
   const saved = await getDoc(userRef);
   assert.equal(saved.data().termsVersionAccepted, '2026-11-15');
-  assert.equal(saved.data().privacyNoticeVersionAcknowledged, '2026-11-15');
+  assert.equal(saved.data().privacyNoticeVersionAcknowledged, '2026-11-19');
   assert.equal(saved.data().agePolicyVersionConfirmed, '14-plus-v1');
   assert.ok(saved.data().termsAcceptedAt instanceof Timestamp);
   assert.ok(saved.data().privacyNoticeAcknowledgedAt instanceof Timestamp);
   assert.ok(saved.data().ageConfirmedAt instanceof Timestamp);
+
+  await assertSucceeds(setDoc(doc(authenticatedDb('legacy'), 'users', 'legacy'), {
+    email: 'legacy@example.test',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    termsAcceptedAt: serverTimestamp(),
+    termsVersionAccepted: '2026-11-15',
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
+    privacyNoticeVersionAcknowledged: '2026-11-15',
+    ageConfirmedAt: serverTimestamp(),
+    agePolicyVersionConfirmed: '14-plus-v1',
+  }));
 
   await assertFails(setDoc(doc(authenticatedDb('bob'), 'users', 'bob'), {
     email: 'bob@example.test',
@@ -251,7 +263,7 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
     termsAcceptedAt: serverTimestamp(),
     termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2026-11-15',
+    privacyNoticeVersionAcknowledged: '2026-11-19',
     ageConfirmedAt: serverTimestamp(),
     agePolicyVersionConfirmed: '14-plus-v1',
     updatedAt: serverTimestamp(),
