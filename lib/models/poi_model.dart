@@ -12,6 +12,8 @@ class PoiModel extends Poi {
     required super.description,
     super.questions,
     super.imagePath,
+    super.icon,
+    super.iconBackground,
   });
 
   factory PoiModel.fromJson(Map<String, dynamic> json) {
@@ -27,7 +29,9 @@ class PoiModel extends Poi {
           .map(
             (question) => QuizQuestion(
               question: question['question'] as String? ?? '',
-              options: List<String>.from(question['options'] as List? ?? const []),
+              options: List<String>.from(
+                question['options'] as List? ?? const [],
+              ),
               correctIndex: (question['correctIndex'] as num?)?.toInt() ?? 0,
             ),
           )

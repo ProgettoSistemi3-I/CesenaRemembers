@@ -91,24 +91,28 @@ extension _MapPageDataLogic on _MapPageState {
   // non ad ogni tick del timer.
   List<Marker> _buildMarkers(List<Poi> pois) {
     final l10n = AppLocalizations.of(context)!;
-    return pois.map((poi) {
-      final localizedName = l10n.getPoiName(poi.id);
-      return _poiMarkerFactory.fromPoi(
-        Poi(
-          id: poi.id,
-          name: localizedName,
-          latitude: poi.latitude,
-          longitude: poi.longitude,
-          type: poi.type,
-          period: poi.period,
-          description: l10n.getPoiDescription(poi.id),
-          questions: poi.questions,
-          imagePath: poi.imagePath,
-        ),
-        counterRotationDegrees: _currentRotation,
-        onTap: () => _selectPoi(poi),
-      );
-    }).toList(growable: false);
+    return pois
+        .map((poi) {
+          final localizedName = l10n.getPoiName(poi.id);
+          return _poiMarkerFactory.fromPoi(
+            Poi(
+              id: poi.id,
+              name: localizedName,
+              latitude: poi.latitude,
+              longitude: poi.longitude,
+              type: poi.type,
+              period: poi.period,
+              description: l10n.getPoiDescription(poi.id),
+              questions: poi.questions,
+              imagePath: poi.imagePath,
+              icon: poi.icon,
+              iconBackground: poi.iconBackground,
+            ),
+            counterRotationDegrees: _currentRotation,
+            onTap: () => _selectPoi(poi),
+          );
+        })
+        .toList(growable: false);
   }
 
   void _onRotationChanged(double rotation) {

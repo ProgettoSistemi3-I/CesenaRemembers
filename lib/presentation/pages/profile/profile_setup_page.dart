@@ -7,14 +7,11 @@ import '../../../domain/usecases/user_profile_use_cases.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_palette.dart';
 import 'avatar_catalog.dart';
+
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 
 class ProfileSetupPage extends StatefulWidget {
-  const ProfileSetupPage({
-    super.key,
-    required this.uid,
-    required this.email,
-  });
+  const ProfileSetupPage({super.key, required this.uid, required this.email});
 
   final String uid;
   final String email;
@@ -67,7 +64,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       return;
     }
 
-    if (!ProfileValidation.isValidUsername(normalizedUsername)) {
+    if (ProfileValidation.hasInvalidUsernameCharacters(
+          _usernameController.text,
+        ) ||
+        !ProfileValidation.isValidUsername(normalizedUsername)) {
       setState(
         () => _error = AppLocalizations.of(context)!.setupUsernameInvalid(
           ProfileValidation.minUsernameLength,
@@ -127,8 +127,19 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       );
       if (!mounted) return;
       final message = e.toString();
-      final isNetwork = e is FirebaseException &&
+      final isNetwork =
+          e is FirebaseException &&
           (e.code == 'unavailable' || e.code == 'network-request-failed');
+      if (isNetwork) {
+        try {
+          final savedProfile = await _profileUseCases.getUserProfile(
+            widget.uid,
+          );
+          if (savedProfile.profileCompleted) return;
+        } catch (_) {
+          // La schermata di errore resta disponibile se anche la verifica è offline.
+        }
+      }
       setState(() {
         if (isNetwork) {
           _error = AppLocalizations.of(context)!.errorOffline;
@@ -201,6 +212,25 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   prefixText: '@',
                   border: const OutlineInputBorder(),
                 ),
+              ),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _usernameController,
+                builder: (context, value, _) {
+                  final preview = ProfileValidation.normalizeUsername(
+                    value.text,
+                  );
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 4),
+                    child: Text(
+                      preview.isEmpty
+                          ? 'Anteprima username'
+                          : 'Username che verrà salvato: @$preview',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 20),
               Text(

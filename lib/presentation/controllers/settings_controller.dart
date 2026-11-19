@@ -76,16 +76,29 @@ class SettingsController extends ChangeNotifier {
         modalitaNotte = _themeController.isDarkModeEffective;
       }
 
-      // Il toggle rappresenta la preferenza scelta/salvata dall'utente,
-      // non lo stato momentaneo del permesso Android. All'avvio Android può
-      // ancora restituire "denied" prima che MainShell mostri il dialogo:
-      // usare quel valore qui spegneva il toggle e lasciava il banner attivo
-      // anche dopo che l'utente concedeva il permesso.
-      posizione = profile.gpsEnabled;
+      // Un permesso revocato dal sistema spegne anche la preferenza locale:
+      // l?interfaccia non deve mostrare attiva una funzione inutilizzabile.
+      final hasOsLocationPermission = await _locationService
+          .hasPermissionGranted();
+      posizione = profile.gpsEnabled && hasOsLocationPermission;
       LocationPreferenceStore.setGpsEnabled(posizione);
 
-      errorMessage = null;
-
+      final notificationsAllowed = await NotificationService()
+          .areAndroidNotificationsEnabled();
+      if (notificationsAllowed == false && notifiche) {
+        notifiche = false;
+        await _preferencesUseCases.updatePreferences(
+          uid: _currentUid,
+          notifiche: false,
+        );
+        errorMessage = 'errorNotificationsDenied';
+      }
+      if (!posizione && profile.gpsEnabled) {
+        await _preferencesUseCases.updatePreferences(
+          uid: _currentUid,
+          gps: false,
+        );
+      }
     } catch (e, stackTrace) {
       AppLogger.error(
         'Unable to load account preferences',
@@ -113,6 +126,19 @@ class SettingsController extends ChangeNotifier {
         errorMessage = 'errorGpsDenied';
         posizione = false;
         LocationPreferenceStore.setGpsEnabled(false);
+        try {
+          await _preferencesUseCases.updatePreferences(
+            uid: _currentUid,
+            gps: false,
+          );
+        } catch (error, stackTrace) {
+          AppLogger.error(
+            'Unable to persist denied GPS preference',
+            error: error,
+            stackTrace: stackTrace,
+            name: 'SettingsController',
+          );
+        }
         _safeNotifyListeners();
         return;
       }
@@ -136,9 +162,14 @@ class SettingsController extends ChangeNotifier {
       // Do not let an FCM/profile read failure silently undo the in-app choice.
       if (newNotifiche == true) {
         try {
-          await NotificationService().requestAndroidNotificationPermission(
-            allowRepeatRequest: true,
-          );
+          final allowed = await NotificationService()
+              .requestAndroidNotificationPermission(allowRepeatRequest: true);
+          if (allowed == false) {
+            notifiche = false;
+            newNotifiche = false;
+            errorMessage = 'errorNotificationsDenied';
+            _safeNotifyListeners();
+          }
         } catch (error, stackTrace) {
           AppLogger.error(
             'Unable to request Android notification permission from settings',
@@ -205,6 +236,8 @@ class SettingsController extends ChangeNotifier {
     }
   }
 
+  Future<bool> openLocationAppSettings() => _locationService.openAppSettings();
+
   Future<bool> handleLogout() async {
     isLoggingOut = true;
     errorMessage = null;
@@ -244,6 +277,20 @@ class SettingsController extends ChangeNotifier {
       // Riautentica prima di qualsiasi cancellazione irreversibile: Firebase
       // può richiedere credenziali recenti per eliminare l'account Auth.
       await _deleteCurrentUserUseCase.reauthenticate();
+    } catch (e) {
+      AppLogger.error(
+        'Account re-authentication failed before deletion',
+        error: e,
+        name: 'SettingsController',
+      );
+      errorMessage = 'errorReauthentication';
+      isDeletingAccount = false;
+      ShellNavigationStore.deletingAccount.value = false;
+      _safeNotifyListeners();
+      return false;
+    }
+
+    try {
       await PushNotificationService.unregisterCurrentUser();
       await CrashlyticsReporter.setCollectionEnabled(
         false,
@@ -251,8 +298,11 @@ class SettingsController extends ChangeNotifier {
       );
       await _profileUseCases.deleteUserData(uid: uid);
     } catch (e) {
-      AppLogger.error('Delete account failed at Firestore cleanup',
-          error: e, name: 'SettingsController');
+      AppLogger.error(
+        'Delete account failed at Firestore cleanup',
+        error: e,
+        name: 'SettingsController',
+      );
       errorMessage = 'errorDeleteAccount';
       isDeletingAccount = false;
       ShellNavigationStore.deletingAccount.value = false;
@@ -264,8 +314,11 @@ class SettingsController extends ChangeNotifier {
       await _deleteCurrentUserUseCase();
       return true; // il flag resta true: lo resetta AuthGate quando arriva il login
     } catch (e) {
-      AppLogger.error('Delete account failed during re-authentication or Firestore cleanup',
-          error: e, name: 'SettingsController');
+      AppLogger.error(
+        'Delete account failed during Firebase Auth deletion',
+        error: e,
+        name: 'SettingsController',
+      );
       errorMessage = 'errorDeleteAccountAuth';
       try {
         await _signOutUseCase();

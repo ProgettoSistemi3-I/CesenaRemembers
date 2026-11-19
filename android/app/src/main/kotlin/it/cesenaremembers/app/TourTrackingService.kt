@@ -579,6 +579,6 @@ class TourTrackingService : Service() {
         private const val REQUEST_CODE_OPEN_APP = 1946
         private const val LOCATION_UPDATE_INTERVAL_MS = 5000L
         private const val LOCATION_UPDATE_DISTANCE_METERS = 10f
-        private const val NOTIFICATION_REFRESH_MS = 10000L
+        private const val NOTIFICATION_REFRESH_MS = 1000L
     }
 }

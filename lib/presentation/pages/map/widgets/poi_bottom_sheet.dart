@@ -18,6 +18,7 @@ class PoiBottomSheet extends StatefulWidget {
     required this.onQuizCompleted,
     required this.onNextStop,
     required this.onClose,
+    required this.isFinalStop,
     this.userXp = 0,
   });
 
@@ -28,6 +29,7 @@ class PoiBottomSheet extends StatefulWidget {
   final ValueChanged<QuizCompletionData> onQuizCompleted;
   final VoidCallback onNextStop;
   final VoidCallback onClose;
+  final bool isFinalStop;
 
   /// XP dell'utente passato dal genitore per evitare una lettura Firestore extra.
   final int userXp;
@@ -39,6 +41,7 @@ class PoiBottomSheet extends StatefulWidget {
 class _PoiBottomSheetState extends State<PoiBottomSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _quizScrollController = ScrollController();
   PoiQuizController? _quizController;
   VoidCallback? _quizListener;
   bool _quizInitialized = false;
@@ -55,11 +58,13 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
+    _quizScrollController.dispose();
     final quizController = _quizController;
     final quizListener = _quizListener;
     if (quizController != null && quizListener != null) {
       quizController.removeListener(quizListener);
     }
+    quizController?.abandonQuiz();
     quizController?.dispose();
     super.dispose();
   }
@@ -122,235 +127,256 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.60,
-      minChildSize: 0.45,
-      maxChildSize: 0.90,
-      builder: (_, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) widget.onClose();
+      },
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.60,
+        minChildSize: 0.45,
+        maxChildSize: 0.90,
+        builder: (_, scrollController) {
+          return Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: widget.iconBackground,
-                        borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: widget.iconBackground,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          widget.icon,
+                          size: 24,
+                          color: Colors.black87.withValues(alpha: 0.55),
+                        ),
                       ),
-                      child: Icon(
-                        widget.icon,
-                        size: 24,
-                        color: Colors.black87.withValues(alpha: 0.55),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.getPoiName(widget.stop.id),
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: theme.colorScheme.onSurface,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .getPoiName(widget.stop.id),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
-                          ),
-                          Text(
-                            AppLocalizations.of(context)!.getPoiPeriod(widget.stop.period),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: theme.colorScheme.onSurfaceVariant,
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .getPoiPeriod(widget.stop.period),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppPalette.olive.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.timer_outlined,
-                            size: 12,
-                            color: AppPalette.olive,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            formatElapsed(widget.elapsedSeconds),
-                            style: const TextStyle(
-                              fontSize: 11,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppPalette.olive.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.timer_outlined,
+                              size: 12,
                               color: AppPalette.olive,
-                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Text(
+                              formatElapsed(widget.elapsedSeconds),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppPalette.olive,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: widget.onClose,
-                    ),
+                      IconButton(
+                        tooltip: MaterialLocalizations.of(context)
+                            .closeButtonTooltip,
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: widget.onClose,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  height: .5,
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                ),
+                TabBar(
+                  controller: _tabController,
+                  labelColor: AppPalette.olive,
+                  unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+                  indicatorColor: AppPalette.olive,
+                  indicatorWeight: 2,
+                  labelStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.poiTabInfo),
+                    Tab(text: AppLocalizations.of(context)!.poiTabQuiz),
                   ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                height: .5,
-                color: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.5,
-                ),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-              ),
-              TabBar(
-                controller: _tabController,
-                labelColor: AppPalette.olive,
-                unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-                indicatorColor: AppPalette.olive,
-                indicatorWeight: 2,
-                labelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                tabs: [
-                  Tab(text: AppLocalizations.of(context)!.poiTabInfo),
-                  Tab(text: AppLocalizations.of(context)!.poiTabQuiz),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    SingleChildScrollView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _StopImage(
-                            imagePath: widget.stop.imagePath,
-                            icon: widget.icon,
-                            iconBackground: widget.iconBackground,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Container(
-                                width: 3,
-                                height: 14,
-                                margin: const EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: AppPalette.olive,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.poiSectionHistory,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: theme.colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            AppLocalizations.of(context)!.getPoiDescription(widget.stop.id),
-                            style: TextStyle(
-                              fontSize: 14,
-                              height: 1.65,
-                              color: theme.colorScheme.onSurfaceVariant,
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      SingleChildScrollView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _StopImage(
+                              imagePath: widget.stop.imagePath,
+                              icon: widget.icon,
+                              iconBackground: widget.iconBackground,
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          GestureDetector(
-                            onTap: () => _tabController.animateTo(1),
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 13),
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? AppPalette.tan.withValues(alpha: 0.15)
-                                    : theme.colorScheme.surfaceContainerHighest
-                                          .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 3,
+                                  height: 14,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    color: AppPalette.olive,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .poiSectionHistory,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .getPoiDescription(widget.stop.id),
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.65,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            GestureDetector(
+                              onTap: () => _tabController.animateTo(1),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 13,
+                                ),
+                                decoration: BoxDecoration(
                                   color: theme.brightness == Brightness.dark
-                                      ? AppPalette.tan.withValues(alpha: 0.3)
+                                      ? AppPalette.tan.withValues(alpha: 0.15)
                                       : theme
                                             .colorScheme
-                                            .surfaceContainerHighest,
+                                            .surfaceContainerHighest
+                                            .withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: theme.brightness == Brightness.dark
+                                        ? AppPalette.tan.withValues(alpha: 0.3)
+                                        : theme
+                                              .colorScheme
+                                              .surfaceContainerHighest,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.quiz_outlined,
+                                      size: 16,
+                                      color: AppPalette.tan,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      AppLocalizations.of(context)!
+                                          .poiStartQuiz,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppPalette.tan,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.quiz_outlined,
-                                    size: 16,
-                                    color: AppPalette.tan,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    AppLocalizations.of(context)!.poiStartQuiz,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: AppPalette.tan,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SingleChildScrollView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                      child: _buildQuizContent(theme),
-                    ),
-                  ],
+                      SingleChildScrollView(
+                        controller: _quizScrollController,
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                        child: _buildQuizContent(theme),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -376,15 +402,31 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
     }
 
     if (quizController.error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            AppLocalizations.of(context)!.errorCommunication,
-            style: const TextStyle(color: AppPalette.danger, fontSize: 14),
-            textAlign: TextAlign.center,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              AppLocalizations.of(context)!.errorCommunication,
+              style: const TextStyle(color: AppPalette.danger, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
+          OutlinedButton.icon(
+            onPressed: _initQuizWithUserXp,
+            icon: const Icon(Icons.refresh),
+            label: Text(AppLocalizations.of(context)!.buttonRetry),
+          ),
+          TextButton(
+            onPressed: widget.onNextStop,
+            child: Text(
+              widget.isFinalStop
+                  ? AppLocalizations.of(context)!.tourFinishButton
+                  : AppLocalizations.of(context)!.quizNextStop,
+            ),
+          ),
+        ],
       );
     }
 
@@ -399,7 +441,10 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
             ),
           ),
           const SizedBox(height: 20),
-          NextStopActionButton(onTap: widget.onNextStop),
+          NextStopActionButton(
+            onTap: widget.onNextStop,
+            isFinalStop: widget.isFinalStop,
+          ),
         ],
       );
     }
@@ -413,7 +458,10 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
             elapsed: widget.elapsedSeconds,
           ),
           const SizedBox(height: 20),
-          NextStopActionButton(onTap: widget.onNextStop),
+          NextStopActionButton(
+            onTap: widget.onNextStop,
+            isFinalStop: widget.isFinalStop,
+          ),
         ],
       );
     }
@@ -636,12 +684,12 @@ class _QuizFallbackBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.35,
-        ),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest
+            .withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.45),
+          color: Theme.of(context).colorScheme.outlineVariant
+              .withValues(alpha: 0.45),
         ),
       ),
       child: Column(
@@ -721,11 +769,7 @@ class _StopImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
-        child: Icon(
-          icon,
-          size: 56,
-          color: Colors.black.withValues(alpha: 0.3),
-        ),
+        child: Icon(icon, size: 56, color: Colors.black.withValues(alpha: 0.3)),
       ),
     );
   }
@@ -756,16 +800,36 @@ class QuizResultCard extends StatelessWidget {
     final ratio = total <= 0 ? 0.0 : score / total;
 
     final (title, body, icon, color) = switch (ratio) {
-      >= 1.0 => (l10n.quizResultPerfectTitle, l10n.quizResultPerfectBody,
-          Icons.emoji_events_rounded, AppPalette.olive),
-      >= 0.8 => (l10n.quizResultGreatTitle, l10n.quizResultGreatBody,
-          Icons.stars_rounded, AppPalette.olive),
-      >= 0.6 => (l10n.quizResultGoodTitle, l10n.quizResultGoodBody,
-          Icons.thumb_up_alt_rounded, AppPalette.moss),
-      >= 0.4 => (l10n.quizResultFairTitle, l10n.quizResultFairBody,
-          Icons.menu_book_rounded, AppPalette.tan),
-      _ => (l10n.quizResultPoorTitle, l10n.quizResultPoorBody,
-          Icons.history_edu_rounded, theme.colorScheme.onSurfaceVariant),
+      >= 1.0 => (
+        l10n.quizResultPerfectTitle,
+        l10n.quizResultPerfectBody,
+        Icons.emoji_events_rounded,
+        AppPalette.olive,
+      ),
+      >= 0.8 => (
+        l10n.quizResultGreatTitle,
+        l10n.quizResultGreatBody,
+        Icons.stars_rounded,
+        AppPalette.olive,
+      ),
+      >= 0.6 => (
+        l10n.quizResultGoodTitle,
+        l10n.quizResultGoodBody,
+        Icons.thumb_up_alt_rounded,
+        AppPalette.moss,
+      ),
+      >= 0.4 => (
+        l10n.quizResultFairTitle,
+        l10n.quizResultFairBody,
+        Icons.menu_book_rounded,
+        AppPalette.tan,
+      ),
+      _ => (
+        l10n.quizResultPoorTitle,
+        l10n.quizResultPoorBody,
+        Icons.history_edu_rounded,
+        theme.colorScheme.onSurfaceVariant,
+      ),
     };
     final highlighted = ratio >= 0.6;
 
@@ -778,7 +842,9 @@ class QuizResultCard extends StatelessWidget {
             : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: highlighted ? color : theme.colorScheme.surfaceContainerHighest,
+          color: highlighted
+              ? color
+              : theme.colorScheme.surfaceContainerHighest,
         ),
       ),
       child: Column(
@@ -787,7 +853,11 @@ class QuizResultCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: color),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
@@ -813,11 +883,18 @@ class QuizResultCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.timer_outlined, size: 13, color: theme.colorScheme.onSurfaceVariant),
+              Icon(
+                Icons.timer_outlined,
+                size: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(width: 4),
               Text(
                 l10n.quizTime(formatElapsed(elapsed)),
-                style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -828,9 +905,14 @@ class QuizResultCard extends StatelessWidget {
 }
 
 class NextStopActionButton extends StatelessWidget {
-  const NextStopActionButton({super.key, required this.onTap});
+  const NextStopActionButton({
+    super.key,
+    required this.onTap,
+    required this.isFinalStop,
+  });
 
   final VoidCallback onTap;
+  final bool isFinalStop;
 
   @override
   Widget build(BuildContext context) {
@@ -856,7 +938,9 @@ class NextStopActionButton extends StatelessWidget {
             const Icon(Icons.directions_walk, color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Text(
-              AppLocalizations.of(context)!.quizNextStop,
+              isFinalStop
+                  ? AppLocalizations.of(context)!.tourFinishButton
+                  : AppLocalizations.of(context)!.quizNextStop,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
