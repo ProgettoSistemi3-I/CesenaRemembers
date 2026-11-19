@@ -23,7 +23,10 @@ import 'shell_navigation_store.dart';
 import '../widgets/glass_snackbar.dart';
 
 class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
+  const AuthGate({super.key, this.loginBuilder});
+
+  /// Optional signed-out route override for widget tests and host embedding.
+  final WidgetBuilder? loginBuilder;
 
   @override
   State<AuthGate> createState() => _AuthGateState();
@@ -53,7 +56,8 @@ class _AuthGateState extends State<AuthGate> {
         if (appUser == null) {
           ShellNavigationStore.deletingAccount.value = false;
           final showBannedMessage = _bannedAccountWasDetected;
-          return LoginPage(showBannedAccount: showBannedMessage);
+          return widget.loginBuilder?.call(context) ??
+              LoginPage(showBannedAccount: showBannedMessage);
         }
         if (_lastAuthenticatedUid != appUser.id) {
           _lastAuthenticatedUid = appUser.id;
