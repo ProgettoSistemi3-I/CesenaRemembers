@@ -12,6 +12,16 @@ class ShellNavigationStore {
   static final ValueNotifier<bool> openFriendRequestsPanel =
       ValueNotifier<bool>(false);
 
+  /// Clears account-scoped state before another user enters MainShell.
+  static void resetForNewSession() {
+    deletingAccount.value = false;
+    locationPermissionChanged.value = 0;
+    tabIndex.value = 0;
+    focusGpsToggleInSettings.value = false;
+    openFriendRequestsPanel.value = false;
+    scrollToAchievements.value = false;
+  }
+
   static void goToTab(int index) {
     if (tabIndex.value != index) {
       tabIndex.value = index;
