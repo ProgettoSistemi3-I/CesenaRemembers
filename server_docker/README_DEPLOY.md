@@ -31,10 +31,6 @@ cd server_docker
 # Controlla la configurazione risolta prima di modificare i container.
 docker compose config
 
-# Verifica la configurazione Nginx usando i mount del servizio, senza avviare
-# una seconda istanza che pubblichi la porta 8000.
-docker compose run --rm --no-deps gateway nginx -t
-
 # Ricrea/aggiorna i servizi e rimuove gli eventuali container orfani
 # appartenenti a questo progetto Compose (incluso il vecchio servizio UniKlas).
 docker compose up -d --build --remove-orphans
@@ -71,7 +67,7 @@ docker rm -f uniklas-backend
 Per individuare l'eventuale immagine rimasta:
 
 ```bash
-docker image ls --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.ID}}' | grep -i uniklas
+docker image ls | grep -i uniklas
 ```
 
 L'immagine è opzionale da eliminare: prima verificare che nessun container la stia usando, quindi rimuovere soltanto l'ID effettivamente riconosciuto come immagine legacy:
