@@ -208,7 +208,7 @@ La service account key deve essere presente esclusivamente sul server nel percor
 
 ### Nginx, TLS e rete Docker
 
-Il gateway Nginx riceve le richieste HTTPS sulla porta `8000` e inoltra `/api/generate-quiz` al servizio FastAPI. Il container quiz non pubblica direttamente la propria porta sull'host: comunica con Nginx attraverso la rete Docker dedicata `quiz-backend`.
+Il gateway Nginx riceve le richieste HTTPS sulla porta `8000` e inoltra esclusivamente `/api/generate-quiz` al servizio FastAPI; gli altri percorsi `/api/*` restituiscono HTTP 404. Il container quiz non pubblica direttamente la propria porta sull'host: comunica con Nginx attraverso la rete Docker dedicata `quiz-backend`. Il microservizio notifiche resta su una rete Docker separata e non è esposto dal gateway pubblico.
 
 Il client utilizza HTTPS e un certificato server incluso nell'app (`assets/certs/server.crt`) come trust anchor dedicato. La chiave privata TLS (`server.key`) deve rimanere sul server e non deve essere aggiunta a Git. La sostituzione del certificato richiede un aggiornamento coordinato del server e della versione dell'app distribuita.
 
@@ -427,6 +427,7 @@ Prima di distribuire una versione controllare almeno:
 | Documento | Descrizione |
 |---|---|
 | [`RELEASE_READINESS.md`](RELEASE_READINESS.md) | Checklist pre-release e attività operative da chiudere |
+| [`server_docker/README_DEPLOY.md`](server_docker/README_DEPLOY.md) | Avvio, aggiornamento e pulizia dello stack Docker sul server |
 | [`DIAGNOSTICA_FIRESTORE.md`](DIAGNOSTICA_FIRESTORE.md) | Note di diagnostica Firestore |
 | [`firestore.rules`](firestore.rules) | Regole di accesso al database |
 | [`firebase.json`](firebase.json) | Configurazione Firebase ed emulatori |

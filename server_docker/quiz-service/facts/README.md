@@ -44,4 +44,4 @@ Regole:
 
 1. Modificare il file `.md`.
 2. Eseguire i test: `python -m pytest -q tests` dalla cartella `quiz-service`.
-3. Ricostruire e riavviare il container (vedi `../README_DEPLOY.md`).
+3. Ricostruire e riavviare il container (vedi `../../README_DEPLOY.md`).

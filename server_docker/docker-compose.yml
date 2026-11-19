@@ -1,8 +1,7 @@
 services:
   # 0. REVERSE PROXY GATEWAY (Nginx)
-  # Riceve tutte le richieste HTTPS sulla porta 8000 e le smista:
-  # - /api/generate-quiz e / -> a quiz-server (Cesena Remembers)
-  # - /api/                  -> a uniklas-backend (UniKlas)
+  # Riceve HTTPS sulla porta 8000 e inoltra l'API quiz al backend Cesena Remembers.
+  # Gli altri percorsi /api/ vengono rifiutati da Nginx.
   gateway:
     logging:
       driver: "json-file"
@@ -20,9 +19,7 @@ services:
       - ./certs:/certs:ro   # server.crt + server.key (generati con openssl, NON nel repo)
     depends_on:
       - quiz-server
-      - uniklas-backend
     networks:
-      - default
       - quiz-backend
 
   # 1. MICROSERVIZIO QUIZ (Python) - Inalterato, riceve le richieste da Nginx
@@ -77,26 +74,12 @@ services:
         read_only: true
         bind:
           create_host_path: false
-
-  # 3. BACKEND UNIKLAS (.NET 9 C#) - Nuovo servizio isolato
-  uniklas-backend:
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-    build:
-      context: ./uniklas-backend
-      dockerfile: Dockerfile
-    container_name: uniklas-backend
-    expose:
-      - "5000"
-    restart: unless-stopped
+    networks:
+      - default
 
 
 networks:
-  # Isola Uvicorn dagli altri container: soltanto Nginx condivide la rete
-  # del quiz, perciò è l'unico peer da cui accettare gli header forwarded.
+  # Isola Uvicorn: soltanto Nginx condivide questa rete ed è peer fidato
+  # per gli header forwarded. Il notifier resta sulla rete default separata.
   quiz-backend:
     driver: bridge
