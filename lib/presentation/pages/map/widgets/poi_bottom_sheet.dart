@@ -40,6 +40,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   PoiQuizController? _quizController;
+  VoidCallback? _quizListener;
   bool _quizInitialized = false;
   bool _quizCompletionSent = false;
 
@@ -54,7 +55,12 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
-    _quizController?.dispose(); // Buona pratica pulire il controller
+    final quizController = _quizController;
+    final quizListener = _quizListener;
+    if (quizController != null && quizListener != null) {
+      quizController.removeListener(quizListener);
+    }
+    quizController?.dispose();
     super.dispose();
   }
 
@@ -66,9 +72,10 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
       _quizInitialized = true;
     });
 
-    _quizController!.addListener(() {
+    _quizListener = () {
       if (mounted) setState(() {});
-    });
+    };
+    _quizController!.addListener(_quizListener!);
 
     // Recupera gli XP dell'utente (se disponibile) e inizializza il quiz
     _initQuizWithUserXp();
