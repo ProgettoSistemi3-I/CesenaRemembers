@@ -4,5 +4,13 @@
 abstract final class LegalDocumentVersions {
   static const String termsAccepted = '2026-11-15';
   static const String privacyNoticeAcknowledged = '2026-11-19';
+
+  // The privacy notice is an acknowledgement, not a new consent. Keep the
+  // previous version valid during rollout so existing sessions are not
+  // signed out solely because the notice date was updated.
+  static const List<String> supportedPrivacyNoticeAcknowledgementVersions = [
+    privacyNoticeAcknowledged,
+    '2026-11-15',
+  ];
   static const String minimumAgePolicyConfirmed = '14-plus-v1';
 }
