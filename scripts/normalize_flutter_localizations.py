@@ -19,6 +19,12 @@ source = re.sub(
     source,
 )
 
+source = re.sub(
+    r"""(?m)^\s*import\s+['"]package:flutter/widgets\.dart['"];\s*\n?""",
+    "",
+    source,
+)
+
 material_import = "import 'package:material_ui/material_ui.dart';"
 if material_import not in source:
     anchors = list(re.finditer(
