@@ -1475,4 +1475,115 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLicenseDirectionsAttribution => 'Route powered by Mapbox';
+  @override
+  String get blockedUsersTitle => 'Blocked users';
+
+  @override
+  String get blockedUsersLoadError => 'Unable to load blocked users.';
+
+  @override
+  String get blockedUsersUnblockTitle => 'Unblock user?';
+
+  @override
+  String get blockedUsersUnblockBody => 'Unblocking does not restore previous friendships or requests.';
+
+  @override
+  String get blockedUsersEmpty => 'You have not blocked anyone.';
+
+  @override
+  String get blockedUsersUnavailable => 'Unavailable user';
+
+  @override
+  String get blockedUsersUnblock => 'Unblock';
+
+  @override
+  String get settingsBlockedUsers => 'Blocked users';
+
+  @override
+  String get settingsBlockedUsersSubtitle => 'Manage the users you have blocked';
+
+  @override
+  String get reportProfileTitle => 'Report profile';
+
+  @override
+  String get reportProfileQuestion => 'Which profile content do you want to report?';
+
+  @override
+  String get reportFieldDisplayName => 'Display name';
+
+  @override
+  String get reportFieldUsername => 'Username';
+
+  @override
+  String get reportReasonTitle => 'Reason for reporting';
+
+  @override
+  String get reportReasonInappropriate => 'Inappropriate name or username';
+
+  @override
+  String get reportReasonImpersonation => 'Impersonation';
+
+  @override
+  String get reportReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonOther => 'Other';
+
+  @override
+  String get reportDetails => 'Additional details (optional)';
+
+  @override
+  String get reportSubmit => 'Submit';
+
+  @override
+  String get reportSuccess => 'Report sent. Thank you.';
+
+  @override
+  String get reportFailure => 'Unable to send the report. Please try again.';
+
+  @override
+  String get blockUserTitle => 'Block user?';
+
+  @override
+  String get blockUserBody => 'They will no longer be able to send you friend requests. Any existing friendship or pending request will be removed. You can unblock them in Settings.';
+
+  @override
+  String get blockUserAction => 'Block';
+
+  @override
+  String get blockUserMenuAction => 'Block user';
+
+  @override
+  String get blockUserSuccess => 'User blocked.';
+
+  @override
+  String get blockUserPartialFailure => 'The block is active, but some existing social data could not be cleaned up. Please retry later.';
+
+  @override
+  String get blockUserFailure => 'Unable to block this user. Please try again.';
+
+  @override
+  String get unblockUserAction => 'Unblock user';
+
+  @override
+  String get unblockUserSuccess => 'User unblocked.';
+
+  @override
+  String get unblockUserFailure => 'Unable to unblock this user.';
+
+  @override
+  String get profileOptions => 'Profile options';
+
+  @override
+  String get profileBlockedBanner => 'You have blocked this user.';
+
+  @override
+  String get renderErrorMessage => 'An error occurred while displaying this screen.\\nReturn to the home screen and try again.';
+
+  @override
+  String get bootstrapErrorMessage => 'Unable to start the app. Please try again.';
+
 }
