@@ -6,6 +6,8 @@ import '../../core/logging/app_logger.dart';
 import '../../domain/services/achievement_service.dart';
 
 class UserProgressDataSource {
+  // The public argument name is required by cross-library callers.
+  // ignore: prefer_initializing_formals
   UserProgressDataSource({required FirebaseFirestore firestore})
     : _firestore = firestore;
 
