@@ -424,16 +424,8 @@ class _SettingsPageState extends State<SettingsPage>
                               const _ThinDivider(),
                               _ActionRow(
                                 icon: Icons.block_outlined,
-                                title: ModerationText.of(
-                                  context,
-                                  it: 'Utenti bloccati',
-                                  en: 'Blocked users',
-                                ),
-                                subtitle: ModerationText.of(
-                                  context,
-                                  it: 'Gestisci gli utenti che hai bloccato',
-                                  en: 'Manage the users you have blocked',
-                                ),
+                                title: AppLocalizations.of(context)!.settingsBlockedUsers,
+                                subtitle: AppLocalizations.of(context)!.settingsBlockedUsersSubtitle,
                                 accent: AppPalette.danger,
                                 onTap: () => Navigator.push(
                                   context,
