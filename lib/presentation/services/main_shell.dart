@@ -12,9 +12,18 @@ import 'location_preference_store.dart';
 import '../../l10n/app_localizations.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key, required this.gpsEnabled});
+  const MainShell({
+    super.key,
+    required this.gpsEnabled,
+    this.startupInitializer,
+    this.pages,
+  });
 
   final bool gpsEnabled;
+
+  /// Optional seams keep widget lifecycle tests independent from platform plugins.
+  final Future<void> Function()? startupInitializer;
+  final List<Widget>? pages;
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -24,7 +33,7 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   bool _startupReady = false;
 
-  final List<Widget> _pages = const [
+  List<Widget> get _pages => widget.pages ?? const <Widget>[
     MapPage(),
     SocialPage(),
     ProfilePage(),
@@ -34,11 +43,10 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
+    ShellNavigationStore.resetForNewSession();
     // La preferenza arriva dal profilo già caricato da AuthGate: inizializzala
     // prima che IndexedStack crei MapPage e avvii il controllo dei permessi.
     LocationPreferenceStore.setGpsEnabled(widget.gpsEnabled);
-    // Evita che il tab statico di una sessione precedente sopravviva al logout.
-    ShellNavigationStore.tabIndex.value = 0;
     _currentIndex = 0;
     ShellNavigationStore.tabIndex.addListener(_onTabIndexChanged);
     // Attendi il primo frame prima di aprire un dialogo Android.
@@ -57,6 +65,13 @@ class _MainShellState extends State<MainShell> {
   }
 
   Future<void> _initializeStartup() async {
+    final initializer = widget.startupInitializer;
+    if (initializer != null) {
+      await initializer();
+      if (mounted) setState(() => _startupReady = true);
+      return;
+    }
+
     // Esegui la richiesta GPS una sola volta, con l'Activity già visibile.
     // Non aprire il dialogo se l'utente ha disattivato la posizione nell'app.
     if (widget.gpsEnabled) {
