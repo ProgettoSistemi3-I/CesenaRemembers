@@ -5,6 +5,8 @@ import '../../domain/services/achievement_service.dart';
 import '../../models/user_model.dart';
 
 class UserSocialDataSource {
+  // The public argument name is required by cross-library callers.
+  // ignore: prefer_initializing_formals
   UserSocialDataSource({required FirebaseFirestore firestore})
     : _firestore = firestore;
 
