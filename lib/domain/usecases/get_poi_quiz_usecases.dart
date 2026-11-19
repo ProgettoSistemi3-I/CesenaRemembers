@@ -6,6 +6,9 @@ class GetPoiQuizUseCase {
 
   const GetPoiQuizUseCase(this.repository);
 
+  void invalidateCacheForPoi(String poiId) =>
+      repository.invalidateCacheForPoi(poiId);
+
   Future<QuizLoadResult> call(
     String poiId,
     String poiName,
