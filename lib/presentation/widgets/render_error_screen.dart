@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../pages/splash_screen.dart';
 import '../services/push_notification_service.dart';
+import 'package:cesena_remembers/l10n/app_localizations.dart';
 
 /// A safe replacement for Flutter's technical rendering-error widget.
 ///
@@ -36,6 +37,7 @@ class RenderErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Material(
       color: colors.surface,
@@ -55,10 +57,7 @@ class RenderErrorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Si è verificato un problema durante la visualizzazione.\n'
-                    'Torna alla schermata iniziale e riprova.\n\n'
-                    'An error occurred while displaying this screen. '
-                    'Return to the home screen and try again.',
+                    l10n.renderErrorMessage,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge,
                   ),
@@ -66,7 +65,7 @@ class RenderErrorScreen extends StatelessWidget {
                   FilledButton.icon(
                     onPressed: onRetry ?? _restartFromSplash,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Riprova / Try again'),
+                    label: Text(l10n.buttonRetry),
                   ),
                 ],
               ),
