@@ -1,3 +1,5 @@
+import 'package:material_ui/material_ui.dart';
+
 import 'quiz_question.dart';
 
 class Poi {
@@ -10,6 +12,8 @@ class Poi {
   final String description;
   final List<QuizQuestion> questions;
   final String? imagePath;
+  final IconData? icon;
+  final Color? iconBackground;
 
   Poi({
     required this.id,
@@ -21,5 +25,7 @@ class Poi {
     required this.description,
     this.questions = const [],
     this.imagePath,
+    this.icon,
+    this.iconBackground,
   });
 }

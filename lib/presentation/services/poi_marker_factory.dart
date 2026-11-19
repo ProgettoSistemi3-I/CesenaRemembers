@@ -29,11 +29,14 @@ class PoiMarkerFactory {
             mainAxisSize: MainAxisSize.min,
             children: [
               _PoiPin(
-                color: _colorFromType(poi.type),
-                icon: _iconFromType(poi.type),
+                color: poi.iconBackground ?? _colorFromPoi(poi),
+                icon: poi.icon ?? _iconFromPoi(poi),
               ),
               const SizedBox(height: 4),
-              _PoiLabel(text: poi.name, accentColor: _colorFromType(poi.type)),
+              _PoiLabel(
+                text: poi.name,
+                accentColor: poi.iconBackground ?? _colorFromPoi(poi),
+              ),
             ],
           ),
         ),
@@ -42,6 +45,27 @@ class PoiMarkerFactory {
   }
 
   double _degreesToRadians(double value) => value * (math.pi / 180);
+
+  Color _colorFromPoi(Poi poi) => poi.type.toLowerCase() == 'monument'
+      ? switch (poi.id) {
+          'stazione' => const Color(0xFFB77A12),
+          'arrigoni' => const Color(0xFF168C91),
+          'fantaguzzi' => const Color(0xFFB84D5A),
+          'rifugi_antiaerei' => AppPalette.danger,
+          _ => AppPalette.olive,
+        }
+      : _colorFromType(poi.type);
+
+  IconData _iconFromPoi(Poi poi) => switch (poi.id) {
+    'stazione' => Icons.train_rounded,
+    'arrigoni' => Icons.factory_rounded,
+    'fantaguzzi' => Icons.account_balance_rounded,
+    'rifugi_antiaerei' => Icons.shield_outlined,
+    'rocca' => Icons.castle_rounded,
+    'abbazia_monte' => Icons.terrain_rounded,
+    'osservanza' => Icons.fort_rounded,
+    _ => _iconFromType(poi.type),
+  };
 
   Color _colorFromType(String type) {
     switch (type.toLowerCase()) {
@@ -169,7 +193,7 @@ class _PoiLabel extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
               style: const TextStyle(

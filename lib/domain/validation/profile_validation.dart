@@ -11,6 +11,10 @@ class ProfileValidation {
     return trimmed.replaceAll(RegExp(r'[^a-z0-9_.]'), '');
   }
 
+  static bool hasInvalidUsernameCharacters(String value) =>
+      RegExp(r'[^a-zA-Z0-9_.\s]').hasMatch(value) ||
+      value.trim().contains(RegExp(r'\s'));
+
   static bool isValidDisplayName(String value) {
     final length = value.trim().length;
     return length >= minDisplayNameLength && length <= maxDisplayNameLength;

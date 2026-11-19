@@ -13,9 +13,7 @@ extension _MapPageTourActions on _MapPageState {
     final canStartTour =
         appGpsPreferenceEnabled && _isGpsEnabled && _hasPermissions;
     if (_isGpsPreferenceEnabled != appGpsPreferenceEnabled) {
-      _updateMapState(
-        () => _isGpsPreferenceEnabled = appGpsPreferenceEnabled,
-      );
+      _updateMapState(() => _isGpsPreferenceEnabled = appGpsPreferenceEnabled);
     }
     if (!canStartTour) {
       AppLogger.error(
@@ -73,8 +71,7 @@ extension _MapPageTourActions on _MapPageState {
     final scheduledStop = _tourController.currentStop;
     final scheduledElapsedRunning =
         _tourController.status == TourStatus.running;
-    final scheduledLegStartedAt =
-        _tourController.currentLegStartedAtEpochMs;
+    final scheduledLegStartedAt = _tourController.currentLegStartedAtEpochMs;
     if (!force &&
         _tourController.isActive &&
         _foregroundServiceStarted &&
@@ -103,8 +100,7 @@ extension _MapPageTourActions on _MapPageState {
       }
 
       final elapsedRunning = _tourController.status == TourStatus.running;
-      final legStartedAtEpochMs =
-          _tourController.currentLegStartedAtEpochMs;
+      final legStartedAtEpochMs = _tourController.currentLegStartedAtEpochMs;
       if (!force &&
           _foregroundServiceStarted &&
           _lastForegroundStopId == currentStop.id &&
@@ -143,28 +139,29 @@ extension _MapPageTourActions on _MapPageState {
       }
     });
 
-    _foregroundServiceQueue = operation.catchError(
-      (Object error, StackTrace stackTrace) {
-        _foregroundServiceStarted = false;
-        _lastForegroundStopId = null;
-        _lastForegroundElapsedRunning = null;
-        _lastForegroundLegStartedAtEpochMs = null;
-        AppLogger.error(
-          'Unable to synchronize the tour foreground service',
-          error: error,
-          stackTrace: stackTrace,
-          name: 'MapPageTour',
+    _foregroundServiceQueue = operation.catchError((
+      Object error,
+      StackTrace stackTrace,
+    ) {
+      _foregroundServiceStarted = false;
+      _lastForegroundStopId = null;
+      _lastForegroundElapsedRunning = null;
+      _lastForegroundLegStartedAtEpochMs = null;
+      AppLogger.error(
+        'Unable to synchronize the tour foreground service',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPageTour',
+      );
+      if (showError && mounted) {
+        showGlassSnackBar(
+          context,
+          message: AppLocalizations.of(context)!.tourBackgroundServiceError,
+          type: GlassSnackType.error,
+          duration: const Duration(seconds: 8),
         );
-        if (showError && mounted) {
-          showGlassSnackBar(
-            context,
-            message: AppLocalizations.of(context)!.tourBackgroundServiceError,
-            type: GlassSnackType.error,
-            duration: const Duration(seconds: 8),
-          );
-        }
-      },
-    );
+      }
+    });
     return _foregroundServiceQueue;
   }
 
@@ -178,9 +175,7 @@ extension _MapPageTourActions on _MapPageState {
             borderRadius: BorderRadius.circular(18),
           ),
           title: Text(AppLocalizations.of(context)!.tourConfirmStopTitle),
-          content: Text(
-            AppLocalizations.of(context)!.tourConfirmStopBody,
-          ),
+          content: Text(AppLocalizations.of(context)!.tourConfirmStopBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -303,6 +298,7 @@ extension _MapPageTourActions on _MapPageState {
             Navigator.of(sheetContext).pop();
           }
         },
+        isFinalStop: isLastStop,
         onNextStop: () {
           if (isAdvancingToNextStop) return;
           isAdvancingToNextStop = true;
@@ -378,20 +374,22 @@ extension _MapPageTourActions on _MapPageState {
     }
 
     unawaited(
-      _tourSessionStore.saveResults(
-        TourSessionResults(
-          xpEarned: nextTourXp,
-          correctAnswers: nextTourCorrect,
-          totalQuestions: nextTourQuestions,
-        ),
-      ).catchError((Object error, StackTrace stackTrace) {
-        AppLogger.error(
-          'Unable to persist local tour quiz results',
-          error: error,
-          stackTrace: stackTrace,
-          name: 'MapPageTour',
-        );
-      }),
+      _tourSessionStore
+          .saveResults(
+            TourSessionResults(
+              xpEarned: nextTourXp,
+              correctAnswers: nextTourCorrect,
+              totalQuestions: nextTourQuestions,
+            ),
+          )
+          .catchError((Object error, StackTrace stackTrace) {
+            AppLogger.error(
+              'Unable to persist local tour quiz results',
+              error: error,
+              stackTrace: stackTrace,
+              name: 'MapPageTour',
+            );
+          }),
     );
 
     final l10n = AppLocalizations.of(context)!;
@@ -406,44 +404,127 @@ extension _MapPageTourActions on _MapPageState {
       duration: const Duration(seconds: 4),
     );
 
-    final queuedSave = _quizSaveQueue.then((_) async {
-      try {
-        await _progressUseCases.registerQuizCompletion(
-          uid: uid,
-          poiId: poiId,
-          xpGained: score.totalXp,
-          correctAnswers: result.score,
-          totalQuestions: result.totalQuestions,
-          tourElapsedSeconds: elapsedAtCompletion,
-          isTourComplete: isLastStop,
-          tourTotalXp: nextTourXp,
-          tourCorrectAnswers: nextTourCorrect,
-          tourTotalQuestions: nextTourQuestions,
-        );
-      } catch (error, stackTrace) {
-        AppLogger.error(
-          'Salvataggio punteggio quiz fallito per tappa=$poiId '
-          '(xp=${score.totalXp}, risposte=${result.score}/${result.totalQuestions}, '
-          'tourCompleto=$isLastStop)',
-          error: error,
-          stackTrace: stackTrace,
-          name: 'MapPageTour',
-        );
-        if (!mounted) return;
-        final debugDetails = kDebugMode
-            ? '\n${error.runtimeType}: $error'
-            : '';
-        showGlassSnackBar(
-          context,
-          message: '${AppLocalizations.of(context)!.errorSaveScore}$debugDetails',
-          type: GlassSnackType.error,
-          duration: const Duration(seconds: 8),
+    return _enqueueQuizSave({
+      'uid': uid,
+      'poiId': poiId,
+      'xpGained': score.totalXp,
+      'correctAnswers': result.score,
+      'totalQuestions': result.totalQuestions,
+      'tourElapsedSeconds': elapsedAtCompletion,
+      'isTourComplete': isLastStop,
+      'tourTotalXp': nextTourXp,
+      'tourCorrectAnswers': nextTourCorrect,
+      'tourTotalQuestions': nextTourQuestions,
+    });
+  }
+
+  Future<void> _loadPendingQuizSaves() async {
+    if (_pendingQuizSavesLoaded) return;
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final encoded = preferences.getString('pending_quiz_saves_v1');
+      if (encoded != null) {
+        final decoded = jsonDecode(encoded) as List<dynamic>;
+        _pendingQuizSaves.addAll(
+          decoded.cast<Map>().map((item) => Map<String, dynamic>.from(item)),
         );
       }
-    });
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to load pending quiz saves',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPageTour',
+      );
+    }
+    _pendingQuizSavesLoaded = true;
+    if (_pendingQuizSaves.isNotEmpty) {
+      _quizSaveQueue = _quizSaveQueue.then((_) => _drainPendingQuizSaves());
+    }
+  }
 
-    _quizSaveQueue = queuedSave;
-    return queuedSave;
+  Future<void> _enqueueQuizSave(Map<String, dynamic> save) async {
+    await _loadPendingQuizSaves();
+    _pendingQuizSaves.add(save);
+    await _persistPendingQuizSaves();
+    final operation = _quizSaveQueue.then((_) => _drainPendingQuizSaves());
+    _quizSaveQueue = operation;
+    await operation;
+  }
+
+  Future<void> _persistPendingQuizSaves() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        'pending_quiz_saves_v1',
+        jsonEncode(_pendingQuizSaves),
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Unable to persist pending quiz saves',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'MapPageTour',
+      );
+    }
+  }
+
+  Future<void> _drainPendingQuizSaves() async {
+    while (_pendingQuizSaves.isNotEmpty) {
+      final save = _pendingQuizSaves.first;
+      var saved = false;
+      Object? lastError;
+      StackTrace? lastStackTrace;
+      for (var attempt = 0; attempt < 3 && !saved; attempt++) {
+        try {
+          await _progressUseCases.registerQuizCompletion(
+            uid: save['uid'] as String,
+            poiId: save['poiId'] as String,
+            xpGained: save['xpGained'] as int,
+            correctAnswers: save['correctAnswers'] as int,
+            totalQuestions: save['totalQuestions'] as int,
+            tourElapsedSeconds: save['tourElapsedSeconds'] as int,
+            isTourComplete: save['isTourComplete'] as bool,
+            tourTotalXp: save['tourTotalXp'] as int,
+            tourCorrectAnswers: save['tourCorrectAnswers'] as int,
+            tourTotalQuestions: save['tourTotalQuestions'] as int,
+          );
+          saved = true;
+        } catch (error, stackTrace) {
+          lastError = error;
+          lastStackTrace = stackTrace;
+          if (attempt < 2) await Future.delayed(Duration(seconds: attempt + 1));
+        }
+      }
+      if (!saved) {
+        AppLogger.error(
+          'Quiz save remains queued for retry',
+          error: lastError,
+          stackTrace: lastStackTrace,
+          name: 'MapPageTour',
+        );
+        _quizSaveRetryTimer?.cancel();
+        _quizSaveRetryTimer = Timer(const Duration(seconds: 30), () {
+          if (!mounted) return;
+          _quizSaveQueue = _quizSaveQueue.then((_) => _drainPendingQuizSaves());
+        });
+        if (mounted) {
+          final debugDetails = kDebugMode
+              ? '\n${lastError.runtimeType}: $lastError'
+              : '';
+          showGlassSnackBar(
+            context,
+            message:
+                '${AppLocalizations.of(context)!.errorSaveScore}$debugDetails',
+            type: GlassSnackType.error,
+            duration: const Duration(seconds: 8),
+          );
+        }
+        return;
+      }
+      _pendingQuizSaves.removeAt(0);
+      await _persistPendingQuizSaves();
+    }
   }
 
   LatLng _toLatLng(GeoPoint point) => LatLng(point.latitude, point.longitude);

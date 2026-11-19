@@ -68,8 +68,7 @@ class PoiPreviewSheet extends StatelessWidget {
                         Expanded(
                           child: Text(
                             l10n.getPoiName(poi.id),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
