@@ -1475,4 +1475,115 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get mapLicenseDirectionsAttribution => 'Percorso fornito da Mapbox';
+  @override
+  String get blockedUsersTitle => 'Utenti bloccati';
+
+  @override
+  String get blockedUsersLoadError => 'Impossibile caricare gli utenti bloccati.';
+
+  @override
+  String get blockedUsersUnblockTitle => 'Sbloccare utente?';
+
+  @override
+  String get blockedUsersUnblockBody => 'Lo sblocco non ripristina automaticamente amicizie o richieste precedenti.';
+
+  @override
+  String get blockedUsersEmpty => 'Non hai bloccato nessun utente.';
+
+  @override
+  String get blockedUsersUnavailable => 'Utente non disponibile';
+
+  @override
+  String get blockedUsersUnblock => 'Sblocca';
+
+  @override
+  String get settingsBlockedUsers => 'Utenti bloccati';
+
+  @override
+  String get settingsBlockedUsersSubtitle => 'Gestisci gli utenti che hai bloccato';
+
+  @override
+  String get reportProfileTitle => 'Segnala profilo';
+
+  @override
+  String get reportProfileQuestion => 'Quale contenuto vuoi segnalare?';
+
+  @override
+  String get reportFieldDisplayName => 'Nome visualizzato';
+
+  @override
+  String get reportFieldUsername => 'Username';
+
+  @override
+  String get reportReasonTitle => 'Motivo della segnalazione';
+
+  @override
+  String get reportReasonInappropriate => 'Nome o username inappropriato';
+
+  @override
+  String get reportReasonImpersonation => 'Impersonificazione';
+
+  @override
+  String get reportReasonHarassment => 'Molestie o bullismo';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonOther => 'Altro';
+
+  @override
+  String get reportDetails => 'Ulteriori dettagli (facoltativi)';
+
+  @override
+  String get reportSubmit => 'Invia';
+
+  @override
+  String get reportSuccess => 'Segnalazione inviata. Grazie.';
+
+  @override
+  String get reportFailure => 'Impossibile inviare la segnalazione. Riprova.';
+
+  @override
+  String get blockUserTitle => 'Bloccare questo utente?';
+
+  @override
+  String get blockUserBody => 'Non potrà più inviarti richieste di amicizia. Le amicizie e le richieste in sospeso verranno rimosse. Potrai sbloccarlo dalle Impostazioni.';
+
+  @override
+  String get blockUserAction => 'Blocca';
+
+  @override
+  String get blockUserMenuAction => 'Blocca utente';
+
+  @override
+  String get blockUserSuccess => 'Utente bloccato.';
+
+  @override
+  String get blockUserPartialFailure => 'Il blocco è attivo, ma non è stato possibile ripulire tutti i dati social. Riprova più tardi.';
+
+  @override
+  String get blockUserFailure => 'Impossibile bloccare questo utente. Riprova.';
+
+  @override
+  String get unblockUserAction => 'Sblocca utente';
+
+  @override
+  String get unblockUserSuccess => 'Utente sbloccato.';
+
+  @override
+  String get unblockUserFailure => 'Impossibile sbloccare questo utente.';
+
+  @override
+  String get profileOptions => 'Opzioni profilo';
+
+  @override
+  String get profileBlockedBanner => 'Hai bloccato questo utente.';
+
+  @override
+  String get renderErrorMessage => 'Si è verificato un problema durante la visualizzazione.\\nTorna alla schermata iniziale e riprova.';
+
+  @override
+  String get bootstrapErrorMessage => 'Impossibile avviare l\'app. Riprova.';
+
 }
