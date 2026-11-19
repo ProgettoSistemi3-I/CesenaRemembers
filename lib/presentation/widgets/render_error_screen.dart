@@ -37,7 +37,16 @@ class RenderErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    final localeCode =
+        Localizations.maybeLocaleOf(context)?.languageCode ??
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    final isEnglish = localeCode.toLowerCase() == 'en';
+    final errorMessage = l10n?.renderErrorMessage ??
+        (isEnglish
+            ? 'An error occurred while displaying this screen. Return to the home screen and try again.'
+            : 'Si è verificato un problema durante la visualizzazione. Torna alla schermata iniziale e riprova.');
+    final retryLabel = l10n?.buttonRetry ?? (isEnglish ? 'Try again' : 'Riprova');
 
     return Material(
       color: colors.surface,
@@ -57,7 +66,7 @@ class RenderErrorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    l10n.renderErrorMessage,
+                    errorMessage,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge,
                   ),
@@ -65,7 +74,7 @@ class RenderErrorScreen extends StatelessWidget {
                   FilledButton.icon(
                     onPressed: onRetry ?? _restartFromSplash,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: Text(l10n.buttonRetry),
+                    label: Text(retryLabel),
                   ),
                 ],
               ),
