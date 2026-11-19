@@ -13,6 +13,7 @@ void main() {
       const MaterialApp(
         locale: Locale('it'),
         supportedLocales: _supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: RenderErrorScreen(),
       ),
     );
@@ -36,6 +37,7 @@ void main() {
       const MaterialApp(
         locale: Locale('en'),
         supportedLocales: _supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: RenderErrorScreen(),
       ),
     );
@@ -57,6 +59,7 @@ void main() {
       MaterialApp(
         locale: const Locale('it'),
         supportedLocales: _supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: RenderErrorScreen(
           onRetry: () => retryTriggered = true,
         ),
