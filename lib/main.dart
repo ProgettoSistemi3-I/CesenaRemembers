@@ -206,40 +206,50 @@ class BootstrapErrorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.cloud_off_rounded,
-                  size: 54,
-                  color: AppPalette.olive,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      home: Builder(
+        builder: (context) {
+          final l10n = AppLocalizations.of(context)!;
+          return Scaffold(
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.cloud_off_rounded,
+                      size: 54,
+                      color: AppPalette.olive,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.bootstrapErrorMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (kDebugMode && errorMessage != null) ...[
+                      const SizedBox(height: 8),
+                      Text(errorMessage!, textAlign: TextAlign.center),
+                    ],
+                    const SizedBox(height: 20),
+                    FilledButton(
+                      onPressed: onRetry,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppPalette.olive,
+                      ),
+                      child: Text(l10n.buttonRetry),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Impossibile avviare l\'app\nUnable to start the app',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                if (kDebugMode && errorMessage != null) ...[
-                  const SizedBox(height: 8),
-                  Text(errorMessage!, textAlign: TextAlign.center),
-                ],
-                const SizedBox(height: 20),
-                FilledButton(
-                  onPressed: onRetry,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppPalette.olive,
-                  ),
-                  child: const Text('Riprova / Retry'),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
