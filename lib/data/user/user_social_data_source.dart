@@ -4,9 +4,10 @@ import '../../domain/entities/userprofile.dart';
 import '../../domain/services/achievement_service.dart';
 import '../../models/user_model.dart';
 
+// The constructor intentionally keeps the public `firestore` parameter name.
+// ignore_for_file: prefer_initializing_formals
+
 class UserSocialDataSource {
-  // The public argument name is required by cross-library callers.
-  // ignore: prefer_initializing_formals
   UserSocialDataSource({required FirebaseFirestore firestore})
     : _firestore = firestore;
 
