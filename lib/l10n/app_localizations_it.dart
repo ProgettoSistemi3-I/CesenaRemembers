@@ -1581,7 +1581,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get profileBlockedBanner => 'Hai bloccato questo utente.';
 
   @override
-  String get renderErrorMessage => 'Si è verificato un problema durante la visualizzazione.\\nTorna alla schermata iniziale e riprova.';
+  String get renderErrorMessage => 'Si è verificato un problema durante la visualizzazione. Torna alla schermata iniziale e riprova.';
 
   @override
   String get bootstrapErrorMessage => 'Impossibile avviare l\'app. Riprova.';
