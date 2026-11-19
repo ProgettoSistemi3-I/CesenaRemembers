@@ -7,10 +7,14 @@ import '../../domain/validation/profile_validation.dart';
 import '../../models/user_model.dart';
 
 class UserProfileDataSource {
-  // Keep the named parameter public while retaining a private field.
-  // ignore: prefer_initializing_formals
-  UserProfileDataSource({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+  /// Preserves the public named argument while keeping the backing field
+  /// private and allowing the private constructor to use an initializing
+  /// formal (required by the Dart analyzer).
+  factory UserProfileDataSource({required FirebaseFirestore firestore}) {
+    return UserProfileDataSource._(firestore);
+  }
+
+  UserProfileDataSource._(this._firestore);
 
   final FirebaseFirestore _firestore;
 
