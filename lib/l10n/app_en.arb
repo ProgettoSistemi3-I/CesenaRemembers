@@ -644,6 +644,6 @@
   "unblockUserFailure": "Unable to unblock this user.",
   "profileOptions": "Profile options",
   "profileBlockedBanner": "You have blocked this user.",
-  "renderErrorMessage": "An error occurred while displaying this screen.\\nReturn to the home screen and try again.",
+  "renderErrorMessage": "An error occurred while displaying this screen. Return to the home screen and try again.",
   "bootstrapErrorMessage": "Unable to start the app. Please try again."
 }
