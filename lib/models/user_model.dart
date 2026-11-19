@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../domain/entities/userprofile.dart';
 
 class UserModel extends UserProfile {
@@ -110,7 +112,7 @@ class UserModel extends UserProfile {
         'permissionsSetupCompleted': permissionsSetupCompleted,
         'crashlyticsEnabled': crashlyticsEnabled,
         if (hasThemePreference) 'modalitaNotte': darkModeEnabled,
-        if (hasThemePreference) 'themePreferenceSetAt': DateTime.now(),
+        if (hasThemePreference) 'themePreferenceSetAt': FieldValue.serverTimestamp(),
         'posizioneGps': gpsEnabled,
       },
     };
