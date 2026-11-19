@@ -240,21 +240,21 @@ test('older app releases can still create and update legal declarations', async 
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: '2025-01-01',
+    termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2024-02-10',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: serverTimestamp(),
-    agePolicyVersionConfirmed: '14-plus-v0',
+    agePolicyVersionConfirmed: '14-plus-v1',
   }));
 
   // The same old binary may sign in again after newer Rules are deployed.
   await assertSucceeds(updateDoc(userRef, {
     termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: '2025-01-01',
+    termsVersionAccepted: '2026-11-15',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2024-02-10',
+    privacyNoticeVersionAcknowledged: '2026-11-15',
     ageConfirmedAt: serverTimestamp(),
-    agePolicyVersionConfirmed: '14-plus-v0',
+    agePolicyVersionConfirmed: '14-plus-v1',
     updatedAt: serverTimestamp(),
   }));
 });
