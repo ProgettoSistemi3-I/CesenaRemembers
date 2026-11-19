@@ -2959,6 +2959,44 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route powered by Mapbox'**
   String get mapLicenseDirectionsAttribution;
+  String get blockedUsersTitle;
+  String get blockedUsersLoadError;
+  String get blockedUsersUnblockTitle;
+  String get blockedUsersUnblockBody;
+  String get blockedUsersEmpty;
+  String get blockedUsersUnavailable;
+  String get blockedUsersUnblock;
+  String get settingsBlockedUsers;
+  String get settingsBlockedUsersSubtitle;
+  String get reportProfileTitle;
+  String get reportProfileQuestion;
+  String get reportFieldDisplayName;
+  String get reportFieldUsername;
+  String get reportReasonTitle;
+  String get reportReasonInappropriate;
+  String get reportReasonImpersonation;
+  String get reportReasonHarassment;
+  String get reportReasonSpam;
+  String get reportReasonOther;
+  String get reportDetails;
+  String get reportSubmit;
+  String get reportSuccess;
+  String get reportFailure;
+  String get blockUserTitle;
+  String get blockUserBody;
+  String get blockUserAction;
+  String get blockUserMenuAction;
+  String get blockUserSuccess;
+  String get blockUserPartialFailure;
+  String get blockUserFailure;
+  String get unblockUserAction;
+  String get unblockUserSuccess;
+  String get unblockUserFailure;
+  String get profileOptions;
+  String get profileBlockedBanner;
+  String get renderErrorMessage;
+  String get bootstrapErrorMessage;
+
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
