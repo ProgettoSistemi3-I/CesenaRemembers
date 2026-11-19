@@ -1581,7 +1581,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileBlockedBanner => 'You have blocked this user.';
 
   @override
-  String get renderErrorMessage => 'An error occurred while displaying this screen.\\nReturn to the home screen and try again.';
+  String get renderErrorMessage => 'An error occurred while displaying this screen. Return to the home screen and try again.';
 
   @override
   String get bootstrapErrorMessage => 'Unable to start the app. Please try again.';
