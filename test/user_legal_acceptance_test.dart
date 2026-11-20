@@ -17,12 +17,12 @@ void main() {
       acceptedAt = Timestamp.fromDate(DateTime.utc(2026, 11, 15));
     });
 
-    test('keeps the previous privacy notice acknowledgement valid', () async {
+    test('keeps an older Privacy Notice acknowledgement valid', () async {
       await firestore.collection('users').doc('legacy-user').set({
         'termsAcceptedAt': acceptedAt,
         'termsVersionAccepted': LegalDocumentVersions.termsAccepted,
         'privacyNoticeAcknowledgedAt': acceptedAt,
-        'privacyNoticeVersionAcknowledged': '2026-11-15',
+        'privacyNoticeVersionAcknowledged': '2024-02-10',
         'ageConfirmedAt': acceptedAt,
         'agePolicyVersionConfirmed':
             LegalDocumentVersions.minimumAgePolicyConfirmed,
@@ -34,7 +34,7 @@ void main() {
       );
     });
 
-    test('accepts the current privacy notice acknowledgement', () async {
+    test('accepts the current Privacy Notice acknowledgement', () async {
       await firestore.collection('users').doc('new-user').set({
         'termsAcceptedAt': acceptedAt,
         'termsVersionAccepted': LegalDocumentVersions.termsAccepted,
@@ -49,18 +49,36 @@ void main() {
       expect(await source.hasCurrentLegalAcceptance('new-user'), isTrue);
     });
 
-    test('does not relax terms or minimum-age version checks', () async {
+    test('does not relax Terms or minimum-age version checks', () async {
       await firestore.collection('users').doc('outdated-user').set({
         'termsAcceptedAt': acceptedAt,
         'termsVersionAccepted': '2026-11-14',
         'privacyNoticeAcknowledgedAt': acceptedAt,
-        'privacyNoticeVersionAcknowledged': '2026-11-15',
+        'privacyNoticeVersionAcknowledged': '2026-11-19',
         'ageConfirmedAt': acceptedAt,
         'agePolicyVersionConfirmed': '14-plus-old',
       });
 
       expect(
         await source.hasCurrentLegalAcceptance('outdated-user'),
+        isFalse,
+      );
+    });
+
+    test('requires an actual prior Privacy Notice acknowledgement record',
+        () async {
+      await firestore.collection('users').doc('missing-notice').set({
+        'termsAcceptedAt': acceptedAt,
+        'termsVersionAccepted': LegalDocumentVersions.termsAccepted,
+        'privacyNoticeAcknowledgedAt': acceptedAt,
+        'privacyNoticeVersionAcknowledged': '',
+        'ageConfirmedAt': acceptedAt,
+        'agePolicyVersionConfirmed':
+            LegalDocumentVersions.minimumAgePolicyConfirmed,
+      });
+
+      expect(
+        await source.hasCurrentLegalAcceptance('missing-notice'),
         isFalse,
       );
     });
