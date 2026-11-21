@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -14,7 +15,9 @@ import '../pages/onboarding/onboarding_page.dart';
 import '../pages/onboarding/consent_onboarding_page.dart';
 import '../pages/profile/profile_setup_page.dart';
 import '../theme/theme_controller.dart';
+
 import 'package:cesena_remembers/l10n/app_localizations.dart';
+
 import '../widgets/connection_error_view.dart';
 import 'main_shell.dart';
 import 'notification_service.dart';
@@ -140,8 +143,7 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       try {
         return await operation();
       } on FirebaseException catch (error, stackTrace) {
-        final canRetry =
-            retryableCodes.contains(error.code) && attempt < 2;
+        final canRetry = retryableCodes.contains(error.code) && attempt < 2;
         if (!canRetry) rethrow;
 
         AppLogger.error(
@@ -150,9 +152,7 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
           stackTrace: stackTrace,
           name: 'AuthGate',
         );
-        await Future.delayed(
-          Duration(milliseconds: 400 * (attempt + 1)),
-        );
+        await Future.delayed(Duration(milliseconds: 400 * (attempt + 1)));
       }
     }
 
@@ -208,11 +208,10 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
     // evidence. Give the sign-in callback a short window to finish its write;
     // if the current versions are still missing, return the user to the
     // checkbox-gated login screen rather than granting access silently.
-    var hasLegalAcceptance =
-        await _retryTransientFirestoreOperation(
-          'hasCurrentLegalAcceptance',
-          () => _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id),
-        );
+    var hasLegalAcceptance = await _retryTransientFirestoreOperation(
+      'hasCurrentLegalAcceptance',
+      () => _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id),
+    );
     // The auth stream can reach this gate while LoginPage is still finishing
     // the legal-acceptance write. Allow that write a little more time to land.
     for (var attempt = 0; !hasLegalAcceptance && attempt < 6; attempt++) {
@@ -336,7 +335,12 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
                 ensure.error is _LegalAcceptanceRequiredException)) {
           return _loading(); // lo stream auth riporta alla LoginPage
         }
-        if (ensure.connectionState != ConnectionState.done) return _loading();
+        if (ensure.connectionState != ConnectionState.done) {
+          if (_profileTimedOut) {
+            return Scaffold(body: ConnectionErrorView(onRetry: _retry));
+          }
+          return _loading();
+        }
         if (ensure.hasError) {
           return Scaffold(body: ConnectionErrorView(onRetry: _retry));
         }
