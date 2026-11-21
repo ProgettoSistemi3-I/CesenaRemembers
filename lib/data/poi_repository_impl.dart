@@ -16,8 +16,6 @@ class PoiRepositoryImpl implements IPoiRepository {
           description: item.description,
           questions: item.questions,
           imagePath: item.imagePath,
-          icon: item.icon,
-          iconBackground: item.iconBackground,
         ),
       )
       .toList(growable: false);

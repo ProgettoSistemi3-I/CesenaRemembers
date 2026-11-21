@@ -14,44 +14,7 @@ class TourStopVisuals {
   const TourStopVisuals();
 
   TourStopVisualData forStop(TourStop stop) {
-    switch (stop.id) {
-      case 'stazione':
-        return const TourStopVisualData(
-          icon: Icons.train_outlined,
-          iconBackground: Color(0xFFFFECB3),
-        );
-      case 'arrigoni':
-        return const TourStopVisualData(
-          icon: Icons.factory_outlined,
-          iconBackground: Color(0xFFB2EBF2),
-        );
-      case 'fantaguzzi':
-        return const TourStopVisualData(
-          icon: Icons.domain_outlined,
-          iconBackground: Color(0xFFFFCDD2),
-        );
-      case 'rifugi_antiaerei':
-        return const TourStopVisualData(
-          icon: Icons.shield_outlined,
-          iconBackground: Color(0xFFCFD8DC),
-        );
-      case 'abbazia_monte':
-        return const TourStopVisualData(
-          icon: Icons.terrain,
-          iconBackground: Color(0xFFD7CCC8),
-        );
-      case 'osservanza':
-        return const TourStopVisualData(
-          icon: Icons.fort,
-          iconBackground: Color(0xFFC5CAE9),
-        );
-    }
     switch (stop.type.toLowerCase()) {
-      case 'shelter':
-        return const TourStopVisualData(
-          icon: Icons.security_outlined,
-          iconBackground: Color(0xFFCFD8DC),
-        );
       case 'church':
         return const TourStopVisualData(
           icon: Icons.church_outlined,

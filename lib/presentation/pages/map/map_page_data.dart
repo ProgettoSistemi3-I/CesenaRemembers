@@ -105,8 +105,6 @@ extension _MapPageDataLogic on _MapPageState {
               description: l10n.getPoiDescription(poi.id),
               questions: poi.questions,
               imagePath: poi.imagePath,
-              icon: poi.icon,
-              iconBackground: poi.iconBackground,
             ),
             counterRotationDegrees: _currentRotation,
             onTap: () => _selectPoi(poi),

@@ -282,7 +282,7 @@ class _SettingsPageState extends State<SettingsPage>
               position: _slideAnim,
               child: CustomScrollView(
                 controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 slivers: [
                   SliverAppBar(
                     backgroundColor: theme.scaffoldBackgroundColor,

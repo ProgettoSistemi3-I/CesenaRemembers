@@ -12,8 +12,6 @@ class PoiModel extends Poi {
     required super.description,
     super.questions,
     super.imagePath,
-    super.icon,
-    super.iconBackground,
   });
 
   factory PoiModel.fromJson(Map<String, dynamic> json) {

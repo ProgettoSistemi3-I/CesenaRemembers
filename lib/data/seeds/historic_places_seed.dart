@@ -416,7 +416,7 @@ class HistoricPlacesSeed {
       name: 'poi_rifugi_antiaerei_name',
       latitude: 44.13703,
       longitude: 12.23931,
-      type: 'shelter',
+      type: 'monument',
       period: '20th Century',
       description: 'poi_rifugi_antiaerei_desc',
       icon: Icons.safety_divider_outlined,

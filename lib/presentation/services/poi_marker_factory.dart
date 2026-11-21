@@ -18,7 +18,7 @@ class PoiMarkerFactory {
   }) {
     return Marker(
       point: LatLng(poi.latitude, poi.longitude),
-      width: 170,
+      width: 280,
       height: 92,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -29,14 +29,11 @@ class PoiMarkerFactory {
             mainAxisSize: MainAxisSize.min,
             children: [
               _PoiPin(
-                color: poi.iconBackground ?? _colorFromPoi(poi),
-                icon: poi.icon ?? _iconFromPoi(poi),
+                color: _colorFromType(poi.type),
+                icon: _iconFromType(poi.type),
               ),
               const SizedBox(height: 4),
-              _PoiLabel(
-                text: poi.name,
-                accentColor: poi.iconBackground ?? _colorFromPoi(poi),
-              ),
+              _PoiLabel(text: poi.name, accentColor: _colorFromType(poi.type)),
             ],
           ),
         ),
@@ -45,27 +42,6 @@ class PoiMarkerFactory {
   }
 
   double _degreesToRadians(double value) => value * (math.pi / 180);
-
-  Color _colorFromPoi(Poi poi) => poi.type.toLowerCase() == 'monument'
-      ? switch (poi.id) {
-          'stazione' => const Color(0xFFB77A12),
-          'arrigoni' => const Color(0xFF168C91),
-          'fantaguzzi' => const Color(0xFFB84D5A),
-          'rifugi_antiaerei' => AppPalette.danger,
-          _ => AppPalette.olive,
-        }
-      : _colorFromType(poi.type);
-
-  IconData _iconFromPoi(Poi poi) => switch (poi.id) {
-    'stazione' => Icons.train_rounded,
-    'arrigoni' => Icons.factory_rounded,
-    'fantaguzzi' => Icons.account_balance_rounded,
-    'rifugi_antiaerei' => Icons.shield_outlined,
-    'rocca' => Icons.castle_rounded,
-    'abbazia_monte' => Icons.terrain_rounded,
-    'osservanza' => Icons.fort_rounded,
-    _ => _iconFromType(poi.type),
-  };
 
   Color _colorFromType(String type) {
     switch (type.toLowerCase()) {
@@ -180,7 +156,7 @@ class _PoiLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 150),
+      constraints: const BoxConstraints(maxWidth: 260),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -191,16 +167,19 @@ class _PoiLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: Text(
-              text,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF232323),
-                letterSpacing: 0.1,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                text,
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF232323),
+                  letterSpacing: 0.1,
+                ),
               ),
             ),
           ),
