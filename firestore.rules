@@ -1342,6 +1342,16 @@ service cloud.firestore {
         !existsAfter(
           /databases/$(database)/documents/public_profiles/$(userId)
         );
+
+      match /quiz_save_receipts/{saveId} {
+        allow get: if isOwner(userId) && isNotBanned();
+        allow list: if false;
+        allow create: if isOwner(userId) && isNotBanned() &&
+          request.resource.data.keys().hasOnly(['createdAt']) &&
+          request.resource.data.createdAt is timestamp &&
+          request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
     }
 
     // ---------------------------------------------------------

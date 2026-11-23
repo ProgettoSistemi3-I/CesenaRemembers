@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
@@ -11,8 +12,10 @@ import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/logging/app_logger.dart';
+
 import 'package:latlong2/latlong.dart';
 
 import '../../../domain/entities/poi.dart';
@@ -120,15 +123,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       if (!mounted || !entry.mounted) return;
       isVisible = false;
       entry.markNeedsBuild();
-      _outsideCesenaRemoveTimer = Timer(
-        const Duration(milliseconds: 240),
-        () {
-          entry.remove();
-          if (identical(_outsideCesenaOverlay, entry)) {
-            _outsideCesenaOverlay = null;
-          }
-        },
-      );
+      _outsideCesenaRemoveTimer = Timer(const Duration(milliseconds: 240), () {
+        entry.remove();
+        if (identical(_outsideCesenaOverlay, entry)) {
+          _outsideCesenaOverlay = null;
+        }
+      });
     });
   }
 
@@ -167,6 +167,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   int _tourCorrectAnswers = 0;
   int _tourTotalQuestions = 0;
   Future<void> _quizSaveQueue = Future<void>.value();
+  final List<Map<String, dynamic>> _pendingQuizSaves = [];
+  bool _pendingQuizSavesLoaded = false;
+  String? _pendingQuizSavesUid;
+  Timer? _quizSaveRetryTimer;
   Future<void> _foregroundServiceQueue = Future<void>.value();
   bool _foregroundServiceStarted = false;
   String? _lastForegroundStopId;
@@ -207,6 +211,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     canUseLocation: _isGpsEnabled && _hasPermissions && _isGpsPreferenceEnabled,
     isLocationBannerVisible:
         !_isCheckingLocation &&
+        _isGpsPreferenceEnabled &&
         !(_isGpsEnabled && _hasPermissions && _isGpsPreferenceEnabled),
     currentStopVisual: _tourController.currentStop == null
         ? null
@@ -238,6 +243,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     localeNotifier.addListener(_onLocaleChanged);
 
     _initLocationLogic();
+    unawaited(_loadPendingQuizSaves());
     ShellNavigationStore.locationPermissionChanged.addListener(
       _onLocationPermissionChanged,
     );
@@ -252,6 +258,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     _serviceStatusSub?.cancel();
     _removeOutsideCesenaNotification();
     _tourUpdatesSub?.cancel();
+    _quizSaveRetryTimer?.cancel();
     LocationPreferenceStore.gpsEnabled.removeListener(_onGpsPreferenceChanged);
     sl<ValueNotifier<Locale>>().removeListener(_onLocaleChanged);
     if (_profileUseCases.getCurrentUserUid() == null) {

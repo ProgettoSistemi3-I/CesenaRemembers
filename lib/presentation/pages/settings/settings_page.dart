@@ -12,7 +12,9 @@ import '../../services/shell_navigation_store.dart';
 import '../../services/push_notification_service.dart';
 import '../../theme/app_palette.dart';
 import '../../theme/theme_controller.dart';
+
 import 'package:cesena_remembers/l10n/app_localizations.dart';
+
 import '../credits_page.dart';
 import '../social/blocked_users_page.dart';
 import 'settings_feedback.dart';
@@ -118,13 +120,24 @@ class _SettingsPageState extends State<SettingsPage>
   String _getLocalizedError(BuildContext context, String code) {
     final l10n = AppLocalizations.of(context)!;
     switch (code) {
-      case 'errorLoadPrefs': return l10n.errorLoadPrefs;
-      case 'errorGpsDenied': return l10n.errorGpsDenied;
-      case 'errorConnectionSettings': return l10n.errorConnectionSettings;
-      case 'errorLogout': return l10n.errorLogout('');
-      case 'errorDeleteAccount': return l10n.errorDeleteAccount;
-      case 'errorDeleteAccountAuth': return l10n.errorDeleteAccountAuth;
-      default: return code;
+      case 'errorLoadPrefs':
+        return l10n.errorLoadPrefs;
+      case 'errorGpsDenied':
+        return l10n.errorGpsDenied;
+      case 'errorNotificationsDenied':
+        return l10n.errorNotificationsDenied;
+      case 'errorConnectionSettings':
+        return l10n.errorConnectionSettings;
+      case 'errorLogout':
+        return l10n.errorLogout('');
+      case 'errorDeleteAccount':
+        return l10n.errorDeleteAccount;
+      case 'errorDeleteAccountAuth':
+        return l10n.errorDeleteAccountAuth;
+      case 'errorReauthentication':
+        return l10n.errorReauthentication;
+      default:
+        return code;
     }
   }
 
@@ -234,18 +247,19 @@ class _SettingsPageState extends State<SettingsPage>
     final l10n = AppLocalizations.of(context)!;
     final deleted = await _controller.handleDeleteAccount();
 
-    PushNotificationService.scaffoldMessengerKey.currentState?.showSnackBar(
-      SnackBar(
-        content: Text(
-          deleted ? l10n.settingsDeleteSuccess : l10n.settingsDeleteError,
+    if (deleted) {
+      PushNotificationService.scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text(l10n.settingsDeleteSuccess),
+          backgroundColor: AppPalette.olive,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
-        backgroundColor: deleted ? AppPalette.olive : AppPalette.danger,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+      );
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +282,7 @@ class _SettingsPageState extends State<SettingsPage>
               position: _slideAnim,
               child: CustomScrollView(
                 controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 slivers: [
                   SliverAppBar(
                     backgroundColor: theme.scaffoldBackgroundColor,
@@ -298,22 +312,25 @@ class _SettingsPageState extends State<SettingsPage>
                           const SizedBox(height: 16),
                           _HeaderCard(
                             title: '',
-                            subtitle:
-                                AppLocalizations.of(context)!.settingsTourSubtitle,
+                            subtitle: AppLocalizations.of(context)!
+                                .settingsTourSubtitle,
                             imageAsset: 'assets/icon/app_icon.png',
                           ),
                           const SizedBox(height: 32),
 
                           // --- CREDITI E RICONOSCIMENTI ---
-                          _SectionLabel(AppLocalizations.of(context)!.settingsCredits),
+                          _SectionLabel(
+                            AppLocalizations.of(context)!.settingsCredits,
+                          ),
                           const SizedBox(height: 16),
                           _SettingsCard(
                             children: [
                               _ActionRow(
                                 icon: Icons.stars_rounded,
-                                title: AppLocalizations.of(context)!.settingsCreditsTitle,
-                                subtitle:
-                                    AppLocalizations.of(context)!.settingsCreditsSubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsCreditsTitle,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsCreditsSubtitle,
                                 accent: AppPalette.olive,
                                 onTap: () => Navigator.push(
                                   context,
@@ -327,7 +344,9 @@ class _SettingsPageState extends State<SettingsPage>
                           const SizedBox(height: 32),
 
                           // --- ACCOUNT ---
-                          _SectionLabel(AppLocalizations.of(context)!.settingsAccount),
+                          _SectionLabel(
+                            AppLocalizations.of(context)!.settingsAccount,
+                          ),
                           const SizedBox(height: 16),
                           _SettingsCard(
                             children: [
@@ -335,10 +354,13 @@ class _SettingsPageState extends State<SettingsPage>
                                 icon: _controller.isLoggingOut
                                     ? Icons.hourglass_top
                                     : Icons.logout,
-                                title: AppLocalizations.of(context)!.settingsLogout,
+                                title: AppLocalizations.of(context)!
+                                    .settingsLogout,
                                 subtitle: _controller.isLoggingOut
-                                    ? AppLocalizations.of(context)!.settingsLogoutInProgress
-                                    : AppLocalizations.of(context)!.settingsLogoutSubtitle,
+                                    ? AppLocalizations.of(context)!
+                                          .settingsLogoutInProgress
+                                    : AppLocalizations.of(context)!
+                                          .settingsLogoutSubtitle,
                                 accent: AppPalette.olive,
                                 onTap: _controller.isLoggingOut
                                     ? () {}
@@ -349,10 +371,13 @@ class _SettingsPageState extends State<SettingsPage>
                                 icon: _controller.isDeletingAccount
                                     ? Icons.hourglass_top
                                     : Icons.delete_outline,
-                                title: AppLocalizations.of(context)!.settingsDelete,
+                                title: AppLocalizations.of(context)!
+                                    .settingsDelete,
                                 subtitle: _controller.isDeletingAccount
-                                    ? AppLocalizations.of(context)!.settingsDeleteInProgress
-                                    : AppLocalizations.of(context)!.settingsDeleteSubtitle,
+                                    ? AppLocalizations.of(context)!
+                                          .settingsDeleteInProgress
+                                    : AppLocalizations.of(context)!
+                                          .settingsDeleteSubtitle,
                                 accent: AppPalette.danger,
                                 onTap: _controller.isDeletingAccount
                                     ? () {}
@@ -364,14 +389,18 @@ class _SettingsPageState extends State<SettingsPage>
                           const SizedBox(height: 32),
 
                           // --- PREFERENZE APP ---
-                          _SectionLabel(AppLocalizations.of(context)!.settingsAppPrefs),
+                          _SectionLabel(
+                            AppLocalizations.of(context)!.settingsAppPrefs,
+                          ),
                           const SizedBox(height: 16),
                           _SettingsCard(
                             children: [
                               _SwitchRow(
                                 icon: Icons.notifications_active_outlined,
-                                title: AppLocalizations.of(context)!.settingsNotifications,
-                                subtitle: AppLocalizations.of(context)!.settingsNotifSubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsNotifications,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsNotifSubtitle,
                                 accent: AppPalette.tan,
                                 value: _controller.notifiche,
                                 onChanged: (v) => _controller.updatePreference(
@@ -381,8 +410,10 @@ class _SettingsPageState extends State<SettingsPage>
                               const _ThinDivider(),
                               _SwitchRow(
                                 icon: Icons.dark_mode_outlined,
-                                title: AppLocalizations.of(context)!.settingsDarkMode,
-                                subtitle: AppLocalizations.of(context)!.settingsDarkModeSubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsDarkMode,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsDarkModeSubtitle,
                                 accent: AppPalette.olive,
                                 value: _controller.modalitaNotte,
                                 onChanged: (v) => _controller.updatePreference(
@@ -394,7 +425,9 @@ class _SettingsPageState extends State<SettingsPage>
                           const SizedBox(height: 32),
 
                           // --- PRIVACY ---
-                          _SectionLabel(AppLocalizations.of(context)!.settingsPrivacy),
+                          _SectionLabel(
+                            AppLocalizations.of(context)!.settingsPrivacy,
+                          ),
                           const SizedBox(height: 16),
                           _SettingsCard(
                             children: [
@@ -402,19 +435,42 @@ class _SettingsPageState extends State<SettingsPage>
                                 key: _gpsToggleKey,
                                 child: _SwitchRow(
                                   icon: Icons.location_on_outlined,
-                                  title: AppLocalizations.of(context)!.settingsGps,
-                                  subtitle: AppLocalizations.of(context)!.settingsGpsSubtitle,
+                                  title: AppLocalizations.of(context)!
+                                      .settingsGps,
+                                  subtitle: AppLocalizations.of(context)!
+                                      .settingsGpsSubtitle,
                                   accent: AppPalette.moss,
                                   value: _controller.posizione,
                                   onChanged: (v) => _controller
                                       .updatePreference(newPosizione: v),
                                 ),
                               ),
+                              if (!_controller.posizione) ...[
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 56,
+                                    bottom: 8,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton.icon(
+                                      onPressed:
+                                          _controller.openLocationAppSettings,
+                                      icon: const Icon(Icons.settings_outlined),
+                                      label: const Text(
+                                        'Apri impostazioni di sistema',
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                               const _ThinDivider(),
                               _SwitchRow(
                                 icon: Icons.bug_report_outlined,
-                                title: AppLocalizations.of(context)!.settingsDiagnostics,
-                                subtitle: AppLocalizations.of(context)!.settingsDiagnosticsSubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsDiagnostics,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsDiagnosticsSubtitle,
                                 accent: AppPalette.tan,
                                 value: _controller.diagnostica,
                                 onChanged: (v) => _controller.updatePreference(
@@ -424,8 +480,10 @@ class _SettingsPageState extends State<SettingsPage>
                               const _ThinDivider(),
                               _ActionRow(
                                 icon: Icons.block_outlined,
-                                title: AppLocalizations.of(context)!.settingsBlockedUsers,
-                                subtitle: AppLocalizations.of(context)!.settingsBlockedUsersSubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsBlockedUsers,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsBlockedUsersSubtitle,
                                 accent: AppPalette.danger,
                                 onTap: () => Navigator.push(
                                   context,
@@ -437,8 +495,10 @@ class _SettingsPageState extends State<SettingsPage>
                               const _ThinDivider(),
                               _ActionRow(
                                 icon: Icons.privacy_tip_outlined,
-                                title: AppLocalizations.of(context)!.settingsPrivacyPolicy,
-                                subtitle: AppLocalizations.of(context)!.settingsPrivacySubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsPrivacyPolicy,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsPrivacySubtitle,
                                 accent: AppPalette.tan,
                                 onTap: () => launchUrl(
                                   Uri.parse(
@@ -451,13 +511,16 @@ class _SettingsPageState extends State<SettingsPage>
                           const SizedBox(height: 32),
 
                           // --- GENERALE ---
-                          _SectionLabel(AppLocalizations.of(context)!.settingsGeneral),
+                          _SectionLabel(
+                            AppLocalizations.of(context)!.settingsGeneral,
+                          ),
                           const SizedBox(height: 16),
                           _SettingsCard(
                             children: [
                               _ActionRow(
                                 icon: Icons.language,
-                                title: AppLocalizations.of(context)!.settingsLanguage,
+                                title: AppLocalizations.of(context)!
+                                    .settingsLanguage,
                                 subtitle: _uiController.selectedLanguage,
                                 accent: AppPalette.olive,
                                 onTap: _showLanguagePicker,
@@ -467,21 +530,26 @@ class _SettingsPageState extends State<SettingsPage>
                           const SizedBox(height: 32),
 
                           // --- INFO ---
-                          _SectionLabel(AppLocalizations.of(context)!.settingsInfo),
+                          _SectionLabel(
+                            AppLocalizations.of(context)!.settingsInfo,
+                          ),
                           const SizedBox(height: 16),
                           _SettingsCard(
                             children: [
                               _ActionRow(
                                 icon: Icons.info_outline,
-                                title: AppLocalizations.of(context)!.settingsVersion,
+                                title: AppLocalizations.of(context)!
+                                    .settingsVersion,
                                 subtitle: _appVersion,
                                 accent: AppPalette.moss,
                               ),
                               const _ThinDivider(),
                               _ActionRow(
                                 icon: Icons.description_outlined,
-                                title: AppLocalizations.of(context)!.settingsTerms,
-                                subtitle: AppLocalizations.of(context)!.settingsTermsSubtitle,
+                                title: AppLocalizations.of(context)!
+                                    .settingsTerms,
+                                subtitle: AppLocalizations.of(context)!
+                                    .settingsTermsSubtitle,
                                 accent: AppPalette.olive,
                                 onTap: () => launchUrl(
                                   Uri.parse(
@@ -492,7 +560,8 @@ class _SettingsPageState extends State<SettingsPage>
                               const _ThinDivider(),
                               _ActionRow(
                                 icon: Icons.mail_outline,
-                                title: AppLocalizations.of(context)!.settingsContacts,
+                                title: AppLocalizations.of(context)!
+                                    .settingsContacts,
                                 subtitle: 'cesenaremembers@gmail.com',
                                 accent: AppPalette.tan,
                                 onTap: () => launchUrl(

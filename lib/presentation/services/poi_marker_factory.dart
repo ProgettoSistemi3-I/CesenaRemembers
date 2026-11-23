@@ -18,7 +18,7 @@ class PoiMarkerFactory {
   }) {
     return Marker(
       point: LatLng(poi.latitude, poi.longitude),
-      width: 170,
+      width: 280,
       height: 92,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -156,7 +156,7 @@ class _PoiLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 150),
+      constraints: const BoxConstraints(maxWidth: 260),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -167,16 +167,19 @@ class _PoiLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF232323),
-                letterSpacing: 0.1,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                text,
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF232323),
+                  letterSpacing: 0.1,
+                ),
               ),
             ),
           ),

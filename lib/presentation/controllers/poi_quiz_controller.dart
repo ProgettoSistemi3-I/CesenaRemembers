@@ -142,4 +142,10 @@ class PoiQuizController extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void abandonQuiz() {
+    if (_isDisposed || _quizDone) return;
+    final poiId = _poiId;
+    if (poiId != null) _getQuizUseCase.invalidateCacheForPoi(poiId);
+  }
 }

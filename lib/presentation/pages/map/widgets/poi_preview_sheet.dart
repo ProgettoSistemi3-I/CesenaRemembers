@@ -6,11 +6,7 @@ import '../../../../l10n/l10n_extensions.dart';
 import '../../../theme/app_palette.dart';
 
 class PoiPreviewSheet extends StatelessWidget {
-  const PoiPreviewSheet({
-    super.key,
-    required this.poi,
-    required this.onClose,
-  });
+  const PoiPreviewSheet({super.key, required this.poi, required this.onClose});
 
   final Poi poi;
   final VoidCallback onClose;
@@ -66,14 +62,18 @@ class PoiPreviewSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            l10n.getPoiName(poi.id),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: theme.colorScheme.onSurface,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              l10n.getPoiName(poi.id),
+                              maxLines: 1,
+                              softWrap: false,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
                           ),
                         ),

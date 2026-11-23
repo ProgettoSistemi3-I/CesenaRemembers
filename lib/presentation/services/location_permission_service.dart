@@ -3,7 +3,13 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../core/logging/app_logger.dart';
 
-enum LocationAccessStatus { granted, serviceDisabled, denied, deniedForever, error }
+enum LocationAccessStatus {
+  granted,
+  serviceDisabled,
+  denied,
+  deniedForever,
+  error,
+}
 
 class LocationPermissionService {
   const LocationPermissionService();
@@ -95,4 +101,6 @@ class LocationPermissionService {
       return LocationAccessStatus.error;
     }
   }
+
+  Future<bool> openAppSettings() => Geolocator.openAppSettings();
 }

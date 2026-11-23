@@ -36,33 +36,34 @@ class UserProgressDataSource {
     required String uid,
     int limit = 50,
   }) {
-    return _orderedLeaderboard
-        .limit(limit.clamp(1, 50))
-        .snapshots()
-        .asyncMap((snapshot) async {
-          final rows = await Future.wait(snapshot.docs.map((doc) async {
-            try {
-              final publicSnapshot = await _publicProfiles.doc(doc.id).get();
-              if (!publicSnapshot.exists || publicSnapshot.data() == null) {
-                return null;
-              }
-              return <String, dynamic>{
-                ...publicSnapshot.data()!,
-                'uid': doc.id,
-                'xp': (doc.data()['xp'] as num?)?.toInt() ?? 0,
-              };
-            } catch (e, stackTrace) {
-              AppLogger.error(
-                'Impossibile recuperare public_profile per uid=${doc.id} (utente bannato o permessi negati): $e',
-                error: e,
-                stackTrace: stackTrace,
-                name: 'UserProgressDataSource',
-              );
+    return _orderedLeaderboard.limit(limit.clamp(1, 50)).snapshots().asyncMap((
+      snapshot,
+    ) async {
+      final rows = await Future.wait(
+        snapshot.docs.map((doc) async {
+          try {
+            final publicSnapshot = await _publicProfiles.doc(doc.id).get();
+            if (!publicSnapshot.exists || publicSnapshot.data() == null) {
               return null;
             }
-          }));
-          return rows.whereType<Map<String, dynamic>>().toList(growable: false);
-        });
+            return <String, dynamic>{
+              ...publicSnapshot.data()!,
+              'uid': doc.id,
+              'xp': (doc.data()['xp'] as num?)?.toInt() ?? 0,
+            };
+          } catch (e, stackTrace) {
+            AppLogger.error(
+              'Impossibile recuperare public_profile per uid=${doc.id} (utente bannato o permessi negati): $e',
+              error: e,
+              stackTrace: stackTrace,
+              name: 'UserProgressDataSource',
+            );
+            return null;
+          }
+        }),
+      );
+      return rows.whereType<Map<String, dynamic>>().toList(growable: false);
+    });
   }
 
   /// Rango globale reale: pagine da massimo 50, compatibili con Firestore Rules.
@@ -127,13 +128,21 @@ class UserProgressDataSource {
     int? tourTotalXp,
     int? tourCorrectAnswers,
     int? tourTotalQuestions,
+    String? idempotencyKey,
   }) async {
     final userRef = _users.doc(uid);
     final publicRef = _publicProfiles.doc(uid);
     final statsRef = _friendStats.doc(uid);
     final leaderboardRef = _leaderboard.doc(uid);
+    final receiptRef = idempotencyKey == null
+        ? null
+        : userRef.collection('quiz_save_receipts').doc(idempotencyKey);
 
     await _firestore.runTransaction((transaction) async {
+      if (receiptRef != null) {
+        final receiptSnapshot = await transaction.get(receiptRef);
+        if (receiptSnapshot.exists) return;
+      }
       final snapshot = await transaction.get(userRef);
       final publicSnapshot = await transaction.get(publicRef);
       final data = snapshot.data() ?? <String, dynamic>{};
@@ -153,8 +162,8 @@ class UserProgressDataSource {
       final currentMaxSingleTourXp =
           (data['maxSingleTourXp'] as num?)?.toInt() ?? 0;
       final xpForCompletedTour = tourTotalXp ?? xpGained;
-      final nextMaxSingleTourXp = isTourComplete &&
-              xpForCompletedTour > currentMaxSingleTourXp
+      final nextMaxSingleTourXp =
+          isTourComplete && xpForCompletedTour > currentMaxSingleTourXp
           ? xpForCompletedTour
           : currentMaxSingleTourXp;
 
@@ -167,7 +176,9 @@ class UserProgressDataSource {
       final currentCorrectAnswers =
           (data['totalCorrectAnswers'] as num?)?.toInt() ?? 0;
       final nextQuizCompleted = currentQuizCompleted + 1;
-      final nextToursCompleted = isTourComplete ? currentToursCompleted + 1 : currentToursCompleted;
+      final nextToursCompleted = isTourComplete
+          ? currentToursCompleted + 1
+          : currentToursCompleted;
       final nextCorrectAnswers = currentCorrectAnswers + correctAnswers;
       final quizScorePercent = totalQuestions <= 0
           ? 0
@@ -177,9 +188,10 @@ class UserProgressDataSource {
       final currentBestTourTime =
           (data['bestTourTimeSeconds'] as num?)?.toInt() ?? 0;
       final nextBestTourTime = isTourComplete && tourElapsedSeconds > 0
-          ? (currentBestTourTime == 0 || tourElapsedSeconds < currentBestTourTime
-              ? tourElapsedSeconds
-              : currentBestTourTime)
+          ? (currentBestTourTime == 0 ||
+                    tourElapsedSeconds < currentBestTourTime
+                ? tourElapsedSeconds
+                : currentBestTourTime)
           : currentBestTourTime;
 
       // ── Achievements ───────────────────────────────────────────────────
@@ -208,7 +220,7 @@ class UserProgressDataSource {
         bestTourTimeSeconds: nextBestTourTime,
         isTourComplete: isTourComplete,
       );
-      
+
       final nextPending = [...alreadyPending, ...newUnlocks];
 
       // ── Write ─────────────────────────────────────────────────────────
@@ -234,10 +246,17 @@ class UserProgressDataSource {
       // Le campi di progressione non vengono più copiati nel profilo ricercabile.
       final currentPublic = publicSnapshot.data() ?? <String, dynamic>{};
       transaction.set(publicRef, {
-        'displayName': data['displayName'] ?? currentPublic['displayName'] ?? 'Utente',
-        'displayNameNormalized': data['displayNameNormalized'] ?? currentPublic['displayNameNormalized'] ?? 'utente',
+        'displayName':
+            data['displayName'] ?? currentPublic['displayName'] ?? 'Utente',
+        'displayNameNormalized':
+            data['displayNameNormalized'] ??
+            currentPublic['displayNameNormalized'] ??
+            'utente',
         'username': data['username'] ?? currentPublic['username'] ?? '',
-        'usernameNormalized': data['usernameNormalized'] ?? currentPublic['usernameNormalized'] ?? '',
+        'usernameNormalized':
+            data['usernameNormalized'] ??
+            currentPublic['usernameNormalized'] ??
+            '',
         'avatarId': data['avatarId'] ?? currentPublic['avatarId'] ?? 'soldato',
         'xp': nextXp,
         'friendsCount': List<String>.from(data['friends'] ?? const []).length,
@@ -258,10 +277,18 @@ class UserProgressDataSource {
         'maxSingleTourXp': nextMaxSingleTourXp,
         'friends': List<String>.from(data['friends'] ?? const []),
       });
+      if (receiptRef != null) {
+        transaction.set(receiptRef, {
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
     });
   }
 
-  Future<void> unlockPendingAchievement(String uid, String achievementId) async {
+  Future<void> unlockPendingAchievement(
+    String uid,
+    String achievementId,
+  ) async {
     final userRef = _users.doc(uid);
     final statsRef = _friendStats.doc(uid);
     await _firestore.runTransaction((transaction) async {
@@ -283,11 +310,8 @@ class UserProgressDataSource {
           'unlockedAchievements': unlocked,
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        transaction.update(statsRef, {
-          'unlockedAchievements': unlocked,
-        });
+        transaction.update(statsRef, {'unlockedAchievements': unlocked});
       }
     });
   }
 }
-

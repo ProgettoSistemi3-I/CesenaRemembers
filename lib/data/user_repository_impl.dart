@@ -31,15 +31,18 @@ class UserRepositoryImpl implements IUserRepository {
   String? getCurrentUserUid() => _profile.getCurrentUserUid();
 
   @override
-  Future<UserProfile> getUserProfile(String uid) => _profile.getUserProfile(uid);
+  Future<UserProfile> getUserProfile(String uid) =>
+      _profile.getUserProfile(uid);
 
   @override
   Stream<UserProfile?> getUserProfileStream(String uid) =>
       _profile.getUserProfileStream(uid);
 
   @override
-  Future<void> ensureUserDocument({required String uid, required String email}) =>
-      _profile.ensureUserDocument(uid: uid, email: email);
+  Future<void> ensureUserDocument({
+    required String uid,
+    required String email,
+  }) => _profile.ensureUserDocument(uid: uid, email: email);
 
   @override
   Future<void> recordLegalAcceptance({
@@ -114,6 +117,7 @@ class UserRepositoryImpl implements IUserRepository {
     int? tourTotalXp,
     int? tourCorrectAnswers,
     int? tourTotalQuestions,
+    String? idempotencyKey,
   }) => _progress.registerQuizCompletion(
     uid: uid,
     poiId: poiId,
@@ -125,6 +129,7 @@ class UserRepositoryImpl implements IUserRepository {
     tourTotalXp: tourTotalXp,
     tourCorrectAnswers: tourCorrectAnswers,
     tourTotalQuestions: tourTotalQuestions,
+    idempotencyKey: idempotencyKey,
   );
 
   @override
@@ -144,8 +149,10 @@ class UserRepositoryImpl implements IUserRepository {
       _profile.searchUsers(query);
 
   @override
-  Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50}) =>
-      _progress.getLeaderboardStream(uid: uid, limit: limit);
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream({
+    required String uid,
+    int limit = 50,
+  }) => _progress.getLeaderboardStream(uid: uid, limit: limit);
 
   @override
   Future<int?> getLeaderboardRank({required String uid}) =>

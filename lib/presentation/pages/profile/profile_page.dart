@@ -779,7 +779,7 @@ class _ProfilePageState extends State<ProfilePage>
 
               child: CustomScrollView(
                 controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
 
                 slivers: [
                   SliverAppBar(

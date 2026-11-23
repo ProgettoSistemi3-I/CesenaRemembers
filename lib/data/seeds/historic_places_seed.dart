@@ -43,8 +43,7 @@ class HistoricPlacesSeed {
       longitude: 12.24236,
       type: 'church',
       period: '19th Century',
-      description:
-          'poi_santa_cristina_desc',
+      description: 'poi_santa_cristina_desc',
       icon: Icons.church_outlined,
       iconBackground: Color(0xFFE1BEE7),
       questions: [
@@ -87,36 +86,23 @@ class HistoricPlacesSeed {
       longitude: 12.23989,
       type: 'monument',
       period: '14th Century',
-      description:
-          'poi_rocca_desc',
+      description: 'poi_rocca_desc',
       icon: Icons.castle_outlined,
       iconBackground: Color(0xFFC8E6C9),
       questions: [
         QuizQuestion(
           question: 'quiz_rocca_q1',
-          options: [
-            'quiz_rocca_q1_o1',
-            'quiz_rocca_q1_o2',
-            'quiz_rocca_q1_o3',
-          ],
+          options: ['quiz_rocca_q1_o1', 'quiz_rocca_q1_o2', 'quiz_rocca_q1_o3'],
           correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_rocca_q2',
-          options: [
-            'quiz_rocca_q2_o1',
-            'quiz_rocca_q2_o2',
-            'quiz_rocca_q2_o3',
-          ],
+          options: ['quiz_rocca_q2_o1', 'quiz_rocca_q2_o2', 'quiz_rocca_q2_o3'],
           correctIndex: 0,
         ),
         QuizQuestion(
           question: 'quiz_rocca_q3',
-          options: [
-            'quiz_rocca_q3_o1',
-            'quiz_rocca_q3_o2',
-            'quiz_rocca_q3_o3',
-          ],
+          options: ['quiz_rocca_q3_o1', 'quiz_rocca_q3_o2', 'quiz_rocca_q3_o3'],
           correctIndex: 0,
         ),
       ],
@@ -131,8 +117,7 @@ class HistoricPlacesSeed {
       longitude: 12.24072,
       type: 'church',
       period: '17th Century',
-      description:
-          'poi_san_rocco_desc',
+      description: 'poi_san_rocco_desc',
       icon: Icons.church_outlined,
       iconBackground: Color(0xFFFFCCBC),
       questions: [
@@ -175,8 +160,7 @@ class HistoricPlacesSeed {
       longitude: 12.25486,
       type: 'monument',
       period: '11th Century',
-      description:
-          'poi_abbazia_monte_desc',
+      description: 'poi_abbazia_monte_desc',
       icon: Icons.terrain,
       iconBackground: Color(0xFFD7CCC8),
       questions: [
@@ -219,8 +203,7 @@ class HistoricPlacesSeed {
       longitude: 12.24424,
       type: 'church',
       period: '15th Century',
-      description:
-          'poi_osservanza_desc',
+      description: 'poi_osservanza_desc',
       icon: Icons.fort,
       iconBackground: Color(0xFFC5CAE9),
       questions: [
@@ -263,8 +246,7 @@ class HistoricPlacesSeed {
       longitude: 12.24361,
       type: 'square',
       period: '15th Century',
-      description:
-          'poi_palazzo_ridotto_desc',
+      description: 'poi_palazzo_ridotto_desc',
       icon: Icons.account_balance_outlined,
       iconBackground: Color(0xFFBBDEFB),
       questions: [
@@ -307,8 +289,7 @@ class HistoricPlacesSeed {
       longitude: 12.24956,
       type: 'monument',
       period: '19th Century',
-      description:
-          'poi_stazione_desc',
+      description: 'poi_stazione_desc',
       icon: Icons.train_outlined,
       iconBackground: Color(0xFFFFECB3),
       questions: [
@@ -351,8 +332,7 @@ class HistoricPlacesSeed {
       longitude: 12.24753,
       type: 'monument',
       period: '20th Century',
-      description:
-          'poi_arrigoni_desc',
+      description: 'poi_arrigoni_desc',
       icon: Icons.factory_outlined,
       iconBackground: Color(0xFFB2EBF2),
       questions: [
@@ -395,8 +375,7 @@ class HistoricPlacesSeed {
       longitude: 12.24531,
       type: 'monument',
       period: '20th Century',
-      description:
-          'poi_fantaguzzi_desc',
+      description: 'poi_fantaguzzi_desc',
       icon: Icons.domain_outlined,
       iconBackground: Color(0xFFFFCDD2),
       questions: [
@@ -439,8 +418,7 @@ class HistoricPlacesSeed {
       longitude: 12.23931,
       type: 'monument',
       period: '20th Century',
-      description:
-          'poi_rifugi_antiaerei_desc',
+      description: 'poi_rifugi_antiaerei_desc',
       icon: Icons.safety_divider_outlined,
       iconBackground: Color(0xFFCFD8DC),
       questions: [

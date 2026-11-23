@@ -829,7 +829,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
       ),
 
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
 
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
 
