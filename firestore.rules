@@ -20,13 +20,29 @@ service cloud.firestore {
       return value is string && value.matches('^[a-z0-9_.]{3,20}$');
     }
 
+    // Version identifiers are deliberately shape-validated, not compared
+    // with a hard-coded current version. Firestore Rules are shared by every
+    // installed app release: a new legal-document revision must not reject
+    // writes from an older client. The app decides which Terms/age policy
+    // versions require a fresh declaration; a Privacy Notice revision alone
+    // never blocks access.
+    function validLegalVersionIdentifier(value) {
+      return value is string &&
+        value.size() > 0 &&
+        value.size() <= 64;
+    }
+
     function validLegalAcceptanceData(d) {
       return d.get('termsAcceptedAt', null) is timestamp &&
-        d.get('termsVersionAccepted', '') == '2026-11-15' &&
+        validLegalVersionIdentifier(d.get('termsVersionAccepted', '')) &&
         d.get('privacyNoticeAcknowledgedAt', null) is timestamp &&
-        d.get('privacyNoticeVersionAcknowledged', '') in ['2026-11-15', '2026-11-19'] &&
+        validLegalVersionIdentifier(
+          d.get('privacyNoticeVersionAcknowledged', '')
+        ) &&
         d.get('ageConfirmedAt', null) is timestamp &&
-        d.get('agePolicyVersionConfirmed', '') == '14-plus-v1';
+        validLegalVersionIdentifier(
+          d.get('agePolicyVersionConfirmed', '')
+        );
     }
 
     function validLegalAcceptanceWrite() {
@@ -1326,6 +1342,16 @@ service cloud.firestore {
         !existsAfter(
           /databases/$(database)/documents/public_profiles/$(userId)
         );
+
+      match /quiz_save_receipts/{saveId} {
+        allow get: if isOwner(userId) && isNotBanned();
+        allow list: if false;
+        allow create: if isOwner(userId) && isNotBanned() &&
+          request.resource.data.keys().hasOnly(['createdAt']) &&
+          request.resource.data.createdAt is timestamp &&
+          request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
     }
 
     // ---------------------------------------------------------

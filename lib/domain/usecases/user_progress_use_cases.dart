@@ -5,8 +5,10 @@ class UserProgressUseCases {
 
   final IUserRepository _repository;
 
-  Stream<List<Map<String, dynamic>>> getLeaderboardStream({required String uid, int limit = 50}) =>
-      _repository.getLeaderboardStream(uid: uid, limit: limit);
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream({
+    required String uid,
+    int limit = 50,
+  }) => _repository.getLeaderboardStream(uid: uid, limit: limit);
 
   Future<int?> getLeaderboardRank({required String uid}) =>
       _repository.getLeaderboardRank(uid: uid);
@@ -22,6 +24,7 @@ class UserProgressUseCases {
     int? tourTotalXp,
     int? tourCorrectAnswers,
     int? tourTotalQuestions,
+    String? idempotencyKey,
   }) => _repository.registerQuizCompletion(
     uid: uid,
     poiId: poiId,
@@ -33,6 +36,7 @@ class UserProgressUseCases {
     tourTotalXp: tourTotalXp,
     tourCorrectAnswers: tourCorrectAnswers,
     tourTotalQuestions: tourTotalQuestions,
+    idempotencyKey: idempotencyKey,
   );
 
   Future<void> unlockPendingAchievement(String uid, String achievementId) =>

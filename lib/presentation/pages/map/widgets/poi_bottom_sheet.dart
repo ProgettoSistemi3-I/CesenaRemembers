@@ -41,11 +41,13 @@ class PoiBottomSheet extends StatefulWidget {
 class _PoiBottomSheetState extends State<PoiBottomSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _infoScrollController = ScrollController();
   final ScrollController _quizScrollController = ScrollController();
   PoiQuizController? _quizController;
   VoidCallback? _quizListener;
   bool _quizInitialized = false;
   bool _quizCompletionSent = false;
+  int _lastTabIndex = 0;
 
   @override
   void initState() {
@@ -58,6 +60,7 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
+    _infoScrollController.dispose();
     _quizScrollController.dispose();
     final quizController = _quizController;
     final quizListener = _quizListener;
@@ -70,20 +73,28 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
   }
 
   void _handleTabChange() {
-    if (_quizInitialized || _tabController.index != 1) return;
+    if (_tabController.indexIsChanging ||
+        _lastTabIndex == _tabController.index) {
+      return;
+    }
+    _lastTabIndex = _tabController.index;
 
-    setState(() {
-      _quizController = sl<PoiQuizController>();
-      _quizInitialized = true;
-    });
+    if (!_quizInitialized && _tabController.index == 1) {
+      setState(() {
+        _quizController = sl<PoiQuizController>();
+        _quizInitialized = true;
+      });
 
-    _quizListener = () {
-      if (mounted) setState(() {});
-    };
-    _quizController!.addListener(_quizListener!);
+      _quizListener = () {
+        if (mounted) setState(() {});
+      };
+      _quizController!.addListener(_quizListener!);
 
-    // Recupera gli XP dell'utente (se disponibile) e inizializza il quiz
-    _initQuizWithUserXp();
+      // Recupera gli XP dell'utente e inizializza il quiz.
+      _initQuizWithUserXp();
+    } else {
+      setState(() {});
+    }
   }
 
   Future<void> _initQuizWithUserXp() async {
@@ -275,7 +286,9 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
                     controller: _tabController,
                     children: [
                       SingleChildScrollView(
-                        controller: scrollController,
+                        controller: _tabController.index == 0
+                            ? scrollController
+                            : _infoScrollController,
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +381,9 @@ class _PoiBottomSheetState extends State<PoiBottomSheet>
                         ),
                       ),
                       SingleChildScrollView(
-                        controller: _quizScrollController,
+                        controller: _tabController.index == 1
+                            ? scrollController
+                            : _quizScrollController,
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                         child: _buildQuizContent(theme),
                       ),

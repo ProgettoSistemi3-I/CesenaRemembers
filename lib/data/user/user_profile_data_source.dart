@@ -145,20 +145,25 @@ class UserProfileDataSource {
     });
   }
 
-  /// Checks that a signed-in account has acknowledged the current terms and
-  /// age policy. The previous privacy-notice acknowledgement remains valid
-  /// during rollout because it records notice, not consent; the next explicit
-  /// sign-in writes the latest notice version.
+  /// Checks the version-sensitive declarations that gate app entry.
+  ///
+  /// Terms and the minimum-age policy are compared with the versions known to
+  /// this app build. A Privacy Notice acknowledgement is different: it records
+  /// which notice the user previously saw, not consent to a processing purpose.
+  /// An older non-empty notice version therefore remains valid and must never
+  /// sign a user out merely because the published notice was updated.
   Future<bool> hasCurrentLegalAcceptance(String uid) async {
     final snapshot = await _users.doc(uid).get();
     final data = snapshot.data();
     if (data == null) return false;
 
+    final privacyNoticeVersion = data['privacyNoticeVersionAcknowledged'];
+
     return data['termsAcceptedAt'] is Timestamp &&
         data['termsVersionAccepted'] == LegalDocumentVersions.termsAccepted &&
         data['privacyNoticeAcknowledgedAt'] is Timestamp &&
-        LegalDocumentVersions.supportedPrivacyNoticeAcknowledgementVersions
-            .contains(data['privacyNoticeVersionAcknowledged']) &&
+        privacyNoticeVersion is String &&
+        privacyNoticeVersion.trim().isNotEmpty &&
         data['ageConfirmedAt'] is Timestamp &&
         data['agePolicyVersionConfirmed'] ==
             LegalDocumentVersions.minimumAgePolicyConfirmed;

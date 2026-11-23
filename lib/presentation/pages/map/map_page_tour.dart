@@ -361,6 +361,11 @@ extension _MapPageTourActions on _MapPageState {
     final nextTourCorrect = _tourCorrectAnswers + result.score;
     final nextTourQuestions = _tourTotalQuestions + result.totalQuestions;
     final elapsedAtCompletion = _tourController.totalElapsedSeconds;
+    final random = math.Random.secure();
+    final saveId = List.generate(
+      32,
+      (_) => random.nextInt(16).toRadixString(16),
+    ).join();
 
     // Update local state immediately so the next-stop button and completion
     // animation never wait for a network round trip.
@@ -405,6 +410,7 @@ extension _MapPageTourActions on _MapPageState {
     );
 
     return _enqueueQuizSave({
+      'saveId': saveId,
       'uid': uid,
       'poiId': poiId,
       'xpGained': score.totalXp,
@@ -419,15 +425,85 @@ extension _MapPageTourActions on _MapPageState {
   }
 
   Future<void> _loadPendingQuizSaves() async {
-    if (_pendingQuizSavesLoaded) return;
+    final uid = _profileUseCases.getCurrentUserUid();
+    if (uid == null) return;
+    if (_pendingQuizSavesLoaded && _pendingQuizSavesUid == uid) return;
+    _pendingQuizSaves.clear();
+    _pendingQuizSavesLoaded = false;
+    _pendingQuizSavesUid = uid;
     try {
       final preferences = await SharedPreferences.getInstance();
-      final encoded = preferences.getString('pending_quiz_saves_v1');
-      if (encoded != null) {
+      final scopedKey = 'pending_quiz_saves_v2_$uid';
+      final encodedScoped = preferences.getString(scopedKey);
+      final legacyEncoded = preferences.getString('pending_quiz_saves_v1');
+      final pendingById = <String, Map<String, dynamic>>{};
+
+      List<Map<String, dynamic>> decodePending(
+        String? encoded, {
+        bool stableLegacyIds = false,
+      }) {
+        if (encoded == null) return [];
         final decoded = jsonDecode(encoded) as List<dynamic>;
-        _pendingQuizSaves.addAll(
-          decoded.cast<Map>().map((item) => Map<String, dynamic>.from(item)),
-        );
+        final entries = <Map<String, dynamic>>[];
+        for (var index = 0; index < decoded.length; index++) {
+          final raw = decoded[index];
+          final item = Map<String, dynamic>.from(raw as Map);
+          item.putIfAbsent('saveId', () {
+            if (stableLegacyIds) {
+              final legacyIdentity = jsonEncode({'index': index, ...item});
+              return 'legacy_${base64Url.encode(utf8.encode(legacyIdentity))}';
+            }
+            final random = math.Random.secure();
+            return List.generate(
+              32,
+              (_) => random.nextInt(16).toRadixString(16),
+            ).join();
+          });
+          entries.add(item);
+        }
+        return entries;
+      }
+
+      void addPending(Iterable<Map<String, dynamic>> entries) {
+        for (final item in entries) {
+          if (item['uid'] != uid) continue;
+          pendingById[item['saveId'] as String] = item;
+        }
+      }
+
+      addPending(decodePending(encodedScoped));
+      if (legacyEncoded != null) {
+        // Migrate every account's legacy queue before deleting the shared key.
+        final legacyByUid = <String, List<Map<String, dynamic>>>{};
+        for (final item in decodePending(
+          legacyEncoded,
+          stableLegacyIds: true,
+        )) {
+          final itemUid = item['uid'];
+          if (itemUid is String && itemUid.isNotEmpty) {
+            legacyByUid.putIfAbsent(itemUid, () => []).add(item);
+          }
+        }
+        for (final entry in legacyByUid.entries) {
+          final key = 'pending_quiz_saves_v2_${entry.key}';
+          final combined = <String, Map<String, dynamic>>{};
+          for (final item in decodePending(preferences.getString(key))) {
+            combined[item['saveId'] as String] = item;
+          }
+          for (final item in entry.value) {
+            combined[item['saveId'] as String] = item;
+          }
+          await preferences.setString(
+            key,
+            jsonEncode(combined.values.toList()),
+          );
+        }
+        await preferences.remove('pending_quiz_saves_v1');
+        addPending(decodePending(preferences.getString(scopedKey)));
+      }
+      _pendingQuizSaves.addAll(pendingById.values);
+      if (legacyEncoded != null) {
+        await _persistPendingQuizSaves();
       }
     } catch (error, stackTrace) {
       AppLogger.error(
@@ -453,10 +529,12 @@ extension _MapPageTourActions on _MapPageState {
   }
 
   Future<void> _persistPendingQuizSaves() async {
+    final uid = _pendingQuizSavesUid;
+    if (uid == null) return;
     try {
       final preferences = await SharedPreferences.getInstance();
       await preferences.setString(
-        'pending_quiz_saves_v1',
+        'pending_quiz_saves_v2_$uid',
         jsonEncode(_pendingQuizSaves),
       );
     } catch (error, stackTrace) {
@@ -488,6 +566,7 @@ extension _MapPageTourActions on _MapPageState {
             tourTotalXp: save['tourTotalXp'] as int,
             tourCorrectAnswers: save['tourCorrectAnswers'] as int,
             tourTotalQuestions: save['tourTotalQuestions'] as int,
+            idempotencyKey: save['saveId'] as String,
           );
           saved = true;
         } catch (error, stackTrace) {

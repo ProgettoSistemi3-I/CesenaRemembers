@@ -204,10 +204,11 @@ class _AuthenticatedGateState extends State<_AuthenticatedGate> {
       rethrow;
     }
 
-    // Persistent Firebase sessions may predate the timestamped acceptance
-    // evidence. Give the sign-in callback a short window to finish its write;
-    // if the current versions are still missing, return the user to the
-    // checkbox-gated login screen rather than granting access silently.
+    // Persistent Firebase sessions may predate the timestamped Terms/age
+    // declarations. Give the sign-in callback a short window to finish its
+    // write; if those required declarations are still missing or outdated,
+    // return to the checkbox-gated login screen. A Privacy Notice revision
+    // alone is not a reason to invalidate an existing session.
     var hasLegalAcceptance = await _retryTransientFirestoreOperation(
       'hasCurrentLegalAcceptance',
       () => _profileUseCases.hasCurrentLegalAcceptance(widget.appUser.id),

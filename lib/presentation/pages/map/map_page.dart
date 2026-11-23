@@ -169,6 +169,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   Future<void> _quizSaveQueue = Future<void>.value();
   final List<Map<String, dynamic>> _pendingQuizSaves = [];
   bool _pendingQuizSavesLoaded = false;
+  String? _pendingQuizSavesUid;
   Timer? _quizSaveRetryTimer;
   Future<void> _foregroundServiceQueue = Future<void>.value();
   bool _foregroundServiceStarted = false;

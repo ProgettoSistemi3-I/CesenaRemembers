@@ -205,7 +205,7 @@ async function seedPendingFriendRequest() {
 }
 
 
-test('sign-in records Terms, Privacy notice and minimum-age declaration with server timestamps', async () => {
+test('sign-in records legal declarations with server timestamps', async () => {
   const database = authenticatedDb('alice');
   const userRef = doc(database, 'users', 'alice');
 
@@ -228,8 +228,28 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
   assert.ok(saved.data().termsAcceptedAt instanceof Timestamp);
   assert.ok(saved.data().privacyNoticeAcknowledgedAt instanceof Timestamp);
   assert.ok(saved.data().ageConfirmedAt instanceof Timestamp);
+});
 
-  await assertSucceeds(setDoc(doc(authenticatedDb('legacy'), 'users', 'legacy'), {
+test('quiz save receipts are private, immutable, and owner-created', async () => {
+  await seedCompleteUser('alice');
+  const alice = authenticatedDb('alice');
+  const bob = authenticatedDb('bob');
+  const receipt = doc(alice, 'users', 'alice', 'quiz_save_receipts', 'save-1');
+  const otherReceipt = doc(bob, 'users', 'alice', 'quiz_save_receipts', 'save-2');
+
+  await assertSucceeds(setDoc(receipt, { createdAt: serverTimestamp() }));
+  await assertSucceeds(getDoc(receipt));
+  await assertFails(setDoc(otherReceipt, { createdAt: serverTimestamp() }));
+  await assertFails(updateDoc(receipt, { createdAt: serverTimestamp() }));
+  await assertFails(deleteDoc(receipt));
+});
+
+test('older app releases can still create and update legal declarations', async () => {
+  const database = authenticatedDb('legacy');
+  const userRef = doc(database, 'users', 'legacy');
+
+  // This is the unchanged document shape written by an older Play release.
+  await assertSucceeds(setDoc(userRef, {
     email: 'legacy@example.test',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -241,27 +261,48 @@ test('sign-in records Terms, Privacy notice and minimum-age declaration with ser
     agePolicyVersionConfirmed: '14-plus-v1',
   }));
 
-  await assertFails(setDoc(doc(authenticatedDb('bob'), 'users', 'bob'), {
-    email: 'bob@example.test',
-    createdAt: NOW,
-    updatedAt: NOW,
-    termsAcceptedAt: NOW,
+  // The same old binary may sign in again after newer Rules are deployed.
+  await assertSucceeds(updateDoc(userRef, {
+    termsAcceptedAt: serverTimestamp(),
     termsVersionAccepted: '2026-11-15',
-    privacyNoticeAcknowledgedAt: NOW,
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
     privacyNoticeVersionAcknowledged: '2026-11-15',
-    ageConfirmedAt: NOW,
+    ageConfirmedAt: serverTimestamp(),
     agePolicyVersionConfirmed: '14-plus-v1',
+    updatedAt: serverTimestamp(),
   }));
 });
 
-test('legal acceptance updates are owner-only, versioned and server-timestamped', async () => {
+test('legal acceptance updates validate shape, timestamps and ownership', async () => {
   await seedCompleteUser('alice');
   const database = authenticatedDb('alice');
   const userRef = doc(database, 'users', 'alice');
 
+  // A newly published version is accepted without editing Firestore Rules.
+  await assertSucceeds(updateDoc(userRef, {
+    termsAcceptedAt: serverTimestamp(),
+    termsVersionAccepted: 'terms-v-next',
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
+    privacyNoticeVersionAcknowledged: 'privacy-v-next',
+    ageConfirmedAt: serverTimestamp(),
+    agePolicyVersionConfirmed: '14-plus-v2',
+    updatedAt: serverTimestamp(),
+  }));
+
+  // Historical identifiers are also accepted for already-installed binaries.
   await assertSucceeds(updateDoc(userRef, {
     termsAcceptedAt: serverTimestamp(),
     termsVersionAccepted: '2026-11-15',
+    privacyNoticeAcknowledgedAt: serverTimestamp(),
+    privacyNoticeVersionAcknowledged: '2026-11-15',
+    ageConfirmedAt: serverTimestamp(),
+    agePolicyVersionConfirmed: '14-plus-v1',
+    updatedAt: serverTimestamp(),
+  }));
+
+  await assertFails(updateDoc(userRef, {
+    termsAcceptedAt: serverTimestamp(),
+    termsVersionAccepted: '',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
     privacyNoticeVersionAcknowledged: '2026-11-19',
     ageConfirmedAt: serverTimestamp(),
@@ -270,12 +311,12 @@ test('legal acceptance updates are owner-only, versioned and server-timestamped'
   }));
 
   await assertFails(updateDoc(userRef, {
-    termsAcceptedAt: serverTimestamp(),
-    termsVersionAccepted: 'unknown-version',
+    termsAcceptedAt: NOW,
+    termsVersionAccepted: 'terms-v-next',
     privacyNoticeAcknowledgedAt: serverTimestamp(),
-    privacyNoticeVersionAcknowledged: '2026-11-15',
+    privacyNoticeVersionAcknowledged: 'privacy-v-next',
     ageConfirmedAt: serverTimestamp(),
-    agePolicyVersionConfirmed: '14-plus-v1',
+    agePolicyVersionConfirmed: '14-plus-v2',
     updatedAt: serverTimestamp(),
   }));
 
