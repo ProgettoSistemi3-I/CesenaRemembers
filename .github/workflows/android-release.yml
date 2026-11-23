@@ -161,6 +161,12 @@ jobs:
 
       - run: flutter pub get
 
+      - name: Regenerate localizations
+        run: flutter gen-l10n
+
+      - name: Normalize generated localization delegates
+        run: python scripts/normalize_flutter_localizations.py
+
       - name: Build APK release
         env:
           GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}

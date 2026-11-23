@@ -648,5 +648,9 @@
   "profileOptions": "Profile options",
   "profileBlockedBanner": "You have blocked this user.",
   "renderErrorMessage": "An error occurred while displaying this screen. Return to the home screen and try again.",
-  "bootstrapErrorMessage": "Unable to start the app. Please try again."
+  "bootstrapErrorMessage": "Unable to start the app. Please try again.",
+  "setupUsernamePreview": "Username preview",
+  "setupUsernameWillSave": "Username that will be saved: @{username}",
+  "settingsOpenSystemSettings": "Open system settings",
+  "onboardingCompleteError": "Could not save your onboarding progress. Check your connection and try again."
 }

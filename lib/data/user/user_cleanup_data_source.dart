@@ -19,10 +19,7 @@ class UserCleanupDataSource {
   Future<void> deleteUserData({required String uid}) async {
     final userRef = _users.doc(uid);
     final snapshot = await userRef.get();
-
-    if (!snapshot.exists) return;
-
-    final data = snapshot.data()!;
+    final data = snapshot.data() ?? <String, dynamic>{};
     final normalizedUsername = (data['usernameNormalized'] as String?)?.trim();
 
     // Remove this account's outgoing block records. Incoming blocks are kept
@@ -39,6 +36,20 @@ class UserCleanupDataSource {
           : i + 450;
       for (final block in ownBlocks.docs.sublist(i, end)) {
         batch.delete(block.reference);
+      }
+      await batch.commit();
+    }
+
+    // Receipts are idempotency records scoped to this account; delete them
+    // before the final account batch so account deletion cannot orphan them.
+    final receipts = await userRef.collection('quiz_save_receipts').get();
+    for (var i = 0; i < receipts.docs.length; i += 450) {
+      final batch = _firestore.batch();
+      final end = i + 450 > receipts.docs.length
+          ? receipts.docs.length
+          : i + 450;
+      for (final receipt in receipts.docs.sublist(i, end)) {
+        batch.delete(receipt.reference);
       }
       await batch.commit();
     }
@@ -84,8 +95,13 @@ class UserCleanupDataSource {
 
     for (final targetUid in iSentRequestsTo) {
       final batch = _firestore.batch();
-      batch.delete(_firestore.collection('friend_requests').doc(targetUid)
-          .collection('inbox').doc(uid));
+      batch.delete(
+        _firestore
+            .collection('friend_requests')
+            .doc(targetUid)
+            .collection('inbox')
+            .doc(uid),
+      );
       batch.update(userRef, {
         'sentFriendRequests': FieldValue.arrayRemove([targetUid]),
         'lastFriendActionPeerUid': targetUid,
@@ -101,8 +117,13 @@ class UserCleanupDataSource {
 
     for (final requesterUid in theySentRequestsToMe) {
       final batch = _firestore.batch();
-      batch.delete(_firestore.collection('friend_requests').doc(uid)
-          .collection('inbox').doc(requesterUid));
+      batch.delete(
+        _firestore
+            .collection('friend_requests')
+            .doc(uid)
+            .collection('inbox')
+            .doc(requesterUid),
+      );
       batch.update(userRef, {
         'receivedFriendRequests': FieldValue.arrayRemove([requesterUid]),
         'lastFriendActionPeerUid': requesterUid,

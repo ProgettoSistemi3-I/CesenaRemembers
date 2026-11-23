@@ -30,6 +30,18 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (_) {},
     );
+    final android = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        'friend_updates',
+        'Friend updates',
+        description: 'Friend requests and accepted requests',
+        importance: Importance.high,
+      ),
+    );
     _pluginInitialized = true;
   }
 
@@ -85,8 +97,8 @@ class NotificationService {
       return false;
     }
 
-    final requestResult =
-        await androidImplementation.requestNotificationsPermission();
+    final requestResult = await androidImplementation
+        .requestNotificationsPermission();
     await preferences.setBool(_permissionRequestedKey, true);
     final enabledAfter = await androidImplementation.areNotificationsEnabled();
     AppLogger.info(
@@ -99,8 +111,8 @@ class NotificationService {
 
   Future<void> showLocalNotification(String title, String body) async {
     const androidDetails = AndroidNotificationDetails(
-      'social_channel',
-      'Social Notifications',
+      'friend_updates',
+      'Friend updates',
       channelDescription: 'Notifiche per le interazioni sociali',
       importance: Importance.high,
       priority: Priority.high,

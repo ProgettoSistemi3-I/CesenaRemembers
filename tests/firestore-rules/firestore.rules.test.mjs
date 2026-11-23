@@ -230,7 +230,7 @@ test('sign-in records legal declarations with server timestamps', async () => {
   assert.ok(saved.data().ageConfirmedAt instanceof Timestamp);
 });
 
-test('quiz save receipts are private, immutable, and owner-created', async () => {
+test('quiz save receipts are private, owner-created, immutable, and owner-deletable', async () => {
   await seedCompleteUser('alice');
   const alice = authenticatedDb('alice');
   const bob = authenticatedDb('bob');
@@ -241,7 +241,8 @@ test('quiz save receipts are private, immutable, and owner-created', async () =>
   await assertSucceeds(getDoc(receipt));
   await assertFails(setDoc(otherReceipt, { createdAt: serverTimestamp() }));
   await assertFails(updateDoc(receipt, { createdAt: serverTimestamp() }));
-  await assertFails(deleteDoc(receipt));
+  await assertSucceeds(deleteDoc(receipt));
+  await assertFails(deleteDoc(otherReceipt));
 });
 
 test('older app releases can still create and update legal declarations', async () => {

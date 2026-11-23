@@ -223,8 +223,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     padding: const EdgeInsets.only(top: 6, left: 4),
                     child: Text(
                       preview.isEmpty
-                          ? 'Anteprima username'
-                          : 'Username che verrà salvato: @$preview',
+                          ? AppLocalizations.of(context)!.setupUsernamePreview
+                          : AppLocalizations.of(context)!
+                                .setupUsernameWillSave(preview),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

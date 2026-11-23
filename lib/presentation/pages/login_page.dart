@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +10,7 @@ import '../../core/logging/app_logger.dart';
 import '../../domain/usecases/auth_use_cases.dart';
 import '../../domain/usecases/user_profile_use_cases.dart';
 import '../../injection_container.dart';
+
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 
 const String _googleLogoSvg = '''
@@ -77,7 +79,9 @@ class _LoginPageState extends State<LoginPage>
   @override
   void didUpdateWidget(covariant LoginPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.showBannedAccount && !oldWidget.showBannedAccount && !_isBanned) {
+    if (widget.showBannedAccount &&
+        !oldWidget.showBannedAccount &&
+        !_isBanned) {
       setState(() => _isBanned = true);
     }
   }
@@ -128,8 +132,8 @@ class _LoginPageState extends State<LoginPage>
         }
         if (mounted) {
           setState(
-            () => _error =
-                AppLocalizations.of(context)!.loginAcceptanceSaveError,
+            () =>
+                _error = AppLocalizations.of(context)!.loginAcceptanceSaveError,
           );
         }
         return;
@@ -196,7 +200,7 @@ class _LoginPageState extends State<LoginPage>
 
     return Scaffold(
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -233,69 +237,81 @@ class _LoginPageState extends State<LoginPage>
             _BannedOverlay(scale: scale, hPadding: hPadding)
           else
             SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: hPadding),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _LoginTitleLine(
-                          text: 'CESENA',
-                          fontSize: titleSize,
-                          color: Colors.white,
-                        ),
-                        _LoginTitleLine(
-                          text: 'REMEMBERS',
-                          fontSize: titleSize,
-                          color: _tan,
-                        ),
-                        SizedBox(height: spacingLg),
-                        if (_isLoading)
-                          const CircularProgressIndicator(color: _olive)
-                        else ...[
-                          _buildConsentControls(scale),
-                          SizedBox(height: spacingSm),
-                          _buildGoogleButton(
-                            btnVertPad: btnVertPad,
-                            btnFontSize: btnFontSize,
-                            logoSize: logoSize,
-                          ),
-                        ],
-                        if (_error != null) ...[
-                          SizedBox(height: spacingSm),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: spacingSm,
-                                  vertical: spacingSm * 0.75,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _tan.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: _tan.withValues(alpha: 0.35),
-                                  ),
-                                ),
-                                child: Text(
-                                  _error!,
-                                  style: TextStyle(
-                                    color: const Color(0xFFB84F4F),
-                                    fontSize: 13 * scale,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: hPadding),
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              _LoginTitleLine(
+                                text: 'CESENA',
+                                fontSize: titleSize,
+                                color: Colors.white,
                               ),
-                            ),
+                              _LoginTitleLine(
+                                text: 'REMEMBERS',
+                                fontSize: titleSize,
+                                color: _tan,
+                              ),
+                              SizedBox(height: spacingLg),
+                              if (_isLoading)
+                                const CircularProgressIndicator(color: _olive)
+                              else ...[
+                                _buildConsentControls(scale),
+                                SizedBox(height: spacingSm),
+                                _buildGoogleButton(
+                                  btnVertPad: btnVertPad,
+                                  btnFontSize: btnFontSize,
+                                  logoSize: logoSize,
+                                ),
+                              ],
+                              if (_error != null) ...[
+                                SizedBox(height: spacingSm),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 10,
+                                      sigmaY: 10,
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: spacingSm,
+                                        vertical: spacingSm * 0.75,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _tan.withValues(alpha: 0.16),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: _tan.withValues(alpha: 0.35),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _error!,
+                                        style: TextStyle(
+                                          color: const Color(0xFFB84F4F),
+                                          fontSize: 13 * scale,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
-                      ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -405,9 +421,8 @@ class _LoginPageState extends State<LoginPage>
         children: [
           buildCheckbox(
             value: _acceptedTermsAndPrivacy,
-            onChanged: (value) => setState(
-              () => _acceptedTermsAndPrivacy = value ?? false,
-            ),
+            onChanged: (value) =>
+                setState(() => _acceptedTermsAndPrivacy = value ?? false),
             label: Text.rich(
               TextSpan(
                 text: l10n.loginTermsNoticePrefix,
@@ -418,7 +433,9 @@ class _LoginPageState extends State<LoginPage>
                     style: linkStyle,
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => launchUrl(
-                        Uri.parse('https://cesenaremembers.com/legal/${l10n.localeName.startsWith('en') ? 'terms-en.html' : 'terms.html'}'),
+                        Uri.parse(
+                          'https://cesenaremembers.com/legal/${l10n.localeName.startsWith('en') ? 'terms-en.html' : 'terms.html'}',
+                        ),
                         mode: LaunchMode.externalApplication,
                       ),
                   ),
@@ -428,7 +445,9 @@ class _LoginPageState extends State<LoginPage>
                     style: linkStyle,
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => launchUrl(
-                        Uri.parse('https://cesenaremembers.com/legal/${l10n.localeName.startsWith('en') ? 'privacy-en.html' : 'privacy.html'}'),
+                        Uri.parse(
+                          'https://cesenaremembers.com/legal/${l10n.localeName.startsWith('en') ? 'privacy-en.html' : 'privacy.html'}',
+                        ),
                         mode: LaunchMode.externalApplication,
                       ),
                   ),
@@ -439,9 +458,8 @@ class _LoginPageState extends State<LoginPage>
           SizedBox(height: 3 * scale),
           buildCheckbox(
             value: _confirmedMinimumAge,
-            onChanged: (value) => setState(
-              () => _confirmedMinimumAge = value ?? false,
-            ),
+            onChanged: (value) =>
+                setState(() => _confirmedMinimumAge = value ?? false),
             label: Text(l10n.loginAgeConfirmation, style: textStyle),
           ),
         ],

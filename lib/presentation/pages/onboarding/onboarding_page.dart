@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../l10n/l10n_extensions.dart';
 import '../../../injection_container.dart';
 import '../../../domain/usecases/user_profile_use_cases.dart';
+import '../../widgets/glass_snackbar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  OnboardingPage — mostrata UNA SOLA VOLTA al primo accesso
@@ -96,7 +97,15 @@ class _OnboardingPageState extends State<OnboardingPage>
         stackTrace: stackTrace,
         name: 'OnboardingPage',
       );
-      if (mounted) setState(() => _completing = false);
+      if (mounted) {
+        setState(() => _completing = false);
+        showGlassSnackBar(
+          context,
+          message: AppLocalizations.of(context)!.onboardingCompleteError,
+          type: GlassSnackType.error,
+          duration: const Duration(seconds: 8),
+        );
+      }
     }
   }
 
@@ -327,11 +336,7 @@ class _AnimatedBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = _accents[slide];
-    final coolAccent = Color.lerp(
-      const Color(0xFF7898B3),
-      accent,
-      0.18,
-    )!;
+    final coolAccent = Color.lerp(const Color(0xFF7898B3), accent, 0.18)!;
     return AnimatedBuilder(
       animation: ctrl,
       builder: (_, child) {
@@ -351,9 +356,8 @@ class _AnimatedBackground extends StatelessWidget {
               right: -70 + t * 18,
               child: _Blob(
                 size: 310 + t * 50,
-                color: const Color(0xFF8DAFA6).withValues(
-                  alpha: isDark ? 0.12 : 0.11,
-                ),
+                color: const Color(0xFF8DAFA6)
+                    .withValues(alpha: isDark ? 0.12 : 0.11),
               ),
             ),
             Positioned(
@@ -361,9 +365,8 @@ class _AnimatedBackground extends StatelessWidget {
               left: MediaQuery.of(context).size.width * 0.45,
               child: _Blob(
                 size: 200 + t * 30,
-                color: const Color(0xFF9AAFC9).withValues(
-                  alpha: isDark ? 0.10 : 0.09,
-                ),
+                color: const Color(0xFF9AAFC9)
+                    .withValues(alpha: isDark ? 0.10 : 0.09),
               ),
             ),
           ],
@@ -637,7 +640,8 @@ class _TourMockup extends StatelessWidget {
               child: _TearDropMarker(
                 color: AppPalette.olive,
                 isDark: isDark,
-                label: AppLocalizations.of(context)!.getPoiName('palazzo_ridotto'),
+                label: AppLocalizations.of(context)!
+                    .getPoiName('palazzo_ridotto'),
                 pulse: pt,
                 isActive: true,
               ),
@@ -664,9 +668,8 @@ class _TourMockup extends StatelessWidget {
                     height: 28 + pt * 14,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(
-                        0xFF4A90D9,
-                      ).withValues(alpha: 0.15 * (1 - pt)),
+                      color: const Color(0xFF4A90D9)
+                          .withValues(alpha: 0.15 * (1 - pt)),
                     ),
                   ),
                   Container(
@@ -743,7 +746,8 @@ class _TourMockup extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                AppLocalizations.of(context)!.quizQuestion(3, 10),
+                                AppLocalizations.of(context)!
+                                    .quizQuestion(3, 10),
                                 style: TextStyle(
                                   fontSize: 8,
                                   color: isDark
@@ -1379,7 +1383,8 @@ class _AchievementsMockup extends StatelessWidget {
                       icon: a.$1,
                       color: a.$2,
                       unlocked: a.$3,
-                      label: AppLocalizations.of(context)!.achievementTitle(a.$4),
+                      label: AppLocalizations.of(context)!
+                          .achievementTitle(a.$4),
                       isDark: isDark,
                       pulse: i < 3 ? pulseCtrl.value : 0,
                     );

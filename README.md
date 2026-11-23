@@ -202,7 +202,7 @@ Configurazione locale: creare `server_docker/quiz-service/.env` e inserire solta
 
 Percorso: [`server_docker/notifier-service/`](server_docker/notifier-service/)
 
-Il servizio Node.js utilizza Firebase Admin SDK e osserva in modo selettivo i campi Firestore necessari alla gestione delle notifiche social. Invia messaggi FCM per nuove richieste di amicizia e richieste accettate, rispettando la preferenza notifiche dell'utente e rimuovendo i token FCM non più validi.
+Il servizio Node.js utilizza Firebase Admin SDK e osserva la collezione `users` con `onSnapshot()`, che trasferisce i documenti completi, compresi email e altri dati privati; il codice usa solo i campi necessari alla gestione delle notifiche social. Invia messaggi FCM per nuove richieste di amicizia e richieste accettate, rispettando la preferenza notifiche dell'utente e rimuovendo i token FCM non più validi.
 
 La service account key deve essere presente esclusivamente sul server nel percorso previsto dal Compose (`server_docker/notifier-service/serviceAccountKey.json`), montata in sola lettura. È esclusa dal repository e dall'immagine Docker.
 
@@ -406,7 +406,7 @@ python -m pip install pytest
 python -m pytest -q tests
 ```
 
-Il workflow GitHub Actions esegue anche `flutter analyze`, l'intera suite `flutter test` e il controllo sintattico del notifier a ogni push su `main` e sui branch `fix/**`, oltre che prima delle release. Lo stesso job rigenera le localizzazioni dagli ARB e aggiorna nel branch di revisione i file Dart generati e il lockfile. I test del servizio quiz usano un provider LLM fittizio e verificano il contratto HTTP, i dieci POI, i parametri, la validazione delle risposte, il fallback tramite errori non-200 e i timeout senza richiedere una vera chiave LLM.
+Il workflow GitHub Actions esegue anche `flutter analyze`, l'intera suite `flutter test` e il controllo sintattico del notifier a ogni push su `main` e sui branch `fix/**`, oltre che prima delle release. I job di validazione e release rigenerano le localizzazioni dagli ARB; i file Dart generati devono essere committati nel repository. I test del servizio quiz usano un provider LLM fittizio e verificano il contratto HTTP, i dieci POI, i parametri, la validazione delle risposte, il fallback tramite errori non-200 e i timeout senza richiedere una vera chiave LLM.
 
 ### Verifiche di release
 

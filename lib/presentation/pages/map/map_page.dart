@@ -4,6 +4,8 @@ import 'dart:math' as math;
 
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide GeoPoint;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:cesena_remembers/l10n/app_localizations.dart';
 import 'package:cesena_remembers/l10n/l10n_extensions.dart';

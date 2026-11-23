@@ -59,8 +59,7 @@ import 'app_localizations_it.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -68,8 +67,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -83,14 +81,14 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static final List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        ...GlobalMaterialLocalizations.delegates,
-      ];
+    delegate,
+    ...GlobalMaterialLocalizations.delegates,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('it'),
+    Locale('it')
   ];
 
   /// No description provided for @appTitle.
@@ -855,6 +853,10 @@ abstract class AppLocalizations {
   /// **'Next stop →'**
   String get quizNextStop;
 
+  /// No description provided for @tourFinishButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish tour'**
   String get tourFinishButton;
 
   /// No description provided for @quizNotice.
@@ -1181,8 +1183,16 @@ abstract class AppLocalizations {
   /// **'Permission denied or GPS disabled. Check your settings.'**
   String get errorGpsDenied;
 
+  /// No description provided for @errorNotificationsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are disabled in system settings.'**
   String get errorNotificationsDenied;
 
+  /// No description provided for @errorReauthentication.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to confirm account deletion.'**
   String get errorReauthentication;
 
   /// No description provided for @errorConnectionSettings.
@@ -1842,7 +1852,7 @@ abstract class AppLocalizations {
   /// No description provided for @quiz_rocca_q1.
   ///
   /// In en, this message translates to:
-  /// **'Which function did the fortress retain during the Nazi-Fascist occupation?'**
+  /// **'What role did the fortress have during the Second World War?'**
   String get quiz_rocca_q1;
 
   /// No description provided for @quiz_rocca_q1_o1.
@@ -1854,7 +1864,7 @@ abstract class AppLocalizations {
   /// No description provided for @quiz_rocca_q1_o2.
   ///
   /// In en, this message translates to:
-  /// **'A public air-raid shelter'**
+  /// **'A railway station'**
   String get quiz_rocca_q1_o2;
 
   /// No description provided for @quiz_rocca_q1_o3.
@@ -2966,47 +2976,255 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route powered by Mapbox'**
   String get mapLicenseDirectionsAttribution;
+
+  /// No description provided for @blockedUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked users'**
   String get blockedUsersTitle;
+
+  /// No description provided for @blockedUsersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load blocked users.'**
   String get blockedUsersLoadError;
+
+  /// No description provided for @blockedUsersUnblockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock user?'**
   String get blockedUsersUnblockTitle;
+
+  /// No description provided for @blockedUsersUnblockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblocking does not restore previous friendships or requests.'**
   String get blockedUsersUnblockBody;
+
+  /// No description provided for @blockedUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not blocked anyone.'**
   String get blockedUsersEmpty;
+
+  /// No description provided for @blockedUsersUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable user'**
   String get blockedUsersUnavailable;
+
+  /// No description provided for @blockedUsersUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
   String get blockedUsersUnblock;
+
+  /// No description provided for @settingsBlockedUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked users'**
   String get settingsBlockedUsers;
+
+  /// No description provided for @settingsBlockedUsersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage the users you have blocked'**
   String get settingsBlockedUsersSubtitle;
+
+  /// No description provided for @reportProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report profile'**
   String get reportProfileTitle;
+
+  /// No description provided for @reportProfileQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Which profile content do you want to report?'**
   String get reportProfileQuestion;
+
+  /// No description provided for @reportFieldDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
   String get reportFieldDisplayName;
+
+  /// No description provided for @reportFieldUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
   String get reportFieldUsername;
+
+  /// No description provided for @reportReasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for reporting'**
   String get reportReasonTitle;
+
+  /// No description provided for @reportReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate name or username'**
   String get reportReasonInappropriate;
+
+  /// No description provided for @reportReasonImpersonation.
+  ///
+  /// In en, this message translates to:
+  /// **'Impersonation'**
   String get reportReasonImpersonation;
+
+  /// No description provided for @reportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
   String get reportReasonHarassment;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
   String get reportReasonSpam;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
   String get reportReasonOther;
+
+  /// No description provided for @reportDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional details (optional)'**
   String get reportDetails;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
   String get reportSubmit;
+
+  /// No description provided for @reportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent. Thank you.'**
   String get reportSuccess;
+
+  /// No description provided for @reportFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to send the report. Please try again.'**
   String get reportFailure;
+
+  /// No description provided for @blockUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block user?'**
   String get blockUserTitle;
+
+  /// No description provided for @blockUserBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They will no longer be able to send you friend requests. Any existing friendship or pending request will be removed. You can unblock them in Settings.'**
   String get blockUserBody;
+
+  /// No description provided for @blockUserAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
   String get blockUserAction;
+
+  /// No description provided for @blockUserMenuAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block user'**
   String get blockUserMenuAction;
+
+  /// No description provided for @blockUserSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked.'**
   String get blockUserSuccess;
+
+  /// No description provided for @blockUserPartialFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The block is active, but some existing social data could not be cleaned up. Please retry later.'**
   String get blockUserPartialFailure;
+
+  /// No description provided for @blockUserFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to block this user. Please try again.'**
   String get blockUserFailure;
+
+  /// No description provided for @unblockUserAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock user'**
   String get unblockUserAction;
+
+  /// No description provided for @unblockUserSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'User unblocked.'**
   String get unblockUserSuccess;
+
+  /// No description provided for @unblockUserFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to unblock this user.'**
   String get unblockUserFailure;
+
+  /// No description provided for @profileOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile options'**
   String get profileOptions;
+
+  /// No description provided for @profileBlockedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have blocked this user.'**
   String get profileBlockedBanner;
+
+  /// No description provided for @renderErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while displaying this screen. Return to the home screen and try again.'**
   String get renderErrorMessage;
+
+  /// No description provided for @bootstrapErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to start the app. Please try again.'**
   String get bootstrapErrorMessage;
+
+  /// No description provided for @setupUsernamePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Username preview'**
+  String get setupUsernamePreview;
+
+  /// No description provided for @setupUsernameWillSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Username that will be saved: @{username}'**
+  String setupUsernameWillSave(Object username);
+
+  /// No description provided for @settingsOpenSystemSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open system settings'**
+  String get settingsOpenSystemSettings;
+
+  /// No description provided for @onboardingCompleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your onboarding progress. Check your connection and try again.'**
+  String get onboardingCompleteError;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -3015,26 +3233,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'it'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'it'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'it':
-      return AppLocalizationsIt();
+    case 'en': return AppLocalizationsEn();
+    case 'it': return AppLocalizationsIt();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

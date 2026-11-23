@@ -572,10 +572,41 @@ extension _MapPageTourActions on _MapPageState {
         } catch (error, stackTrace) {
           lastError = error;
           lastStackTrace = stackTrace;
+          final code = error is FirebaseException ? error.code : '';
+          if (code == 'permission-denied' || code == 'failed-precondition') {
+            break;
+          }
+          final retryableNetworkError =
+              error is FirebaseException &&
+              {
+                'unavailable',
+                'deadline-exceeded',
+                'network-request-failed',
+              }.contains(code);
+          if (!retryableNetworkError) break;
           if (attempt < 2) await Future.delayed(Duration(seconds: attempt + 1));
         }
       }
       if (!saved) {
+        final failedCode = lastError is FirebaseException ? lastError.code : '';
+        final shouldRetry =
+            lastError is FirebaseException &&
+            {
+              'unavailable',
+              'deadline-exceeded',
+              'network-request-failed',
+            }.contains(failedCode);
+        if (!shouldRetry) {
+          AppLogger.error(
+            'Dropping permanently rejected quiz save ($failedCode)',
+            error: lastError,
+            stackTrace: lastStackTrace,
+            name: 'MapPageTour',
+          );
+          _pendingQuizSaves.removeAt(0);
+          await _persistPendingQuizSaves();
+          continue;
+        }
         AppLogger.error(
           'Quiz save remains queued for retry',
           error: lastError,
