@@ -457,8 +457,9 @@ class _SettingsPageState extends State<SettingsPage>
                                       onPressed:
                                           _controller.openLocationAppSettings,
                                       icon: const Icon(Icons.settings_outlined),
-                                      label: const Text(
-                                        'Apri impostazioni di sistema',
+                                      label: Text(
+                                        AppLocalizations.of(context)!
+                                            .settingsOpenSystemSettings,
                                       ),
                                     ),
                                   ),

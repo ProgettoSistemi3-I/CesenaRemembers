@@ -557,9 +557,16 @@ h1, h2, h3, h4, .font-heading {
 /* --- Mobile Specific Fixes --- */
 @media (max-width: 767px) {
     /* Touch targets più larghi su mobile */
-    .btn-outline, .btn-primary, .btn-secondary {
+    .hero-actions .btn-outline, .hero-actions .btn-primary,
+    .hero-actions .btn-secondary, .btn-primary, .btn-secondary {
         width: 100%;
         margin-bottom: 0.5rem;
+    }
+
+    .nav-container .btn-outline {
+        width: auto;
+        margin-bottom: 0;
+        flex: 0 0 auto;
     }
     
     .hero-actions {

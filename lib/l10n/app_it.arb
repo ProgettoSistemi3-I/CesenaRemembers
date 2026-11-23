@@ -648,5 +648,9 @@
   "profileOptions": "Opzioni profilo",
   "profileBlockedBanner": "Hai bloccato questo utente.",
   "renderErrorMessage": "Si è verificato un problema durante la visualizzazione. Torna alla schermata iniziale e riprova.",
-  "bootstrapErrorMessage": "Impossibile avviare l'app. Riprova."
+  "bootstrapErrorMessage": "Impossibile avviare l'app. Riprova.",
+  "setupUsernamePreview": "Anteprima username",
+  "setupUsernameWillSave": "Username che verrà salvato: @{username}",
+  "settingsOpenSystemSettings": "Apri impostazioni di sistema",
+  "onboardingCompleteError": "Impossibile salvare i progressi dell’onboarding. Controlla la connessione e riprova."
 }

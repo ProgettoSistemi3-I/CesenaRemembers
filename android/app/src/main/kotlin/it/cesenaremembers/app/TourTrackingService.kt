@@ -135,6 +135,14 @@ class TourTrackingService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        // Removing the app task is an explicit user stop for background GPS.
+        // Keep Flutter's saved tour session so opening the app can restore it.
+        clearTrackingState()
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
         handler.removeCallbacks(notificationTicker)
         stopLocationUpdates()
@@ -315,6 +323,19 @@ class TourTrackingService : Service() {
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)
         }
+        val stopIntent = PendingIntent.getService(
+            this,
+            REQUEST_CODE_STOP,
+            Intent(this, TourTrackingService::class.java).setAction(ACTION_STOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or immutablePendingIntentFlag(),
+        )
+        builder.addAction(
+            Notification.Action.Builder(
+                null,
+                if (Locale.getDefault().language == "it") "Ferma tour" else "Stop tour",
+                stopIntent,
+            ).build(),
+        )
 
         return builder.build()
     }
@@ -577,6 +598,7 @@ class TourTrackingService : Service() {
 
         private const val NOTIFICATION_ID = 1945
         private const val REQUEST_CODE_OPEN_APP = 1946
+        private const val REQUEST_CODE_STOP = 1947
         private const val LOCATION_UPDATE_INTERVAL_MS = 5000L
         private const val LOCATION_UPDATE_DISTANCE_METERS = 10f
         private const val NOTIFICATION_REFRESH_MS = 1000L

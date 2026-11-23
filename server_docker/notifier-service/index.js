@@ -21,7 +21,8 @@ const usersCache = new Map();
 
 console.log("Notifier Cesena Remembers avviato: ascolto selettivo delle modifiche utenti.");
 
-// La projection evita di leggere email e gli altri campi privati/non necessari.
+// onSnapshot receives complete user documents, including email and other private fields.
+// This listener reads only the fields needed for notification processing.
 const usersQuery = db.collection('users');
 
 usersQuery.onSnapshot(async snapshot => {
@@ -114,6 +115,9 @@ async function inviaNotifica(userId, tokens, payload) {
     notification: {
       title: payload.title,
       body: payload.body
+    },
+    android: {
+      notification: { channelId: 'friend_updates' }
     },
     data: {
       title: payload.title,

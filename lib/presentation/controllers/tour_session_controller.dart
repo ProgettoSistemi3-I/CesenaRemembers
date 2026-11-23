@@ -3,8 +3,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+
 import '../services/shared_position_stream.dart';
 import '../services/tour_foreground_service.dart';
+
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/entities/tour_stop.dart';
@@ -121,6 +123,22 @@ class TourSessionController {
     await _persistenceQueue;
     final snapshot = await _sessionStore.loadSession();
     if (snapshot == null) return false;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    const maxSessionAge = Duration(hours: 24);
+    if (snapshot.savedAtEpochMs <= 0 ||
+        now < snapshot.savedAtEpochMs ||
+        now - snapshot.savedAtEpochMs > maxSessionAge.inMilliseconds) {
+      await _sessionStore.clearSession();
+      await _sessionStore.clearResults();
+      try {
+        await _stopForegroundService();
+      } catch (error) {
+        debugPrint(
+          '[TourSession] Unable to stop expired foreground service: $error',
+        );
+      }
+      return false;
+    }
 
     final permission = await _locationPermissionChecker();
     final hasLocationPermission =
@@ -163,28 +181,25 @@ class TourSessionController {
     final restoredStatus = snapshot.status == 'arrived'
         ? TourStatus.arrived
         : TourStatus.running;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final elapsedWhileClosed = math.max(
-      0,
-      (now - snapshot.savedAtEpochMs) ~/ 1000,
-    ).toInt();
+    final resumedAt = DateTime.now().millisecondsSinceEpoch;
+    final elapsedWhileClosed = math
+        .max(0, (resumedAt - snapshot.savedAtEpochMs) ~/ 1000)
+        .toInt();
 
     _orderedStops = List.unmodifiable(restoredStops);
     _currentStopIndex = snapshot.currentStopIndex;
     _status = restoredStatus;
     _tourStartedAtEpochMs = snapshot.startedAtEpochMs;
     _totalElapsedSeconds = snapshot.totalElapsedSeconds + elapsedWhileClosed;
-    _elapsedSeconds = snapshot.elapsedSeconds +
+    _elapsedSeconds =
+        snapshot.elapsedSeconds +
         (restoredStatus == TourStatus.running ? elapsedWhileClosed : 0);
-    _currentLegStartedAtEpochMs = now - (_elapsedSeconds * 1000);
-    _lastTimerTickEpochMs = now;
-    _lastPersistenceAtEpochMs = now;
+    _currentLegStartedAtEpochMs = resumedAt - (_elapsedSeconds * 1000);
+    _lastTimerTickEpochMs = resumedAt;
+    _lastPersistenceAtEpochMs = resumedAt;
 
     if (snapshot.userLatitude != null && snapshot.userLongitude != null) {
-      _userPosition = LatLng(
-        snapshot.userLatitude!,
-        snapshot.userLongitude!,
-      );
+      _userPosition = LatLng(snapshot.userLatitude!, snapshot.userLongitude!);
       final positionAge = snapshot.userPositionAtEpochMs == null
           ? null
           : now - snapshot.userPositionAtEpochMs!;
@@ -222,7 +237,10 @@ class TourSessionController {
     }
 
     _orderedStops = _routePlanner.sortNearestNeighbor(
-      origin: GeoPoint(latitude: startOrigin.latitude, longitude: startOrigin.longitude),
+      origin: GeoPoint(
+        latitude: startOrigin.latitude,
+        longitude: startOrigin.longitude,
+      ),
       stops: _availableStops,
     );
     _currentStopIndex = 0;
@@ -331,7 +349,9 @@ class TourSessionController {
 
     try {
       final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       ).timeout(const Duration(seconds: 4));
       _userPosition = LatLng(pos.latitude, pos.longitude);
       _hasRealUserPosition = true;
@@ -390,10 +410,9 @@ class TourSessionController {
       if (!isActive) return;
 
       final now = DateTime.now().millisecondsSinceEpoch;
-      final elapsedTicks = math.max(
-        0,
-        (now - _lastTimerTickEpochMs) ~/ 1000,
-      ).toInt();
+      final elapsedTicks = math
+          .max(0, (now - _lastTimerTickEpochMs) ~/ 1000)
+          .toInt();
       if (elapsedTicks == 0) return;
 
       _totalElapsedSeconds += elapsedTicks;
@@ -430,7 +449,9 @@ class TourSessionController {
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final snapshot = TourSessionSnapshot(
-      orderedStopIds: _orderedStops.map((stop) => stop.id).toList(growable: false),
+      orderedStopIds: _orderedStops
+          .map((stop) => stop.id)
+          .toList(growable: false),
       currentStopIndex: _currentStopIndex,
       status: _status.name,
       elapsedSeconds: _elapsedSeconds,
@@ -443,21 +464,25 @@ class TourSessionController {
     );
     _lastPersistenceAtEpochMs = now;
 
-    _persistenceQueue = _persistenceQueue.then((_) async {
-      await _sessionStore.saveSession(snapshot);
-    }).catchError((Object error, StackTrace stackTrace) {
-      debugPrint('[TourSession] Persist failed: $error');
-    });
+    _persistenceQueue = _persistenceQueue
+        .then((_) async {
+          await _sessionStore.saveSession(snapshot);
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          debugPrint('[TourSession] Persist failed: $error');
+        });
     return _persistenceQueue;
   }
 
   void _queueClearPersistedSession({required bool clearResults}) {
-    _persistenceQueue = _persistenceQueue.then((_) async {
-      await _sessionStore.clearSession();
-      if (clearResults) await _sessionStore.clearResults();
-    }).catchError((Object error, StackTrace stackTrace) {
-      debugPrint('[TourSession] Clear persisted session failed: $error');
-    });
+    _persistenceQueue = _persistenceQueue
+        .then((_) async {
+          await _sessionStore.clearSession();
+          if (clearResults) await _sessionStore.clearResults();
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          debugPrint('[TourSession] Clear persisted session failed: $error');
+        });
   }
 
   void _emit() {
