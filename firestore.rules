@@ -1345,7 +1345,9 @@ service cloud.firestore {
 
       match /quiz_save_receipts/{saveId} {
         allow get: if isOwner(userId) && isNotBanned();
-        allow list: if false;
+        // Account cleanup enumerates and removes these receipts. Keep listing
+        // private to the owner, including for suspended accounts deleting data.
+        allow list: if isOwner(userId);
         allow create: if isOwner(userId) && isNotBanned() &&
           request.resource.data.keys().hasOnly(['createdAt']) &&
           request.resource.data.createdAt is timestamp &&

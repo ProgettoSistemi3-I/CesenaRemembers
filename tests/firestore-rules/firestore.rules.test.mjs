@@ -239,6 +239,8 @@ test('quiz save receipts are private, owner-created, immutable, and owner-deleta
 
   await assertSucceeds(setDoc(receipt, { createdAt: serverTimestamp() }));
   await assertSucceeds(getDoc(receipt));
+  await assertSucceeds(getDocs(collection(alice, 'users', 'alice', 'quiz_save_receipts')));
+  await assertFails(getDocs(collection(bob, 'users', 'alice', 'quiz_save_receipts')));
   await assertFails(setDoc(otherReceipt, { createdAt: serverTimestamp() }));
   await assertFails(updateDoc(receipt, { createdAt: serverTimestamp() }));
   await assertSucceeds(deleteDoc(receipt));
